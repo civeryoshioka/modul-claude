@@ -1,0 +1,750 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reinforcement Learning — Advanced</title>
+<style>
+:root{
+  --bg:#f7f8fa;--surface:#ffffff;--surface-2:#f0f2f6;--text:#1c2230;--muted:#5b6474;
+  --border:#e1e5ec;--accent:#3a6df0;--accent-soft:#e6edff;--good:#1f9d63;--bad:#d64545;--warn:#c98a12;
+  --code-bg:#f3f5f9;--sidebar-w:270px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+    --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--code-bg:#1d222b;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+  --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--code-bg:#1d222b;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+/* Sidebar */
+#sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);
+  overflow-y:auto;padding:22px 16px;z-index:20;transition:transform .25s}
+#sidebar .brand{font-weight:700;font-size:17px;margin:0 8px 2px}
+#sidebar .level{display:inline-block;margin:0 8px 16px;font-size:12px;padding:2px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar ol{list-style:none;margin:0;padding:0;counter-reset:toc}
+#sidebar li a{display:flex;gap:10px;padding:7px 10px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:14.5px;line-height:1.4}
+#sidebar li a::before{counter-increment:toc;content:counter(toc);min-width:20px;height:20px;border-radius:50%;background:var(--surface-2);
+  font-size:11.5px;display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+#sidebar li a:hover{background:var(--surface-2);color:var(--text)}
+#sidebar li a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar li a.active::before{background:var(--accent);color:#fff}
+#progress{height:4px;background:var(--surface-2);border-radius:4px;margin:0 8px 18px;overflow:hidden}
+#progress div{height:100%;width:0;background:var(--accent);transition:width .1s}
+#menuBtn{display:none;position:fixed;top:12px;left:12px;z-index:30;border:1px solid var(--border);background:var(--surface);color:var(--text);
+  border-radius:8px;padding:6px 12px;font-size:15px;cursor:pointer}
+#themeBtn{margin:18px 8px 0;font-size:13px}
+/* Main */
+main{margin-left:var(--sidebar-w);padding:40px 48px 80px;max-width:calc(var(--sidebar-w) + 900px)}
+main>*{max-width:860px}
+header.hero{padding:8px 0 24px;border-bottom:1px solid var(--border);margin-bottom:12px}
+header.hero h1{font-size:34px;line-height:1.2;margin:0 0 8px}
+header.hero p{color:var(--muted);margin:0}
+section{padding-top:28px}
+h2{font-size:25px;margin:16px 0 10px;padding-top:8px}
+h3{font-size:18.5px;margin:24px 0 6px}
+p,li{color:var(--text)}
+main p,main li,.box,.card span{text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+.muted{color:var(--muted)}
+.box{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:16px 20px;margin:16px 0}
+.box.tip{border-left:4px solid var(--good)}
+.box.note{border-left:4px solid var(--accent)}
+.box.warn{border-left:4px solid var(--warn)}
+.box>strong:first-child{display:block;margin-bottom:4px}
+.formula{font-family:"Cambria Math","Times New Roman",serif;font-size:19px;text-align:center;background:var(--surface-2);
+  border-radius:10px;padding:14px;margin:14px 0;overflow-x:auto;white-space:nowrap}
+.formula var{font-style:italic}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;background:var(--code-bg);padding:1px 6px;border-radius:5px}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-size:13.5px;line-height:1.55}
+pre code{background:none;padding:0}
+.c{color:var(--muted)} .k{color:var(--accent);font-weight:600} .s{color:var(--good)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;margin:12px 0;display:block;overflow-x:auto}
+th,td{border:1px solid var(--border);padding:8px 12px;text-align:left;vertical-align:top}
+th{background:var(--surface-2)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:14px 0}
+.card{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 16px}
+.card b{display:block;margin-bottom:2px}
+.card span{color:var(--muted);font-size:14.5px}
+/* Demo widgets */
+.demo{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:18px;margin:18px 0}
+.demo h4{margin:0 0 4px;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent)}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+button.btn{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:8px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+label.range{display:flex;align-items:center;gap:8px;font-size:14px}
+input[type=range]{accent-color:var(--accent)}
+.stat{font-size:14px;color:var(--muted)}
+.stat b{color:var(--text)}
+/* Loop diagram */
+.loop svg{width:100%;max-width:560px;display:block;margin:0 auto}
+.loop .flow{stroke-dasharray:6 6;animation:dash 1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-12}}
+.loop .pulse{animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+/* Bandit */
+.arms{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+.arm{border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;background:var(--surface-2);transition:transform .15s,border-color .15s}
+.arm.hit{transform:scale(1.04);border-color:var(--accent)}
+.arm .icon{font-size:28px}
+.bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin:6px 0}
+.bar div{height:100%;background:var(--accent);transition:width .2s}
+/* Gamma bars */
+.gbars{display:flex;align-items:flex-end;gap:6px;height:120px;margin:12px 0 4px}
+.gbars div{flex:1;background:var(--accent);border-radius:4px 4px 0 0;position:relative;min-height:2px;transition:height .15s}
+.gbars div.big{background:var(--good)}
+.glabels{display:flex;gap:6px;font-size:11.5px;color:var(--muted)}
+.glabels span{flex:1;text-align:center}
+/* Gridworld */
+.gw-wrap{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+#gw{display:grid;grid-template-columns:repeat(5,58px);gap:4px}
+#gw div{width:58px;height:58px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:11px;color:var(--muted);border:1px solid var(--border);position:relative;transition:background .2s}
+#gw div .ar{font-size:20px;color:var(--text);line-height:1}
+#gw div.agent{outline:3px solid var(--accent);outline-offset:-3px}
+#gw div .em{font-size:24px;line-height:1}
+#chart{width:100%;max-width:330px;height:130px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2)}
+.legend{font-size:13px;color:var(--muted)}
+/* Steps */
+.steps{counter-reset:st;list-style:none;padding:0}
+.steps li{counter-increment:st;position:relative;padding:4px 0 10px 42px}
+.steps li::before{content:counter(st);position:absolute;left:0;top:4px;width:28px;height:28px;border-radius:50%;background:var(--accent-soft);
+  color:var(--accent);font-weight:700;display:grid;place-items:center;font-size:14px}
+/* Quiz */
+.q{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 18px;margin:12px 0}
+.q p{margin:0 0 8px;font-weight:600}
+.q button{display:block;width:100%;text-align:left;margin:6px 0;border:1px solid var(--border);background:var(--surface-2);color:var(--text);
+  border-radius:8px;padding:8px 12px;font:inherit;font-size:14.5px;cursor:pointer}
+.q button.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 15%,transparent)}
+.q button.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,transparent)}
+.q .why{font-size:14px;color:var(--muted);display:none;margin-top:6px}
+footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:14px}
+@media (max-width:900px){
+  #sidebar{transform:translateX(-100%);box-shadow:0 0 30px rgba(0,0,0,.2)}
+  #sidebar.open{transform:none}
+  #menuBtn{display:block}
+  main{margin-left:0;padding:60px 16px 60px}
+  header.hero h1{font-size:27px}
+  #gw{grid-template-columns:repeat(5,minmax(0,1fr));width:100%;max-width:310px}
+  #gw div{width:auto;aspect-ratio:1;height:auto}
+}
+/* ---- tambahan modul Intermediate ---- */
+.cells{display:grid;gap:4px;width:100%}
+.cells>div{aspect-ratio:1;border-radius:7px;border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:11px;color:var(--muted);transition:background .2s;min-width:0;overflow:hidden}
+.cells>div .ar{font-size:18px;color:var(--text);line-height:1}
+.cells>div .em{font-size:20px;line-height:1}
+#vi{grid-template-columns:repeat(4,1fr);max-width:300px}
+.cliff{grid-template-columns:repeat(12,1fr);max-width:560px;gap:3px}
+.cliff>div{border-radius:5px;font-size:10px}
+.cliff>div .ar{font-size:14px}
+.cliff>div .em{font-size:14px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.spectrum{display:flex;border-radius:10px;overflow:hidden;margin:14px 0;font-size:13px;text-align:center}
+.spectrum div{flex:1;padding:8px 4px;background:var(--surface-2);border-right:1px solid var(--border)}
+.spectrum div:first-child{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.spectrum div:last-child{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good);font-weight:600;border:0}
+.n{color:var(--warn)}
+.card span b{display:inline;margin:0}
+.nav-mod{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px}
+/* ---- tambahan modul Advanced ---- */
+.plot{width:100%;height:auto;border:1px solid var(--border);border-radius:8px;background:var(--surface-2)}
+.probs{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center;font-size:13px;margin:6px 0}
+.probs .bar{margin:0}
+.timeline{list-style:none;padding:0;margin:14px 0;border-left:3px solid var(--accent-soft)}
+.timeline li{position:relative;padding:2px 0 10px 20px}
+.timeline li::before{content:"";position:absolute;left:-8px;top:9px;width:13px;height:13px;border-radius:50%;background:var(--accent)}
+.timeline b{color:var(--accent)}
+</style>
+</head>
+<body>
+<button id="menuBtn" aria-label="Buka daftar isi">☰ Daftar Isi</button>
+
+<nav id="sidebar" aria-label="Daftar isi">
+  <div class="brand">Reinforcement Learning</div>
+  <span class="level">Level 3 · Advanced</span>
+  <div id="progress"><div></div></div>
+  <ol id="toc">
+    <li><a href="#motivasi">Mengapa Policy-based?</a></li>
+    <li><a href="#pg">Policy Gradient &amp; REINFORCE</a></li>
+    <li><a href="#ac">Actor-Critic &amp; GAE</a></li>
+    <li><a href="#ppo">TRPO &amp; PPO</a></li>
+    <li><a href="#kontinu">Aksi Kontinu: DDPG, TD3, SAC</a></li>
+    <li><a href="#mbrl">Model-based RL</a></li>
+    <li><a href="#eksplorasi">Eksplorasi Lanjutan</a></li>
+    <li><a href="#offline">Offline RL &amp; Imitation</a></li>
+    <li><a href="#rlhf">RLHF &amp; RL untuk LLM</a></li>
+    <li><a href="#kode">Implementasi Python</a></li>
+    <li><a href="#praktik">Praktik Riset &amp; Engineering</a></li>
+    <li><a href="#kuis">Kuis &amp; Latihan</a></li>
+    <li><a href="#ringkasan">Ringkasan &amp; Roadmap</a></li>
+  </ol>
+  <button class="btn" id="themeBtn">🌓 Ganti tema</button>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Reinforcement Learning: Tingkat Lanjut</h1>
+  <p>Modul 3 dari 3 · Beginner → Intermediate → <b>Advanced</b>. Estimasi waktu belajar ± 3,5 jam.</p>
+</header>
+
+<div class="box note">
+  <strong>🎯 Tujuan belajar</strong>
+  Setelah modul ini kamu bisa: (1) menurunkan policy gradient dan memahami peran baseline, (2) menjelaskan actor-critic, GAE, dan PPO,
+  (3) memilih algoritma yang tepat untuk aksi kontinu (DDPG, TD3, SAC), (4) mengenal model-based, offline RL, dan eksplorasi lanjutan,
+  (5) memahami bagaimana RL dipakai untuk melatih LLM (RLHF, DPO, GRPO), dan (6) mengimplementasikan PPO dari nol.
+  <br><span class="muted">Prasyarat: <a href="02-intermediate.html">Modul Intermediate</a>, kalkulus dasar (turunan, aturan rantai), peluang, dan PyTorch.</span>
+</div>
+
+<!-- 1 -->
+<section id="motivasi">
+<h2>1. Mengapa Policy-based?</h2>
+<p>Semua algoritma di modul sebelumnya bersifat <b>value-based</b>: pelajari <var>Q</var>, lalu policy diturunkan secara tidak langsung lewat argmax.
+Pendekatan ini punya tiga keterbatasan besar:</p>
+<div class="grid2">
+  <div class="card"><b>🎛️ Aksi kontinu</b><span>Argmax atas aksi kontinu (misalnya torsi motor robot di rentang −2 sampai 2) adalah masalah optimasi tersendiri di setiap langkah.</span></div>
+  <div class="card"><b>🎲 Policy stokastik</b><span>Di permainan seperti batu-gunting-kertas, policy optimal justru acak. Argmax selalu menghasilkan policy deterministik.</span></div>
+  <div class="card"><b>📈 Perubahan mendadak</b><span>Perubahan kecil pada <var>Q</var> bisa membalik argmax dan mengubah perilaku secara drastis, sehingga pelatihan kurang stabil.</span></div>
+</div>
+<p><b>Policy-based</b> methods langsung memparameterisasi policy π<sub>θ</sub>(<var>a</var>|<var>s</var>), misalnya dengan neural network yang mengeluarkan
+probabilitas aksi (diskret) atau mean dan standar deviasi distribusi Gaussian (kontinu), lalu mengoptimasi θ dengan gradient ascent pada return.</p>
+<table>
+  <tr><th></th><th>Value-based</th><th>Policy-based</th><th>Actor-Critic</th></tr>
+  <tr><td><b>Yang dipelajari</b></td><td><var>Q</var>(<var>s</var>,<var>a</var>)</td><td>π<sub>θ</sub>(<var>a</var>|<var>s</var>)</td><td>Keduanya</td></tr>
+  <tr><td><b>Aksi kontinu</b></td><td>Sulit</td><td>Alami</td><td>Alami</td></tr>
+  <tr><td><b>Efisiensi sampel</b></td><td>Tinggi (off-policy, replay)</td><td>Rendah</td><td>Sedang–tinggi</td></tr>
+  <tr><td><b>Variansi gradien</b></td><td>–</td><td>Tinggi</td><td>Lebih rendah</td></tr>
+  <tr><td><b>Contoh</b></td><td>DQN, Rainbow</td><td>REINFORCE</td><td>A2C, PPO, SAC, TD3</td></tr>
+</table>
+</section>
+
+<!-- 2 -->
+<section id="pg">
+<h2>2. Policy Gradient &amp; REINFORCE</h2>
+<p>Tujuan kita adalah memaksimalkan return harapan dari trajektori τ = (<var>s</var><sub>0</sub>, <var>a</var><sub>0</sub>, <var>r</var><sub>1</sub>, …) yang dihasilkan policy:</p>
+<div class="formula"><var>J</var>(θ) = 𝔼<sub>τ∼π<sub>θ</sub></sub> [ <var>G</var>(τ) ]</div>
+<p>Masalahnya, <var>G</var> bergantung pada θ lewat <i>distribusi</i> trajektori, dan kita tidak bisa menurunkan dinamika lingkungan.
+Kuncinya adalah <b>log-derivative trick</b>: ∇<sub>θ</sub>π = π · ∇<sub>θ</sub> log π. Dinamika lingkungan tidak bergantung pada θ sehingga hilang dari gradien, dan didapat
+<b>Policy Gradient Theorem</b>:</p>
+<div class="formula">∇<sub>θ</sub><var>J</var>(θ) = 𝔼<sub>π<sub>θ</sub></sub> [ Σ<sub>t</sub> ∇<sub>θ</sub> log π<sub>θ</sub>(<var>a<sub>t</sub></var>|<var>s<sub>t</sub></var>) · <span style="color:var(--good)"><var>G<sub>t</sub></var></span> ]</div>
+<div class="box tip"><strong>💡 Intuisi</strong>
+  ∇ log π(<var>a</var>|<var>s</var>) adalah arah yang membuat aksi <var>a</var> <b>lebih mungkin</b> dipilih. Kalikan dengan <var>G<sub>t</sub></var>:
+  aksi yang menghasilkan return besar didorong kuat, aksi dengan return kecil didorong lemah (atau ditekan jika negatif).
+  Ini seperti supervised learning, tetapi "label"-nya adalah aksi agen sendiri yang diberi bobot sesuai seberapa bagus hasilnya.
+</div>
+
+<h3>Algoritma REINFORCE (Williams, 1992)</h3>
+<ol class="steps">
+  <li>Jalankan π<sub>θ</sub> untuk mengumpulkan satu episode penuh.</li>
+  <li>Hitung return <var>G<sub>t</sub></var> untuk setiap langkah.</li>
+  <li>Update: θ ← θ + α Σ<sub>t</sub> ∇<sub>θ</sub> log π<sub>θ</sub>(<var>a<sub>t</sub></var>|<var>s<sub>t</sub></var>) · <var>G<sub>t</sub></var>. Ulangi.</li>
+</ol>
+
+<h3>Baseline: senjata melawan variansi</h3>
+<p>REINFORCE tidak bias, tetapi variansinya sangat tinggi. Jika semua reward positif, <i>setiap</i> aksi yang diambil akan didorong naik, hanya beda kekuatan.
+Solusinya, kurangi <var>G<sub>t</sub></var> dengan <b>baseline</b> <var>b</var>(<var>s</var>) yang tidak bergantung pada aksi. Gradien tetap tidak bias (karena 𝔼[∇ log π · <var>b</var>] = 0), tetapi variansinya turun drastis:</p>
+<div class="formula">∇<sub>θ</sub><var>J</var> ≈ Σ<sub>t</sub> ∇<sub>θ</sub> log π<sub>θ</sub>(<var>a<sub>t</sub></var>|<var>s<sub>t</sub></var>) · ( <var>G<sub>t</sub></var> − <var>b</var>(<var>s<sub>t</sub></var>) )</div>
+<p>Sekarang aksi yang <b>lebih baik dari rata-rata</b> didorong naik, sedangkan yang <b>lebih buruk dari rata-rata</b> ditekan.</p>
+
+<div class="demo">
+  <h4>Demo: REINFORCE dengan vs tanpa baseline</h4>
+  <p class="stat" style="margin:0">Policy softmax memilih 1 dari 3 aksi. Reward rata-rata: A = 5, <b>B = 6 (terbaik)</b>, C = 5,5, ditambah noise (σ = 1).
+  Semua reward positif. Dua agen dilatih dengan sampel acak yang berbeda, satu memakai baseline (rata-rata reward berjalan), satu tidak.</p>
+  <div class="controls">
+    <button class="btn primary" data-pg="100">Latih 100 langkah</button>
+    <button class="btn" data-pg="500">Latih 500 langkah</button>
+    <button class="btn" id="pgReset">Reset</button>
+    <button class="btn" id="pgMany">Uji 200 run sekaligus</button>
+    <span class="stat">Langkah: <b id="pgT">0</b></span>
+  </div>
+  <div class="grid2">
+    <div><b style="font-size:14px"><span class="dot" style="background:var(--warn)"></span>Tanpa baseline</b><div id="pgP0" class="probs"></div></div>
+    <div><b style="font-size:14px"><span class="dot" style="background:var(--good)"></span>Dengan baseline</b><div id="pgP1" class="probs"></div></div>
+  </div>
+  <svg id="pgChart" class="plot" viewBox="0 0 560 130" preserveAspectRatio="none" style="height:130px">
+    <line x1="0" x2="560" y1="13" y2="13" stroke="var(--border)" stroke-dasharray="4 4"/>
+    <polyline id="pgL0" fill="none" stroke="var(--warn)" stroke-width="2"/><polyline id="pgL1" fill="none" stroke="var(--good)" stroke-width="2"/></svg>
+  <p class="legend">Grafik: peluang memilih aksi terbaik (B) dari waktu ke waktu. Garis putus-putus = 100%.<br>Satu run bisa saja kebetulan menguntungkan agen tanpa baseline. Klik <b>Uji 200 run sekaligus</b> untuk melihat gambaran statistiknya.</p>
+  <p class="stat" id="pgManyOut"></p>
+</div>
+</section>
+
+<!-- 3 -->
+<section id="ac">
+<h2>3. Actor-Critic &amp; GAE</h2>
+<p>Baseline terbaik ternyata adalah <var>V</var>(<var>s</var>) itu sendiri. Selisih <var>Q</var>(<var>s</var>,<var>a</var>) − <var>V</var>(<var>s</var>) disebut <b>advantage</b>
+<var>A</var>(<var>s</var>,<var>a</var>): seberapa jauh aksi <var>a</var> lebih baik daripada rata-rata aksi di state tersebut. Arsitektur <b>Actor-Critic</b> memakai dua komponen:</p>
+<div class="grid2">
+  <div class="card"><b>🎭 Actor π<sub>θ</sub></b><span>Policy yang memilih aksi. Di-update dengan policy gradient yang diberi bobot advantage.</span></div>
+  <div class="card"><b>🧐 Critic <var>V</var><sub>φ</sub></b><span>Memperkirakan nilai state. Di-update dengan TD learning (seperti di modul Intermediate) dan dipakai untuk menghitung advantage.</span></div>
+</div>
+<div class="demo loop">
+<svg viewBox="0 0 600 220" role="img" aria-label="Arsitektur actor-critic">
+  <defs><marker id="ah5" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker></defs>
+  <g font-size="12.5" text-anchor="middle" fill="var(--text)">
+    <rect x="30" y="20" width="150" height="54" rx="10" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/><text x="105" y="44" font-weight="700">🎭 Actor π<tspan font-size="9" dy="3">θ</tspan></text><text x="105" y="62" font-size="10.5" fill="var(--muted)">pilih aksi</text>
+    <rect x="420" y="20" width="150" height="54" rx="10" fill="var(--surface-2)" stroke="var(--border)" stroke-width="2"/><text x="495" y="44" font-weight="700">🌍 Lingkungan</text><text x="495" y="62" font-size="10.5" fill="var(--muted)">r, s'</text>
+    <rect x="420" y="146" width="150" height="54" rx="10" fill="color-mix(in srgb,var(--good) 15%,transparent)" stroke="var(--good)" stroke-width="2"/><text x="495" y="170" font-weight="700">🧐 Critic V<tspan font-size="9" dy="3">φ</tspan></text><text x="495" y="188" font-size="10.5" fill="var(--muted)">nilai state</text>
+    <rect x="200" y="146" width="170" height="54" rx="10" fill="color-mix(in srgb,var(--warn) 15%,transparent)" stroke="var(--warn)" stroke-width="2"/><text x="285" y="168" font-weight="700">δ = r + γV(s') − V(s)</text><text x="285" y="186" font-size="10.5" fill="var(--muted)">TD error ≈ advantage</text>
+    <path class="flow" d="M180,47 H417" stroke="var(--accent)" stroke-width="2.5" fill="none" marker-end="url(#ah5)"/><text x="300" y="39">aksi a</text>
+    <path class="flow" d="M495,74 V143" stroke="var(--accent)" stroke-width="2.5" fill="none" marker-end="url(#ah5)"/><text x="530" y="112">r, s'</text>
+    <path class="flow" d="M420,173 H373" stroke="var(--accent)" stroke-width="2.5" fill="none" marker-end="url(#ah5)"/>
+    <path class="flow" d="M200,173 H105 V77" stroke="var(--warn)" stroke-width="2.5" fill="none" marker-end="url(#ah5)"/><text x="150" y="120" font-size="11">update actor ∝ δ·∇log π</text>
+    <path class="flow" d="M330,146 V120 H460 V146" stroke="var(--warn)" stroke-width="2" fill="none" marker-end="url(#ah5)"/><text x="395" y="113" font-size="11">update critic</text>
+  </g>
+</svg>
+</div>
+<p>TD error δ<sub>t</sub> = <var>r</var><sub>t+1</sub> + γ<var>V</var>(<var>s</var><sub>t+1</sub>) − <var>V</var>(<var>s<sub>t</sub></var>) adalah estimasi advantage 1 langkah: variansi rendah, tetapi bias jika critic belum akurat.
+<b>A2C/A3C</b> (Mnih dkk., 2016) memakai versi n-step dan banyak lingkungan paralel.</p>
+
+<h3>Generalized Advantage Estimation (GAE)</h3>
+<p>Ingat TD(λ) di modul Intermediate? GAE (Schulman dkk., 2016) menerapkan ide yang sama pada advantage: rata-rata tertimbang eksponensial dari TD error ke depan.</p>
+<div class="formula"><var>Â</var><sub>t</sub><sup>GAE(γ,λ)</sup> = Σ<sub>l=0</sub><sup>∞</sup> (γλ)<sup>l</sup> δ<sub>t+l</sub> = δ<sub>t</sub> + γλ · <var>Â</var><sub>t+1</sub></div>
+<ul>
+  <li>λ = 0 → <var>Â</var> = δ<sub>t</sub> (TD 1 langkah: bias tinggi, variansi rendah).</li>
+  <li>λ = 1 → <var>Â</var> = <var>G<sub>t</sub></var> − <var>V</var>(<var>s<sub>t</sub></var>) (Monte Carlo: tidak bias, variansi tinggi).</li>
+  <li>Nilai umum: <b>λ = 0.95</b>. Bentuk rekursif di kanan membuatnya bisa dihitung dalam satu loop mundur (lihat kode PPO di bagian 10).</li>
+</ul>
+</section>
+
+<!-- 4 -->
+<section id="ppo">
+<h2>4. TRPO &amp; PPO</h2>
+<p>Policy gradient punya masalah praktis: <b>ukuran langkah</b>. Langkah terlalu besar bisa merusak policy, dan karena data berikutnya dikumpulkan
+oleh policy yang rusak itu, agen sulit pulih (ingat <i>policy collapse</i> di DQN). Kita ingin memperbaiki policy, tetapi tidak terlalu jauh dari policy lama.</p>
+<p><b>TRPO</b> (Schulman dkk., 2015) membatasi perubahan dengan constraint KL divergence: maksimalkan <var>L</var>(θ) dengan syarat KL(π<sub>lama</sub> ‖ π<sub>θ</sub>) ≤ δ.
+Hasilnya stabil, tetapi butuh optimasi orde kedua yang rumit. <b>PPO</b> (Schulman dkk., 2017) mencapai efek serupa dengan trik sederhana: <b>clipping</b>.</p>
+<div class="formula"><var>r<sub>t</sub></var>(θ) = π<sub>θ</sub>(<var>a<sub>t</sub></var>|<var>s<sub>t</sub></var>) / π<sub>θ<sub>lama</sub></sub>(<var>a<sub>t</sub></var>|<var>s<sub>t</sub></var>)</div>
+<div class="formula"><var>L</var><sup>CLIP</sup>(θ) = 𝔼<sub>t</sub> [ min( <var>r<sub>t</sub></var>·<var>Â<sub>t</sub></var> , clip(<var>r<sub>t</sub></var>, 1−ε, 1+ε)·<var>Â<sub>t</sub></var> ) ]</div>
+<p>Rasio <var>r<sub>t</sub></var> mengukur seberapa jauh policy baru berbeda dari policy lama untuk aksi tersebut. Mengambil <b>min</b> berarti kita selalu memakai estimasi yang <i>pesimistis</i>:
+tidak ada insentif mendorong rasio melewati 1 ± ε.</p>
+
+<div class="demo">
+  <h4>Demo: fungsi objektif PPO-Clip</h4>
+  <div class="controls"><label class="range">ε = <b id="epsV">0.20</b><input id="epsR" type="range" min="0.05" max="0.5" step="0.05" value="0.2"></label></div>
+  <div class="grid2" id="clipPlots"></div>
+  <p class="legend"><span style="color:var(--accent)">━ garis biru</span> = objektif PPO, <span style="color:var(--muted)">┅ putus-putus</span> = objektif tanpa clipping (<var>r</var>·<var>Â</var>), area berwarna = rentang aman [1−ε, 1+ε].
+  Perhatikan bagian yang mendatar: di sana gradien = 0, jadi update berhenti.</p>
+</div>
+<div class="box note"><strong>📝 Cara membaca grafik</strong>
+  <b>Â &gt; 0</b> (aksi bagus): objektif naik selama <var>r</var> &lt; 1+ε, lalu mendatar. Peluang aksi bagus boleh dinaikkan, tetapi maksimal 1+ε kali lipat per update.<br>
+  <b>Â &lt; 0</b> (aksi buruk): objektif mendatar saat <var>r</var> &lt; 1−ε. Peluang aksi buruk boleh diturunkan, tetapi tidak lebih dari faktor 1−ε.
+  Jika update sebelumnya justru membuat aksi buruk <i>lebih</i> mungkin (<var>r</var> &gt; 1), tidak ada clipping, sehingga kesalahan itu tetap dikoreksi penuh.
+</div>
+<p>Loss PPO lengkap biasanya: <code>L = −L<sup>CLIP</sup> + c<sub>1</sub>·L<sup>V</sup> − c<sub>2</sub>·H[π]</code>, yaitu objektif policy, loss critic (MSE), dan bonus <b>entropi</b> agar policy tidak terlalu cepat deterministik.
+Karena clipping, data rollout yang sama bisa dipakai untuk <b>beberapa epoch</b> minibatch, sehingga PPO jauh lebih efisien daripada REINFORCE. PPO menjadi algoritma default
+di banyak bidang, mulai dari robotika, game (OpenAI Five), hingga RLHF.</p>
+</section>
+
+<!-- 5 -->
+<section id="kontinu">
+<h2>5. Aksi Kontinu: DDPG, TD3, SAC</h2>
+<p>PPO bisa menangani aksi kontinu dengan policy Gaussian (π(<var>a</var>|<var>s</var>) = 𝒩(μ<sub>θ</sub>(<var>s</var>), σ<sub>θ</sub>(<var>s</var>)²)), tetapi bersifat on-policy sehingga boros sampel.
+Untuk robotika, di mana sampel mahal, keluarga <b>off-policy actor-critic</b> dengan replay buffer lebih populer.</p>
+<table>
+  <tr><th>Algoritma</th><th>Ide utama</th><th>Catatan</th></tr>
+  <tr><td><b>DDPG</b><br><span class="muted">Lillicrap dkk., 2015</span></td><td>"DQN untuk aksi kontinu". Actor deterministik μ<sub>θ</sub>(<var>s</var>) dilatih untuk memaksimalkan <var>Q</var>(<var>s</var>, μ<sub>θ</sub>(<var>s</var>)) lewat gradien yang mengalir dari critic.</td><td>Eksplorasi dengan noise ditambahkan ke aksi. Sensitif terhadap hyperparameter, Q sering <i>overestimate</i>.</td></tr>
+  <tr><td><b>TD3</b><br><span class="muted">Fujimoto dkk., 2018</span></td><td>DDPG + 3 perbaikan: (1) <b>clipped double-Q</b> (pakai minimum dari dua critic), (2) <b>delayed policy update</b> (actor di-update lebih jarang), (3) <b>target policy smoothing</b> (noise pada aksi target).</td><td>Jauh lebih stabil daripada DDPG.</td></tr>
+  <tr><td><b>SAC</b><br><span class="muted">Haarnoja dkk., 2018</span></td><td>Policy stokastik yang memaksimalkan <b>reward + entropi</b>. Temperatur α diatur otomatis.</td><td>Robust, eksplorasi bagus, sering jadi pilihan pertama untuk kontrol kontinu.</td></tr>
+</table>
+<h3>Maximum entropy RL (SAC)</h3>
+<div class="formula">π* = argmax<sub>π</sub> 𝔼 [ Σ<sub>t</sub> γ<sup>t</sup> ( <var>r<sub>t</sub></var> + α · <span style="color:var(--good)">ℋ(π(·|<var>s<sub>t</sub></var>))</span> ) ]</div>
+<p>Agen diberi "hadiah" karena tetap acak. Akibatnya ia mencoba banyak cara untuk sukses, lebih tahan terhadap gangguan, dan tidak terlalu cepat terkunci pada satu solusi.
+SAC memakai <b>reparameterization trick</b> (<var>a</var> = tanh(μ + σ·ε), ε ∼ 𝒩(0,1)) agar gradien bisa mengalir melalui sampel aksi.</p>
+</section>
+
+<!-- 6 -->
+<section id="mbrl">
+<h2>6. Model-based RL</h2>
+<p>Algoritma model-free butuh jutaan interaksi. <b>Model-based RL</b> mempelajari model lingkungan <var>p̂</var>(<var>s'</var>, <var>r</var> | <var>s</var>, <var>a</var>) lalu memakainya untuk
+<b>merencanakan</b> atau <b>membuat pengalaman simulasi</b>. Hasilnya jauh lebih hemat sampel, tetapi ada risiko <i>model bias</i>: agen mengeksploitasi kesalahan model.</p>
+<div class="grid2">
+  <div class="card"><b>Dyna</b><span>(Sutton, 1990) Setiap pengalaman nyata dipakai untuk update Q <i>dan</i> melatih model. Model lalu menghasilkan banyak transisi imajiner untuk update tambahan.</span></div>
+  <div class="card"><b>Planning: MCTS</b><span>AlphaGo/AlphaZero (2016–2017) memakai Monte Carlo Tree Search dengan aturan game yang diketahui, dipandu jaringan policy &amp; value.</span></div>
+  <div class="card"><b>MuZero</b><span>(Schrittwieser dkk., 2020) Seperti AlphaZero, tetapi <i>mempelajari</i> model laten sendiri, tanpa diberi aturan game. Menguasai Go, catur, shogi, dan Atari.</span></div>
+  <div class="card"><b>World Models / Dreamer</b><span>(Hafner dkk., 2019–2023) Belajar model dunia di ruang laten, lalu melatih actor-critic sepenuhnya di dalam "mimpi". DreamerV3 bekerja lintas banyak domain dengan satu set hyperparameter.</span></div>
+  <div class="card"><b>MBPO</b><span>(Janner dkk., 2019) Ensemble model dipakai hanya untuk rollout <i>pendek</i> agar kesalahan model tidak menumpuk, lalu digabung dengan SAC.</span></div>
+  <div class="card"><b>MPC</b><span>Model Predictive Control: setiap langkah, rencanakan beberapa langkah ke depan dengan model, jalankan aksi pertama, lalu rencanakan ulang.</span></div>
+</div>
+</section>
+
+<!-- 7 -->
+<section id="eksplorasi">
+<h2>7. Eksplorasi Lanjutan</h2>
+<p>ε-greedy cukup untuk masalah kecil, tetapi gagal total pada <b>sparse reward</b>, misalnya game Montezuma's Revenge, di mana reward pertama baru muncul setelah ratusan aksi yang tepat.
+Peluang menemukannya secara acak hampir nol.</p>
+<table>
+  <tr><th>Pendekatan</th><th>Ide</th></tr>
+  <tr><td><b>Optimism / UCB</b></td><td>Pilih aksi dengan <var>Q</var>(<var>a</var>) + <var>c</var>·√(ln <var>t</var> / <var>N</var>(<var>a</var>)). Aksi yang jarang dicoba mendapat bonus ketidakpastian.</td></tr>
+  <tr><td><b>Thompson sampling</b></td><td>Simpan distribusi keyakinan atas nilai setiap aksi, ambil sampel, lalu pilih yang terbaik dari sampel tersebut.</td></tr>
+  <tr><td><b>Count-based</b></td><td>Bonus reward ∝ 1/√<var>N</var>(<var>s</var>) untuk state yang jarang dikunjungi (pseudo-count untuk state besar).</td></tr>
+  <tr><td><b>Curiosity (ICM)</b></td><td>(Pathak dkk., 2017) Reward intrinsik = kesalahan prediksi model dinamika. Agen "penasaran" pada hal yang belum bisa ia prediksi.</td></tr>
+  <tr><td><b>RND</b></td><td>(Burda dkk., 2018) Reward intrinsik = kesalahan memprediksi output jaringan acak yang dibekukan. Sederhana dan kuat di Montezuma's Revenge.</td></tr>
+  <tr><td><b>Go-Explore</b></td><td>(Ecoffet dkk., 2021) Ingat state yang menjanjikan, kembali ke sana, lalu eksplorasi dari situ.</td></tr>
+</table>
+<div class="box warn"><strong>⚠️ Noisy TV problem</strong>
+  Curiosity berbasis kesalahan prediksi bisa "terhipnotis" oleh sumber acak yang tidak bisa diprediksi (misalnya layar TV berisi noise),
+  karena kesalahan prediksinya selalu tinggi. RND dan metode berbasis model ensemble lebih tahan terhadap masalah ini.
+</div>
+</section>
+
+<!-- 8 -->
+<section id="offline">
+<h2>8. Offline RL &amp; Imitation Learning</h2>
+<p>Di banyak bidang (kesehatan, kendaraan otonom, sistem rekomendasi), eksplorasi trial-and-error di dunia nyata terlalu mahal atau berbahaya.
+Yang tersedia hanyalah <b>dataset</b> interaksi yang sudah ada.</p>
+<h3>Imitation learning</h3>
+<ul>
+  <li><b>Behavior Cloning (BC)</b>: supervised learning langsung dari pasangan (state, aksi pakar). Sederhana, tetapi rawan <b>compounding error</b>: sedikit melenceng membawa agen ke state yang tidak pernah dilihat pakar, sehingga kesalahan menumpuk.</li>
+  <li><b>DAgger</b> (Ross dkk., 2011): jalankan policy agen, minta pakar melabeli state yang dikunjungi agen, tambahkan ke dataset, lalu latih ulang.</li>
+  <li><b>Inverse RL / GAIL</b>: simpulkan <i>fungsi reward</i> dari demonstrasi, lalu optimasi policy terhadap reward tersebut.</li>
+</ul>
+<h3>Offline RL</h3>
+<p>Belajar policy yang <i>lebih baik</i> dari data (bukan sekadar meniru), tanpa interaksi baru. Tantangan utamanya adalah <b>distribution shift</b>:
+Q-function memberi nilai terlalu tinggi pada aksi yang tidak pernah muncul di dataset, dan policy akan mengejar ilusi tersebut tanpa bisa mengeceknya.</p>
+<div class="grid2">
+  <div class="card"><b>CQL</b><span>(Kumar dkk., 2020) Conservative Q-Learning: tambahkan penalti yang menekan nilai Q untuk aksi di luar dataset.</span></div>
+  <div class="card"><b>IQL</b><span>(Kostrikov dkk., 2021) Implicit Q-Learning: tidak pernah mengevaluasi aksi di luar dataset sama sekali, memakai expectile regression.</span></div>
+  <div class="card"><b>Decision Transformer</b><span>(Chen dkk., 2021) RL sebagai sequence modeling: transformer memprediksi aksi berikutnya dengan syarat return yang diinginkan.</span></div>
+</div>
+</section>
+
+<!-- 9 -->
+<section id="rlhf">
+<h2>9. RLHF &amp; RL untuk LLM</h2>
+<p>Penerapan RL paling berpengaruh saat ini adalah melatih <b>large language model</b>. Dalam formulasi ini, <b>state</b> = prompt + token yang sudah ditulis,
+<b>aksi</b> = token berikutnya, <b>policy</b> = LLM itu sendiri, dan <b>reward</b> diberikan di akhir jawaban.</p>
+<div class="demo loop">
+<svg viewBox="0 0 600 200" role="img" aria-label="Pipeline RLHF">
+  <defs><marker id="ah6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker></defs>
+  <g font-size="12.5" text-anchor="middle" fill="var(--text)">
+    <rect x="10" y="20" width="170" height="90" rx="12" fill="var(--surface-2)" stroke="var(--border)" stroke-width="2"/>
+    <text x="95" y="44" font-weight="700">① SFT</text><text x="95" y="64" font-size="11" fill="var(--muted)">fine-tune dengan</text><text x="95" y="79" font-size="11" fill="var(--muted)">contoh jawaban</text><text x="95" y="94" font-size="11" fill="var(--muted)">buatan manusia</text>
+    <rect x="215" y="20" width="170" height="90" rx="12" fill="color-mix(in srgb,var(--warn) 15%,transparent)" stroke="var(--warn)" stroke-width="2"/>
+    <text x="300" y="44" font-weight="700">② Reward Model</text><text x="300" y="64" font-size="11" fill="var(--muted)">manusia memilih</text><text x="300" y="79" font-size="11" fill="var(--muted)">jawaban A ≻ B;</text><text x="300" y="94" font-size="11" fill="var(--muted)">model belajar skor</text>
+    <rect x="420" y="20" width="170" height="90" rx="12" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="505" y="44" font-weight="700">③ RL (PPO)</text><text x="505" y="64" font-size="11" fill="var(--muted)">LLM menulis jawaban,</text><text x="505" y="79" font-size="11" fill="var(--muted)">diberi skor oleh RM,</text><text x="505" y="94" font-size="11" fill="var(--muted)">+ penalti KL</text>
+    <path class="flow" d="M180,65 H212" stroke="var(--accent)" stroke-width="2.5" fill="none" marker-end="url(#ah6)"/>
+    <path class="flow" d="M385,65 H417" stroke="var(--accent)" stroke-width="2.5" fill="none" marker-end="url(#ah6)"/>
+    <path d="M95,110 V160 H505 V113" stroke="var(--muted)" stroke-width="2" stroke-dasharray="3 5" fill="none" marker-end="url(#ah6)"/>
+    <text x="300" y="180" font-size="11" fill="var(--muted)">model SFT juga menjadi π<tspan font-size="8" dy="3">ref</tspan><tspan dy="-3"> (jangkar KL) agar LLM tidak "lupa" bahasa yang wajar</tspan></text>
+  </g>
+</svg>
+</div>
+<p><b>Reward model</b> dilatih dari perbandingan pasangan dengan model Bradley–Terry. Untuk jawaban yang dipilih <var>y<sub>w</sub></var> dan yang ditolak <var>y<sub>l</sub></var>:</p>
+<div class="formula"><var>L</var><sub>RM</sub> = −log σ( <var>r</var><sub>φ</sub>(<var>x</var>, <var>y<sub>w</sub></var>) − <var>r</var><sub>φ</sub>(<var>x</var>, <var>y<sub>l</sub></var>) )</div>
+<p>Lalu LLM dioptimasi dengan PPO untuk objektif berikut. Penalti KL mencegah <b>reward hacking</b>, yaitu LLM menemukan "celah" reward model, misalnya jawaban sangat panjang atau terlalu memuji, yang skornya tinggi tetapi kualitasnya buruk:</p>
+<div class="formula">max<sub>θ</sub> 𝔼<sub><var>x</var>, <var>y</var>∼π<sub>θ</sub></sub> [ <var>r</var><sub>φ</sub>(<var>x</var>, <var>y</var>) ] − β · KL( π<sub>θ</sub> ‖ π<sub>ref</sub> )</div>
+
+<h3>Perkembangan setelah RLHF klasik</h3>
+<ul class="timeline">
+  <li><b>2017–2022 · RLHF + PPO</b> — Christiano dkk. (2017) memperkenalkan belajar dari preferensi manusia. InstructGPT (Ouyang dkk., 2022) membawanya ke LLM, menjadi dasar ChatGPT.</li>
+  <li><b>2022 · RLAIF / Constitutional AI</b> — Sebagian label preferensi dibuat oleh AI berdasarkan sekumpulan prinsip tertulis, sehingga lebih murah dan bisa diskalakan.</li>
+  <li><b>2023 · DPO</b> — Direct Preference Optimization (Rafailov dkk.) menunjukkan objektif RLHF bisa diselesaikan <i>tanpa</i> reward model terpisah dan tanpa RL: cukup satu loss klasifikasi pada pasangan preferensi.</li>
+  <li><b>2024–2025 · GRPO &amp; RLVR</b> — Untuk penalaran (matematika, kode), reward bisa diverifikasi otomatis (jawaban benar? unit test lulus?). GRPO (DeepSeekMath, 2024; dipakai di DeepSeek-R1, 2025) menghapus critic: advantage dihitung dengan membandingkan beberapa jawaban untuk prompt yang sama.</li>
+</ul>
+<div class="formula">DPO: &nbsp; <var>L</var> = −log σ( β log <span style="font-size:.85em">π<sub>θ</sub>(<var>y<sub>w</sub></var>|<var>x</var>) / π<sub>ref</sub>(<var>y<sub>w</sub></var>|<var>x</var>)</span> − β log <span style="font-size:.85em">π<sub>θ</sub>(<var>y<sub>l</sub></var>|<var>x</var>) / π<sub>ref</sub>(<var>y<sub>l</sub></var>|<var>x</var>)</span> )</div>
+<div class="formula">GRPO: &nbsp; <var>Â<sub>i</sub></var> = ( <var>r<sub>i</sub></var> − mean(<var>r</var><sub>1..G</sub>) ) / std(<var>r</var><sub>1..G</sub>) &nbsp; untuk <var>G</var> jawaban dari prompt yang sama</div>
+<div class="box tip"><strong>🔗 Semua konsep di modul ini muncul lagi</strong>
+  Advantage dan baseline (GRPO = baseline rata-rata kelompok), rasio dan clipping (PPO), penalti KL (TRPO), reward hacking (modul Beginner),
+  bahkan offline RL (DPO belajar dari dataset preferensi yang tetap). RL untuk LLM adalah RL klasik dengan aksi berupa token.
+</div>
+</section>
+
+<!-- 10 -->
+<section id="kode">
+<h2>10. Implementasi Python</h2>
+<h3>a. PPO dari nol (PyTorch + Gymnasium)</h3>
+<p>Implementasi PPO-Clip lengkap dengan GAE untuk CartPole, sekitar 70 baris. Bandingkan dengan DQN di modul Intermediate. Install: <code>pip install torch gymnasium</code>.</p>
+<pre><code class="py">import numpy as np, torch, torch.nn as nn, gymnasium as gym
+from torch.distributions import Categorical
+
+torch.manual_seed(0)
+env = gym.make("CartPole-v1")
+n_obs, n_act = env.observation_space.shape[0], env.action_space.n
+
+def mlp(out):
+    return nn.Sequential(nn.Linear(n_obs, 64), nn.Tanh(),
+                         nn.Linear(64, 64), nn.Tanh(), nn.Linear(64, out))
+
+actor, critic = mlp(n_act), mlp(1)                     # π_θ dan V_φ
+params = list(actor.parameters()) + list(critic.parameters())
+opt = torch.optim.Adam(params, lr=3e-4)
+GAMMA, LAM, CLIP, EPOCHS, N_STEPS, MB = 0.99, 0.95, 0.2, 10, 2048, 64
+
+s, _ = env.reset(seed=0)
+ep_ret, finished = 0.0, []
+for update in range(1, 51):
+    # ---- 1) kumpulkan rollout dengan policy saat ini ----
+    S, A, LOGP, R, D, V = [], [], [], [], [], []
+    for _ in range(N_STEPS):
+        st = torch.as_tensor(s)
+        with torch.no_grad():
+            dist = Categorical(logits=actor(st))
+            a = dist.sample()
+            v = critic(st).item()
+        s2, r, term, trunc, _ = env.step(a.item())
+        ep_ret += r
+        if trunc and not term:          # dipotong batas waktu: bootstrap V(s')
+            with torch.no_grad():
+                r += GAMMA * critic(torch.as_tensor(s2)).item()
+        S.append(st); A.append(a); LOGP.append(dist.log_prob(a))
+        R.append(r); D.append(term or trunc); V.append(v)
+        s = s2
+        if term or trunc:
+            finished.append(ep_ret); ep_ret = 0.0
+            s, _ = env.reset()
+    with torch.no_grad():
+        last_v = critic(torch.as_tensor(s)).item()
+
+    # ---- 2) advantage dengan GAE (loop mundur) ----
+    adv, gae = np.zeros(N_STEPS, dtype=np.float32), 0.0
+    for t in reversed(range(N_STEPS)):
+        next_v = last_v if t == N_STEPS - 1 else V[t + 1]
+        nonterminal = 1.0 - D[t]
+        delta = R[t] + GAMMA * next_v * nonterminal - V[t]   # TD error δ_t
+        gae = delta + GAMMA * LAM * nonterminal * gae
+        adv[t] = gae
+    S, A, LOGP = torch.stack(S), torch.stack(A), torch.stack(LOGP)
+    ADV = torch.as_tensor(adv)
+    RET = ADV + torch.as_tensor(V, dtype=torch.float32)    # target critic
+    ADV = (ADV - ADV.mean()) / (ADV.std() + 1e-8)           # normalisasi advantage
+
+    # ---- 3) update PPO: beberapa epoch x minibatch ----
+    for _ in range(EPOCHS):
+        for idx in torch.randperm(N_STEPS).split(MB):
+            dist = Categorical(logits=actor(S[idx]))
+            ratio = torch.exp(dist.log_prob(A[idx]) - LOGP[idx])     # r_t(θ)
+            surr = torch.min(ratio * ADV[idx],
+                             torch.clamp(ratio, 1 - CLIP, 1 + CLIP) * ADV[idx])
+            loss_pi = -surr.mean() - 0.01 * dist.entropy().mean()    # + bonus entropi
+            loss_v = ((critic(S[idx]).squeeze(-1) - RET[idx]) ** 2).mean()
+            opt.zero_grad()
+            (loss_pi + 0.5 * loss_v).backward()
+            nn.utils.clip_grad_norm_(params, 0.5)
+            opt.step()
+
+    if update % 5 == 0:
+        print(f"Update {update:2d} | langkah {update * N_STEPS:6d} | "
+              f"rata-rata return 10 ep. terakhir {np.mean(finished[-10:]):6.1f}")</code></pre>
+<p>Contoh output:</p>
+<pre><code>Update  5 | langkah  10240 | rata-rata return 10 ep. terakhir   71.1
+Update 10 | langkah  20480 | rata-rata return 10 ep. terakhir  258.3
+Update 15 | langkah  30720 | rata-rata return 10 ep. terakhir  500.0
+Update 20 | langkah  40960 | rata-rata return 10 ep. terakhir  500.0
+Update 25 | langkah  51200 | rata-rata return 10 ep. terakhir  495.0
+Update 30 | langkah  61440 | rata-rata return 10 ep. terakhir  479.7
+Update 35 | langkah  71680 | rata-rata return 10 ep. terakhir  500.0
+Update 40 | langkah  81920 | rata-rata return 10 ep. terakhir  500.0
+Update 45 | langkah  92160 | rata-rata return 10 ep. terakhir  500.0
+Update 50 | langkah 102400 | rata-rata return 10 ep. terakhir  500.0</code></pre>
+<p>PPO mencapai skor maksimum 500 setelah ± 30 ribu langkah dan <b>tetap stabil</b> sampai akhir. Bandingkan dengan DQN di modul Intermediate yang sempat anjlok: membatasi besarnya perubahan policy benar-benar berpengaruh.</p>
+<div class="box note"><strong>📝 Poin penting di kode</strong>
+  <ul style="margin:4px 0 0">
+    <li><code>LOGP</code> disimpan saat rollout: itulah π<sub>θ<sub>lama</sub></sub> untuk menghitung rasio.</li>
+    <li>Normalisasi advantage per batch dan <code>clip_grad_norm_</code> adalah "detail kecil" yang sangat memengaruhi kestabilan.</li>
+    <li>Episode yang dipotong batas waktu di-bootstrap dengan <var>V</var>(<var>s'</var>), sama seperti prinsip terminated vs truncated di modul Intermediate.</li>
+  </ul>
+</div>
+
+<h3>b. SAC dengan Stable-Baselines3</h3>
+<p>Dalam praktik, kamu jarang menulis semuanya dari nol. <b>Stable-Baselines3</b> menyediakan implementasi yang sudah teruji.
+Contoh SAC pada Pendulum (aksi kontinu: torsi). Install: <code>pip install stable-baselines3</code>.</p>
+<pre><code class="py">import gymnasium as gym
+from stable_baselines3 import SAC
+from stable_baselines3.common.evaluation import evaluate_policy
+
+env = gym.make("Pendulum-v1")
+model = SAC("MlpPolicy", env, learning_rate=3e-4, buffer_size=100_000,
+            batch_size=256, ent_coef="auto", seed=0, verbose=0)
+
+mean, std = evaluate_policy(model, env, n_eval_episodes=10)
+print(f"Sebelum latihan : {mean:7.1f} ± {std:.1f}")
+model.learn(total_timesteps=20_000)
+mean, std = evaluate_policy(model, env, n_eval_episodes=10)
+print(f"Setelah latihan : {mean:7.1f} ± {std:.1f}")
+model.save("sac_pendulum")</code></pre>
+<p>Contoh output (return Pendulum berkisar ± −1600 sampai 0, makin mendekati 0 makin baik):</p>
+<pre><code>Sebelum latihan : -1524.1 ± 170.2
+Setelah latihan :  -185.4 ± 85.6</code></pre>
+</section>
+
+<!-- 11 -->
+<section id="praktik">
+<h2>11. Praktik Riset &amp; Engineering</h2>
+<h3>Hyperparameter awal yang terbukti</h3>
+<table>
+  <tr><th>Hyperparameter</th><th>PPO</th><th>SAC</th></tr>
+  <tr><td>Learning rate</td><td>3e-4 (sering di-anneal linear ke 0)</td><td>3e-4</td></tr>
+  <tr><td>γ</td><td>0.99</td><td>0.99</td></tr>
+  <tr><td>Rollout / batch</td><td>2048 langkah × N env, minibatch 64</td><td>batch 256, buffer 10<sup>6</sup></td></tr>
+  <tr><td>Epoch per update</td><td>10</td><td>1 gradient step per langkah env</td></tr>
+  <tr><td>Khusus</td><td>clip ε = 0.2, GAE λ = 0.95, entropi 0–0.01</td><td>τ (soft update) = 0.005, α otomatis</td></tr>
+  <tr><td>Jaringan</td><td>2 × 64 (tanh)</td><td>2 × 256 (ReLU)</td></tr>
+</table>
+<div class="grid2">
+  <div class="card"><b>⚙️ Normalisasi</b><span>Normalisasi observasi (running mean/std) dan skala reward sering lebih berpengaruh daripada pemilihan algoritma.</span></div>
+  <div class="card"><b>⚡ Vectorized env</b><span>Jalankan banyak lingkungan paralel (<code>gym.vector</code>) atau simulator di GPU (Isaac Lab, MJX, Brax) untuk mempercepat pengumpulan data.</span></div>
+  <div class="card"><b>📊 Evaluasi yang jujur</b><span>Minimal 5–10 seed, laporkan interval kepercayaan, gunakan IQM (<i>interquartile mean</i>) dari pustaka <code>rliable</code> (Agarwal dkk., 2021).</span></div>
+  <div class="card"><b>🔍 Pantau metrik</b><span>Untuk PPO: KL aproksimasi, <i>clip fraction</i>, entropi, dan <i>explained variance</i> critic. KL yang melonjak = learning rate terlalu besar.</span></div>
+</div>
+<h3>Ekosistem pustaka</h3>
+<table>
+  <tr><th>Kebutuhan</th><th>Pilihan</th></tr>
+  <tr><td>Implementasi siap pakai</td><td>Stable-Baselines3, RLlib (skala besar), TorchRL</td></tr>
+  <tr><td>Implementasi satu file untuk dipelajari</td><td>CleanRL</td></tr>
+  <tr><td>Lingkungan</td><td>Gymnasium, MuJoCo, PettingZoo (multi-agent), Minigrid, Atari (ALE)</td></tr>
+  <tr><td>RL untuk LLM</td><td>Hugging Face TRL (PPO, DPO, GRPO), OpenRLHF, verl</td></tr>
+</table>
+<div class="box note"><strong>🧭 Topik riset lain yang layak dijelajahi</strong>
+  <b>Multi-agent RL</b> (kooperasi &amp; kompetisi, misalnya AlphaStar), <b>hierarchical RL</b> (options, sub-goal), <b>meta-RL</b> (belajar cara belajar),
+  <b>sim-to-real</b> (domain randomization untuk robot), dan <b>safe RL</b> (constrained MDP).
+</div>
+</section>
+
+<!-- 12 -->
+<section id="kuis">
+<h2>12. Kuis &amp; Latihan</h2>
+<p>Klik jawaban untuk melihat apakah benar.</p>
+<div id="quiz"></div>
+<h3>Latihan mandiri</h3>
+<ol>
+  <li>Buktikan bahwa 𝔼<sub><var>a</var>∼π</sub>[∇<sub>θ</sub> log π<sub>θ</sub>(<var>a</var>|<var>s</var>) · <var>b</var>(<var>s</var>)] = 0. (Petunjuk: Σ<sub><var>a</var></sub> π(<var>a</var>|<var>s</var>) = 1.)</li>
+  <li>Di kode PPO, set <code>LAM = 0</code> lalu <code>LAM = 1</code>. Bandingkan kecepatan dan kestabilan belajarnya.</li>
+  <li>Hapus clipping (ganti <code>surr</code> dengan <code>ratio * ADV[idx]</code>) dan naikkan <code>EPOCHS</code> ke 30. Apa yang terjadi pada return?</li>
+  <li>Ubah PPO agar bekerja di <code>Pendulum-v1</code> dengan policy Gaussian (<code>torch.distributions.Normal</code>), lalu bandingkan dengan SAC.</li>
+  <li>Implementasikan advantage ala GRPO untuk bandit: ambil 8 sampel aksi, normalisasi reward-nya dalam kelompok, dan pakai sebagai bobot REINFORCE tanpa critic.</li>
+</ol>
+</section>
+
+<!-- 13 -->
+<section id="ringkasan">
+<h2>13. Ringkasan &amp; Roadmap</h2>
+<div class="box tip"><strong>✅ Inti modul ini</strong>
+  <ul style="margin:4px 0 0">
+    <li><b>Policy gradient</b>: ∇<var>J</var> = 𝔼[∇ log π · <var>G</var>]. <b>Baseline</b> menurunkan variansi tanpa menambah bias.</li>
+    <li><b>Actor-critic</b> memakai critic <var>V</var> untuk menghitung <b>advantage</b>. <b>GAE</b> mengatur trade-off bias–variansi lewat λ.</li>
+    <li><b>PPO</b> membatasi perubahan policy dengan clipping rasio, sederhana dan menjadi algoritma default.</li>
+    <li>Untuk aksi kontinu yang hemat sampel: <b>TD3</b> dan <b>SAC</b> (maximum entropy).</li>
+    <li><b>Model-based</b> RL hemat sampel tetapi rawan model bias. <b>Offline RL</b> harus melawan distribution shift.</li>
+    <li><b>Eksplorasi</b> pada sparse reward butuh bonus intrinsik (count-based, curiosity, RND).</li>
+    <li><b>RLHF</b> = SFT → reward model → PPO + KL. <b>DPO</b> menghilangkan RL eksplisit, <b>GRPO</b> menghilangkan critic.</li>
+  </ul>
+</div>
+<table>
+  <tr><th>Istilah</th><th>Arti singkat</th></tr>
+  <tr><td>Policy gradient</td><td>Gradien return harapan terhadap parameter policy</td></tr>
+  <tr><td>Advantage <var>A</var>(<var>s</var>,<var>a</var>)</td><td><var>Q</var>(<var>s</var>,<var>a</var>) − <var>V</var>(<var>s</var>): seberapa lebih baik aksi dibanding rata-rata</td></tr>
+  <tr><td>GAE</td><td>Estimasi advantage berupa rata-rata eksponensial TD error (parameter λ)</td></tr>
+  <tr><td>Rasio <var>r<sub>t</sub></var>(θ)</td><td>π<sub>baru</sub>(<var>a</var>|<var>s</var>) / π<sub>lama</sub>(<var>a</var>|<var>s</var>)</td></tr>
+  <tr><td>Entropi ℋ(π)</td><td>Ukuran keacakan policy, dipakai sebagai bonus eksplorasi</td></tr>
+  <tr><td>KL divergence</td><td>Ukuran perbedaan dua distribusi, dipakai untuk membatasi perubahan policy</td></tr>
+  <tr><td>Reparameterization trick</td><td>Menulis sampel acak sebagai fungsi deterministik + noise agar bisa diturunkan</td></tr>
+  <tr><td>Distribution shift</td><td>Policy mengunjungi state/aksi yang tidak ada di data latih</td></tr>
+  <tr><td>Reward model</td><td>Model yang memberi skor jawaban berdasarkan preferensi manusia</td></tr>
+  <tr><td>RLVR</td><td>RL with verifiable rewards: reward dari pemeriksa otomatis (unit test, jawaban matematika)</td></tr>
+</table>
+<h3>🗺️ Roadmap belajar selanjutnya</h3>
+<ol class="steps">
+  <li><b>Perdalam teori</b>: Sutton &amp; Barto (bab 9–13), kuliah RL David Silver (UCL/DeepMind).</li>
+  <li><b>Deep RL praktis</b>: OpenAI <i>Spinning Up in Deep RL</i>, Hugging Face Deep RL Course, dan baca kode CleanRL.</li>
+  <li><b>Tingkat riset</b>: Berkeley CS285 (Sergey Levine), lalu baca paper asli PPO, SAC, DreamerV3, dan DPO.</li>
+  <li><b>Proyek</b>: latih agen di MuJoCo, ikut kompetisi RL, atau fine-tune LLM kecil dengan TRL (DPO/GRPO).</li>
+</ol>
+<div class="nav-mod"><a class="btn" href="02-intermediate.html">← Modul 2: Intermediate</a><a class="btn" href="01-beginner.html">Kembali ke Modul 1 ↺</a></div>
+</section>
+
+<footer>Modul Reinforcement Learning · Level 3: Advanced. Referensi: Sutton &amp; Barto (2018); Williams (1992); Schulman dkk., TRPO (2015), GAE (2016), PPO (2017);
+Haarnoja dkk., SAC (2018); Fujimoto dkk., TD3 (2018); Ouyang dkk., InstructGPT (2022); Rafailov dkk., DPO (2023); Shao dkk., DeepSeekMath/GRPO (2024).</footer>
+</main>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+/* ---------- Sidebar, scrollspy, progress, tema ---------- */
+const sb=$('#sidebar');
+$('#menuBtn').onclick=()=>sb.classList.toggle('open');
+$$('#toc a').forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+const links=[...$$('#toc a')];
+const spy=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){links.forEach(l=>l.classList.toggle('active',l.hash==='#'+e.target.id))}
+}),{rootMargin:'-20% 0px -70% 0px'});
+$$('main section').forEach(s=>spy.observe(s));
+addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  $('#progress div').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+},{passive:true});
+$('#themeBtn').onclick=()=>{
+  const r=document.documentElement, dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme=dark?'light':'dark';
+  try{localStorage.setItem('rl-theme',r.dataset.theme)}catch(e){}
+};
+try{const t=localStorage.getItem('rl-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+
+/* ---------- Highlight kode Python ---------- */
+$$('pre code.py').forEach(el=>{
+  el.innerHTML=el.textContent.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))
+    .replace(/(#.*$)|(f?"[^"\n]*")|\b(import|from|as|def|return|for|in|if|else|while|with|not|and|or|True|False|None|break)\b|\b(\d+\.?\d*(?:e-?\d+)?)\b/gm,
+      (m,c,s,k,n)=>c?`<span class="c">${c}</span>`:s?`<span class="s">${s}</span>`:k?`<span class="k">${k}</span>`:`<span class="n">${n}</span>`);
+});
+
+/* ---------- Demo REINFORCE: dengan vs tanpa baseline ---------- */
+const MU=[5,6,5.5],LR=0.05,AN='ABC';let pg;
+const randn=()=>Math.sqrt(-2*Math.log(1-Math.random()))*Math.cos(2*Math.PI*Math.random());
+const softmax=th=>{const m=Math.max(...th),e=th.map(x=>Math.exp(x-m)),z=e.reduce((a,c)=>a+c);return e.map(x=>x/z)};
+function pgStep(x,base){const p=softmax(x.th);let u=Math.random(),a=0;while(a<2&&u>p[a]){u-=p[a];a++}
+  const r=MU[a]+randn(),g=base?r-x.b:r;x.b+=0.05*(r-x.b);
+  for(let i=0;i<3;i++)x.th[i]+=LR*g*((i===a)-p[i]);x.h.push(softmax(x.th)[1])}
+function pgDraw(){
+  [0,1].forEach(k=>{const p=softmax(pg[k].th);
+    $('#pgP'+k).innerHTML=p.map((v,i)=>`<span>${AN[i]}${i===1?' ★':''}</span><div class="bar"><div style="width:${v*100}%;background:var(${k?'--good':'--warn'})"></div></div><b>${(v*100).toFixed(0)}%</b>`).join('');
+    const h=pg[k].h;$('#pgL'+k).setAttribute('points',h.map((v,i)=>`${h.length<2?0:i/(h.length-1)*560},${130-v*117}`).join(' '))});
+  $('#pgT').textContent=pg[0].h.length}
+function pgReset(){const mk=()=>({th:[0,0,0],b:0,h:[1/3]});pg=[mk(),mk()];$('#pgManyOut').textContent='';pgDraw()}
+$$('[data-pg]').forEach(b=>b.onclick=()=>{for(let i=0;i<+b.dataset.pg;i++){pgStep(pg[0],false);pgStep(pg[1],true)}pgDraw()});
+$('#pgReset').onclick=pgReset;
+$('#pgMany').onclick=()=>{const res=[0,0],fail=[0,0],N=200;
+  for(let n=0;n<N;n++)[0,1].forEach(k=>{const x={th:[0,0,0],b:0,h:[]};for(let t=0;t<300;t++)pgStep(x,k===1);const v=x.h[x.h.length-1];res[k]+=v/N;if(v<0.5)fail[k]++});
+  $('#pgManyOut').innerHTML=`Hasil 200 run × 300 langkah: rata-rata peluang memilih B · tanpa baseline <b>${(res[0]*100).toFixed(0)}%</b> (gagal* ${fail[0]} run), dengan baseline <b>${(res[1]*100).toFixed(0)}%</b> (gagal* ${fail[1]} run).<br>*gagal = peluang B &lt; 50% setelah 300 langkah.`};
+pgReset();
+
+/* ---------- Demo PPO clip ---------- */
+function clipSvg(A,eps){
+  const W=300,H=200,x=r=>20+r/2*270,y=v=>100-v*40,pts=[],raw=[];
+  for(let i=0;i<=100;i++){const r=i/50,c=Math.min(Math.max(r,1-eps),1+eps);pts.push(`${x(r)},${y(Math.min(r*A,c*A))}`);raw.push(`${x(r)},${y(r*A)}`)}
+  const ax=[0,0.5,1,1.5,2].map(r=>`<text x="${x(r)}" y="196" font-size="10" text-anchor="middle" fill="var(--muted)">${r}</text>`).join('');
+  return `<div><b style="font-size:14px">Â ${A>0?'&gt; 0 (aksi bagus)':'&lt; 0 (aksi buruk)'}</b>
+  <svg class="plot" viewBox="0 0 ${W} ${H}"><rect x="${x(1-eps)}" y="5" width="${x(1+eps)-x(1-eps)}" height="178" fill="var(--accent-soft)"/>
+  <line x1="20" x2="290" y1="${y(0)}" y2="${y(0)}" stroke="var(--border)"/><line x1="${x(1)}" x2="${x(1)}" y1="5" y2="183" stroke="var(--border)" stroke-dasharray="3 3"/>
+  <polyline points="${raw.join(' ')}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <polyline points="${pts.join(' ')}" fill="none" stroke="var(--accent)" stroke-width="3"/>${ax}
+  <text x="286" y="${A>0?y(0)+14:y(0)-6}" font-size="10" text-anchor="end" fill="var(--muted)">rasio r</text></svg></div>`}
+function clipDraw(){const e=+$('#epsR').value;$('#epsV').textContent=e.toFixed(2);$('#clipPlots').innerHTML=clipSvg(1,e)+clipSvg(-1,e)}
+$('#epsR').oninput=clipDraw;clipDraw();
+
+/* ---------- Kuis ---------- */
+const QZ=[
+  {q:'Mengapa mengurangi baseline b(s) dari return tidak membuat policy gradient menjadi bias?',o:['Karena baseline selalu nol','Karena 𝔼[∇log π(a|s) · b(s)] = 0, sebab b tidak bergantung pada aksi','Karena baseline hanya dipakai di critic','Karena learning rate dikecilkan'],a:1,w:'Σ_a ∇π(a|s)·b(s) = b(s)·∇Σ_a π(a|s) = b(s)·∇1 = 0. Jadi rata-ratanya tidak berubah, hanya variansinya yang turun.'},
+  {q:'Pada GAE, nilai λ = 1 menghasilkan estimasi advantage yang…',o:['Sama dengan TD error 1 langkah','Sama dengan G_t − V(s_t): tidak bias, variansi tinggi','Selalu nol','Tidak memakai critic sama sekali dan bias'],a:1,w:'λ = 1 menjumlahkan semua TD error tanpa peluruhan sehingga menjadi return Monte Carlo dikurangi V(s_t).'},
+  {q:'Pada PPO-Clip dengan Â > 0 dan rasio r = 1.5 (ε = 0.2), berapa gradien objektif terhadap r?',o:['Positif besar','Nol, karena objektif sudah ter-clip di 1+ε','Negatif','Tak hingga'],a:1,w:'Untuk Â > 0, min(r·Â, clip(r)·Â) = 1.2·Â saat r > 1.2, yang konstan terhadap r. Gradiennya nol, jadi tidak ada dorongan menaikkan peluang aksi lebih jauh.'},
+  {q:'Apa tujuan bonus entropi pada SAC?',o:['Mempercepat inferensi','Mendorong policy tetap acak sehingga eksplorasi lebih baik dan lebih robust','Mengurangi ukuran replay buffer','Menggantikan critic'],a:1,w:'SAC memaksimalkan reward + α·entropi, sehingga agen mencari cara sukses yang tetap beragam.'},
+  {q:'Masalah utama offline RL adalah…',o:['Reward selalu sparse','Distribution shift: Q terlalu optimis pada aksi yang tidak ada di dataset','Tidak bisa memakai neural network','Butuh simulator'],a:1,w:'Tanpa interaksi baru, kesalahan estimasi Q pada aksi di luar data tidak pernah terkoreksi. Metode seperti CQL dan IQL dirancang untuk mengatasinya.'},
+  {q:'Pada RLHF, mengapa ada penalti KL terhadap model referensi?',o:['Untuk mempercepat training','Mencegah LLM mengeksploitasi celah reward model dan menjauh dari bahasa yang wajar','Agar reward selalu positif','Untuk menggantikan SFT'],a:1,w:'Reward model hanya akurat di sekitar distribusi data latihnya. Penalti KL menjaga policy tetap dekat dengan π_ref sehingga reward hacking berkurang.'}
+];
+$('#quiz').innerHTML=QZ.map((x,i)=>`<div class="q" data-i="${i}"><p>${i+1}. ${x.q}</p>${x.o.map((o,j)=>`<button data-j="${j}">${o}</button>`).join('')}<div class="why">${x.w}</div></div>`).join('');
+$$('.q button').forEach(b=>b.onclick=()=>{
+  const box=b.closest('.q'),x=QZ[box.dataset.i];
+  box.querySelectorAll('button').forEach(o=>o.classList.remove('right','wrong'));
+  b.classList.add(+b.dataset.j===x.a?'right':'wrong');
+  box.querySelector(`[data-j="${x.a}"]`).classList.add('right');
+  box.querySelector('.why').style.display='block';
+});
+</script>
+</body>
+</html>
