@@ -276,6 +276,15 @@ Sifat Markov adalah <i>independensi bersyarat</i>: jika state sekarang diketahui
 <div class="formula"><var>P</var>(<var>H</var> | <var>D</var>) = <var>P</var>(<var>D</var> | <var>H</var>) · <var>P</var>(<var>H</var>) / <var>P</var>(<var>D</var>)</div>
 <p>Memperbarui keyakinan tentang hipotesis <var>H</var> setelah melihat data <var>D</var>. Di RL dipakai pada Thompson sampling dan Bayesian RL:
 "seberapa yakin saya bahwa mesin slot B adalah yang terbaik, setelah melihat 10 tarikan?"</p>
+<h3>✍️ Contoh hitung manual: Bayes</h3>
+<p>Sebuah mesin slot bisa bertipe <b>bagus</b> (peluang menang 0,7) atau <b>biasa</b> (peluang menang 0,4). Awalnya kita 50:50 tidak tahu. Kita tarik sekali dan <b>menang</b>. Seberapa yakin sekarang bahwa mesin itu bagus?</p>
+<ol class="steps">
+  <li>Peluang menang jika bagus × prior: 0,7 × 0,5 = 0,35</li>
+  <li>Peluang menang jika biasa × prior: 0,4 × 0,5 = 0,20</li>
+  <li>Total peluang menang: <var>P</var>(menang) = 0,35 + 0,20 = 0,55</li>
+  <li><var>P</var>(bagus | menang) = 0,35 / 0,55 ≈ <b>0,636</b></li>
+</ol>
+<p>Satu kemenangan menaikkan keyakinan dari 50% menjadi 63,6%. Setiap tarikan berikutnya memperbarui angka ini lagi. Inilah cara kerja Thompson sampling.</p>
 </section>
 
 <!-- 4 -->
@@ -286,6 +295,15 @@ Sifat Markov adalah <i>independensi bersyarat</i>: jika state sekarang diketahui
 <p>Contoh dadu: 𝔼[<var>X</var>] = (1+2+3+4+5+6)/6 = <b>3,5</b>, padahal dadu tidak pernah menghasilkan 3,5. Ekspektasi adalah rata-rata <i>jangka panjang</i>, bukan hasil yang "diharapkan muncul".</p>
 <p><b>Variansi</b> mengukur seberapa menyebar hasilnya di sekitar ekspektasi:</p>
 <div class="formula">Var[<var>X</var>] = 𝔼[ (<var>X</var> − 𝔼[<var>X</var>])² ] = 𝔼[<var>X</var>²] − 𝔼[<var>X</var>]²</div>
+
+<h3>✍️ Contoh hitung manual: variansi dadu</h3>
+<ol class="steps">
+  <li>𝔼[<var>X</var>] = (1 + 2 + 3 + 4 + 5 + 6) / 6 = 21 / 6 = <b>3,5</b></li>
+  <li>𝔼[<var>X</var>²] = (1 + 4 + 9 + 16 + 25 + 36) / 6 = 91 / 6 ≈ <b>15,167</b></li>
+  <li>Var[<var>X</var>] = 𝔼[<var>X</var>²] − 𝔼[<var>X</var>]² = 15,167 − 3,5² = 15,167 − 12,25 ≈ <b>2,917</b></li>
+  <li>Standar deviasi = √2,917 ≈ <b>1,71</b>: rata-rata, hasil lemparan menyimpang sekitar 1,7 dari 3,5.</li>
+</ol>
+<p>Angka 3,5 dan 2,92 inilah yang ditampilkan sebagai "Teori" di demo berikut.</p>
 
 <div class="demo">
   <h4>Demo: Hukum Bilangan Besar</h4>
@@ -354,10 +372,25 @@ Policy optimal tidak merata-ratakan aksi, tetapi mengambil max: <var>V</var>*(<v
   <p class="legend">τ kecil → hampir selalu memilih skor tertinggi (greedy, eksploitasi). τ besar → hampir uniform (eksplorasi). Ini disebut <b>Boltzmann exploration</b>, alternatif ε-greedy yang lebih halus.</p>
 </div>
 
+<h3>✍️ Contoh hitung manual: softmax</h3>
+<p>Logit (Kiri, Kanan, Atas, Bawah) = (2,0; 1,0; 0,2; −1,0) dengan τ = 1, persis seperti demo di atas:</p>
+<table>
+  <tr><th>Aksi</th><th>Logit z</th><th>e<sup>z</sup></th><th>Peluang = e<sup>z</sup> / total</th></tr>
+  <tr><td>Kiri</td><td>2,0</td><td>7,389</td><td>7,389 / 11,697 = <b>0,632</b></td></tr>
+  <tr><td>Kanan</td><td>1,0</td><td>2,718</td><td>2,718 / 11,697 = <b>0,232</b></td></tr>
+  <tr><td>Atas</td><td>0,2</td><td>1,221</td><td>1,221 / 11,697 = <b>0,104</b></td></tr>
+  <tr><td>Bawah</td><td>−1,0</td><td>0,368</td><td>0,368 / 11,697 = <b>0,031</b></td></tr>
+  <tr><td colspan="2"><b>Total</b></td><td><b>11,697</b></td><td>1,000</td></tr>
+</table>
+<p>Dengan τ = 0,5, logit dibagi 0,5 menjadi (4; 2; 0,4; −2), sehingga <var>e</var><sup>z</sup> = (54,6; 7,39; 1,49; 0,14) dan peluangnya menjadi (<b>0,858</b>; 0,116; 0,023; 0,002).
+Temperatur kecil membuat selisih logit "membesar", sehingga aksi terbaik makin dominan. Bandingkan angka-angka ini dengan demo.</p>
+
 <h3>Sigmoid: softmax untuk dua pilihan</h3>
 <div class="formula">σ(<var>x</var>) = 1 / (1 + <var>e</var><sup>−<var>x</var></sup>)</div>
 <p>Mengubah selisih skor menjadi peluang 0–1. Reward model di RLHF memakai σ(<var>r<sub>w</sub></var> − <var>r<sub>l</sub></var>) sebagai peluang jawaban <var>w</var> lebih disukai daripada <var>l</var> (model Bradley–Terry).
 Softmax dua kelas dengan logit (<var>x</var>, 0) persis sama dengan σ(<var>x</var>).</p>
+<p><b>✍️ Contoh:</b> jawaban A mendapat skor 2,0 dan jawaban B mendapat 0,5, sehingga selisihnya 1,5.
+σ(1,5) = 1 / (1 + <var>e</var><sup>−1,5</sup>) = 1 / (1 + 0,223) ≈ <b>0,818</b>. Jadi model memperkirakan 81,8% manusia akan lebih menyukai A.</p>
 </section>
 
 <!-- 6 -->
@@ -370,6 +403,14 @@ Softmax dua kelas dengan logit (<var>x</var>, 0) persis sama dengan σ(<var>x</v
 </div>
 <div class="formula">Error kuadrat rata-rata (MSE) = Bias² + Variansi</div>
 <p>Inilah alasan matematis di balik banyak pilihan desain di RL: TD vs MC, nilai <var>n</var> pada n-step, λ pada GAE, dan baseline. Semuanya mengatur <b>trade-off bias–variansi</b>.</p>
+<h3>✍️ Contoh hitung manual: dua estimator, MSE sama</h3>
+<p>Nilai sebenarnya θ = 10. Dua estimator dicoba 4 kali:</p>
+<table>
+  <tr><th>Estimator</th><th>Hasil 4 percobaan</th><th>Rata-rata</th><th>Bias</th><th>Variansi</th><th>MSE = Bias² + Var</th></tr>
+  <tr><td>A (berisik)</td><td>9, 11, 9, 11</td><td>10</td><td>0</td><td>((−1)² + 1² + (−1)² + 1²)/4 = 1</td><td>0 + 1 = <b>1</b></td></tr>
+  <tr><td>B (meleset konsisten)</td><td>11, 11, 11, 11</td><td>11</td><td>+1</td><td>0</td><td>1 + 0 = <b>1</b></td></tr>
+</table>
+<p>A mirip Monte Carlo (tepat rata-ratanya, tetapi berisik), B mirip TD (stabil, tetapi bias). Errornya sama besar, hanya sumbernya berbeda.</p>
 
 <h3>Rata-rata berjalan (incremental mean)</h3>
 <p>Rata-rata <var>n</var> sampel bisa dihitung tanpa menyimpan semua sampel:</p>
@@ -387,6 +428,16 @@ Ini adalah bentuk update Q-Learning dan TD: <code>Q ← Q + α(target − Q)</co
   <p class="legend"><span style="color:var(--muted)">• titik</span> = sampel, <span style="color:var(--warn)">━ oranye</span> = rata-rata 1/<var>n</var>, <span style="color:var(--accent)">━ biru</span> = EMA α, <span style="color:var(--good)">┅ hijau</span> = nilai sebenarnya.
   Rata-rata 1/<var>n</var> sangat lambat beradaptasi setelah perubahan. α besar cepat beradaptasi tetapi berisik (variansi tinggi), α kecil halus tetapi lambat (bias sementara).</p>
 </div>
+<h3>✍️ Contoh hitung manual: 1/n vs EMA</h3>
+<p>Data masuk berurutan: 2, 2, 5, 5 (nilai sebenarnya berubah dari 2 menjadi 5 di data ke-3). Estimasi awal 0, EMA memakai α = 0,5:</p>
+<table>
+  <tr><th>n</th><th>Data x</th><th>Rata-rata 1/n: Q + (x − Q)/n</th><th>EMA: Q + 0,5(x − Q)</th></tr>
+  <tr><td>1</td><td>2</td><td>0 + (2 − 0)/1 = <b>2</b></td><td>0 + 0,5 × 2 = <b>1</b></td></tr>
+  <tr><td>2</td><td>2</td><td>2 + (2 − 2)/2 = <b>2</b></td><td>1 + 0,5 × 1 = <b>1,5</b></td></tr>
+  <tr><td>3</td><td>5</td><td>2 + (5 − 2)/3 = <b>3</b></td><td>1,5 + 0,5 × 3,5 = <b>3,25</b></td></tr>
+  <tr><td>4</td><td>5</td><td>3 + (5 − 3)/4 = <b>3,5</b></td><td>3,25 + 0,5 × 1,75 = <b>4,125</b></td></tr>
+</table>
+<p>Setelah perubahan, EMA (4,125) jauh lebih dekat ke nilai baru 5 daripada rata-rata 1/<var>n</var> (3,5), karena data lama "dilupakan". Di awal, EMA memang tertinggal (1 dan 1,5), dan itulah biasnya.</p>
 </section>
 
 <!-- 7 -->
@@ -405,6 +456,9 @@ Ini adalah bentuk update Q-Learning dan TD: <code>Q ← Q + α(target − Q)</co
   <tr><td>0,99</td><td>100 langkah</td><td>0,366</td></tr>
   <tr><td>0,999</td><td>1000 langkah</td><td>0,905</td></tr>
 </table>
+<p><b>✍️ Cek manual:</b> reward 1 tiap langkah dengan γ = 0,9 seharusnya total 1/(1 − 0,9) = 10. Jumlah parsialnya: 1 langkah = 1; 2 langkah = 1 + 0,9 = 1,9;
+3 langkah = 1,9 + 0,81 = 2,71; 10 langkah ≈ 6,51; 50 langkah ≈ 9,95. Jumlahnya memang terus mendekati 10 tetapi tidak pernah melewatinya.</p>
+
 <h3>Bentuk rekursif &amp; kontraksi</h3>
 <p>Deret ini bisa ditulis rekursif: <var>G<sub>t</sub></var> = <var>r</var><sub>t+1</sub> + γ<var>G</var><sub>t+1</sub>. Itulah asal-usul persamaan Bellman.
 Selain itu, setiap iterasi Bellman memperkecil error paling sedikit dengan faktor γ (<b>kontraksi</b>):</p>
@@ -438,9 +492,23 @@ Untuk memaksimalkan return, ikuti arah gradien (<i>gradient ascent</i>, seperti 
   (2) α = 1,0 atau lebih: langkah terlalu besar sehingga terlempar bolak-balik atau divergen. Inilah kenapa learning rate sangat penting di DQN dan PPO.</p>
 </div>
 
+<h3>✍️ Contoh hitung manual: gradient descent</h3>
+<p>Fungsi sederhana <var>f</var>(<var>x</var>) = <var>x</var>² (minimum di <var>x</var> = 0), dengan turunan <var>f</var>'(<var>x</var>) = 2<var>x</var>. Mulai dari <var>x</var> = 3:</p>
+<table>
+  <tr><th>Langkah</th><th>α = 0,1 (wajar)</th><th>α = 1,1 (terlalu besar)</th></tr>
+  <tr><td>1</td><td>3 − 0,1 × (2 × 3) = <b>2,4</b></td><td>3 − 1,1 × 6 = <b>−3,6</b></td></tr>
+  <tr><td>2</td><td>2,4 − 0,1 × 4,8 = <b>1,92</b></td><td>−3,6 − 1,1 × (−7,2) = <b>4,32</b></td></tr>
+  <tr><td>3</td><td>1,92 − 0,1 × 3,84 = <b>1,536</b></td><td>makin jauh (−5,18 …) → divergen</td></tr>
+</table>
+<p>Dengan α = 0,1, setiap langkah mengecilkan <var>x</var> menjadi 0,8 kali sehingga mendekati 0. Dengan α = 1,1, <var>x</var> dikali −1,2 setiap langkah, sehingga terlempar bolak-balik makin jauh.
+Untuk fungsi di demo, satu langkah dari <var>x</var> = 1,8 dengan α = 0,1: <var>f</var>'(1,8) = 1,8³ − 2(1,8) + 0,3 = 2,532, sehingga <var>x</var> baru = 1,8 − 0,2532 = <b>1,547</b>.</p>
+
 <h3>Aturan rantai</h3>
 <p>Jika <var>y</var> = <var>f</var>(<var>g</var>(<var>x</var>)), maka d<var>y</var>/d<var>x</var> = <var>f</var>'(<var>g</var>(<var>x</var>)) · <var>g</var>'(<var>x</var>). Neural network adalah komposisi banyak fungsi,
 dan <b>backpropagation</b> hanyalah aturan rantai yang diterapkan berulang dari output ke input. PyTorch melakukannya otomatis lewat <code>loss.backward()</code>.</p>
+<p><b>✍️ Contoh:</b> <var>y</var> = (3<var>x</var> + 1)² di <var>x</var> = 2. Pecah menjadi <var>g</var> = 3<var>x</var> + 1 = 7 dan <var>y</var> = <var>g</var>².
+Turunan lokal: d<var>y</var>/d<var>g</var> = 2<var>g</var> = 14 dan d<var>g</var>/d<var>x</var> = 3. Dikalikan: d<var>y</var>/d<var>x</var> = 14 × 3 = <b>42</b>.
+Backprop bekerja persis seperti ini: setiap "mata rantai" menghitung turunannya sendiri, lalu hasilnya dikalikan berurutan.</p>
 <div class="box note"><strong>📝 Contoh: gradien loss DQN</strong>
   <var>L</var>(θ) = (<var>y</var> − <var>Q</var><sub>θ</sub>)², dengan target <var>y</var> dianggap konstan. Aturan rantai: ∇<sub>θ</sub><var>L</var> = −2(<var>y</var> − <var>Q</var><sub>θ</sub>) · ∇<sub>θ</sub><var>Q</var><sub>θ</sub>.
   Gradient descent dengan langkah α/2 memberi θ ← θ + α(<var>y</var> − <var>Q</var><sub>θ</sub>)∇<sub>θ</sub><var>Q</var><sub>θ</sub>, persis update semi-gradient di modul Intermediate.
@@ -459,6 +527,10 @@ dan <b>backpropagation</b> hanyalah aturan rantai yang diterapkan berulang dari 
   <tr><td>d/d<var>x</var> log <var>x</var> = 1/<var>x</var></td><td>Dasar log-derivative trick</td></tr>
   <tr><td>log monoton naik</td><td>Memaksimalkan <var>p</var> sama dengan memaksimalkan log <var>p</var></td></tr>
 </table>
+
+<p><b>✍️ Contoh:</b> peluang sebuah trajektori = 0,8 × 0,9 × 0,5 = 0,36. Dengan log: ln 0,8 + ln 0,9 + ln 0,5 = −0,223 − 0,105 − 0,693 = −1,022,
+dan memang ln 0,36 = −1,022. Untuk episode 1000 langkah, perkalian peluang bisa menjadi sekecil 10<sup>−300</sup> dan "habis" di komputer (underflow),
+sedangkan jumlah log tetap angka biasa. Karena itu kode RL dan LLM selalu bekerja dengan <code>log_prob</code>.</p>
 
 <h3>Log-derivative trick, langkah demi langkah</h3>
 <p>Kita ingin gradien dari <var>J</var>(θ) = 𝔼<sub><var>x</var>∼<var>p</var><sub>θ</sub></sub>[<var>f</var>(<var>x</var>)] = Σ<sub><var>x</var></sub> <var>p</var><sub>θ</sub>(<var>x</var>) <var>f</var>(<var>x</var>):</p>
@@ -483,6 +555,14 @@ naikkan logit aksi terpilih, turunkan yang lain. Rumus inilah yang dipakai demo 
   <div class="card"><b>Dot product</b><span><var>u</var>·<var>v</var> = Σ<sub><var>i</var></sub> <var>u<sub>i</sub></var><var>v<sub>i</sub></var>. Mengukur "kemiripan arah". Dipakai di linear function approximation dan attention.</span></div>
   <div class="card"><b>Matriks</b><span>Tabel angka. Perkalian matriks–vektor <var>Wx</var> adalah inti setiap layer neural network: <var>y</var> = σ(<var>Wx</var> + <var>b</var>).</span></div>
 </div>
+<h3>✍️ Contoh hitung manual: dot product &amp; perkalian matriks</h3>
+<ul>
+  <li><b>Dot product</b>: (1, 2, 3) · (4, 0, −1) = 1×4 + 2×0 + 3×(−1) = 4 + 0 − 3 = <b>1</b></li>
+  <li><b>Matriks × vektor</b>: <var>W</var> = [[1 2] [0 −1]] dan <var>x</var> = (3, 1). Setiap baris <var>W</var> di-dot dengan <var>x</var>:
+  baris 1: 1×3 + 2×1 = 5, baris 2: 0×3 + (−1)×1 = −1, sehingga <var>Wx</var> = <b>(5, −1)</b>.</li>
+</ul>
+<p>Satu layer neural network dengan 1000 neuron hanyalah 1000 dot product seperti ini yang dihitung serentak di GPU.</p>
+
 <h3>Linear function approximation</h3>
 <div class="formula"><var>Q̂</var>(<var>s</var>,<var>a</var>; θ) = θ<sup>⊤</sup>φ(<var>s</var>,<var>a</var>) = Σ<sub><var>i</var></sub> θ<sub><var>i</var></sub> φ<sub><var>i</var></sub>(<var>s</var>,<var>a</var>) &nbsp;&nbsp;⇒&nbsp;&nbsp; ∇<sub>θ</sub><var>Q̂</var> = φ(<var>s</var>,<var>a</var>)</div>
 <p>Gradien fungsi linear adalah vektor fiturnya sendiri, jadi update-nya sangat murah. Q-table adalah kasus khusus dengan φ berupa vektor <i>one-hot</i>.</p>
@@ -512,6 +592,15 @@ naikkan logit aksi terpilih, turunkan yang lain. Rumus inilah yang dipakai demo 
   <li><b>Tidak simetris</b>: KL(<var>p</var>‖<var>q</var>) ≠ KL(<var>q</var>‖<var>p</var>), jadi bukan "jarak" dalam arti biasa.</li>
   <li>Hubungan dengan cross-entropy: ℋ(<var>p</var>,<var>q</var>) = ℋ(<var>p</var>) + KL(<var>p</var>‖<var>q</var>). Loss klasifikasi yang biasa dipakai di deep learning adalah cross-entropy.</li>
 </ul>
+<h3>✍️ Contoh hitung manual: entropi &amp; KL dua koin</h3>
+<p>Koin <var>p</var>: muncul "gambar" dengan peluang 0,5. Koin <var>q</var>: peluang 0,8.</p>
+<ol class="steps">
+  <li>ℋ(<var>p</var>) = −(0,5 ln 0,5 + 0,5 ln 0,5) = −ln 0,5 = <b>0,693</b> (maksimum, paling tidak pasti)</li>
+  <li>ℋ(<var>q</var>) = −(0,8 ln 0,8 + 0,2 ln 0,2) = −(−0,179 − 0,322) = <b>0,500</b> (lebih pasti)</li>
+  <li>KL(<var>p</var>‖<var>q</var>) = 0,5 ln(0,5/0,8) + 0,5 ln(0,5/0,2) = 0,5 × (−0,470) + 0,5 × 0,916 = <b>0,223</b></li>
+  <li>KL(<var>q</var>‖<var>p</var>) = 0,8 ln(0,8/0,5) + 0,2 ln(0,2/0,5) = 0,8 × 0,470 + 0,2 × (−0,916) = <b>0,193</b></li>
+</ol>
+<p>Dua langkah terakhir memberi angka berbeda, bukti bahwa KL tidak simetris. Ini adalah nilai awal demo di bawah, jadi kamu bisa langsung mencocokkannya.</p>
 <div class="demo">
   <h4>Demo: entropi &amp; KL untuk dua koin (Bernoulli)</h4>
   <div class="controls">

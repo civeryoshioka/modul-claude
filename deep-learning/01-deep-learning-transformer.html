@@ -252,6 +252,14 @@ Menumpuk beberapa layer menghasilkan <b>Multi-Layer Perceptron (MLP)</b>:</p>
 <div class="formula"><var>ŷ</var> = <var>W</var><sub>3</sub> · <var>g</var>( <var>W</var><sub>2</sub> · <var>g</var>( <var>W</var><sub>1</sub><var>x</var> + <var>b</var><sub>1</sub> ) + <var>b</var><sub>2</sub> ) + <var>b</var><sub>3</sub></div>
 <div class="demo loop"><svg id="mlpSvg" viewBox="0 0 600 230" role="img" aria-label="Diagram MLP"></svg>
 <p class="legend" style="text-align:center;margin:0">Garis bergerak = sinyal mengalir maju (<i>forward pass</i>). Setiap garis adalah satu bobot <var>w</var> yang dipelajari.</p></div>
+<h3>✍️ Contoh hitung manual: satu neuron</h3>
+<p>Input <var>x</var> = (1; 2), bobot <var>w</var> = (0,5; 0,25), bias <var>b</var> = −0,5:</p>
+<ol class="steps">
+  <li>Jumlah tertimbang: <var>z</var> = 0,5×1 + 0,25×2 + (−0,5) = 0,5 + 0,5 − 0,5 = <b>0,5</b></li>
+  <li>Dengan aktivasi ReLU: max(0; 0,5) = <b>0,5</b>. Dengan sigmoid: 1/(1 + <var>e</var><sup>−0,5</sup>) = <b>0,622</b></li>
+</ol>
+<p>Bobot menentukan seberapa penting tiap input, bias menggeser "ambang" kapan neuron aktif. Hanya itu yang dilakukan satu neuron. Kecerdasan muncul dari jutaan neuron yang bobotnya disetel bersama.</p>
+
 <div class="box tip"><strong>💡 Kenapa harus "deep"?</strong>
   Secara teori, MLP dengan satu hidden layer yang cukup lebar bisa mendekati fungsi kontinu apa pun (<i>universal approximation theorem</i>).
   Dalam praktik, jaringan yang <b>lebih dalam</b> jauh lebih efisien: layer awal belajar fitur sederhana, layer berikutnya menggabungkannya menjadi fitur yang makin abstrak.
@@ -271,6 +279,15 @@ Non-linearitas inilah yang membuat jaringan bisa mempelajari pola rumit.</p>
   <tr><td>ReLU</td><td>Sangat murah, gradien tidak jenuh untuk <var>x</var> &gt; 0</td><td>Neuron bisa "mati" (selalu 0). Default untuk CNN dan MLP.</td></tr>
   <tr><td>GELU</td><td>Versi ReLU yang halus</td><td>Dipakai di BERT, GPT, dan kebanyakan transformer.</td></tr>
 </table>
+<h3>✍️ Contoh hitung manual: nilai aktivasi</h3>
+<table>
+  <tr><th>Input z</th><th>Sigmoid 1/(1+e<sup>−z</sup>)</th><th>Tanh</th><th>ReLU max(0, z)</th><th>GELU</th></tr>
+  <tr><td>−2</td><td>1/(1 + 7,389) = 0,119</td><td>−0,964</td><td>0</td><td>−0,045</td></tr>
+  <tr><td>0</td><td>1/(1 + 1) = 0,5</td><td>0</td><td>0</td><td>0</td></tr>
+  <tr><td>2</td><td>1/(1 + 0,135) = 0,881</td><td>0,964</td><td>2</td><td>1,955</td></tr>
+</table>
+<p>Perhatikan: ReLU dan GELU hampir sama untuk input positif, tetapi GELU membiarkan sedikit nilai negatif lolos (−0,045) sehingga lebih halus.
+Sigmoid dan tanh "menjenuh": dari <var>z</var> = 2 ke <var>z</var> = 10 outputnya hampir tidak berubah, sehingga gradiennya mendekati 0.</p>
 </section>
 
 <!-- 4 -->
@@ -285,6 +302,15 @@ Pasangan softmax + cross-entropy memiliki gradien yang sangat sederhana terhadap
 <div class="formula">∂<var>L</var> / ∂<var>z</var> = <var>p</var> − <var>y</var> &nbsp;&nbsp; (peluang prediksi dikurangi one-hot label)</div>
 <p>Bandingkan dengan gradien log-softmax di policy gradient (onehot − π). Itu rumus yang sama dengan tanda terbalik, karena policy gradient memaksimalkan, bukan meminimalkan.
 Melatih LLM dengan cross-entropy dan melatih policy dengan REINFORCE ternyata sangat mirip. Bedanya hanya pada bobot setiap contoh.</p>
+<h3>✍️ Contoh hitung manual: softmax + cross-entropy</h3>
+<p>Model mengklasifikasi gambar menjadi (kucing, anjing, burung) dengan logit (2; 1; 0). Label yang benar: <b>kucing</b>.</p>
+<ol class="steps">
+  <li><var>e</var><sup>z</sup> = (7,389; 2,718; 1,000), totalnya 11,107</li>
+  <li>Peluang <var>p</var> = (0,665; 0,245; 0,090)</li>
+  <li>Loss = −ln <var>p</var><sub>kucing</sub> = −ln 0,665 ≈ <b>0,408</b></li>
+  <li>Gradien terhadap logit: <var>p</var> − <var>y</var> = (0,665 − 1; 0,245 − 0; 0,090 − 0) = <b>(−0,335; 0,245; 0,090)</b></li>
+</ol>
+<p>Gradient descent mengurangi logit dengan gradien ini: logit kucing <b>naik</b> (karena gradiennya negatif), logit anjing dan burung <b>turun</b>. Persis yang kita inginkan.</p>
 </section>
 
 <!-- 5 -->
@@ -297,6 +323,32 @@ Setiap operasi cukup tahu turunan lokalnya sendiri. Contoh dengan satu neuron, <
   <li><b>Backward</b>: ∂<var>L</var>/∂<var>ŷ</var> = 2(<var>ŷ</var> − <var>y</var>) = −2. Lalu ∂<var>L</var>/∂<var>w</var> = −2 · <var>x</var> = −4 dan ∂<var>L</var>/∂<var>b</var> = −2 · 1 = −2.</li>
   <li><b>Update</b> (α = 0,1): <var>w</var> ← 0,5 + 0,4 = 0,9, <var>b</var> ← 1 + 0,2 = 1,2. Sekarang <var>ŷ</var> = 3,0 dan loss turun ke 0.</li>
 </ol>
+<h3>✍️ Hitung manual: backprop pada jaringan 2 layer</h3>
+<p>Jaringan kecil: 2 input → 2 neuron tersembunyi (ReLU) → 1 output, dengan loss <var>L</var> = (<var>ŷ</var> − <var>y</var>)². Data: <var>x</var> = (1; 2), target <var>y</var> = 2.
+Bobot awal: neuron 1 punya <var>w</var> = (0,5; −0,5), neuron 2 punya <var>w</var> = (0,25; 0,5), layer output <var>v</var> = (1,0; 0,8), semua bias 0.</p>
+<p><b>Forward (maju):</b></p>
+<table>
+  <tr><th>Tahap</th><th>Neuron 1</th><th>Neuron 2</th></tr>
+  <tr><td>z = w · x</td><td>0,5×1 + (−0,5)×2 = −0,5</td><td>0,25×1 + 0,5×2 = 1,25</td></tr>
+  <tr><td>h = ReLU(z)</td><td>0 (mati)</td><td>1,25</td></tr>
+</table>
+<p>Output: <var>ŷ</var> = 1,0×0 + 0,8×1,25 = <b>1,0</b>. Loss = (1 − 2)² = <b>1</b>.</p>
+<p><b>Backward (mundur), dengan aturan rantai:</b></p>
+<ol class="steps">
+  <li>∂L/∂ŷ = 2(<var>ŷ</var> − <var>y</var>) = 2(1 − 2) = <b>−2</b></li>
+  <li>Bobot output: ∂L/∂<var>v</var> = −2 × <var>h</var> = −2 × (0; 1,25) = <b>(0; −2,5)</b>, dan ∂L/∂bias<sub>out</sub> = <b>−2</b></li>
+  <li>Mundur ke neuron tersembunyi: ∂L/∂<var>h</var> = −2 × <var>v</var> = <b>(−2; −1,6)</b></li>
+  <li>Melewati ReLU: neuron 1 mati (z &lt; 0), turunan ReLU = 0, sehingga gradiennya <b>0</b>. Neuron 2 aktif, turunan = 1, sehingga gradiennya tetap <b>−1,6</b>.</li>
+  <li>Bobot neuron 2: ∂L/∂<var>w</var> = −1,6 × <var>x</var> = −1,6 × (1; 2) = <b>(−1,6; −3,2)</b>. Bobot neuron 1: <b>(0; 0)</b>, tidak belajar apa pun dari contoh ini (<i>dead ReLU</i>).</li>
+</ol>
+<p><b>Update</b> dengan learning rate 0,1 (bobot baru = bobot − 0,1 × gradien):</p>
+<ul>
+  <li><var>v</var> = (1,0; 0,8) − 0,1×(0; −2,5) = <b>(1,0; 1,05)</b>, bias<sub>out</sub> = 0 − 0,1×(−2) = <b>0,2</b></li>
+  <li><var>w</var><sub>neuron 2</sub> = (0,25; 0,5) − 0,1×(−1,6; −3,2) = <b>(0,41; 0,82)</b></li>
+  <li>Forward ulang: <var>h</var><sub>2</sub> = 0,41 + 0,82×2 = 2,05, sehingga <var>ŷ</var> = 1,05×2,05 + 0,2 = <b>2,3525</b>. Loss baru = 0,3525² ≈ <b>0,124</b> (turun dari 1).</li>
+</ul>
+<p class="muted">Semua angka gradien di atas sudah dicocokkan dengan <code>loss.backward()</code> PyTorch dan hasilnya identik. Prediksi sekarang sedikit kebablasan (2,35 &gt; 2). Itulah pentingnya memilih learning rate.</p>
+
 <h3>Optimizer</h3>
 <table>
   <tr><th>Optimizer</th><th>Ide</th></tr>
@@ -377,6 +429,12 @@ Setiap token punya ID di dalam kosakata (biasanya 30 ribu–200 ribu token). Con
 <h3>Embedding</h3>
 <p>Setiap ID token dipetakan ke sebuah <b>vektor</b> berdimensi <var>d</var> (misalnya 768) lewat tabel yang dipelajari. Token dengan makna mirip akan memiliki vektor yang berdekatan,
 sehingga kemiripannya bisa diukur dengan dot product atau cosine similarity.</p>
+<p><b>✍️ Contoh hitung manual (embedding 3 dimensi buatan):</b> kucing = (0,9; 0,8; 0,1), anjing = (0,8; 0,9; 0,2), mobil = (0,1; 0,2; 0,9).
+Cosine similarity = (a · b) / (|a| × |b|):</p>
+<ul>
+  <li>kucing · anjing = 0,72 + 0,72 + 0,02 = 1,46. |kucing| = √(0,81 + 0,64 + 0,01) = 1,208 dan |anjing| = 1,221. Cosine = 1,46 / (1,208 × 1,221) ≈ <b>0,99</b> (sangat mirip)</li>
+  <li>kucing · mobil = 0,09 + 0,16 + 0,09 = 0,34. |mobil| = √(0,01 + 0,04 + 0,81) = 0,927. Cosine = 0,34 / (1,208 × 0,927) ≈ <b>0,30</b> (tidak mirip)</li>
+</ul>
 <h3>Informasi posisi</h3>
 <p>Attention sendiri tidak tahu urutan: "anjing menggigit orang" dan "orang menggigit anjing" berisi token yang sama. Karena itu ditambahkan <b>positional encoding</b>:
 embedding posisi yang dipelajari (GPT-2), fungsi sinusoidal (transformer asli), atau <b>RoPE</b> yang memutar vektor sesuai posisinya (LLaMA dan banyak LLM modern).</p>
@@ -391,6 +449,20 @@ embedding posisi yang dipelajari (GPT-2), fungsi sinusoidal (transformer asli), 
   <div class="card"><b>Key (K)</b><span>"Informasi apa yang saya tawarkan?"</span></div>
   <div class="card"><b>Value (V)</b><span>"Ini isi yang akan saya berikan jika dipilih."</span></div>
 </div>
+<div class="box tip"><strong>🏛️ Penjelasan untuk awam: kenapa attention dibutuhkan?</strong>
+  Arti sebuah kata sering bergantung pada kata lain. Bandingkan <i>"Ular itu punya <b>bisa</b>"</i> dengan <i>"Saya <b>bisa</b> berenang"</i>.
+  Kata "bisa"-nya sama persis, tetapi artinya (racun vs mampu) baru jelas setelah melihat kata "ular" atau "saya". Begitu juga kata "lapar" dalam
+  <i>"Kucing itu lapar"</i>: kata itu sendiri tidak tahu <i>siapa</i> yang lapar. Attention adalah mekanisme agar setiap kata bisa "menengok" kata lain dan mengambil informasi yang ia butuhkan.
+  <br><br><b>Analogi perpustakaan:</b>
+  <ul style="margin:4px 0 0">
+    <li><b>Query</b> = pertanyaan yang kamu bawa ke perpustakaan ("saya cari buku tentang hewan").</li>
+    <li><b>Key</b> = label di punggung setiap buku ("hewan", "masakan", "sejarah").</li>
+    <li><b>Skor</b> = seberapa cocok pertanyaanmu dengan setiap label, yaitu dot product Q·K.</li>
+    <li><b>Softmax</b> = membagi waktu bacamu: 77% untuk buku yang paling cocok, sisanya untuk buku lain.</li>
+    <li><b>Value</b> = isi buku. <b>Output</b> = rangkuman campuran isi buku sesuai porsi waktu baca tadi.</li>
+  </ul>
+  Bedanya dengan perpustakaan sungguhan: di attention, <i>setiap</i> kata sekaligus menjadi pengunjung (punya Query) dan buku (punya Key dan Value).
+</div>
 <p>Q, K, V didapat dari perkalian matriks yang dipelajari: <var>Q</var> = <var>XW<sub>Q</sub></var>, <var>K</var> = <var>XW<sub>K</sub></var>, <var>V</var> = <var>XW<sub>V</sub></var>. Lalu:</p>
 <div class="formula">Attention(<var>Q</var>, <var>K</var>, <var>V</var>) = softmax( <var>QK</var><sup>⊤</sup> / √<var>d<sub>k</sub></var> ) · <var>V</var></div>
 <ol class="steps">
@@ -399,6 +471,84 @@ embedding posisi yang dipelajari (GPT-2), fungsi sinusoidal (transformer asli), 
   <li>Softmax per baris: setiap token membagi 100% perhatiannya ke token lain.</li>
   <li>Kalikan dengan <var>V</var>: output setiap token = rata-rata tertimbang Value dari token yang diperhatikannya.</li>
 </ol>
+
+<h3>✍️ Hitung manual lengkap: attention untuk "Kucing itu lapar"</h3>
+<p>Kita hitung semuanya dengan tangan untuk kalimat 3 token. Agar angkanya kecil, setiap token hanya punya <b>2 angka</b> (model sungguhan punya ratusan sampai ribuan).
+Anggap angka pertama berarti "seberapa <b>benda</b>" dan angka kedua "seberapa <b>sifat/keadaan</b>". Semua bobot di contoh ini <b>dibuat tangan</b> agar mudah diikuti.
+Di model sungguhan, bobot itu dipelajari dari data.</p>
+
+<p><b>Langkah 0: representasi awal x</b> (embedding token + posisi, sudah dijumlahkan)</p>
+<table>
+  <tr><th>Token</th><th>x = (benda, sifat)</th><th>Keterangan</th></tr>
+  <tr><td>Kucing</td><td>(2; 0)</td><td>benda murni</td></tr>
+  <tr><td>itu</td><td>(1; 1)</td><td>kata penunjuk, campuran</td></tr>
+  <tr><td>lapar</td><td>(0; 2)</td><td>sifat/keadaan murni</td></tr>
+</table>
+
+<p><b>Langkah 1: hitung Q, K, V</b> dengan mengalikan x dengan tiga matriks bobot:</p>
+<ul>
+  <li><var>W<sub>Q</sub></var> = [[0 1] [1 0]] artinya <b>menukar</b> kedua angka. Maknanya: "kata sifat <i>mencari</i> benda, kata benda <i>mencari</i> sifatnya".</li>
+  <li><var>W<sub>K</sub></var> = <var>W<sub>V</sub></var> = [[1 0] [0 1]] (matriks identitas), sehingga K = V = x. Ini sengaja dibuat sederhana.</li>
+</ul>
+<p>Contoh perkalian untuk Query "lapar": vektor baris (0; 2) dikali kolom-kolom <var>W<sub>Q</sub></var>:
+angka ke-1 = 0×0 + 2×1 = <b>2</b>, angka ke-2 = 0×1 + 2×0 = <b>0</b>, sehingga <var>Q</var><sub>lapar</sub> = <b>(2; 0)</b>. Artinya "lapar" sedang mencari sesuatu yang bersifat <i>benda</i>.</p>
+<table>
+  <tr><th>Token</th><th>Q (yang dicari)</th><th>K (yang ditawarkan)</th><th>V (isi)</th></tr>
+  <tr><td>Kucing</td><td>(0; 2): mencari sifat</td><td>(2; 0)</td><td>(2; 0)</td></tr>
+  <tr><td>itu</td><td>(1; 1)</td><td>(1; 1)</td><td>(1; 1)</td></tr>
+  <tr><td>lapar</td><td>(2; 0): mencari benda</td><td>(0; 2)</td><td>(0; 2)</td></tr>
+</table>
+
+<p><b>Langkah 2: skor kecocokan = Q · K</b> (dot product: kalikan angka yang sejajar, lalu jumlahkan). Untuk baris "lapar":</p>
+<ul>
+  <li>lapar → Kucing: (2; 0)·(2; 0) = 2×2 + 0×0 = <b>4</b></li>
+  <li>lapar → itu: (2; 0)·(1; 1) = 2×1 + 0×1 = <b>2</b></li>
+  <li>lapar → lapar: (2; 0)·(0; 2) = 2×0 + 0×2 = <b>0</b></li>
+</ul>
+<p>Dengan cara yang sama untuk semua pasangan, didapat matriks skor 3×3 (baris = yang bertanya, kolom = yang ditanya):</p>
+<table>
+  <tr><th>Q ↓ / K →</th><th>Kucing</th><th>itu</th><th>lapar</th></tr>
+  <tr><td><b>Kucing</b></td><td>0</td><td>2</td><td>4</td></tr>
+  <tr><td><b>itu</b></td><td>2</td><td>2</td><td>2</td></tr>
+  <tr><td><b>lapar</b></td><td>4</td><td>2</td><td>0</td></tr>
+</table>
+
+<p><b>Langkah 3: bagi dengan √d<sub>k</sub></b>. Di sini <var>d<sub>k</sub></var> = 2, jadi √2 ≈ 1,414. Baris "lapar" menjadi (4; 2; 0) / 1,414 = <b>(2,83; 1,41; 0)</b>.</p>
+
+<p><b>Langkah 4: softmax per baris</b> (ubah skor menjadi persentase perhatian). Untuk baris "lapar":</p>
+<ol class="steps">
+  <li>Pangkatkan <var>e</var> ≈ 2,718: <var>e</var><sup>2,83</sup> ≈ 16,92 · <var>e</var><sup>1,41</sup> ≈ 4,11 · <var>e</var><sup>0</sup> = 1</li>
+  <li>Jumlahkan: 16,92 + 4,11 + 1 = 22,03</li>
+  <li>Bagi masing-masing dengan total: 16,92/22,03 = <b>0,768</b> · 4,11/22,03 = <b>0,187</b> · 1/22,03 = <b>0,045</b> (total = 1)</li>
+</ol>
+<table>
+  <tr><th>Bobot attention</th><th>→ Kucing</th><th>→ itu</th><th>→ lapar</th></tr>
+  <tr><td><b>Kucing</b></td><td>4,5%</td><td>18,7%</td><td><b>76,8%</b></td></tr>
+  <tr><td><b>itu</b></td><td>33,3%</td><td>33,3%</td><td>33,3%</td></tr>
+  <tr><td><b>lapar</b></td><td><b>76,8%</b></td><td>18,7%</td><td>4,5%</td></tr>
+</table>
+<p>"lapar" mencurahkan 76,8% perhatiannya ke "Kucing": ia menemukan <i>siapa</i> yang lapar. Sebaliknya, "Kucing" paling memperhatikan "lapar": ia menemukan keadaannya.
+"itu" tidak punya preferensi, sehingga perhatiannya rata.</p>
+
+<p><b>Langkah 5: output = rata-rata tertimbang dari V.</b> Untuk "lapar":</p>
+<div class="formula">0,768 × (2; 0) + 0,187 × (1; 1) + 0,045 × (0; 2) = (1,536; 0) + (0,187; 0,187) + (0; 0,090) = <b>(1,723; 0,277)</b></div>
+<table>
+  <tr><th>Token</th><th>x awal</th><th>Output attention</th><th>Makna</th></tr>
+  <tr><td>Kucing</td><td>(2; 0)</td><td>(0,277; 1,723)</td><td>kini membawa informasi "keadaannya: lapar"</td></tr>
+  <tr><td>itu</td><td>(1; 1)</td><td>(1; 1)</td><td>rata-rata semua kata</td></tr>
+  <tr><td>lapar</td><td>(0; 2)</td><td>(1,723; 0,277)</td><td>kini membawa informasi "pelakunya: benda (kucing)"</td></tr>
+</table>
+<p>Inilah inti attention: setiap token <b>mengumpulkan informasi dari token lain</b> sesuai kebutuhannya. Vektor "lapar" yang semula hanya berisi "sifat" sekarang tahu ada benda (kucing) yang terkait dengannya.</p>
+
+<p><b>Langkah 6 (GPT): causal mask.</b> Saat menulis teks, kata yang belum ditulis tidak boleh dilihat. Skor ke token "masa depan" diganti −∞, dan karena <var>e</var><sup>−∞</sup> = 0, bobotnya menjadi 0:</p>
+<table>
+  <tr><th>Dengan mask</th><th>→ Kucing</th><th>→ itu</th><th>→ lapar</th><th>Output</th></tr>
+  <tr><td><b>Kucing</b></td><td>100%</td><td>— (masa depan)</td><td>— (masa depan)</td><td>(2; 0)</td></tr>
+  <tr><td><b>itu</b></td><td>50%</td><td>50%</td><td>—</td><td>(1,5; 0,5)</td></tr>
+  <tr><td><b>lapar</b></td><td>76,8%</td><td>18,7%</td><td>4,5%</td><td>(1,723; 0,277)</td></tr>
+</table>
+<p>Baris "itu": skornya ke Kucing dan itu sama-sama 2/1,414 = 1,41, sehingga softmax-nya 50:50, dan outputnya 0,5 × (2; 0) + 0,5 × (1; 1) = (1,5; 0,5).
+Baris "lapar" tidak berubah karena semua token yang ia lihat memang ada di sebelah kirinya.</p>
 
 <div class="demo">
   <h4>Demo: matriks attention</h4>
@@ -417,6 +567,26 @@ embedding posisi yang dipelajari (GPT-2), fungsi sinusoidal (transformer asli), 
 <h3>Multi-head attention</h3>
 <p>Satu "kepala" attention hanya bisa menangkap satu jenis hubungan. <b>Multi-head attention</b> menjalankan <var>h</var> attention paralel dengan proyeksi berbeda
 (misalnya satu kepala melacak subjek–kata kerja, kepala lain melacak kata ganti), lalu menggabungkan hasilnya. GPT-2 small memakai 12 kepala per layer.</p>
+
+<h3>✍️ Hitung manual: kenapa harus dibagi √d<sub>k</sub>?</h3>
+<p>Di GPT-2, setiap kepala memakai <var>d<sub>k</sub></var> = 64. Dot product dari dua vektor acak berdimensi 64 (isi sekitar ±1) adalah jumlah 64 perkalian kecil,
+sehingga besarnya biasanya sekitar √64 = <b>8</b>. Bandingkan softmax dua skor:</p>
+<ul>
+  <li>Tanpa pembagian, skor (8; 0): softmax = (<b>0,9997</b>; 0,0003). Hampir seluruh perhatian ke satu token, dan gradien untuk token lain nyaris 0, sehingga model sulit belajar.</li>
+  <li>Dibagi √64 = 8, skor menjadi (1; 0): softmax = (<b>0,731</b>; 0,269). Masih ada preferensi, tetapi tidak ekstrem, sehingga gradien tetap mengalir.</li>
+</ul>
+
+<h3>✍️ Hitung manual: multi-head dengan angka</h3>
+<ol class="steps">
+  <li>Misalkan vektor sebuah token punya 4 angka: (1,0; 0,5; −0,2; 0,8). Dengan 2 kepala, vektor ini dipotong dua: kepala 1 mendapat (1,0; 0,5), kepala 2 mendapat (−0,2; 0,8).</li>
+  <li>Masing-masing kepala menjalankan langkah 1–5 di atas secara terpisah, dengan <var>W<sub>Q</sub></var>, <var>W<sub>K</sub></var>, <var>W<sub>V</sub></var> sendiri. Kepala 1 mungkin belajar "cari subjek", kepala 2 "cari kata sebelumnya".</li>
+  <li>Output kedua kepala (masing-masing 2 angka) disambung kembali menjadi 4 angka, lalu dikalikan matriks <var>W<sub>O</sub></var> untuk mencampur hasil semua kepala.</li>
+  <li>Di GPT-2 small: <var>d</var> = 768 dibagi 12 kepala = <b>64 angka per kepala</b>, sehingga pembaginya √64 = 8.</li>
+</ol>
+<div class="box warn"><strong>⚠️ Biaya attention</strong>
+  Untuk <var>T</var> token, ada <var>T</var> × <var>T</var> skor yang harus dihitung. Kalimat 3 token di atas butuh 9 skor. Teks 1000 token butuh <b>1.000.000 skor</b>
+  per kepala per layer, dan 100.000 token butuh 10 miliar. Inilah alasan konteks panjang mahal dan butuh trik seperti FlashAttention dan KV cache.
+</div>
 </section>
 
 <!-- 10 -->
@@ -454,6 +624,78 @@ embedding posisi yang dipelajari (GPT-2), fungsi sinusoidal (transformer asli), 
   <li><b>Feed-forward</b> = setiap token memproses informasi yang sudah dikumpulkan secara terpisah ("komputasi"). Sebagian besar parameter ada di sini.</li>
   <li>Satu blok punya sekitar <b>12<var>d</var>²</b> parameter (4<var>d</var>² attention + 8<var>d</var>² FFN). GPT-2 small (<var>d</var> = 768, 12 blok) ≈ 85 juta di blok + 38 juta embedding ≈ <b>124 juta</b>.</li>
 </ul>
+
+<div class="box tip"><strong>👥 Penjelasan untuk awam: satu blok transformer seperti satu putaran rapat</strong>
+  <ul style="margin:4px 0 0">
+    <li><b>Attention</b> = sesi diskusi: setiap peserta (token) mendengarkan peserta lain yang relevan dan mencatat informasi penting.</li>
+    <li><b>Residual (+)</b> = catatan pribadi tidak dibuang. Hasil diskusi hanya <i>ditambahkan</i> ke catatan awal, sehingga informasi asli tidak hilang.</li>
+    <li><b>LayerNorm</b> = moderator yang menyamakan "volume suara" agar tidak ada angka yang terlalu besar atau terlalu kecil.</li>
+    <li><b>Feed-forward</b> = setiap peserta merenung sendiri memakai pengetahuannya. Banyak "hafalan fakta" model diduga tersimpan di sini.</li>
+    <li><b>Banyak blok</b> = beberapa putaran rapat. Putaran awal menangkap hal sederhana (tata bahasa), putaran akhir menangkap makna yang lebih abstrak.</li>
+  </ul>
+</div>
+
+<h3>✍️ Hitung manual lengkap: dari "lapar" sampai prediksi kata berikutnya</h3>
+<p>Kita lanjutkan contoh "Kucing itu lapar" dari bagian 9. Model harus menebak kata <b>sesudah</b> "lapar", jadi kita ikuti vektor token terakhir, x<sub>lapar</sub> = (0; 2), melewati satu blok.</p>
+<p class="muted">Penyederhanaan: di model sungguhan ada LayerNorm sebelum attention dan sebelum FFN (pre-LN). Di sini LayerNorm dilewati agar angkanya mudah diikuti,
+lalu cara kerjanya dihitung terpisah di langkah 3. Untuk vektor 2 angka, LayerNorm selalu menghasilkan (−1; +1), sehingga kurang menarik sebagai contoh.</p>
+
+<p><b>Langkah 1: attention</b> (sudah dihitung di bagian 9): output attention untuk "lapar" = <b>(1,723; 0,277)</b>.</p>
+
+<p><b>Langkah 2: residual pertama</b>, yaitu jumlahkan input dan output attention:</p>
+<div class="formula">h = x + Attention(x) = (0; 2) + (1,723; 0,277) = <b>(1,723; 2,277)</b></div>
+<p>Angka kedua (sifat: "lapar") tetap ada, dan angka pertama sekarang berisi informasi "benda/kucing" dari attention. Tanpa residual, makna asli "lapar" bisa hilang.</p>
+
+<p><b>Langkah 3: cara kerja LayerNorm</b> (contoh vektor 4 angka (2; 4; 6; 8)):</p>
+<ol class="steps">
+  <li>Rata-rata: (2 + 4 + 6 + 8)/4 = <b>5</b></li>
+  <li>Variansi: ((−3)² + (−1)² + 1² + 3²)/4 = (9 + 1 + 1 + 9)/4 = <b>5</b>, sehingga standar deviasi = √5 ≈ <b>2,236</b></li>
+  <li>Normalisasi (x − rata-rata)/std: (−3; −1; 1; 3)/2,236 = <b>(−1,342; −0,447; 0,447; 1,342)</b></li>
+  <li>Terakhir dikali skala γ dan ditambah geser β yang dipelajari (awalnya γ = 1, β = 0).</li>
+</ol>
+<p>Apa pun skala inputnya (misalnya (200; 400; 600; 800)), hasilnya tetap sama. Inilah yang membuat training puluhan layer tetap stabil.</p>
+
+<p><b>Langkah 4: feed-forward (FFN).</b> Vektor diperlebar 2 → 4 angka, diberi ReLU, lalu dikecilkan lagi 4 → 2 (di GPT: 768 → 3072 → 768). Bobotnya (dibuat tangan):
+<var>W</var><sub>1</sub> = [[1 −1 0,5 0] [0 1 0,5 −1]] dan <var>W</var><sub>2</sub> = [[0,5 0] [0 0,5] [0,2 0,2] [1 1]].</p>
+<ol class="steps">
+  <li>h × <var>W</var><sub>1</sub>: (1,723×1 + 2,277×0; 1,723×(−1) + 2,277×1; 1,723×0,5 + 2,277×0,5; 1,723×0 + 2,277×(−1)) = <b>(1,723; 0,554; 2,000; −2,277)</b></li>
+  <li>ReLU (negatif menjadi 0): <b>(1,723; 0,554; 2,000; 0)</b>. Neuron ke-4 "tidak menyala".</li>
+  <li>× <var>W</var><sub>2</sub>: angka ke-1 = 1,723×0,5 + 0,554×0 + 2×0,2 + 0×1 = 1,262; angka ke-2 = 1,723×0 + 0,554×0,5 + 2×0,2 + 0×1 = 0,677, sehingga FFN(h) = <b>(1,262; 0,677)</b></li>
+</ol>
+
+<p><b>Langkah 5: residual kedua:</b> h₂ = h + FFN(h) = (1,723; 2,277) + (1,262; 0,677) = <b>(2,985; 2,954)</b>. Inilah output satu blok. Di GPT-2, vektor ini masuk lagi ke blok berikutnya, dan seterusnya sampai 12 kali.</p>
+
+<p><b>Langkah 6: ubah menjadi peluang kata berikutnya.</b> Misalkan kosakata kita hanya 3 kata: "sekali", "dan", ".". Kalikan dengan matriks output
+<var>W</var><sub>out</sub> = [[1 0 0,5] [0,5 1 0]] untuk mendapat satu skor (logit) per kata:</p>
+<table>
+  <tr><th>Kata</th><th>Logit</th><th>e<sup>logit</sup></th><th>Peluang</th></tr>
+  <tr><td>"sekali"</td><td>2,985×1 + 2,954×0,5 = 4,462</td><td>86,6</td><td>86,6/110,2 = <b>78,6%</b></td></tr>
+  <tr><td>"dan"</td><td>2,985×0 + 2,954×1 = 2,954</td><td>19,2</td><td>19,2/110,2 = <b>17,4%</b></td></tr>
+  <tr><td>"."</td><td>2,985×0,5 + 2,954×0 = 1,492</td><td>4,4</td><td>4,4/110,2 = <b>4,0%</b></td></tr>
+</table>
+<p>Model menebak <b>"Kucing itu lapar sekali"</b> dengan keyakinan 78,6%.</p>
+
+<p><b>Langkah 7: loss saat training.</b> Jika kata yang benar di data memang "sekali", cross-entropy = −ln 0,786 ≈ <b>0,241</b> (kecil = tebakan bagus).
+Jika yang benar ternyata ".", loss = −ln 0,040 ≈ 3,2, dan backprop akan mengubah <i>semua</i> bobot di langkah 1–6 (<var>W<sub>Q</sub></var>, <var>W<sub>K</sub></var>, <var>W<sub>V</sub></var>,
+<var>W</var><sub>1</sub>, <var>W</var><sub>2</sub>, <var>W</var><sub>out</sub>, dan embedding) agar lain kali peluang "." naik. Seluruh proses ini diulang miliaran kali pada teks sungguhan.</p>
+
+<h3>✍️ Hitung manual: jumlah parameter</h3>
+<p><b>GPT-2 small</b> (<var>d</var> = 768, 12 blok, kosakata 50.257 token, konteks 1.024):</p>
+<table>
+  <tr><th>Komponen</th><th>Hitungan</th><th>Jumlah</th></tr>
+  <tr><td>Attention per blok (<var>W<sub>Q</sub></var>, <var>W<sub>K</sub></var>, <var>W<sub>V</sub></var>, <var>W<sub>O</sub></var>)</td><td>4 × 768 × 768</td><td>2.359.296</td></tr>
+  <tr><td>FFN per blok (<var>W</var><sub>1</sub>: 768→3072, <var>W</var><sub>2</sub>: 3072→768)</td><td>2 × 768 × 3072</td><td>4.718.592</td></tr>
+  <tr><td>12 blok</td><td>12 × (2.359.296 + 4.718.592)</td><td>84.934.656</td></tr>
+  <tr><td>Embedding token</td><td>50.257 × 768</td><td>38.597.376</td></tr>
+  <tr><td>Embedding posisi</td><td>1.024 × 768</td><td>786.432</td></tr>
+  <tr><td colspan="2"><b>Total</b> (belum termasuk bias &amp; LayerNorm yang kecil)</td><td><b>≈ 124,3 juta</b></td></tr>
+</table>
+<p><b>Mini-GPT di bagian 12</b> (<var>D</var> = 96, 3 blok, 24 karakter, konteks 64), dihitung sampai bias dan LayerNorm:</p>
+<ul>
+  <li>Per blok: attention 4×96² = 36.864 + bias 4×96 = 384; FFN 8×96² = 73.728 + bias 5×96 = 480; dua LayerNorm 4×96 = 384. Total <b>111.840</b>, dikali 3 blok = 335.520.</li>
+  <li>Embedding: 24×96 + 64×96 = 8.448. LayerNorm akhir: 192. Head output: 96×24 + 24 = 2.328.</li>
+  <li>Total: 335.520 + 8.448 + 192 + 2.328 = <b>346.488</b>, persis sama dengan angka yang dicetak kode.</li>
+</ul>
 <table>
   <tr><th>Varian</th><th>Attention</th><th>Contoh</th><th>Cocok untuk</th></tr>
   <tr><td><b>Encoder-only</b></td><td>Dua arah (melihat kiri &amp; kanan)</td><td>BERT</td><td>Klasifikasi, pencarian, embedding</td></tr>
@@ -483,6 +725,21 @@ prediksi distribusi token berikutnya → ambil satu token → tambahkan ke input
   <p class="legend"><b>Temperatur</b> rendah → jawaban konsisten dan aman. Temperatur tinggi → kreatif tetapi bisa ngawur ("batu").
   <b>top-k</b> hanya menyimpan <var>k</var> kandidat teratas. <b>top-p</b> (nucleus) menyimpan kandidat terkecil yang total peluangnya ≥ <var>p</var>. Token yang dicoret tidak akan pernah dipilih. Temperatur → 0 sama dengan <i>greedy decoding</i>.</p>
 </div>
+<h3>✍️ Hitung manual: temperatur dan top-p</h3>
+<p>Logit dari demo: nasi 3,0 · bakso 2,6 · sate 2,2 · buah 1,5 · pizza 1,0 · batu −1,0 · meja −2,0.</p>
+<table>
+  <tr><th>Kata</th><th>e<sup>logit</sup></th><th>Peluang (T = 1)</th><th>Kumulatif</th><th>top-p = 0,8</th></tr>
+  <tr><td>nasi</td><td>20,09</td><td>20,09/50,28 = 0,399</td><td>0,399</td><td>✅ → 0,399/0,847 = <b>0,472</b></td></tr>
+  <tr><td>bakso</td><td>13,46</td><td>0,268</td><td>0,667</td><td>✅ → <b>0,316</b></td></tr>
+  <tr><td>sate</td><td>9,03</td><td>0,180</td><td>0,847 (≥ 0,8, berhenti)</td><td>✅ → <b>0,212</b></td></tr>
+  <tr><td>buah</td><td>4,48</td><td>0,089</td><td>0,936</td><td>❌ dibuang</td></tr>
+  <tr><td>pizza</td><td>2,72</td><td>0,054</td><td>0,990</td><td>❌</td></tr>
+  <tr><td>batu</td><td>0,37</td><td>0,007</td><td>0,997</td><td>❌</td></tr>
+  <tr><td>meja</td><td>0,14</td><td>0,003</td><td>1,000</td><td>❌</td></tr>
+</table>
+<p>Total <var>e</var><sup>logit</sup> = 50,28. Top-p = 0,8 menyimpan kata dari atas sampai peluang kumulatifnya ≥ 0,8 (nasi, bakso, sate), lalu peluangnya dibagi ulang dengan 0,847 agar totalnya 1.
+Dengan <b>temperatur 0,5</b>, semua logit dibagi 0,5 (nasi 6,0, bakso 5,2, …), sehingga peluang nasi naik menjadi <b>0,581</b> dan "batu" turun menjadi hampir 0.</p>
+
 <h3>Dari model bahasa menjadi asisten</h3>
 <ol class="steps">
   <li><b>Pretraining</b>: prediksi token berikutnya pada triliunan token teks internet dan buku. Model belajar bahasa, fakta, dan pola penalaran. <i>Scaling laws</i> menunjukkan loss turun secara teratur seiring bertambahnya parameter, data, dan komputasi (Chinchilla: ± 20 token data per parameter).</li>
