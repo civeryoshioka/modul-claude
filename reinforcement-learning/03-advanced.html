@@ -253,6 +253,24 @@ Solusinya, kurangi <var>G<sub>t</sub></var> dengan <b>baseline</b> <var>b</var>(
 <div class="formula">∇<sub>θ</sub><var>J</var> ≈ Σ<sub>t</sub> ∇<sub>θ</sub> log π<sub>θ</sub>(<var>a<sub>t</sub></var>|<var>s<sub>t</sub></var>) · ( <var>G<sub>t</sub></var> − <var>b</var>(<var>s<sub>t</sub></var>) )</div>
 <p>Sekarang aksi yang <b>lebih baik dari rata-rata</b> didorong naik, sedangkan yang <b>lebih buruk dari rata-rata</b> ditekan.</p>
 
+<h3>✍️ Contoh hitung manual: satu update REINFORCE</h3>
+<p>Policy softmax dengan 3 aksi (A, B, C) dan logit awal θ = (0, 0, 0), sehingga π = (1/3, 1/3, 1/3). Learning rate α = 0.1, baseline <var>b</var> = 5.5 (rata-rata reward).
+Untuk softmax, ∇<sub>θ</sub> log π(<var>a</var>) = onehot(<var>a</var>) − π.</p>
+<p><b>Kasus 1: agen memilih B (aksi terbaik), return <var>G</var> = 6.</b> Gradiennya onehot(B) − π = (−1/3, 2/3, −1/3).</p>
+<table>
+  <tr><th></th><th>Bobot</th><th>Δθ = α × bobot × (−1/3, 2/3, −1/3)</th><th>π baru (softmax)</th></tr>
+  <tr><td>Tanpa baseline</td><td>G = 6</td><td>(−0.2; +0.4; −0.2)</td><td>(0.262; <b>0.477</b>; 0.262)</td></tr>
+  <tr><td>Dengan baseline</td><td>G − b = 0.5</td><td>(−0.017; +0.033; −0.017)</td><td>(0.328; <b>0.345</b>; 0.328)</td></tr>
+</table>
+<p><b>Kasus 2: mulai lagi dari θ = 0, agen memilih A (lebih buruk), return <var>G</var> = 5.</b> Gradiennya onehot(A) − π = (2/3, −1/3, −1/3).</p>
+<table>
+  <tr><th></th><th>Bobot</th><th>Δθ</th><th>Efek pada A</th></tr>
+  <tr><td>Tanpa baseline</td><td>G = 5</td><td>(+0.333; −0.167; −0.167)</td><td>A <b>dinaikkan</b>, padahal A lebih buruk dari rata-rata ❌</td></tr>
+  <tr><td>Dengan baseline</td><td>G − b = −0.5</td><td>(−0.033; +0.017; +0.017)</td><td>A <b>diturunkan</b> ✅</td></tr>
+</table>
+<p>Tanpa baseline, <i>setiap</i> aksi yang dipilih didorong naik karena semua reward positif. Agen hanya belajar dari selisih kekuatan dorongan, sehingga sangat berisik.
+Dengan baseline, arah dorongannya langsung benar. Inilah yang terlihat di demo di bawah.</p>
+
 <div class="demo">
   <h4>Demo: REINFORCE dengan vs tanpa baseline</h4>
   <p class="stat" style="margin:0">Policy softmax memilih 1 dari 3 aksi. Reward rata-rata: A = 5, <b>B = 6 (terbaik)</b>, C = 5,5, ditambah noise (σ = 1).
@@ -312,6 +330,24 @@ Solusinya, kurangi <var>G<sub>t</sub></var> dengan <b>baseline</b> <var>b</var>(
   <li>λ = 1 → <var>Â</var> = <var>G<sub>t</sub></var> − <var>V</var>(<var>s<sub>t</sub></var>) (Monte Carlo: tidak bias, variansi tinggi).</li>
   <li>Nilai umum: <b>λ = 0.95</b>. Bentuk rekursif di kanan membuatnya bisa dihitung dalam satu loop mundur (lihat kode PPO di bagian 10).</li>
 </ul>
+
+<h3>✍️ Contoh hitung manual: TD error &amp; GAE untuk rollout 3 langkah</h3>
+<p>Reward tiap langkah = 1, critic memberi <var>V</var>(s₀..s₃) = 2.0; 1.8; 1.5; 1.0, γ = 0.9, λ = 0.95 (jadi γλ = 0.855), dan episode belum selesai.</p>
+<p><b>Langkah 1: TD error</b> δ<sub>t</sub> = <var>r</var> + γ<var>V</var>(<var>s</var><sub>t+1</sub>) − <var>V</var>(<var>s<sub>t</sub></var>):</p>
+<ul>
+  <li>δ₀ = 1 + 0.9 × 1.8 − 2.0 = <b>0.62</b></li>
+  <li>δ₁ = 1 + 0.9 × 1.5 − 1.8 = <b>0.55</b></li>
+  <li>δ₂ = 1 + 0.9 × 1.0 − 1.5 = <b>0.40</b></li>
+</ul>
+<p><b>Langkah 2: GAE dihitung mundur</b> dengan <var>Â<sub>t</sub></var> = δ<sub>t</sub> + γλ · <var>Â</var><sub>t+1</sub>:</p>
+<table>
+  <tr><th>t</th><th>Hitungan</th><th>Advantage Â<sub>t</sub></th><th>Target critic Â<sub>t</sub> + V(s<sub>t</sub>)</th></tr>
+  <tr><td>2</td><td>0.40 (langkah terakhir di rollout)</td><td><b>0.400</b></td><td>1.900</td></tr>
+  <tr><td>1</td><td>0.55 + 0.855 × 0.400</td><td><b>0.892</b></td><td>2.692</td></tr>
+  <tr><td>0</td><td>0.62 + 0.855 × 0.892</td><td><b>1.383</b></td><td>3.383</td></tr>
+</table>
+<p>Semua advantage positif, artinya aksi-aksi ini lebih baik dari perkiraan critic, sehingga peluangnya akan dinaikkan.
+Kolom terakhir adalah target baru untuk melatih critic (<code>RET = ADV + V</code> di kode PPO).</p>
 </section>
 
 <!-- 4 -->
@@ -333,6 +369,17 @@ tidak ada insentif mendorong rasio melewati 1 ± ε.</p>
   <p class="legend"><span style="color:var(--accent)">━ garis biru</span> = objektif PPO, <span style="color:var(--muted)">┅ putus-putus</span> = objektif tanpa clipping (<var>r</var>·<var>Â</var>), area berwarna = rentang aman [1−ε, 1+ε].
   Perhatikan bagian yang mendatar: di sana gradien = 0, jadi update berhenti.</p>
 </div>
+<h3>✍️ Contoh hitung manual: objektif PPO-Clip</h3>
+<p>ε = 0.2, jadi rentang aman rasio adalah [0.8; 1.2]. Peluang aksi di policy lama = 0.25. Tiga kasus setelah beberapa langkah update:</p>
+<table>
+  <tr><th>Kasus</th><th>π baru</th><th>Rasio r</th><th>r · Â</th><th>clip(r) · Â</th><th>min (dipakai)</th><th>Artinya</th></tr>
+  <tr><td>① Â = +2</td><td>0.40</td><td>0.40/0.25 = 1.6</td><td>3.2</td><td>1.2 × 2 = 2.4</td><td><b>2.4</b></td><td>Ter-clip: gradien 0, berhenti menaikkan aksi bagus</td></tr>
+  <tr><td>② Â = −1</td><td>0.15</td><td>0.15/0.25 = 0.6</td><td>−0.6</td><td>0.8 × (−1) = −0.8</td><td><b>−0.8</b></td><td>Ter-clip: berhenti menurunkan aksi buruk</td></tr>
+  <tr><td>③ Â = −1</td><td>0.40</td><td>1.6</td><td>−1.6</td><td>1.2 × (−1) = −1.2</td><td><b>−1.6</b></td><td><i>Tidak</i> ter-clip: kesalahan (aksi buruk malah naik) dikoreksi penuh</td></tr>
+</table>
+<p>Ingat, objektif ini <b>dimaksimalkan</b>. Pada kasus ① dan ②, nilai yang dipakai adalah versi clip yang konstan terhadap θ, sehingga tidak ada dorongan untuk berubah lebih jauh.
+Pada kasus ③, versi tanpa clip lebih kecil sehingga yang dipakai, dan gradiennya tetap mendorong peluang aksi buruk itu turun kembali.</p>
+
 <div class="box note"><strong>📝 Cara membaca grafik</strong>
   <b>Â &gt; 0</b> (aksi bagus): objektif naik selama <var>r</var> &lt; 1+ε, lalu mendatar. Peluang aksi bagus boleh dinaikkan, tetapi maksimal 1+ε kali lipat per update.<br>
   <b>Â &lt; 0</b> (aksi buruk): objektif mendatar saat <var>r</var> &lt; 1−ε. Peluang aksi buruk boleh diturunkan, tetapi tidak lebih dari faktor 1−ε.
@@ -358,6 +405,18 @@ Untuk robotika, di mana sampel mahal, keluarga <b>off-policy actor-critic</b> de
 <div class="formula">π* = argmax<sub>π</sub> 𝔼 [ Σ<sub>t</sub> γ<sup>t</sup> ( <var>r<sub>t</sub></var> + α · <span style="color:var(--good)">ℋ(π(·|<var>s<sub>t</sub></var>))</span> ) ]</div>
 <p>Agen diberi "hadiah" karena tetap acak. Akibatnya ia mencoba banyak cara untuk sukses, lebih tahan terhadap gangguan, dan tidak terlalu cepat terkunci pada satu solusi.
 SAC memakai <b>reparameterization trick</b> (<var>a</var> = tanh(μ + σ·ε), ε ∼ 𝒩(0,1)) agar gradien bisa mengalir melalui sampel aksi.</p>
+
+<h3>✍️ Contoh hitung manual: kenapa SAC suka policy acak</h3>
+<p>Ada dua aksi dengan nilai hampir sama: <var>Q</var>(kiri) = 1.0 dan <var>Q</var>(kanan) = 0.9. Temperatur α = 0.2. Bandingkan dua policy berdasarkan objektif SAC, yaitu 𝔼[<var>Q</var>] + α·ℋ(π):</p>
+<table>
+  <tr><th>Policy</th><th>𝔼[Q]</th><th>Entropi ℋ</th><th>𝔼[Q] + 0.2·ℋ</th></tr>
+  <tr><td>Deterministik (selalu kiri)</td><td>1.0</td><td>0</td><td><b>1.000</b></td></tr>
+  <tr><td>Acak 50/50</td><td>0.5 × 1.0 + 0.5 × 0.9 = 0.95</td><td>ln 2 = 0.693</td><td>0.95 + 0.139 = <b>1.089</b></td></tr>
+</table>
+<p>Policy acak menang, padahal reward rata-ratanya sedikit lebih rendah. Policy optimal SAC berbentuk π(<var>a</var>) ∝ exp(<var>Q</var>(<var>a</var>)/α), sehingga
+π(kiri) = 1 / (1 + <var>e</var><sup>−(1.0 − 0.9)/0.2</sup>) = 1 / (1 + <var>e</var><sup>−0.5</sup>) ≈ <b>0.62</b>. Jika α diperkecil, policy makin mendekati greedy.</p>
+<p><b>Clipped double-Q (TD3/SAC).</b> Jika dua critic memberi <var>Q</var><sub>1</sub>(<var>s'</var>,<var>a'</var>) = 5.2 dan <var>Q</var><sub>2</sub>(<var>s'</var>,<var>a'</var>) = 4.6, target memakai yang lebih kecil:
+<var>y</var> = <var>r</var> + γ · min(5.2; 4.6) = <var>r</var> + γ · 4.6. Memilih yang pesimistis mengimbangi kecenderungan Q untuk overestimate.</p>
 </section>
 
 <!-- 6 -->
@@ -389,6 +448,15 @@ Peluang menemukannya secara acak hampir nol.</p>
   <tr><td><b>RND</b></td><td>(Burda dkk., 2018) Reward intrinsik = kesalahan memprediksi output jaringan acak yang dibekukan. Sederhana dan kuat di Montezuma's Revenge.</td></tr>
   <tr><td><b>Go-Explore</b></td><td>(Ecoffet dkk., 2021) Ingat state yang menjanjikan, kembali ke sana, lalu eksplorasi dari situ.</td></tr>
 </table>
+<h3>✍️ Contoh hitung manual: UCB</h3>
+<p>Setelah <var>t</var> = 55 percobaan: aksi A punya <var>Q</var> = 0.6 dari 50 kali dicoba, aksi B punya <var>Q</var> = 0.5 dari 5 kali dicoba. Dengan <var>c</var> = 1 dan ln 55 ≈ 4.007:</p>
+<ul>
+  <li>UCB(A) = 0.6 + √(4.007 / 50) = 0.6 + 0.283 = <b>0.883</b></li>
+  <li>UCB(B) = 0.5 + √(4.007 / 5) = 0.5 + 0.895 = <b>1.395</b></li>
+</ul>
+<p>Agen memilih <b>B</b>, walaupun estimasi nilainya lebih rendah, karena B baru dicoba 5 kali sehingga ketidakpastiannya besar.
+Setiap kali B dicoba, <var>N</var>(B) naik dan bonusnya mengecil. Eksplorasi berkurang dengan sendirinya, tidak perlu mengatur ε.</p>
+
 <div class="box warn"><strong>⚠️ Noisy TV problem</strong>
   Curiosity berbasis kesalahan prediksi bisa "terhipnotis" oleh sumber acak yang tidak bisa diprediksi (misalnya layar TV berisi noise),
   karena kesalahan prediksinya selalu tinggi. RND dan metode berbasis model ensemble lebih tahan terhadap masalah ini.
@@ -452,6 +520,27 @@ Q-function memberi nilai terlalu tinggi pada aksi yang tidak pernah muncul di da
 </ul>
 <div class="formula">DPO: &nbsp; <var>L</var> = −log σ( β log <span style="font-size:.85em">π<sub>θ</sub>(<var>y<sub>w</sub></var>|<var>x</var>) / π<sub>ref</sub>(<var>y<sub>w</sub></var>|<var>x</var>)</span> − β log <span style="font-size:.85em">π<sub>θ</sub>(<var>y<sub>l</sub></var>|<var>x</var>) / π<sub>ref</sub>(<var>y<sub>l</sub></var>|<var>x</var>)</span> )</div>
 <div class="formula">GRPO: &nbsp; <var>Â<sub>i</sub></var> = ( <var>r<sub>i</sub></var> − mean(<var>r</var><sub>1..G</sub>) ) / std(<var>r</var><sub>1..G</sub>) &nbsp; untuk <var>G</var> jawaban dari prompt yang sama</div>
+<h3>✍️ Contoh hitung manual: RLHF, DPO, dan GRPO</h3>
+<p><b>1. Reward model (Bradley–Terry).</b> Untuk satu prompt, reward model memberi skor jawaban pilihan manusia <var>r<sub>w</sub></var> = 2.0 dan jawaban yang ditolak <var>r<sub>l</sub></var> = 0.5:</p>
+<ul>
+  <li>Peluang model setuju dengan manusia: σ(2.0 − 0.5) = σ(1.5) = 1/(1 + <var>e</var><sup>−1.5</sup>) ≈ <b>0.818</b></li>
+  <li>Loss: −ln 0.818 ≈ <b>0.201</b>. Jika skornya terbalik (selisih −1.5), loss menjadi −ln σ(−1.5) ≈ 1.70, jauh lebih besar.</li>
+</ul>
+<p><b>2. Reward dengan penalti KL.</b> Reward model memberi skor 3.0 untuk sebuah jawaban. Total log π<sub>θ</sub>/π<sub>ref</sub> atas semua token jawaban itu = 4.0 (policy sudah cukup menyimpang). Dengan β = 0.1:
+reward akhir = 3.0 − 0.1 × 4.0 = <b>2.6</b>. Makin jauh LLM menyimpang dari model referensi, makin besar potongannya.</p>
+<p><b>3. DPO.</b> Dengan β = 0.1, policy saat ini menaikkan log-peluang jawaban pilihan sebesar +2.0 (relatif ke π<sub>ref</sub>) dan menurunkan jawaban yang ditolak sebesar −1.0:</p>
+<ul>
+  <li>Selisih: β × (2.0 − (−1.0)) = 0.1 × 3 = 0.3</li>
+  <li>Loss DPO: −ln σ(0.3) = −ln 0.574 ≈ <b>0.554</b>. Gradien akan terus memperlebar selisih ini sampai σ mendekati 1.</li>
+</ul>
+<p><b>4. GRPO.</b> Untuk satu soal matematika, LLM menulis 4 jawaban. Pemeriksa otomatis memberi reward [1, 0, 0, 1] (benar, salah, salah, benar):</p>
+<ul>
+  <li>Rata-rata kelompok = 0.5, standar deviasi = √(((0.5)² + (0.5)² + (0.5)² + (0.5)²)/4) = 0.5</li>
+  <li>Advantage = (r − 0.5) / 0.5 = <b>[+1, −1, −1, +1]</b></li>
+</ul>
+<p>Jawaban benar didorong naik dan jawaban salah ditekan, <b>tanpa critic sama sekali</b>: rata-rata kelompok berperan sebagai baseline.
+Jika keempat jawaban benar semua, advantage-nya 0 dan tidak ada yang dipelajari, karena soal itu terlalu mudah untuk memberi sinyal.</p>
+
 <div class="box tip"><strong>🔗 Semua konsep di modul ini muncul lagi</strong>
   Advantage dan baseline (GRPO = baseline rata-rata kelompok), rasio dan clipping (PPO), penalti KL (TRPO), reward hacking (modul Beginner),
   bahkan offline RL (DPO belajar dari dataset preferensi yang tetap). RL untuk LLM adalah RL klasik dengan aksi berupa token.

@@ -246,6 +246,20 @@ Dengan mengambil nilai harapan di kedua sisi, kita dapat:</p>
   Jika punya <var>V</var>*, kamu tetap butuh model <var>P</var> untuk memilih aksi. Jika punya <var>Q</var>*, cukup ambil argmax tanpa model.
   Inilah alasan algoritma model-free (Q-Learning, DQN) mempelajari <var>Q</var>, bukan <var>V</var>.
 </div>
+
+<h3>✍️ Contoh hitung manual: Bellman expectation vs optimality</h3>
+<p>State <var>s</var> punya dua aksi, γ = 0.9, dan policy acak π(a₁|s) = π(a₂|s) = 0.5. Nilai state berikutnya sudah diketahui:</p>
+<ul>
+  <li><b>a₁</b>: reward 1. Dengan peluang 0.8 tiba di s₁ (<var>V</var> = 5), dengan peluang 0.2 tiba di s₂ (<var>V</var> = 0).</li>
+  <li><b>a₂</b>: reward 0. Pasti tiba di s₃ (<var>V</var> = 2).</li>
+</ul>
+<ol class="steps">
+  <li><var>Q</var>(s, a₁) = 1 + 0.9 × (0.8 × 5 + 0.2 × 0) = 1 + 0.9 × 4 = <b>4.6</b></li>
+  <li><var>Q</var>(s, a₂) = 0 + 0.9 × (1.0 × 2) = <b>1.8</b></li>
+  <li><b>Expectation</b> (policy acak): <var>V</var><sup>π</sup>(s) = 0.5 × 4.6 + 0.5 × 1.8 = <b>3.2</b></li>
+  <li><b>Optimality</b> (policy terbaik): <var>V</var>*(s) = max(4.6; 1.8) = <b>4.6</b>, dengan aksi terbaik a₁.</li>
+</ol>
+<p>Selisih 3.2 vs 4.6 adalah "kerugian" akibat policy acak yang separuh waktu memilih aksi yang lebih buruk.</p>
 </section>
 
 <!-- 3 -->
@@ -283,6 +297,19 @@ nilai dijamin konvergen ke solusi yang benar.</p>
   </div>
 </div>
 
+<h3>✍️ Contoh hitung manual: 4 sweep pertama value iteration</h3>
+<p>Kita hitung ulang demo di atas dengan tangan (γ = 0.9, semua <var>V</var> awal = 0). Fokus pada 4 sel: (0,2) tepat di kiri 🏆, (0,1), (0,0), dan (1,0).
+Rumusnya: <var>V</var>(<var>s</var>) = max<sub><var>a</var></sub> [ <var>r</var> + γ<var>V</var>(<var>s'</var>) ], dengan <var>V</var> dari sweep sebelumnya.</p>
+<table>
+  <tr><th>Sel</th><th>Sweep 1</th><th>Sweep 2</th><th>Sweep 3</th><th>Sweep 4</th></tr>
+  <tr><td>(0,2)</td><td>ke → masuk 🏆: <b>10</b></td><td><b>10</b></td><td><b>10</b></td><td><b>10</b></td></tr>
+  <tr><td>(0,1)</td><td>−1 + 0.9×0 = <b>−1</b></td><td>→ −1 + 0.9×10 = <b>8</b></td><td><b>8</b></td><td><b>8</b></td></tr>
+  <tr><td>(0,0)</td><td><b>−1</b></td><td>−1 + 0.9×(−1) = <b>−1.9</b></td><td>→ −1 + 0.9×8 = <b>6.2</b></td><td><b>6.2</b></td></tr>
+  <tr><td>(1,0)</td><td><b>−1</b></td><td><b>−1.9</b></td><td>−1 + 0.9×(−1.9) = <b>−2.71</b></td><td>↑ −1 + 0.9×6.2 = <b>4.58</b></td></tr>
+</table>
+<p>Perhatikan "gelombang" nilai: informasi +10 dari 🏆 maju <b>satu sel per sweep</b>. Di sweep 1 hanya (0,2) yang tahu, di sweep 2 menyebar ke (0,1), dan seterusnya.
+Angka akhirnya (10; 8; 6.2; 4.58) sama dengan yang tampil di demo setelah konvergen. Langkah ke (1,1) tidak pernah dipilih karena masuk 🕳️ bernilai −10.</p>
+
 <div class="box warn"><strong>⚠️ Keterbatasan DP</strong>
   (1) Butuh model <var>P</var> dan <var>R</var> yang lengkap, padahal di dunia nyata jarang tersedia.
   (2) Setiap sweep menyentuh <i>semua</i> state, sehingga tidak praktis untuk ruang state yang sangat besar (<i>curse of dimensionality</i>).
@@ -305,6 +332,21 @@ dari setiap state yang dikunjungi, lalu rata-ratakan. Menurut hukum bilangan bes
   <div class="card"><b>✅ Kelebihan</b><span>Tidak bias: target <var>G<sub>t</sub></var> adalah return yang benar-benar terjadi. Tidak butuh model. Tidak bergantung pada sifat Markov.</span></div>
   <div class="card"><b>❌ Kekurangan</b><span>Variansi tinggi karena <var>G<sub>t</sub></var> bergantung pada banyak aksi dan transisi acak. Harus menunggu episode selesai, sehingga tidak bisa dipakai untuk tugas tanpa akhir.</span></div>
 </div>
+
+<h3>✍️ Contoh hitung manual: Monte Carlo</h3>
+<p>Satu episode: <b>A → B → A → selesai</b>, dengan reward berturut-turut <b>+1</b>, <b>0</b>, <b>+2</b> dan γ = 0.9. Hitung return dari belakang:</p>
+<table>
+  <tr><th>Waktu t</th><th>State</th><th>Hitungan G<sub>t</sub> = r<sub>t+1</sub> + γG<sub>t+1</sub></th><th>G<sub>t</sub></th></tr>
+  <tr><td>2</td><td>A (kunjungan ke-2)</td><td>2</td><td><b>2</b></td></tr>
+  <tr><td>1</td><td>B</td><td>0 + 0.9 × 2</td><td><b>1.8</b></td></tr>
+  <tr><td>0</td><td>A (kunjungan ke-1)</td><td>1 + 0.9 × 1.8</td><td><b>2.62</b></td></tr>
+</table>
+<ul>
+  <li><b>First-visit MC</b>: sampel untuk A hanya 2.62 (kunjungan pertama). Sampel untuk B = 1.8.</li>
+  <li><b>Every-visit MC</b>: sampel untuk A ada dua, 2.62 dan 2, rata-ratanya (2.62 + 2)/2 = <b>2.31</b>.</li>
+  <li>Dengan update α = 0.5 dan <var>V</var> awal 0 (first-visit): <var>V</var>(A) = 0 + 0.5 × (2.62 − 0) = <b>1.31</b>, <var>V</var>(B) = 0 + 0.5 × (1.8 − 0) = <b>0.9</b>.
+  Semua update ini baru bisa dilakukan <b>setelah episode selesai</b>.</li>
+</ul>
 </section>
 
 <!-- 5 -->
@@ -320,6 +362,18 @@ Caranya, return sisa diganti dengan <i>tebakan</i> nilai state berikutnya. Tekni
   <b>MC</b>: kamu baru mengoreksi perkiraan setelah sampai di rumah.
   <b>TD</b>: kamu langsung mengoreksi perkiraan saat itu juga ("macet begini, sepertinya jadi 45 menit"). TD belajar dari setiap langkah, tidak hanya dari hasil akhir.
 </div>
+
+<h3>✍️ Contoh hitung manual: TD(0) pada episode yang sama</h3>
+<p>Episode yang sama seperti contoh Monte Carlo (A → B → A → selesai, reward +1, 0, +2, γ = 0.9), sekarang dengan TD(0), α = 0.5, dan <var>V</var> awal 0.
+Bedanya, update dilakukan <b>langsung di setiap langkah</b>:</p>
+<table>
+  <tr><th>Langkah</th><th>Transisi</th><th>TD target = r + γV(s')</th><th>Update</th><th>Hasil</th></tr>
+  <tr><td>1</td><td>A → B, r = +1</td><td>1 + 0.9 × V(B) = 1 + 0 = 1</td><td>V(A) = 0 + 0.5 × (1 − 0)</td><td>V(A) = <b>0.5</b></td></tr>
+  <tr><td>2</td><td>B → A, r = 0</td><td>0 + 0.9 × V(A) = 0.9 × 0.5 = 0.45</td><td>V(B) = 0 + 0.5 × (0.45 − 0)</td><td>V(B) = <b>0.225</b></td></tr>
+  <tr><td>3</td><td>A → selesai, r = +2</td><td>2 (terminal, tanpa bootstrap)</td><td>V(A) = 0.5 + 0.5 × (2 − 0.5)</td><td>V(A) = <b>1.25</b></td></tr>
+</table>
+<p>Perhatikan langkah 2: TD langsung memakai tebakan <var>V</var>(A) = 0.5 yang baru saja dibuat di langkah 1. Itulah <b>bootstrapping</b>.
+Hasilnya berbeda dari MC (V(B) = 0.225 vs 0.9) karena TD baru "melihat" sedikit masa depan. Jika episode diulang berkali-kali, keduanya akan mendekati nilai yang sama.</p>
 
 <h3>Perbandingan DP, MC, dan TD</h3>
 <div class="demo loop">
@@ -384,6 +438,20 @@ yang hanya berbeda pada <b>satu suku</b> di TD target:</p>
 </div>
 <p><b>Expected SARSA</b> adalah jalan tengah: target memakai <i>rata-rata</i> nilai Q di <var>s'</var> sesuai peluang policy,
 Σ<sub><var>a'</var></sub> π(<var>a'</var>|<var>s'</var>) <var>Q</var>(<var>s'</var>,<var>a'</var>). Variansinya lebih rendah daripada SARSA biasa.</p>
+
+<h3>✍️ Contoh hitung manual: satu transisi, tiga target</h3>
+<p>Agen di state <var>s</var> mengambil aksi <var>a</var> dengan <var>Q</var>(<var>s</var>,<var>a</var>) = 1, mendapat <var>r</var> = −1, lalu tiba di <var>s'</var>.
+Di <var>s'</var> ada dua aksi: <var>Q</var>(<var>s'</var>, kanan) = 5 dan <var>Q</var>(<var>s'</var>, atas) = 2. Karena eksplorasi, ε-greedy kebetulan memilih <b>atas</b> sebagai <var>a'</var>.
+Parameter: α = 0.5, γ = 0.9, ε = 0.1.</p>
+<table>
+  <tr><th>Algoritma</th><th>Nilai di s' yang dipakai</th><th>TD target</th><th>Q(s,a) baru</th></tr>
+  <tr><td><b>SARSA</b></td><td>Q(s', atas) = 2 (aksi yang benar-benar diambil)</td><td>−1 + 0.9 × 2 = 0.8</td><td>1 + 0.5 × (0.8 − 1) = <b>0.9</b></td></tr>
+  <tr><td><b>Q-Learning</b></td><td>max = Q(s', kanan) = 5</td><td>−1 + 0.9 × 5 = 3.5</td><td>1 + 0.5 × (3.5 − 1) = <b>2.25</b></td></tr>
+  <tr><td><b>Expected SARSA</b></td><td>0.95 × 5 + 0.05 × 2 = 4.85</td><td>−1 + 0.9 × 4.85 = 3.365</td><td>1 + 0.5 × (3.365 − 1) = <b>2.18</b></td></tr>
+</table>
+<p>Pada Expected SARSA, peluang tiap aksi di <var>s'</var> dihitung dari ε-greedy: kanan (terbaik) = 0.9 + 0.1/2 = 0.95, atas = 0.1/2 = 0.05.
+SARSA "dihukum" oleh langkah eksplorasi yang buruk, sehingga nilainya turun. Di Cliff Walking, langkah eksplorasi di tepi jurang berarti −100,
+sehingga SARSA belajar menjauhi tepi jurang, sedangkan Q-Learning mengabaikannya.</p>
 </section>
 
 <!-- 7 -->
@@ -401,6 +469,16 @@ yang baru dikunjungi, sehingga satu TD error dapat langsung memperbarui banyak s
   Gagasan yang sama muncul lagi di algoritma deep RL modern: <b>n-step return</b> dipakai di Rainbow DQN, dan <b>GAE (Generalized Advantage Estimation)</b>
   di PPO adalah versi λ-return. Kamu akan menemuinya lagi di modul Advanced.
 </div>
+
+<h3>✍️ Contoh hitung manual: 3-step return &amp; bobot λ</h3>
+<p>Dari <var>s<sub>t</sub></var>, agen mendapat reward −1, −1, −1 selama tiga langkah, lalu tiba di state dengan tebakan <var>V</var>(<var>s</var><sub>t+3</sub>) = 6. Dengan γ = 0.9:</p>
+<div class="formula"><var>G</var><sub>t</sub><sup>(3)</sup> = −1 + 0.9 × (−1) + 0.81 × (−1) + 0.729 × 6 = −2.71 + 4.374 = <b>1.664</b></div>
+<p>Tiga reward pertama adalah data nyata (tanpa bias), sedangkan suku terakhir adalah tebakan (bootstrap). Untuk TD(λ) dengan λ = 0.5, bobot setiap n-step return adalah (1 − λ)λ<sup>n−1</sup>:</p>
+<table>
+  <tr><th>n</th><th>1</th><th>2</th><th>3</th><th>4</th><th>…</th></tr>
+  <tr><td>Bobot</td><td>0.5</td><td>0.25</td><td>0.125</td><td>0.0625</td><td>… (total = 1)</td></tr>
+</table>
+<p>Return pendek mendapat bobot terbesar, return panjang makin kecil. Makin besar λ, makin rata bobotnya dan makin mirip Monte Carlo.</p>
 </section>
 
 <!-- 8 -->
@@ -424,6 +502,18 @@ Solusinya, ganti tabel dengan <b>fungsi berparameter</b> θ yang memperkirakan n
 </div>
 <p>Parameter diperbarui dengan <b>semi-gradient</b> TD: gradien hanya diambil dari prediksi, sedangkan target dianggap konstanta.</p>
 <div class="formula">θ ← θ + α [ <var>r</var> + γ max<sub><var>a'</var></sub> <var>Q̂</var>(<var>s'</var>,<var>a'</var>;θ) − <var>Q̂</var>(<var>s</var>,<var>a</var>;θ) ] ∇<sub>θ</sub> <var>Q̂</var>(<var>s</var>,<var>a</var>;θ)</div>
+<h3>✍️ Contoh hitung manual: satu update linear function approximation</h3>
+<p>Misalkan <var>Q̂</var>(<var>s</var>,<var>a</var>) = θ<sub>1</sub>φ<sub>1</sub> + θ<sub>2</sub>φ<sub>2</sub> dengan parameter θ = (2, 1). Untuk pasangan (<var>s</var>,<var>a</var>) ini, fiturnya φ = (1, 0.5) dan TD target-nya 4. Learning rate α = 0.1.</p>
+<ol class="steps">
+  <li>Prediksi: <var>Q̂</var> = 2 × 1 + 1 × 0.5 = <b>2.5</b></li>
+  <li>TD error: δ = 4 − 2.5 = <b>1.5</b></li>
+  <li>Gradien fungsi linear adalah fiturnya sendiri: ∇<sub>θ</sub><var>Q̂</var> = φ = (1, 0.5)</li>
+  <li>Update: θ ← θ + α δ φ = (2, 1) + 0.1 × 1.5 × (1, 0.5) = <b>(2.15; 1.075)</b></li>
+  <li>Prediksi baru: 2.15 × 1 + 1.075 × 0.5 = <b>2.6875</b>, bergeser mendekati target 4.</li>
+</ol>
+<p><b>Generalisasi:</b> state lain dengan fitur mirip φ' = (1, 0.2) <i>ikut berubah</i>, walaupun tidak pernah dikunjungi:
+sebelum update 2 × 1 + 1 × 0.2 = 2.2, sesudah update 2.15 + 1.075 × 0.2 = <b>2.365</b>. Ini kekuatan sekaligus risiko function approximation.</p>
+
 <div class="box warn"><strong>⚠️ The deadly triad</strong>
   Gabungan tiga hal ini dapat membuat pelatihan <b>divergen</b> (nilai Q meledak ke tak hingga):
   (1) <b>function approximation</b>, (2) <b>bootstrapping</b>, dan (3) <b>off-policy learning</b>.
@@ -461,6 +551,19 @@ DQN pada dasarnya adalah Q-Learning dengan neural network ditambah dua trik pens
 </div>
 <p>Fungsi loss yang diminimalkan:</p>
 <div class="formula"><var>L</var>(θ) = 𝔼<sub>(s,a,r,s')∼buffer</sub> [ ( <span style="color:var(--good)"><var>r</var> + γ max<sub><var>a'</var></sub> <var>Q</var>(<var>s'</var>,<var>a'</var>; θ<sup>−</sup>)</span> − <var>Q</var>(<var>s</var>,<var>a</var>; θ) )² ]</div>
+
+<h3>✍️ Contoh hitung manual: loss DQN untuk minibatch 2 sampel</h3>
+<p>γ = 0.99. Dua transisi diambil acak dari replay buffer:</p>
+<table>
+  <tr><th>Sampel</th><th>r</th><th>done</th><th>Q target-net di s'</th><th>Target y = r + γ·max Q<sub>θ⁻</sub>(s',·)·(1 − done)</th><th>Q<sub>θ</sub>(s,a)</th><th>Error y − Q</th></tr>
+  <tr><td>1</td><td>+1</td><td>0</td><td>[2, 3]</td><td>1 + 0.99 × 3 = 3.97</td><td>3.5</td><td>0.47</td></tr>
+  <tr><td>2</td><td>−1</td><td>1</td><td>(diabaikan)</td><td>−1 (terminal)</td><td>0.5</td><td>−1.5</td></tr>
+</table>
+<div class="formula"><var>L</var> = ( 0.47² + (−1.5)² ) / 2 = ( 0.2209 + 2.25 ) / 2 ≈ <b>1.235</b></div>
+<p>Gradien loss ini hanya mengalir lewat <var>Q</var><sub>θ</sub>(<var>s</var>,<var>a</var>). Target <var>y</var> dihitung dengan target network θ⁻ yang dibekukan, dan dianggap konstanta.</p>
+<p><b>Overestimation &amp; Double DQN.</b> Misalkan nilai sebenarnya ketiga aksi di <var>s'</var> sama-sama 0, tetapi estimasi online network berisik: [0.5; −0.3; 0.2].
+DQN biasa mengambil max = <b>0.5</b>, padahal nilai sebenarnya 0, sehingga terlalu optimis. Double DQN memilih aksi dengan online network (aksi ke-1, nilai 0.5),
+tetapi <i>menilainya</i> dengan target network, misalnya [−0.1; 0.4; 0.0], sehingga dipakai <b>−0.1</b>. Karena kedua jaringan punya noise yang berbeda, bias optimisnya jauh berkurang.</p>
 
 <h3>Perbaikan populer setelah DQN</h3>
 <table>
