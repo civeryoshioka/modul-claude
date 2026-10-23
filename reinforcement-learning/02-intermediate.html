@@ -554,6 +554,7 @@ Install dulu: <code>pip install torch gymnasium</code>.</p>
 <pre><code class="py">import random, collections
 import numpy as np, torch, torch.nn as nn, gymnasium as gym
 
+random.seed(0); torch.manual_seed(0)
 env = gym.make("CartPole-v1")
 n_obs, n_act = env.observation_space.shape[0], env.action_space.n
 
@@ -564,12 +565,12 @@ def make_net():
 
 q_net, target_net = make_net(), make_net()
 target_net.load_state_dict(q_net.state_dict())          # θ⁻ ← θ
-opt = torch.optim.Adam(q_net.parameters(), lr=1e-3)
+opt = torch.optim.Adam(q_net.parameters(), lr=3e-4)
 buffer = collections.deque(maxlen=50_000)                # experience replay
-GAMMA, BATCH, SYNC_EVERY, WARMUP = 0.99, 64, 500, 1000
-eps, steps = 1.0, 0
+GAMMA, BATCH, SYNC_EVERY, WARMUP = 0.99, 128, 200, 1000
+eps, steps, history = 1.0, 0, []
 
-for episode in range(300):
+for episode in range(400):
     s, _ = env.reset(seed=episode)
     total, done = 0.0, False
     while not done:
@@ -602,22 +603,38 @@ for episode in range(300):
         if steps % SYNC_EVERY == 0:
             target_net.load_state_dict(q_net.state_dict())
 
+    history.append(total)
     eps = max(0.05, eps * 0.98)                          # kurangi eksplorasi
     if (episode + 1) % 25 == 0:
-        print(f"Episode {episode+1:3d} | return {total:5.0f} | eps {eps:.2f}")</code></pre>
+        print(f"Episode {episode+1:3d} | rata-rata return 25 ep. terakhir {np.mean(history[-25:]):6.1f} | eps {eps:.2f}")</code></pre>
 <p>Contoh output (angka bisa berbeda karena faktor acak):</p>
-<pre><code>Episode  25 | return    13 | eps 0.60
-Episode  50 | return    11 | eps 0.36
-Episode  75 | return    15 | eps 0.22
-Episode 100 | return    11 | eps 0.13
-Episode 125 | return     8 | eps 0.08
-Episode 150 | return     9 | eps 0.05
-Episode 175 | return    14 | eps 0.05
-Episode 200 | return     9 | eps 0.05
-Episode 225 | return   125 | eps 0.05
-Episode 250 | return   195 | eps 0.05
-Episode 275 | return   118 | eps 0.05
-Episode 300 | return    95 | eps 0.05</code></pre>
+<pre><code>Episode  25 | rata-rata return 25 ep. terakhir   31.8 | eps 0.60
+Episode  50 | rata-rata return 25 ep. terakhir   26.7 | eps 0.36
+Episode  75 | rata-rata return 25 ep. terakhir   30.2 | eps 0.22
+Episode 100 | rata-rata return 25 ep. terakhir  251.6 | eps 0.13
+Episode 125 | rata-rata return 25 ep. terakhir  153.1 | eps 0.08
+Episode 150 | rata-rata return 25 ep. terakhir  105.8 | eps 0.05
+Episode 175 | rata-rata return 25 ep. terakhir  113.5 | eps 0.05
+Episode 200 | rata-rata return 25 ep. terakhir  420.2 | eps 0.05
+Episode 225 | rata-rata return 25 ep. terakhir  391.9 | eps 0.05
+Episode 250 | rata-rata return 25 ep. terakhir  418.3 | eps 0.05
+Episode 275 | rata-rata return 25 ep. terakhir  441.6 | eps 0.05
+Episode 300 | rata-rata return 25 ep. terakhir  163.2 | eps 0.05
+Episode 325 | rata-rata return 25 ep. terakhir   92.0 | eps 0.05
+Episode 350 | rata-rata return 25 ep. terakhir  100.9 | eps 0.05
+Episode 375 | rata-rata return 25 ep. terakhir  113.6 | eps 0.05
+Episode 400 | rata-rata return 25 ep. terakhir  241.2 | eps 0.05</code></pre>
+<div class="box warn"><strong>📉 Kenapa return naik lalu anjlok?</strong>
+  Agen sempat hampir sempurna (rata-rata ± 440 di episode 200–275), lalu performanya turun drastis. Ini fenomena khas DQN yang disebut
+  <b>catastrophic forgetting</b> atau <i>policy collapse</i>: setelah agen jago, buffer hanya berisi pengalaman "bagus", sehingga jaringan
+  "lupa" cara memulihkan diri dari situasi buruk, dan update berikutnya merusak nilai Q yang sudah benar. Cara mengatasinya dalam praktik:
+  <ul style="margin:4px 0 0">
+    <li><b>Simpan model terbaik</b> (checkpoint) berdasarkan return evaluasi, jangan hanya model terakhir.</li>
+    <li>Turunkan <i>learning rate</i> secara bertahap, atau pakai <b>gradient clipping</b> (<code>torch.nn.utils.clip_grad_norm_</code>).</li>
+    <li>Pakai <b>Double DQN</b> dan replay buffer yang lebih besar.</li>
+    <li>Selalu evaluasi dengan <b>beberapa seed</b>, karena satu run bisa sangat berbeda dari run lain.</li>
+  </ul>
+</div>
 <div class="box note"><strong>📝 Detail penting: terminated vs truncated</strong>
   Gymnasium membedakan episode yang <b>berakhir sungguhan</b> (<code>terminated</code>, misalnya tongkat jatuh) dan yang <b>dipotong batas waktu</b>
   (<code>truncated</code>, misalnya mencapai 500 langkah). Saat terpotong, state berikutnya masih punya nilai, jadi kita <i>tetap</i> bootstrap.
