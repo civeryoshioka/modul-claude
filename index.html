@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modul Belajar AI</title>
+<style>
+:root{
+  --bg:#f7f8fa;--surface:#ffffff;--surface-2:#f0f2f6;--text:#1c2230;--muted:#5b6474;
+  --border:#e1e5ec;--accent:#3a6df0;--accent-soft:#e6edff;--good:#1f9d63;--warn:#c98a12;--violet:#7c4dff;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+    --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--warn:#e8b04a;--violet:#a98bff;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+  --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--warn:#e8b04a;--violet:#a98bff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+.wrap{max-width:1040px;margin:0 auto;padding:40px 24px 70px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+h1{font-size:36px;line-height:1.15;margin:0 0 8px}
+.lead{color:var(--muted);max-width:640px;margin:0;text-align:justify}
+.btn{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:8px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer;text-decoration:none;display:inline-block}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:28px 0}
+.stats div{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;color:var(--muted);font-size:13.5px}
+.stats b{display:block;font-size:26px;color:var(--text);line-height:1.2}
+h2{font-size:23px;margin:36px 0 6px}
+.sub{color:var(--muted);margin:0 0 16px;text-align:justify}
+/* Jalur belajar */
+.path{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin:14px 0}
+.step{flex:1;min-width:150px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;text-decoration:none;color:var(--text);position:relative;transition:border-color .15s,transform .15s}
+.step:hover{border-color:var(--accent);transform:translateY(-2px)}
+.step small{color:var(--muted);display:block;font-size:12px}
+.step b{font-size:15px}
+.step .num{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:700;margin-right:6px}
+.step.done .num{background:var(--good);color:#fff}
+.arrow{display:grid;place-items:center;color:var(--muted);font-size:20px;padding:0 8px}
+/* Progress */
+.prog{display:flex;align-items:center;gap:12px;margin:8px 0 0;font-size:14px;color:var(--muted)}
+.prog .bar{flex:1;max-width:320px;height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.prog .bar div{height:100%;width:0;background:var(--good);transition:width .3s}
+/* Kartu modul */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;border-top:4px solid var(--c,var(--accent))}
+.card.done{box-shadow:inset 0 0 0 1px var(--good)}
+.tag{align-self:flex-start;font-size:12px;font-weight:600;padding:2px 10px;border-radius:99px;background:color-mix(in srgb,var(--c,var(--accent)) 14%,transparent);color:var(--c,var(--accent))}
+.card h3{margin:0;font-size:19px;line-height:1.3}
+.card p{margin:0;color:var(--muted);font-size:14.5px;text-align:justify}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips span{font-size:12.5px;background:var(--surface-2);border:1px solid var(--border);border-radius:99px;padding:1px 9px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);border-top:1px dashed var(--border);padding-top:10px}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:auto}
+.foot label{font-size:13.5px;color:var(--muted);display:flex;align-items:center;gap:6px;cursor:pointer}
+input[type=checkbox]{accent-color:var(--good);width:16px;height:16px}
+.box{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:12px;padding:14px 18px;margin:16px 0;font-size:15px;text-align:justify}
+.box ul{margin:6px 0 0;padding-left:20px}
+footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--border);color:var(--muted);font-size:13.5px}
+@media (max-width:700px){
+  .wrap{padding:28px 16px 56px}
+  h1{font-size:28px}
+  .path{flex-direction:column}
+  .arrow{transform:rotate(90deg);padding:4px 0}
+  .cards{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>Modul Belajar AI Interaktif</h1>
+    <p class="lead">Kumpulan modul berbahasa Indonesia tentang Reinforcement Learning dan Deep Learning, dari dasar sampai teknik di balik LLM modern.
+    Setiap modul dilengkapi demo interaktif, contoh hitung manual langkah demi langkah, kode Python yang sudah diuji, dan kuis.</p>
+  </div>
+  <button class="btn" id="themeBtn">🌓 Ganti tema</button>
+</header>
+
+<div class="stats">
+  <div><b>5</b>modul</div>
+  <div><b>15</b>demo interaktif</div>
+  <div><b>43</b>contoh hitung manual</div>
+  <div><b>30</b>soal kuis</div>
+  <div><b>± 14,5 jam</b>total belajar</div>
+</div>
+
+<h2>🧭 Jalur belajar yang disarankan</h2>
+<p class="sub">Mulai dari mana saja sesuai kebutuhan. Kalau masih awam, ikuti urutan ini. Modul Matematika dan Deep Learning adalah penunjang: boleh dibaca berdampingan dengan modul RL ketika kamu tersangkut.</p>
+<nav class="path" id="path" aria-label="Jalur belajar"></nav>
+<div class="prog"><span id="progTxt">0 dari 5 modul selesai</span><div class="bar"><div id="progBar"></div></div><button class="btn" id="resetBtn" style="font-size:12.5px;padding:3px 10px">Reset</button></div>
+
+<h2>🎮 Reinforcement Learning</h2>
+<p class="sub">Agen yang belajar dari trial and error: dari Q-Learning sederhana sampai PPO dan RLHF.</p>
+<div class="cards" id="rlCards"></div>
+
+<h2>🧠 Deep Learning</h2>
+<p class="sub">Neural network dan transformer, fondasi DQN, PPO, dan large language model.</p>
+<div class="cards" id="dlCards"></div>
+
+<div class="box">
+  <strong>💡 Cara memakai modul</strong>
+  <ul>
+    <li>Cukup buka file HTML di browser, tanpa instalasi dan bisa offline. Daftar isi ada di sidebar kiri (di HP: tombol ☰).</li>
+    <li>Kerjakan contoh <b>✍️ hitung manual</b> dengan kertas dan pensil sebelum melihat jawabannya, lalu cocokkan dengan demo interaktif.</li>
+    <li>Kode Python di setiap modul sudah dijalankan dan output aslinya ditampilkan. Butuh <code>numpy</code>, dan untuk modul lanjut juga <code>torch</code>, <code>gymnasium</code>, <code>stable-baselines3</code>.</li>
+    <li>Centang "Sudah selesai" di setiap kartu untuk melacak progres. Data ini hanya tersimpan di browser kamu.</li>
+  </ul>
+</div>
+
+<footer>Referensi utama: Sutton &amp; Barto, <i>Reinforcement Learning: An Introduction</i> (2018); Goodfellow dkk., <i>Deep Learning</i> (2016); Vaswani dkk., <i>Attention Is All You Need</i> (2017).</footer>
+</div>
+
+<script>
+const M=[
+  {id:'math',grp:'rl',c:'--violet',tag:'Penunjang',title:'Matematika untuk RL',href:'reinforcement-learning/00-matematika.html',time:'± 3 jam',demo:5,calc:12,
+   desc:'Hanya matematika yang benar-benar dipakai di modul RL: probabilitas, ekspektasi, gradien, log-derivative trick, entropi, dan KL. Setiap konsep langsung dikaitkan ke rumus RL.',
+   topics:['Notasi','Probabilitas & Bayes','Ekspektasi','Bias–variansi','Gradient descent','Entropi & KL']},
+  {id:'beg',grp:'rl',c:'--good',tag:'Level 1 · Beginner',title:'Reinforcement Learning: Dasar',href:'reinforcement-learning/01-beginner.html',time:'± 90 menit',demo:3,calc:6,
+   desc:'Konsep inti RL dengan analogi sehari-hari: agen, reward, return, eksplorasi vs eksploitasi, MDP, dan Q-Learning sampai agen Gridworld pertamamu.',
+   topics:['Agen & lingkungan','Return & γ','ε-greedy','MDP','Bellman','Q-Learning']},
+  {id:'int',grp:'rl',c:'--accent',tag:'Level 2 · Intermediate',title:'Reinforcement Learning: Menengah',href:'reinforcement-learning/02-intermediate.html',time:'± 2,5 jam',demo:2,calc:8,
+   desc:'Dari Dynamic Programming ke Deep Q-Network: value iteration, Monte Carlo, TD, SARSA vs Q-Learning (Cliff Walking), function approximation, dan DQN dengan PyTorch.',
+   topics:['Value iteration','Monte Carlo','TD & TD(λ)','SARSA','Function approx.','DQN']},
+  {id:'adv',grp:'rl',c:'--warn',tag:'Level 3 · Advanced',title:'Reinforcement Learning: Lanjut',href:'reinforcement-learning/03-advanced.html',time:'± 3,5 jam',demo:2,calc:6,
+   desc:'Policy gradient, actor-critic, GAE, PPO, SAC, model-based, eksplorasi lanjutan, offline RL, sampai RLHF, DPO, dan GRPO untuk melatih LLM. Termasuk PPO dari nol.',
+   topics:['REINFORCE','Actor-Critic & GAE','PPO','SAC & TD3','Offline RL','RLHF/DPO/GRPO']},
+  {id:'dl',grp:'dl',c:'--violet',tag:'Jembatan ke LLM',title:'Deep Learning & Transformer',href:'deep-learning/01-deep-learning-transformer.html',time:'± 4 jam',demo:3,calc:11,
+   desc:'Dari satu neuron sampai GPT: backprop, optimizer, training yang sehat, self-attention dan blok transformer yang dihitung tangan, sampling, hingga mini-GPT dari nol.',
+   topics:['MLP & backprop','Adam','Tokenisasi','Self-attention','Transformer','Mini-GPT']}
+];
+const ORDER=['math','beg','int','dl','adv'];
+const $=s=>document.querySelector(s);
+let done={};try{done=JSON.parse(localStorage.getItem('modul-done')||'{}')}catch(e){}
+const save=()=>{try{localStorage.setItem('modul-done',JSON.stringify(done))}catch(e){}};
+function card(m){return `<article class="card ${done[m.id]?'done':''}" style="--c:var(${m.c})">
+  <span class="tag">${m.tag}</span><h3>${m.title}</h3><p>${m.desc}</p>
+  <div class="chips">${m.topics.map(t=>`<span>${t}</span>`).join('')}</div>
+  <div class="meta"><span>⏱ ${m.time}</span><span>🎛 ${m.demo} demo</span><span>✍️ ${m.calc} hitung manual</span><span>❓ 6 kuis</span></div>
+  <div class="foot"><label><input type="checkbox" data-id="${m.id}" ${done[m.id]?'checked':''}> Sudah selesai</label><a class="btn primary" href="${m.href}">Buka modul →</a></div></article>`}
+function render(){
+  $('#rlCards').innerHTML=M.filter(m=>m.grp==='rl').map(card).join('');
+  $('#dlCards').innerHTML=M.filter(m=>m.grp==='dl').map(card).join('');
+  $('#path').innerHTML=ORDER.map((id,i)=>{const m=M.find(x=>x.id===id);
+    return (i?'<span class="arrow">→</span>':'')+`<a class="step ${done[id]?'done':''}" href="${m.href}"><span class="num">${done[id]?'✓':i+1}</span><b>${m.title.replace('Reinforcement Learning: ','RL ')}</b><small>${m.tag} · ${m.time}</small></a>`}).join('');
+  const n=ORDER.filter(id=>done[id]).length;$('#progTxt').textContent=`${n} dari 5 modul selesai`;$('#progBar').style.width=n/5*100+'%';
+  document.querySelectorAll('[data-id]').forEach(cb=>cb.onchange=()=>{done[cb.dataset.id]=cb.checked;save();render()});
+}
+$('#resetBtn').onclick=()=>{done={};save();render()};
+$('#themeBtn').onclick=()=>{const r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme=dark?'light':'dark';try{localStorage.setItem('rl-theme',r.dataset.theme)}catch(e){}};
+try{const t=localStorage.getItem('rl-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+render();
+</script>
+</body>
+</html>

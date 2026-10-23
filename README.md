@@ -2,6 +2,8 @@
 
 Kumpulan modul belajar interaktif berbentuk HTML (cukup buka file di browser, tanpa instalasi).
 
+**Mulai dari [`index.html`](index.html)**: beranda berisi jalur belajar yang disarankan, ringkasan setiap modul, dan pelacak progres.
+
 ## Reinforcement Learning
 
 | Level | File | Status |
