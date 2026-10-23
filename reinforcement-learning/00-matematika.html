@@ -1,0 +1,753 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Matematika untuk Reinforcement Learning</title>
+<style>
+:root{
+  --bg:#f7f8fa;--surface:#ffffff;--surface-2:#f0f2f6;--text:#1c2230;--muted:#5b6474;
+  --border:#e1e5ec;--accent:#3a6df0;--accent-soft:#e6edff;--good:#1f9d63;--bad:#d64545;--warn:#c98a12;
+  --code-bg:#f3f5f9;--sidebar-w:270px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+    --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--code-bg:#1d222b;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+  --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--code-bg:#1d222b;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+/* Sidebar */
+#sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);
+  overflow-y:auto;padding:22px 16px;z-index:20;transition:transform .25s}
+#sidebar .brand{font-weight:700;font-size:17px;margin:0 8px 2px}
+#sidebar .level{display:inline-block;margin:0 8px 16px;font-size:12px;padding:2px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar ol{list-style:none;margin:0;padding:0;counter-reset:toc}
+#sidebar li a{display:flex;gap:10px;padding:7px 10px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:14.5px;line-height:1.4}
+#sidebar li a::before{counter-increment:toc;content:counter(toc);min-width:20px;height:20px;border-radius:50%;background:var(--surface-2);
+  font-size:11.5px;display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+#sidebar li a:hover{background:var(--surface-2);color:var(--text)}
+#sidebar li a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar li a.active::before{background:var(--accent);color:#fff}
+#progress{height:4px;background:var(--surface-2);border-radius:4px;margin:0 8px 18px;overflow:hidden}
+#progress div{height:100%;width:0;background:var(--accent);transition:width .1s}
+#menuBtn{display:none;position:fixed;top:12px;left:12px;z-index:30;border:1px solid var(--border);background:var(--surface);color:var(--text);
+  border-radius:8px;padding:6px 12px;font-size:15px;cursor:pointer}
+#themeBtn{margin:18px 8px 0;font-size:13px}
+/* Main */
+main{margin-left:var(--sidebar-w);padding:40px 48px 80px;max-width:calc(var(--sidebar-w) + 900px)}
+main>*{max-width:860px}
+header.hero{padding:8px 0 24px;border-bottom:1px solid var(--border);margin-bottom:12px}
+header.hero h1{font-size:34px;line-height:1.2;margin:0 0 8px}
+header.hero p{color:var(--muted);margin:0}
+section{padding-top:28px}
+h2{font-size:25px;margin:16px 0 10px;padding-top:8px}
+h3{font-size:18.5px;margin:24px 0 6px}
+p,li{color:var(--text)}
+main p,main li,.box,.card span{text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+.muted{color:var(--muted)}
+.box{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:16px 20px;margin:16px 0}
+.box.tip{border-left:4px solid var(--good)}
+.box.note{border-left:4px solid var(--accent)}
+.box.warn{border-left:4px solid var(--warn)}
+.box>strong:first-child{display:block;margin-bottom:4px}
+.formula{font-family:"Cambria Math","Times New Roman",serif;font-size:19px;text-align:center;background:var(--surface-2);
+  border-radius:10px;padding:14px;margin:14px 0;overflow-x:auto;white-space:nowrap}
+.formula var{font-style:italic}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;background:var(--code-bg);padding:1px 6px;border-radius:5px}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-size:13.5px;line-height:1.55}
+pre code{background:none;padding:0}
+.c{color:var(--muted)} .k{color:var(--accent);font-weight:600} .s{color:var(--good)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;margin:12px 0;display:block;overflow-x:auto}
+th,td{border:1px solid var(--border);padding:8px 12px;text-align:left;vertical-align:top}
+th{background:var(--surface-2)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:14px 0}
+.card{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 16px}
+.card b{display:block;margin-bottom:2px}
+.card span{color:var(--muted);font-size:14.5px}
+/* Demo widgets */
+.demo{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:18px;margin:18px 0}
+.demo h4{margin:0 0 4px;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent)}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+button.btn{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:8px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+label.range{display:flex;align-items:center;gap:8px;font-size:14px}
+input[type=range]{accent-color:var(--accent)}
+.stat{font-size:14px;color:var(--muted)}
+.stat b{color:var(--text)}
+/* Loop diagram */
+.loop svg{width:100%;max-width:560px;display:block;margin:0 auto}
+.loop .flow{stroke-dasharray:6 6;animation:dash 1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-12}}
+.loop .pulse{animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+/* Bandit */
+.arms{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+.arm{border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;background:var(--surface-2);transition:transform .15s,border-color .15s}
+.arm.hit{transform:scale(1.04);border-color:var(--accent)}
+.arm .icon{font-size:28px}
+.bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin:6px 0}
+.bar div{height:100%;background:var(--accent);transition:width .2s}
+/* Gamma bars */
+.gbars{display:flex;align-items:flex-end;gap:6px;height:120px;margin:12px 0 4px}
+.gbars div{flex:1;background:var(--accent);border-radius:4px 4px 0 0;position:relative;min-height:2px;transition:height .15s}
+.gbars div.big{background:var(--good)}
+.glabels{display:flex;gap:6px;font-size:11.5px;color:var(--muted)}
+.glabels span{flex:1;text-align:center}
+/* Gridworld */
+.gw-wrap{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+#gw{display:grid;grid-template-columns:repeat(5,58px);gap:4px}
+#gw div{width:58px;height:58px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:11px;color:var(--muted);border:1px solid var(--border);position:relative;transition:background .2s}
+#gw div .ar{font-size:20px;color:var(--text);line-height:1}
+#gw div.agent{outline:3px solid var(--accent);outline-offset:-3px}
+#gw div .em{font-size:24px;line-height:1}
+#chart{width:100%;max-width:330px;height:130px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2)}
+.legend{font-size:13px;color:var(--muted)}
+/* Steps */
+.steps{counter-reset:st;list-style:none;padding:0}
+.steps li{counter-increment:st;position:relative;padding:4px 0 10px 42px}
+.steps li::before{content:counter(st);position:absolute;left:0;top:4px;width:28px;height:28px;border-radius:50%;background:var(--accent-soft);
+  color:var(--accent);font-weight:700;display:grid;place-items:center;font-size:14px}
+/* Quiz */
+.q{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 18px;margin:12px 0}
+.q p{margin:0 0 8px;font-weight:600}
+.q button{display:block;width:100%;text-align:left;margin:6px 0;border:1px solid var(--border);background:var(--surface-2);color:var(--text);
+  border-radius:8px;padding:8px 12px;font:inherit;font-size:14.5px;cursor:pointer}
+.q button.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 15%,transparent)}
+.q button.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,transparent)}
+.q .why{font-size:14px;color:var(--muted);display:none;margin-top:6px}
+footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:14px}
+@media (max-width:900px){
+  #sidebar{transform:translateX(-100%);box-shadow:0 0 30px rgba(0,0,0,.2)}
+  #sidebar.open{transform:none}
+  #menuBtn{display:block}
+  main{margin-left:0;padding:60px 16px 60px}
+  header.hero h1{font-size:27px}
+  #gw{grid-template-columns:repeat(5,minmax(0,1fr));width:100%;max-width:310px}
+  #gw div{width:auto;aspect-ratio:1;height:auto}
+}
+/* ---- tambahan modul Intermediate ---- */
+.cells{display:grid;gap:4px;width:100%}
+.cells>div{aspect-ratio:1;border-radius:7px;border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:11px;color:var(--muted);transition:background .2s;min-width:0;overflow:hidden}
+.cells>div .ar{font-size:18px;color:var(--text);line-height:1}
+.cells>div .em{font-size:20px;line-height:1}
+#vi{grid-template-columns:repeat(4,1fr);max-width:300px}
+.cliff{grid-template-columns:repeat(12,1fr);max-width:560px;gap:3px}
+.cliff>div{border-radius:5px;font-size:10px}
+.cliff>div .ar{font-size:14px}
+.cliff>div .em{font-size:14px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.spectrum{display:flex;border-radius:10px;overflow:hidden;margin:14px 0;font-size:13px;text-align:center}
+.spectrum div{flex:1;padding:8px 4px;background:var(--surface-2);border-right:1px solid var(--border)}
+.spectrum div:first-child{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.spectrum div:last-child{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good);font-weight:600;border:0}
+.n{color:var(--warn)}
+.card span b{display:inline;margin:0}
+.nav-mod{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px}
+/* ---- tambahan modul Matematika ---- */
+.plot{width:100%;height:auto;border:1px solid var(--border);border-radius:8px;background:var(--surface-2)}
+.probs{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center;font-size:13px;margin:6px 0}
+.probs .bar{margin:0}
+.kpi{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.kpi div{border:1px solid var(--border);background:var(--surface-2);border-radius:8px;padding:6px 12px;font-size:13px;color:var(--muted)}
+.kpi b{display:block;font-size:17px;color:var(--text)}
+</style>
+</head>
+<body>
+<button id="menuBtn" aria-label="Buka daftar isi">☰ Daftar Isi</button>
+
+<nav id="sidebar" aria-label="Daftar isi">
+  <div class="brand">Matematika untuk RL</div>
+  <span class="level">Modul Penunjang</span>
+  <div id="progress"><div></div></div>
+  <ol id="toc">
+    <li><a href="#peta">Peta Matematika di RL</a></li>
+    <li><a href="#notasi">Notasi &amp; Simbol</a></li>
+    <li><a href="#peluang">Probabilitas Dasar</a></li>
+    <li><a href="#ekspektasi">Ekspektasi &amp; Variansi</a></li>
+    <li><a href="#distribusi">Distribusi Penting</a></li>
+    <li><a href="#estimasi">Estimasi, Bias &amp; Variansi</a></li>
+    <li><a href="#deret">Deret Geometri &amp; Diskon</a></li>
+    <li><a href="#kalkulus">Kalkulus &amp; Gradient Descent</a></li>
+    <li><a href="#log">Logaritma &amp; Log-Derivative Trick</a></li>
+    <li><a href="#linalg">Aljabar Linear Secukupnya</a></li>
+    <li><a href="#info">Entropi &amp; KL Divergence</a></li>
+    <li><a href="#kode">Praktik dengan NumPy</a></li>
+    <li><a href="#kuis">Kuis &amp; Cheat Sheet</a></li>
+  </ol>
+  <button class="btn" id="themeBtn">🌓 Ganti tema</button>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Matematika untuk Reinforcement Learning</h1>
+  <p>Modul penunjang untuk seri Beginner → Intermediate → Advanced. Estimasi waktu belajar ± 3 jam.</p>
+</header>
+
+<div class="box note">
+  <strong>🎯 Tujuan belajar</strong>
+  Modul ini <b>bukan</b> kuliah matematika lengkap. Isinya hanya matematika yang benar-benar dipakai di modul RL, dan setiap konsep langsung dikaitkan
+  dengan rumus RL yang memakainya. Setelah selesai, kamu bisa membaca rumus seperti
+  <code>∇J = 𝔼[∇log π(a|s)·A]</code> atau <code>KL(π‖π<sub>ref</sub>)</code> dan memahami artinya, bukan sekadar menghafal.
+  <br><span class="muted">Prasyarat: aljabar SMA (pangkat, pecahan, fungsi). Cara pakai: baca sebelum atau berdampingan dengan
+  <a href="01-beginner.html">Beginner</a>, <a href="02-intermediate.html">Intermediate</a>, dan <a href="03-advanced.html">Advanced</a>.</span>
+</div>
+
+<!-- 1 -->
+<section id="peta">
+<h2>1. Peta Matematika di RL</h2>
+<p>Tabel berikut menunjukkan di mana setiap topik muncul. Kalau kamu tersangkut di salah satu modul RL, cari konsepnya di sini.</p>
+<table>
+  <tr><th>Topik matematika</th><th>Dipakai untuk</th><th>Muncul di modul</th></tr>
+  <tr><td>Probabilitas bersyarat</td><td>Policy π(a|s), transisi P(s'|s,a), sifat Markov</td><td>Beginner, Intermediate</td></tr>
+  <tr><td>Ekspektasi</td><td>Value function V, Q, persamaan Bellman</td><td>Semua</td></tr>
+  <tr><td>Rata-rata berjalan, bias–variansi</td><td>Update Q-Learning, MC vs TD, baseline, GAE</td><td>Semua</td></tr>
+  <tr><td>Deret geometri</td><td>Return terdiskon, konvergensi value iteration</td><td>Beginner, Intermediate</td></tr>
+  <tr><td>Gradien &amp; aturan rantai</td><td>Neural network, DQN, policy gradient</td><td>Intermediate, Advanced</td></tr>
+  <tr><td>Logaritma</td><td>Log-derivative trick, log-probabilitas, loss</td><td>Advanced</td></tr>
+  <tr><td>Vektor &amp; matriks</td><td>Function approximation, Bellman bentuk matriks</td><td>Intermediate</td></tr>
+  <tr><td>Softmax, Gaussian, sigmoid</td><td>Policy diskret &amp; kontinu, reward model</td><td>Advanced</td></tr>
+  <tr><td>Entropi &amp; KL divergence</td><td>SAC, PPO/TRPO, RLHF, DPO</td><td>Advanced</td></tr>
+</table>
+</section>
+
+<!-- 2 -->
+<section id="notasi">
+<h2>2. Notasi &amp; Simbol</h2>
+<p>Banyak orang merasa matematika RL sulit karena <b>simbolnya</b>, padahal konsepnya sederhana. Ini kamus kecil yang perlu kamu kuasai:</p>
+<table>
+  <tr><th>Simbol</th><th>Dibaca</th><th>Arti</th><th>Contoh di RL</th></tr>
+  <tr><td>Σ<sub>i=1</sub><sup>n</sup> <var>x<sub>i</sub></var></td><td>sigma</td><td>Jumlahkan <var>x</var><sub>1</sub> + … + <var>x<sub>n</sub></var></td><td>Σ<sub>k</sub> γ<sup>k</sup><var>r</var><sub>t+k+1</sub> (return)</td></tr>
+  <tr><td>Π<sub>t</sub> <var>x<sub>t</sub></var></td><td>pi besar</td><td>Kalikan semua <var>x<sub>t</sub></var></td><td>Peluang satu trajektori</td></tr>
+  <tr><td>max<sub><var>a</var></sub> <var>f</var>(<var>a</var>)</td><td>maksimum</td><td><b>Nilai</b> terbesar dari <var>f</var></td><td>max<sub><var>a</var></sub> <var>Q</var>(<var>s</var>,<var>a</var>) = <var>V</var>*(<var>s</var>)</td></tr>
+  <tr><td>argmax<sub><var>a</var></sub> <var>f</var>(<var>a</var>)</td><td>arg-maks</td><td><b>Input</b> yang membuat <var>f</var> terbesar</td><td>Aksi greedy</td></tr>
+  <tr><td>𝔼[<var>X</var>]</td><td>ekspektasi</td><td>Rata-rata tertimbang peluang</td><td><var>V</var>(<var>s</var>) = 𝔼[<var>G</var> | <var>s</var>]</td></tr>
+  <tr><td><var>P</var>(<var>A</var> | <var>B</var>)</td><td>peluang A bila B</td><td>Peluang bersyarat</td><td>π(<var>a</var>|<var>s</var>), <var>P</var>(<var>s'</var>|<var>s</var>,<var>a</var>)</td></tr>
+  <tr><td><var>x</var> ∼ <var>p</var></td><td>x berdistribusi p</td><td><var>x</var> diambil acak menurut <var>p</var></td><td><var>a</var> ∼ π(·|<var>s</var>)</td></tr>
+  <tr><td>∇<sub>θ</sub> <var>f</var></td><td>nabla / gradien</td><td>Vektor turunan parsial terhadap θ</td><td>∇<sub>θ</sub><var>J</var>(θ)</td></tr>
+  <tr><td>←</td><td>diperbarui menjadi</td><td>Assignment (seperti <code>=</code> di kode)</td><td><var>Q</var> ← <var>Q</var> + α(…)</td></tr>
+  <tr><td>θ, φ</td><td>theta, phi</td><td>Parameter model (bobot neural network)</td><td>π<sub>θ</sub>, <var>V</var><sub>φ</sub></td></tr>
+  <tr><td><var>x̂</var></td><td>x topi</td><td>Estimasi dari <var>x</var></td><td><var>Â</var> (estimasi advantage)</td></tr>
+</table>
+<div class="box tip"><strong>💡 Trik membaca rumus</strong>
+  Baca rumus seperti membaca kode: dari dalam ke luar. <code>max<sub>a</sub> Q(s',a)</code> = "untuk setiap aksi <var>a</var> di state <var>s'</var>, hitung Q, lalu ambil yang terbesar"
+  = <code>max(Q[s2])</code> di Python. Menerjemahkan rumus ke kode (dan sebaliknya) adalah latihan terbaik.
+</div>
+</section>
+
+<!-- 3 -->
+<section id="peluang">
+<h2>3. Probabilitas Dasar</h2>
+<p><b>Peluang</b> <var>P</var>(<var>A</var>) adalah angka 0–1 yang menyatakan seberapa mungkin kejadian <var>A</var> terjadi. Untuk semua kemungkinan hasil, total peluangnya = 1.</p>
+<h3>Peluang bersyarat</h3>
+<div class="formula"><var>P</var>(<var>A</var> | <var>B</var>) = <var>P</var>(<var>A</var> ∩ <var>B</var>) / <var>P</var>(<var>B</var>)</div>
+<p>"Peluang <var>A</var>, jika kita sudah tahu <var>B</var> terjadi". Di RL hampir semuanya bersyarat:
+π(<var>a</var>|<var>s</var>) = peluang memilih aksi <var>a</var> <i>jika</i> berada di state <var>s</var>, dan
+<var>P</var>(<var>s'</var>|<var>s</var>,<var>a</var>) = peluang tiba di <var>s'</var> <i>jika</i> melakukan <var>a</var> di <var>s</var>.
+Syaratnya: Σ<sub><var>a</var></sub> π(<var>a</var>|<var>s</var>) = 1 untuk setiap <var>s</var>.</p>
+
+<h3>Aturan perkalian &amp; peluang trajektori</h3>
+<p>Peluang beberapa kejadian berurutan = perkalian peluang bersyaratnya: <var>P</var>(<var>A</var>,<var>B</var>) = <var>P</var>(<var>A</var>)·<var>P</var>(<var>B</var>|<var>A</var>).
+Berkat sifat Markov, peluang satu trajektori τ = (<var>s</var><sub>0</sub>, <var>a</var><sub>0</sub>, <var>s</var><sub>1</sub>, <var>a</var><sub>1</sub>, …) menjadi:</p>
+<div class="formula"><var>P</var>(τ) = <var>p</var>(<var>s</var><sub>0</sub>) · Π<sub>t</sub> <span style="color:var(--accent)">π(<var>a<sub>t</sub></var>|<var>s<sub>t</sub></var>)</span> · <span style="color:var(--warn)"><var>P</var>(<var>s</var><sub>t+1</sub>|<var>s<sub>t</sub></var>,<var>a<sub>t</sub></var>)</span></div>
+<p>Bagian <span style="color:var(--accent)">biru</span> dikendalikan agen, bagian <span style="color:var(--warn)">oranye</span> dikendalikan lingkungan. Rumus ini adalah kunci penurunan policy gradient di bagian 9.</p>
+
+<div class="box note"><strong>📝 Contoh</strong>
+  Robot di state "dekat pintu". π(buka|dekat pintu) = 0.8. Jika membuka, pintu terbuka dengan peluang 0.9 (kadang macet).
+  Peluang "memilih buka <i>dan</i> pintu terbuka" = 0.8 × 0.9 = <b>0.72</b>.
+</div>
+
+<h3>Independensi &amp; sifat Markov</h3>
+<p><var>A</var> dan <var>B</var> <b>independen</b> jika <var>P</var>(<var>A</var>|<var>B</var>) = <var>P</var>(<var>A</var>): mengetahui <var>B</var> tidak mengubah apa pun.
+Sifat Markov adalah <i>independensi bersyarat</i>: jika state sekarang diketahui, masa lalu tidak menambah informasi.</p>
+<div class="formula"><var>P</var>(<var>s</var><sub>t+1</sub> | <var>s<sub>t</sub></var>, <var>a<sub>t</sub></var>, <var>s</var><sub>t−1</sub>, <var>a</var><sub>t−1</sub>, …) = <var>P</var>(<var>s</var><sub>t+1</sub> | <var>s<sub>t</sub></var>, <var>a<sub>t</sub></var>)</div>
+
+<h3>Teorema Bayes</h3>
+<div class="formula"><var>P</var>(<var>H</var> | <var>D</var>) = <var>P</var>(<var>D</var> | <var>H</var>) · <var>P</var>(<var>H</var>) / <var>P</var>(<var>D</var>)</div>
+<p>Memperbarui keyakinan tentang hipotesis <var>H</var> setelah melihat data <var>D</var>. Di RL dipakai pada Thompson sampling dan Bayesian RL:
+"seberapa yakin saya bahwa mesin slot B adalah yang terbaik, setelah melihat 10 tarikan?"</p>
+</section>
+
+<!-- 4 -->
+<section id="ekspektasi">
+<h2>4. Ekspektasi &amp; Variansi</h2>
+<p><b>Ekspektasi</b> (nilai harapan) adalah rata-rata tertimbang semua kemungkinan nilai, dengan bobot berupa peluangnya:</p>
+<div class="formula">𝔼[<var>X</var>] = Σ<sub><var>x</var></sub> <var>x</var> · <var>p</var>(<var>x</var>) &nbsp;&nbsp;&nbsp; (kontinu: ∫ <var>x</var> <var>p</var>(<var>x</var>) <var>dx</var>)</div>
+<p>Contoh dadu: 𝔼[<var>X</var>] = (1+2+3+4+5+6)/6 = <b>3,5</b>, padahal dadu tidak pernah menghasilkan 3,5. Ekspektasi adalah rata-rata <i>jangka panjang</i>, bukan hasil yang "diharapkan muncul".</p>
+<p><b>Variansi</b> mengukur seberapa menyebar hasilnya di sekitar ekspektasi:</p>
+<div class="formula">Var[<var>X</var>] = 𝔼[ (<var>X</var> − 𝔼[<var>X</var>])² ] = 𝔼[<var>X</var>²] − 𝔼[<var>X</var>]²</div>
+
+<div class="demo">
+  <h4>Demo: Hukum Bilangan Besar</h4>
+  <p class="stat" style="margin:0">Rata-rata hasil lemparan dadu akan mendekati ekspektasi 3,5 seiring bertambahnya lemparan. Inilah dasar <b>Monte Carlo</b>: memperkirakan ekspektasi dengan merata-ratakan sampel.</p>
+  <div class="controls">
+    <button class="btn primary" data-roll="1">Lempar 1×</button><button class="btn" data-roll="10">10×</button>
+    <button class="btn" data-roll="100">100×</button><button class="btn" data-roll="1000">1000×</button><button class="btn" id="llnReset">Reset</button>
+  </div>
+  <div class="kpi"><div>Jumlah lemparan<b id="llnN">0</b></div><div>Rata-rata sampel<b id="llnM">–</b></div><div>Variansi sampel<b id="llnV">–</b></div><div>Teori<b>3,5 · 2,92</b></div></div>
+  <svg class="plot" viewBox="0 0 560 140" preserveAspectRatio="none" style="height:140px">
+    <line x1="0" x2="560" y1="70" y2="70" stroke="var(--good)" stroke-dasharray="5 4"/><polyline id="llnLine" fill="none" stroke="var(--accent)" stroke-width="2"/></svg>
+  <div class="gbars" id="llnHist" style="height:70px"></div><div class="glabels"><span>⚀</span><span>⚁</span><span>⚂</span><span>⚃</span><span>⚄</span><span>⚅</span></div>
+  <p class="legend">Garis biru = rata-rata berjalan, garis hijau = 3,5 (sumbu y: 1 sampai 6). Batang = frekuensi tiap mata dadu.</p>
+</div>
+
+<h3>Sifat-sifat penting</h3>
+<ul>
+  <li><b>Linearitas</b>: 𝔼[<var>aX</var> + <var>bY</var>] = <var>a</var>𝔼[<var>X</var>] + <var>b</var>𝔼[<var>Y</var>], <i>selalu</i> berlaku, bahkan jika <var>X</var> dan <var>Y</var> tidak independen. Inilah yang membuat 𝔼[<var>r</var> + γ<var>G'</var>] = 𝔼[<var>r</var>] + γ𝔼[<var>G'</var>].</li>
+  <li><b>Variansi dari jumlah</b>: Var[<var>X</var>+<var>Y</var>] = Var[<var>X</var>] + Var[<var>Y</var>] jika independen. Return Monte Carlo menjumlahkan banyak reward acak, sehingga variansinya besar.</li>
+  <li><b>Hukum total ekspektasi</b>: 𝔼[<var>X</var>] = 𝔼<sub><var>Y</var></sub>[ 𝔼[<var>X</var> | <var>Y</var>] ]. Ekspektasi bisa dihitung bertahap, "cabang demi cabang". Ini persis struktur persamaan Bellman.</li>
+</ul>
+
+<h3>Bellman = ekspektasi bertingkat</h3>
+<p>Contoh hitung <var>V</var>(<var>s</var>) dengan γ = 0,9. Agen memilih aksi (peluang π), lalu lingkungan memilih state berikutnya (peluang <var>P</var>):</p>
+<div class="demo loop">
+<svg viewBox="0 0 600 250" role="img" aria-label="Pohon ekspektasi Bellman">
+  <g font-size="12" text-anchor="middle" fill="var(--text)">
+    <g stroke="var(--border)" stroke-width="2" fill="none"><path d="M300,46 L160,104 M300,46 L440,104 M160,136 L80,196 M160,136 L240,196 M440,136 L360,196 M440,136 L520,196"/></g>
+    <circle cx="300" cy="30" r="17" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/><text x="300" y="35" font-weight="700">s</text>
+    <text x="355" y="22" text-anchor="start" fill="var(--accent)" font-weight="700">V(s) = 0,6·7,3 + 0,4·5,4 = 6,54</text>
+    <text x="210" y="70" fill="var(--accent)">π = 0,6</text><text x="390" y="70" fill="var(--accent)">π = 0,4</text>
+    <rect x="92" y="104" width="136" height="32" rx="8" fill="var(--surface-2)" stroke="var(--border)"/><text x="160" y="118" font-weight="700">a₁ · r = 1</text><text x="160" y="131" font-size="10.5" fill="var(--muted)">Q = 1 + 0,9·7 = 7,3</text>
+    <rect x="372" y="104" width="136" height="32" rx="8" fill="var(--surface-2)" stroke="var(--border)"/><text x="440" y="118" font-weight="700">a₂ · r = 0</text><text x="440" y="131" font-size="10.5" fill="var(--muted)">Q = 0 + 0,9·6 = 5,4</text>
+    <text x="100" y="168" fill="var(--warn)">P = 0,7</text><text x="222" y="168" fill="var(--warn)">P = 0,3</text><text x="380" y="168" fill="var(--warn)">P = 0,5</text><text x="502" y="168" fill="var(--warn)">P = 0,5</text>
+    <circle cx="80" cy="210" r="15" fill="var(--surface-2)" stroke="var(--border)"/><text x="80" y="214" font-size="10.5">V=10</text>
+    <circle cx="240" cy="210" r="15" fill="var(--surface-2)" stroke="var(--border)"/><text x="240" y="214" font-size="10.5">V=0</text>
+    <circle cx="360" cy="210" r="15" fill="var(--surface-2)" stroke="var(--border)"/><text x="360" y="214" font-size="10.5">V=4</text>
+    <circle cx="520" cy="210" r="15" fill="var(--surface-2)" stroke="var(--border)"/><text x="520" y="214" font-size="10.5">V=8</text>
+    <text x="160" y="243" font-size="10.5" fill="var(--muted)">𝔼[V(s')] = 0,7·10 + 0,3·0 = 7</text><text x="440" y="243" font-size="10.5" fill="var(--muted)">𝔼[V(s')] = 0,5·4 + 0,5·8 = 6</text>
+  </g>
+</svg>
+</div>
+<p>Dibaca dari bawah ke atas: rata-ratakan state berikutnya (bobot <var>P</var>) untuk mendapat <var>Q</var>, lalu rata-ratakan aksi (bobot π) untuk mendapat <var>V</var>.
+Policy optimal tidak merata-ratakan aksi, tetapi mengambil max: <var>V</var>*(<var>s</var>) = max(7,3; 5,4) = 7,3.</p>
+</section>
+
+<!-- 5 -->
+<section id="distribusi">
+<h2>5. Distribusi Penting</h2>
+<div class="grid2">
+  <div class="card"><b>Bernoulli(<var>p</var>)</b><span>Dua hasil: 1 dengan peluang <var>p</var>, 0 dengan peluang 1−<var>p</var>. Contoh: mesin slot menang/kalah, reward sukses/gagal.</span></div>
+  <div class="card"><b>Kategorikal</b><span>Satu dari <var>K</var> pilihan dengan peluang <var>p</var><sub>1..K</sub>. Ini bentuk policy untuk aksi diskret (kiri/kanan/atas/bawah).</span></div>
+  <div class="card"><b>Gaussian 𝒩(μ, σ²)</b><span>Kurva lonceng dengan rata-rata μ dan standar deviasi σ. Bentuk policy untuk aksi kontinu (PPO/SAC), juga model noise.</span></div>
+  <div class="card"><b>Uniform</b><span>Semua hasil sama mungkin. Aksi acak pada ε-greedy diambil dari distribusi uniform.</span></div>
+</div>
+
+<h3>Softmax: mengubah skor menjadi peluang</h3>
+<p>Neural network mengeluarkan skor sembarang (<i>logit</i>) <var>z</var><sub>1..K</sub>. Softmax mengubahnya menjadi peluang yang positif dan totalnya 1:</p>
+<div class="formula">softmax(<var>z</var>)<sub><var>i</var></sub> = <var>e</var><sup><var>z<sub>i</sub></var>/τ</sup> / Σ<sub><var>j</var></sub> <var>e</var><sup><var>z<sub>j</sub></var>/τ</sup></div>
+<div class="demo">
+  <h4>Demo: softmax &amp; temperatur <span style="text-transform:none">τ</span></h4>
+  <p class="stat" style="margin:0">Logit tetap: Kiri = 2,0 · Kanan = 1,0 · Atas = 0,2 · Bawah = −1,0. Geser temperatur τ.</p>
+  <div class="controls"><label class="range">τ = <b id="tauV">1,00</b><input id="tauR" type="range" min="0.05" max="5" step="0.05" value="1"></label></div>
+  <div id="smBars" class="probs"></div>
+  <p class="stat">Entropi: <b id="smH"></b> (maksimum ln 4 = 1,386)</p>
+  <p class="legend">τ kecil → hampir selalu memilih skor tertinggi (greedy, eksploitasi). τ besar → hampir uniform (eksplorasi). Ini disebut <b>Boltzmann exploration</b>, alternatif ε-greedy yang lebih halus.</p>
+</div>
+
+<h3>Sigmoid: softmax untuk dua pilihan</h3>
+<div class="formula">σ(<var>x</var>) = 1 / (1 + <var>e</var><sup>−<var>x</var></sup>)</div>
+<p>Mengubah selisih skor menjadi peluang 0–1. Reward model di RLHF memakai σ(<var>r<sub>w</sub></var> − <var>r<sub>l</sub></var>) sebagai peluang jawaban <var>w</var> lebih disukai daripada <var>l</var> (model Bradley–Terry).
+Softmax dua kelas dengan logit (<var>x</var>, 0) persis sama dengan σ(<var>x</var>).</p>
+</section>
+
+<!-- 6 -->
+<section id="estimasi">
+<h2>6. Estimasi, Bias &amp; Variansi</h2>
+<p>Di RL kita hampir tidak pernah tahu nilai sebenarnya, kita hanya <b>memperkirakan</b>-nya dari sampel. Sebuah <b>estimator</b> <var>θ̂</var> untuk besaran θ dinilai dengan dua hal:</p>
+<div class="grid2">
+  <div class="card"><b>🎯 Bias</b><span>𝔼[<var>θ̂</var>] − θ. Apakah estimator <i>rata-ratanya</i> tepat sasaran? Contoh: TD target bias karena memakai tebakan <var>V</var>(<var>s'</var>) yang belum akurat.</span></div>
+  <div class="card"><b>🎲 Variansi</b><span>Var[<var>θ̂</var>]. Seberapa "berisik" estimator dari sampel ke sampel? Contoh: return Monte Carlo tidak bias, tetapi variansinya tinggi.</span></div>
+</div>
+<div class="formula">Error kuadrat rata-rata (MSE) = Bias² + Variansi</div>
+<p>Inilah alasan matematis di balik banyak pilihan desain di RL: TD vs MC, nilai <var>n</var> pada n-step, λ pada GAE, dan baseline. Semuanya mengatur <b>trade-off bias–variansi</b>.</p>
+
+<h3>Rata-rata berjalan (incremental mean)</h3>
+<p>Rata-rata <var>n</var> sampel bisa dihitung tanpa menyimpan semua sampel:</p>
+<div class="formula"><var>Q</var><sub>n</sub> = <var>Q</var><sub>n−1</sub> + (1/<var>n</var>) · ( <var>x<sub>n</sub></var> − <var>Q</var><sub>n−1</sub> )</div>
+<p>Jika 1/<var>n</var> diganti konstanta α, didapat <b>exponential moving average</b> (EMA): sampel lama "dilupakan" secara eksponensial dengan bobot (1−α)<sup>k</sup>.
+Ini adalah bentuk update Q-Learning dan TD: <code>Q ← Q + α(target − Q)</code>. EMA penting karena di RL target terus berubah (<i>non-stationary</i>) seiring policy membaik.</p>
+<div class="demo">
+  <h4>Demo: rata-rata <span style="text-transform:none">1/n</span> vs EMA dengan <span style="text-transform:none">α</span> tetap</h4>
+  <p class="stat" style="margin:0">Data acak dengan rata-rata sebenarnya <b>2</b>, lalu tiba-tiba berubah menjadi <b>5</b> di langkah ke-100 (seperti nilai Q yang berubah saat policy membaik).</p>
+  <div class="controls">
+    <label class="range">α = <b id="emaV">0,10</b><input id="emaR" type="range" min="0.01" max="0.6" step="0.01" value="0.1"></label>
+    <button class="btn" id="emaNew">Data baru</button>
+  </div>
+  <svg id="emaPlot" class="plot" viewBox="0 0 560 170" preserveAspectRatio="none" style="height:170px"></svg>
+  <p class="legend"><span style="color:var(--muted)">• titik</span> = sampel, <span style="color:var(--warn)">━ oranye</span> = rata-rata 1/<var>n</var>, <span style="color:var(--accent)">━ biru</span> = EMA α, <span style="color:var(--good)">┅ hijau</span> = nilai sebenarnya.
+  Rata-rata 1/<var>n</var> sangat lambat beradaptasi setelah perubahan. α besar cepat beradaptasi tetapi berisik (variansi tinggi), α kecil halus tetapi lambat (bias sementara).</p>
+</div>
+</section>
+
+<!-- 7 -->
+<section id="deret">
+<h2>7. Deret Geometri &amp; Diskon</h2>
+<p>Return terdiskon adalah deret geometri. Jika reward konstan <var>r</var> di setiap langkah tanpa akhir:</p>
+<div class="formula"><var>G</var> = <var>r</var> + γ<var>r</var> + γ²<var>r</var> + … = <var>r</var> · Σ<sub>k=0</sub><sup>∞</sup> γ<sup>k</sup> = <var>r</var> / (1 − γ) &nbsp;&nbsp; (untuk 0 ≤ γ &lt; 1)</div>
+<p>Dua konsekuensi penting:</p>
+<ul>
+  <li><b>Return selalu terbatas</b>: jika |<var>r</var>| ≤ <var>R</var><sub>max</sub>, maka |<var>G</var>| ≤ <var>R</var><sub>max</sub>/(1−γ). Tugas tanpa akhir pun punya nilai yang terdefinisi.</li>
+  <li><b>Horizon efektif</b> ≈ 1/(1−γ): kira-kira sejauh itulah agen "melihat ke depan".</li>
+</ul>
+<table>
+  <tr><th>γ</th><th>Horizon efektif 1/(1−γ)</th><th>Bobot reward 100 langkah lagi (γ<sup>100</sup>)</th></tr>
+  <tr><td>0,9</td><td>10 langkah</td><td>0,00003</td></tr>
+  <tr><td>0,99</td><td>100 langkah</td><td>0,366</td></tr>
+  <tr><td>0,999</td><td>1000 langkah</td><td>0,905</td></tr>
+</table>
+<h3>Bentuk rekursif &amp; kontraksi</h3>
+<p>Deret ini bisa ditulis rekursif: <var>G<sub>t</sub></var> = <var>r</var><sub>t+1</sub> + γ<var>G</var><sub>t+1</sub>. Itulah asal-usul persamaan Bellman.
+Selain itu, setiap iterasi Bellman memperkecil error paling sedikit dengan faktor γ (<b>kontraksi</b>):</p>
+<div class="formula">‖<var>V</var><sub>k</sub> − <var>V</var>*‖ ≤ γ<sup>k</sup> · ‖<var>V</var><sub>0</sub> − <var>V</var>*‖</div>
+<p>Untuk mengecilkan error 1000 kali dengan γ = 0,9 dibutuhkan sekitar <var>k</var> = ln(0,001)/ln(0,9) ≈ <b>66 iterasi</b>, sedangkan dengan γ = 0,99 butuh ≈ <b>688 iterasi</b>.
+Itu sebabnya value iteration lebih lambat konvergen untuk γ besar (coba di demo modul Intermediate).</p>
+</section>
+
+<!-- 8 -->
+<section id="kalkulus">
+<h2>8. Kalkulus &amp; Gradient Descent</h2>
+<p><b>Turunan</b> <var>f</var>'(<var>x</var>) adalah kemiringan fungsi di titik <var>x</var>: seberapa cepat <var>f</var> berubah jika <var>x</var> digeser sedikit.
+Jika fungsi punya banyak input θ = (θ<sub>1</sub>, …, θ<sub>n</sub>), turunan terhadap masing-masing input disebut <b>turunan parsial</b>, dan vektornya disebut <b>gradien</b>:</p>
+<div class="formula">∇<sub>θ</sub><var>f</var> = ( ∂<var>f</var>/∂θ<sub>1</sub>, ∂<var>f</var>/∂θ<sub>2</sub>, …, ∂<var>f</var>/∂θ<sub>n</sub> )</div>
+<p>Gradien menunjuk ke arah <b>kenaikan tercepat</b>. Untuk meminimalkan loss, melangkahlah berlawanan arah gradien (<i>gradient descent</i>).
+Untuk memaksimalkan return, ikuti arah gradien (<i>gradient ascent</i>, seperti di policy gradient):</p>
+<div class="formula">θ ← θ − α ∇<sub>θ</sub><var>L</var>(θ) &nbsp;&nbsp; (descent) &nbsp;&nbsp;&nbsp;&nbsp; θ ← θ + α ∇<sub>θ</sub><var>J</var>(θ) &nbsp;&nbsp; (ascent)</div>
+
+<div class="demo">
+  <h4>Demo: gradient descent pada <span style="text-transform:none"><var>f</var>(<var>x</var>) = ¼<var>x</var>⁴ − <var>x</var>² + 0,3<var>x</var></span></h4>
+  <div class="controls">
+    <label class="range">x awal = <b id="gdX0v">1,80</b><input id="gdX0" type="range" min="-2.4" max="2.4" step="0.1" value="1.8"></label>
+    <label class="range">α = <b id="gdAv">0,10</b><input id="gdA" type="range" min="0.01" max="1.2" step="0.01" value="0.1"></label>
+  </div>
+  <div class="controls">
+    <button class="btn primary" data-gd="1">1 langkah</button><button class="btn" data-gd="20">20 langkah</button><button class="btn" id="gdReset">Reset</button>
+    <span class="stat">Langkah: <b id="gdK">0</b> · x = <b id="gdXv"></b> · f(x) = <b id="gdF"></b> · f'(x) = <b id="gdD"></b></span>
+  </div>
+  <svg id="gdPlot" class="plot" viewBox="0 0 560 220" style="max-width:560px"></svg>
+  <p class="legend">Coba: (1) x awal = 1,8 berakhir di minimum <i>lokal</i> kanan, sedangkan x awal = −0,5 berakhir di minimum <i>global</i> kiri.
+  (2) α = 1,0 atau lebih: langkah terlalu besar sehingga terlempar bolak-balik atau divergen. Inilah kenapa learning rate sangat penting di DQN dan PPO.</p>
+</div>
+
+<h3>Aturan rantai</h3>
+<p>Jika <var>y</var> = <var>f</var>(<var>g</var>(<var>x</var>)), maka d<var>y</var>/d<var>x</var> = <var>f</var>'(<var>g</var>(<var>x</var>)) · <var>g</var>'(<var>x</var>). Neural network adalah komposisi banyak fungsi,
+dan <b>backpropagation</b> hanyalah aturan rantai yang diterapkan berulang dari output ke input. PyTorch melakukannya otomatis lewat <code>loss.backward()</code>.</p>
+<div class="box note"><strong>📝 Contoh: gradien loss DQN</strong>
+  <var>L</var>(θ) = (<var>y</var> − <var>Q</var><sub>θ</sub>)², dengan target <var>y</var> dianggap konstan. Aturan rantai: ∇<sub>θ</sub><var>L</var> = −2(<var>y</var> − <var>Q</var><sub>θ</sub>) · ∇<sub>θ</sub><var>Q</var><sub>θ</sub>.
+  Gradient descent dengan langkah α/2 memberi θ ← θ + α(<var>y</var> − <var>Q</var><sub>θ</sub>)∇<sub>θ</sub><var>Q</var><sub>θ</sub>, persis update semi-gradient di modul Intermediate.
+  Untuk tabel (Q-table), ∇<sub>θ</sub><var>Q</var> bernilai 1 di sel (<var>s</var>,<var>a</var>) dan 0 di tempat lain, sehingga kembali menjadi rumus Q-Learning biasa.
+</div>
+</section>
+
+<!-- 9 -->
+<section id="log">
+<h2>9. Logaritma &amp; Log-Derivative Trick</h2>
+<p>Sifat logaritma natural (ln) yang paling sering dipakai:</p>
+<table>
+  <tr><th>Sifat</th><th>Kegunaan di RL / ML</th></tr>
+  <tr><td>log(<var>ab</var>) = log <var>a</var> + log <var>b</var></td><td>Mengubah perkalian peluang trajektori menjadi penjumlahan, lebih stabil secara numerik</td></tr>
+  <tr><td>log(<var>a</var>/<var>b</var>) = log <var>a</var> − log <var>b</var></td><td>Rasio PPO dihitung sebagai <code>exp(logp_baru − logp_lama)</code></td></tr>
+  <tr><td>d/d<var>x</var> log <var>x</var> = 1/<var>x</var></td><td>Dasar log-derivative trick</td></tr>
+  <tr><td>log monoton naik</td><td>Memaksimalkan <var>p</var> sama dengan memaksimalkan log <var>p</var></td></tr>
+</table>
+
+<h3>Log-derivative trick, langkah demi langkah</h3>
+<p>Kita ingin gradien dari <var>J</var>(θ) = 𝔼<sub><var>x</var>∼<var>p</var><sub>θ</sub></sub>[<var>f</var>(<var>x</var>)] = Σ<sub><var>x</var></sub> <var>p</var><sub>θ</sub>(<var>x</var>) <var>f</var>(<var>x</var>):</p>
+<ol class="steps">
+  <li>Masukkan gradien ke dalam jumlahan: ∇<var>J</var> = Σ<sub><var>x</var></sub> ∇<var>p</var><sub>θ</sub>(<var>x</var>) · <var>f</var>(<var>x</var>).</li>
+  <li>Dari aturan rantai, ∇ log <var>p</var> = ∇<var>p</var> / <var>p</var>, sehingga ∇<var>p</var> = <var>p</var> · ∇ log <var>p</var>.</li>
+  <li>Substitusi: ∇<var>J</var> = Σ<sub><var>x</var></sub> <var>p</var><sub>θ</sub>(<var>x</var>) · ∇ log <var>p</var><sub>θ</sub>(<var>x</var>) · <var>f</var>(<var>x</var>) = <b>𝔼<sub><var>x</var>∼<var>p</var><sub>θ</sub></sub>[ ∇ log <var>p</var><sub>θ</sub>(<var>x</var>) · <var>f</var>(<var>x</var>) ]</b>.</li>
+  <li>Bentuknya kembali menjadi ekspektasi, sehingga bisa diperkirakan dengan <b>sampel</b> (Monte Carlo) tanpa perlu menjumlahkan semua kemungkinan.</li>
+  <li>Untuk trajektori, log <var>P</var>(τ) = log <var>p</var>(<var>s</var><sub>0</sub>) + Σ log π<sub>θ</sub>(<var>a<sub>t</sub></var>|<var>s<sub>t</sub></var>) + Σ log <var>P</var>(<var>s</var><sub>t+1</sub>|…). Hanya suku π yang bergantung pada θ, sehingga <b>dinamika lingkungan hilang</b> dari gradien.</li>
+</ol>
+<p>Untuk policy softmax dengan parameter θ (satu logit per aksi), gradiennya sangat sederhana:</p>
+<div class="formula">∇<sub>θ</sub> log π<sub>θ</sub>(<var>a</var>) = onehot(<var>a</var>) − π<sub>θ</sub></div>
+<p>Contoh: π = (0,2; 0,5; 0,3) dan aksi terpilih <var>a</var> = 1 (indeks ke-2). Gradiennya (0 − 0,2; 1 − 0,5; 0 − 0,3) = (−0,2; 0,5; −0,3):
+naikkan logit aksi terpilih, turunkan yang lain. Rumus inilah yang dipakai demo REINFORCE di modul Advanced.</p>
+</section>
+
+<!-- 10 -->
+<section id="linalg">
+<h2>10. Aljabar Linear Secukupnya</h2>
+<div class="grid2">
+  <div class="card"><b>Vektor</b><span>Daftar angka, misalnya state CartPole <var>s</var> = (posisi, kecepatan, sudut, kecepatan sudut) ∈ ℝ⁴.</span></div>
+  <div class="card"><b>Dot product</b><span><var>u</var>·<var>v</var> = Σ<sub><var>i</var></sub> <var>u<sub>i</sub></var><var>v<sub>i</sub></var>. Mengukur "kemiripan arah". Dipakai di linear function approximation dan attention.</span></div>
+  <div class="card"><b>Matriks</b><span>Tabel angka. Perkalian matriks–vektor <var>Wx</var> adalah inti setiap layer neural network: <var>y</var> = σ(<var>Wx</var> + <var>b</var>).</span></div>
+</div>
+<h3>Linear function approximation</h3>
+<div class="formula"><var>Q̂</var>(<var>s</var>,<var>a</var>; θ) = θ<sup>⊤</sup>φ(<var>s</var>,<var>a</var>) = Σ<sub><var>i</var></sub> θ<sub><var>i</var></sub> φ<sub><var>i</var></sub>(<var>s</var>,<var>a</var>) &nbsp;&nbsp;⇒&nbsp;&nbsp; ∇<sub>θ</sub><var>Q̂</var> = φ(<var>s</var>,<var>a</var>)</div>
+<p>Gradien fungsi linear adalah vektor fiturnya sendiri, jadi update-nya sangat murah. Q-table adalah kasus khusus dengan φ berupa vektor <i>one-hot</i>.</p>
+
+<h3>Persamaan Bellman dalam bentuk matriks</h3>
+<p>Untuk policy tetap dengan <var>n</var> state, tulis <var>V</var> dan <var>R</var> sebagai vektor dan <var>P</var> sebagai matriks transisi <var>n</var>×<var>n</var>. Persamaan Bellman menjadi:</p>
+<div class="formula"><var>V</var> = <var>R</var> + γ<var>P</var><var>V</var> &nbsp;&nbsp;⇒&nbsp;&nbsp; <var>V</var> = (<var>I</var> − γ<var>P</var>)<sup>−1</sup> <var>R</var></div>
+<div class="box note"><strong>📝 Contoh 2 state (γ = 0,9)</strong>
+  State A: reward 1, lalu ke A atau B dengan peluang 0,5/0,5. State B: reward 0, lalu ke A 0,2 dan tetap di B 0,8.
+  <br><var>P</var> = [[0,5 0,5] [0,2 0,8]], <var>R</var> = (1, 0). Maka <var>I</var> − γ<var>P</var> = [[0,55 −0,45] [−0,18 0,28]], determinannya 0,55·0,28 − 0,45·0,18 = 0,073, sehingga
+  <br><b><var>V</var>(A) = 0,28/0,073 ≈ 3,836</b> dan <b><var>V</var>(B) = 0,18/0,073 ≈ 2,466</b>.
+  <br>Cek: <var>V</var>(A) = 1 + 0,9·(0,5·3,836 + 0,5·2,466) = 1 + 0,9·3,151 ≈ 3,836 ✓
+</div>
+<p>Invers matriks butuh waktu ∼<var>n</var>³, sehingga tidak praktis untuk jutaan state. Karena itu dipakai iterasi (DP) atau sampel (TD). Kode di bagian 12 membandingkan keduanya.</p>
+</section>
+
+<!-- 11 -->
+<section id="info">
+<h2>11. Entropi &amp; KL Divergence</h2>
+<p><b>Entropi</b> mengukur ketidakpastian (keacakan) sebuah distribusi:</p>
+<div class="formula">ℋ(<var>p</var>) = −Σ<sub><var>x</var></sub> <var>p</var>(<var>x</var>) log <var>p</var>(<var>x</var>)</div>
+<p>Entropi = 0 jika hasilnya pasti, dan maksimum (log <var>K</var>) jika semua <var>K</var> hasil sama mungkin. SAC dan PPO memberi bonus entropi agar policy tidak terlalu cepat menjadi deterministik.</p>
+<p><b>KL divergence</b> mengukur seberapa berbeda distribusi <var>p</var> dari <var>q</var>:</p>
+<div class="formula">KL(<var>p</var> ‖ <var>q</var>) = Σ<sub><var>x</var></sub> <var>p</var>(<var>x</var>) log ( <var>p</var>(<var>x</var>) / <var>q</var>(<var>x</var>) ) &nbsp;≥ 0</div>
+<ul>
+  <li>KL = 0 jika dan hanya jika <var>p</var> = <var>q</var>.</li>
+  <li><b>Tidak simetris</b>: KL(<var>p</var>‖<var>q</var>) ≠ KL(<var>q</var>‖<var>p</var>), jadi bukan "jarak" dalam arti biasa.</li>
+  <li>Hubungan dengan cross-entropy: ℋ(<var>p</var>,<var>q</var>) = ℋ(<var>p</var>) + KL(<var>p</var>‖<var>q</var>). Loss klasifikasi yang biasa dipakai di deep learning adalah cross-entropy.</li>
+</ul>
+<div class="demo">
+  <h4>Demo: entropi &amp; KL untuk dua koin (Bernoulli)</h4>
+  <div class="controls">
+    <label class="range"><span class="dot" style="background:var(--accent)"></span>p = <b id="klPv">0,50</b><input id="klP" type="range" min="0.01" max="0.99" step="0.01" value="0.5"></label>
+    <label class="range"><span class="dot" style="background:var(--warn)"></span>q = <b id="klQv">0,80</b><input id="klQ" type="range" min="0.01" max="0.99" step="0.01" value="0.8"></label>
+  </div>
+  <div class="kpi"><div>ℋ(p)<b id="kHp"></b></div><div>ℋ(q)<b id="kHq"></b></div><div>KL(p‖q)<b id="kPQ"></b></div><div>KL(q‖p)<b id="kQP"></b></div></div>
+  <svg id="klPlot" class="plot" viewBox="0 0 560 160" style="max-width:560px"></svg>
+  <p class="legend">Kurva = entropi koin ℋ(<var>x</var>) untuk peluang <var>x</var> dari 0 sampai 1 (maksimum ln 2 ≈ 0,693 di <var>x</var> = 0,5). Coba buat <var>p</var> = <var>q</var>: kedua KL menjadi 0.
+  Lalu buat <var>q</var> mendekati 0,01: KL(<var>p</var>‖<var>q</var>) melonjak jauh lebih cepat daripada KL(<var>q</var>‖<var>p</var>).</p>
+</div>
+<div class="box tip"><strong>🔗 Di mana KL dipakai</strong>
+  <b>TRPO</b>: batasi KL(π<sub>lama</sub>‖π<sub>baru</sub>) ≤ δ. <b>PPO</b>: KL aproksimasi dipantau sebagai sinyal kesehatan training.
+  <b>RLHF</b>: penalti β·KL(π<sub>θ</sub>‖π<sub>ref</sub>) agar LLM tidak menyimpang jauh dari model awal. <b>DPO</b>: turunan langsung dari objektif RLHF dengan KL tersebut.
+</div>
+</section>
+
+<!-- 12 -->
+<section id="kode">
+<h2>12. Praktik dengan NumPy</h2>
+<p>Satu skrip untuk memverifikasi konsep-konsep di modul ini dengan angka. Hanya butuh <code>numpy</code>.</p>
+<pre><code class="py">import numpy as np
+rng = np.random.default_rng(0)
+
+# 1) Hukum bilangan besar: rata-rata sampel -> ekspektasi
+dadu = rng.integers(1, 7, size=10_000)
+for n in [10, 100, 1_000, 10_000]:
+    print(f"n = {n:6d} | rata-rata dadu = {dadu[:n].mean():.3f} (teori 3.5)")
+
+# 2) Bellman bentuk matriks vs iterasi (contoh 2 state di bagian 10)
+P = np.array([[0.5, 0.5], [0.2, 0.8]])
+R = np.array([1.0, 0.0])
+gamma = 0.9
+V_tepat = np.linalg.solve(np.eye(2) - gamma * P, R)     # V = (I - γP)^-1 R
+V = np.zeros(2)
+for k in range(200):
+    V = R + gamma * P @ V                                 # iterasi Bellman
+print("\nV tepat   :", V_tepat.round(3))
+print("V iterasi :", V.round(3))
+
+# 3) Gradien log-softmax: rumus analitik vs turunan numerik
+def softmax(z):
+    e = np.exp(z - z.max())
+    return e / e.sum()
+
+theta, a, h = np.array([0.5, 1.0, -0.3]), 1, 1e-6
+analitik = np.eye(3)[a] - softmax(theta)                 # onehot(a) - π
+numerik = np.array([(np.log(softmax(theta + h * e)[a]) -
+                     np.log(softmax(theta - h * e)[a])) / (2 * h) for e in np.eye(3)])
+print("\ngradien analitik:", analitik.round(4))
+print("gradien numerik :", numerik.round(4))
+
+# 4) Estimator policy gradient (score function): tanpa vs dengan baseline
+r = np.array([5.0, 6.0, 5.5])                             # reward tiap aksi
+pi = softmax(theta)
+grad_benar = sum(pi[i] * r[i] * (np.eye(3)[i] - pi) for i in range(3))
+acts = rng.choice(3, size=100_000, p=pi)
+score = np.eye(3)[acts] - pi                              # ∇ log π(a)
+g0 = r[acts, None] * score                                # tanpa baseline
+g1 = (r[acts] - pi @ r)[:, None] * score                  # baseline = 𝔼[r]
+print("\ngradien sebenarnya :", grad_benar.round(3))
+print("tanpa baseline     :", g0.mean(0).round(3), "| variansi total", g0.var(0).sum().round(3))
+print("dengan baseline    :", g1.mean(0).round(3), "| variansi total", g1.var(0).sum().round(3))
+
+# 5) Entropi & KL divergence
+def entropi(p):
+    return -np.sum(p * np.log(p))
+
+def kl(p, q):
+    return np.sum(p * np.log(p / q))
+
+p, q = np.array([0.7, 0.2, 0.1]), np.full(3, 1 / 3)
+print(f"\nH(p) = {entropi(p):.3f} | H(q) = {entropi(q):.3f} (maks ln 3 = {np.log(3):.3f})")
+print(f"KL(p||q) = {kl(p, q):.3f} | KL(q||p) = {kl(q, p):.3f}  -> tidak simetris")</code></pre>
+<p>Output:</p>
+<pre><code>n =     10 | rata-rata dadu = 2.800 (teori 3.5)
+n =    100 | rata-rata dadu = 3.620 (teori 3.5)
+n =   1000 | rata-rata dadu = 3.600 (teori 3.5)
+n =  10000 | rata-rata dadu = 3.505 (teori 3.5)
+
+V tepat   : [3.836 2.466]
+V iterasi : [3.836 2.466]
+
+gradien analitik: [-0.3228  0.4678 -0.145 ]
+gradien numerik : [-0.3228  0.4678 -0.145 ]
+
+gradien sebenarnya : [-0.195  0.21  -0.015]
+tanpa baseline     : [-0.203  0.227 -0.025] | variansi total 17.517
+dengan baseline    : [-0.195  0.21  -0.015] | variansi total 0.038
+
+H(p) = 0.802 | H(q) = 1.099 (maks ln 3 = 1.099)
+KL(p||q) = 0.297 | KL(q||p) = 0.324  -&gt; tidak simetris</code></pre>
+<div class="box note"><strong>📝 Yang perlu diperhatikan dari output</strong>
+  <ul style="margin:4px 0 0">
+    <li>(2) Iterasi Bellman konvergen ke solusi tepat (kontraksi γ = 0,9), dan angkanya sama dengan hitungan manual di bagian 10.</li>
+    <li>(3) Rumus onehot − π cocok dengan turunan numerik. <b>Gradient check</b> seperti ini adalah cara standar menguji implementasi gradien buatan sendiri.</li>
+    <li>(4) Rata-rata kedua estimator mendekati gradien sebenarnya (tidak bias). Namun variansi tanpa baseline ± 460 kali lebih besar, sehingga estimasinya masih meleset walau sudah memakai 100.000 sampel, sedangkan versi dengan baseline nyaris tepat. Ini bukti numerik dari klaim di modul Advanced.</li>
+  </ul>
+</div>
+</section>
+
+<!-- 13 -->
+<section id="kuis">
+<h2>13. Kuis &amp; Cheat Sheet</h2>
+<div id="quiz"></div>
+<h3>Cheat sheet</h3>
+<table>
+  <tr><th>Konsep</th><th>Rumus</th><th>Di RL</th></tr>
+  <tr><td>Ekspektasi</td><td>𝔼[<var>X</var>] = Σ <var>x</var>·<var>p</var>(<var>x</var>)</td><td><var>V</var>, <var>Q</var>, Bellman</td></tr>
+  <tr><td>Variansi</td><td>𝔼[<var>X</var>²] − 𝔼[<var>X</var>]²</td><td>MC vs TD, baseline</td></tr>
+  <tr><td>Rata-rata berjalan</td><td><var>Q</var> ← <var>Q</var> + α(<var>x</var> − <var>Q</var>)</td><td>Semua update TD</td></tr>
+  <tr><td>Deret geometri</td><td>Σ γ<sup>k</sup> = 1/(1−γ)</td><td>Return, horizon efektif</td></tr>
+  <tr><td>Gradient descent</td><td>θ ← θ − α∇<var>L</var></td><td>DQN, critic</td></tr>
+  <tr><td>Log-derivative</td><td>∇<var>p</var> = <var>p</var>·∇log <var>p</var></td><td>Policy gradient</td></tr>
+  <tr><td>Softmax</td><td><var>e</var><sup><var>z<sub>i</sub></var></sup>/Σ<var>e</var><sup><var>z<sub>j</sub></var></sup></td><td>Policy diskret</td></tr>
+  <tr><td>Gradien log-softmax</td><td>onehot(<var>a</var>) − π</td><td>REINFORCE</td></tr>
+  <tr><td>Bellman matriks</td><td><var>V</var> = (<var>I</var> − γ<var>P</var>)<sup>−1</sup><var>R</var></td><td>Policy evaluation</td></tr>
+  <tr><td>Entropi</td><td>−Σ <var>p</var> log <var>p</var></td><td>SAC, bonus eksplorasi</td></tr>
+  <tr><td>KL divergence</td><td>Σ <var>p</var> log(<var>p</var>/<var>q</var>)</td><td>TRPO, PPO, RLHF</td></tr>
+</table>
+<div class="box note"><strong>📚 Untuk memperdalam</strong>
+  <i>Mathematics for Machine Learning</i> (Deisenroth, Faisal &amp; Ong, gratis online) bab 2, 5, 6, dan 7 · seri video 3Blue1Brown <i>Essence of Linear Algebra</i> &amp; <i>Essence of Calculus</i> ·
+  <i>Seeing Theory</i> (Brown University) untuk visualisasi probabilitas.
+</div>
+<div class="nav-mod"><a class="btn" href="01-beginner.html">Mulai Modul 1: Beginner →</a><a class="btn" href="03-advanced.html">Modul 3: Advanced →</a></div>
+</section>
+
+<footer>Modul Penunjang · Matematika untuk Reinforcement Learning. Referensi: Deisenroth dkk., <i>Mathematics for Machine Learning</i> (2020); Sutton &amp; Barto (2018), bab 2–4 &amp; 13.</footer>
+</main>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+/* ---------- Sidebar, scrollspy, progress, tema ---------- */
+const sb=$('#sidebar');
+$('#menuBtn').onclick=()=>sb.classList.toggle('open');
+$$('#toc a').forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+const links=[...$$('#toc a')];
+const spy=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){links.forEach(l=>l.classList.toggle('active',l.hash==='#'+e.target.id))}
+}),{rootMargin:'-20% 0px -70% 0px'});
+$$('main section').forEach(s=>spy.observe(s));
+addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  $('#progress div').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+},{passive:true});
+$('#themeBtn').onclick=()=>{
+  const r=document.documentElement, dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme=dark?'light':'dark';
+  try{localStorage.setItem('rl-theme',r.dataset.theme)}catch(e){}
+};
+try{const t=localStorage.getItem('rl-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+
+/* ---------- Highlight kode Python ---------- */
+$$('pre code.py').forEach(el=>{
+  el.innerHTML=el.textContent.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))
+    .replace(/(#.*$)|(f?"[^"\n]*")|\b(import|from|as|def|return|for|in|if|else|while|with|not|and|or|True|False|None|break)\b|\b(\d+\.?\d*(?:e-?\d+)?)\b/gm,
+      (m,c,s,k,n)=>c?`<span class="c">${c}</span>`:s?`<span class="s">${s}</span>`:k?`<span class="k">${k}</span>`:`<span class="n">${n}</span>`);
+});
+const fmt=(v,d=3)=>v.toFixed(d).replace('.',',');
+const randn=()=>Math.sqrt(-2*Math.log(1-Math.random()))*Math.cos(2*Math.PI*Math.random());
+
+/* ---------- Demo hukum bilangan besar ---------- */
+let lln;
+function llnReset(){lln={n:0,sum:0,sq:0,cnt:[0,0,0,0,0,0],m:[]};llnDraw()}
+function llnRoll(k){for(let i=0;i<k;i++){const v=1+Math.floor(Math.random()*6);lln.n++;lln.sum+=v;lln.sq+=v*v;lln.cnt[v-1]++;lln.m.push(lln.sum/lln.n)}llnDraw()}
+function llnDraw(){const n=lln.n,m=lln.m,step=Math.max(1,Math.ceil(m.length/800)),pts=[];
+  for(let i=0;i<m.length;i+=step)pts.push(`${m.length<2?0:i/(m.length-1)*560},${130-(m[i]-1)/5*120}`);
+  if(m.length>1)pts.push(`560,${130-(m[m.length-1]-1)/5*120}`);
+  $('#llnLine').setAttribute('points',pts.join(' '));
+  const mean=n?lln.sum/n:0;$('#llnN').textContent=n;$('#llnM').textContent=n?fmt(mean):'–';
+  $('#llnV').textContent=n>1?fmt((lln.sq-n*mean*mean)/(n-1),2):'–';
+  const mx=Math.max(1,...lln.cnt);$('#llnHist').innerHTML=lln.cnt.map(c=>`<div style="height:${c/mx*100}%"></div>`).join('')}
+$$('[data-roll]').forEach(b=>b.onclick=()=>llnRoll(+b.dataset.roll));$('#llnReset').onclick=llnReset;llnReset();
+
+/* ---------- Demo softmax & temperatur ---------- */
+const LG=[2,1,0.2,-1],LN=['Kiri','Kanan','Atas','Bawah'];
+function smDraw(){const t=+$('#tauR').value;$('#tauV').textContent=fmt(t,2);
+  const e=LG.map(z=>Math.exp((z-2)/t)),s=e.reduce((a,c)=>a+c),p=e.map(x=>x/s);
+  $('#smBars').innerHTML=p.map((v,i)=>`<span>${LN[i]}</span><div class="bar"><div style="width:${v*100}%"></div></div><b>${(v*100).toFixed(1)}%</b>`).join('');
+  $('#smH').textContent=fmt(-p.reduce((a,v)=>a+(v>0?v*Math.log(v):0),0))}
+$('#tauR').oninput=smDraw;smDraw();
+
+/* ---------- Demo rata-rata 1/n vs EMA ---------- */
+let emaData;
+function emaNew(){emaData=Array.from({length:200},(_,t)=>(t<100?2:5)+1.5*randn());emaDraw()}
+function emaDraw(){const al=+$('#emaR').value;$('#emaV').textContent=fmt(al,2);
+  const X=t=>t/199*560,Y=v=>160-(Math.max(-2,Math.min(9,v))+2)/11*150;let avg=0,ema=0;const pa=[],pe=[];
+  emaData.forEach((v,t)=>{avg+=(v-avg)/(t+1);ema+=al*(v-ema);pa.push(`${X(t)},${Y(avg)}`);pe.push(`${X(t)},${Y(ema)}`)});
+  $('#emaPlot').innerHTML=emaData.map((v,t)=>`<circle cx="${X(t)}" cy="${Y(v)}" r="1.8" fill="var(--muted)" opacity=".5"/>`).join('')+
+    `<polyline points="0,${Y(2)} ${X(99)},${Y(2)} ${X(100)},${Y(5)} 560,${Y(5)}" fill="none" stroke="var(--good)" stroke-width="2" stroke-dasharray="5 4"/>`+
+    `<polyline points="${pa.join(' ')}" fill="none" stroke="var(--warn)" stroke-width="2.5"/><polyline points="${pe.join(' ')}" fill="none" stroke="var(--accent)" stroke-width="2.5"/>`}
+$('#emaR').oninput=emaDraw;$('#emaNew').onclick=emaNew;emaNew();
+
+/* ---------- Demo gradient descent ---------- */
+const gf=x=>0.25*x**4-x*x+0.3*x,gd=x=>x**3-2*x+0.3;let gx,gk,gtrail;
+const GX=x=>280+x/2.6*270,GY=y=>40+(1.5-y)/3.5*170;
+function gdReset(){gx=+$('#gdX0').value;gk=0;gtrail=[gx];gdDraw()}
+function gdDraw(){let curve=[];for(let i=0;i<=200;i++){const x=-2.6+i*5.2/200;curve.push(`${GX(x)},${GY(gf(x))}`)}
+  const out=Math.abs(gx)>2.6||!isFinite(gx),big=Math.abs(gx)>1e3||!isFinite(gx),tr=gtrail.filter(x=>Math.abs(x)<=2.6);
+  $('#gdPlot').innerHTML=`<polyline points="${curve.join(' ')}" fill="none" stroke="var(--muted)" stroke-width="2"/>`+
+    `<polyline points="${tr.map(x=>`${GX(x)},${GY(gf(x))}`).join(' ')}" fill="none" stroke="var(--warn)" stroke-width="1.5" stroke-dasharray="3 3"/>`+
+    tr.map(x=>`<circle cx="${GX(x)}" cy="${GY(gf(x))}" r="3" fill="var(--warn)"/>`).join('')+
+    (out?`<text x="280" y="30" text-anchor="middle" font-size="15" font-weight="700" fill="var(--bad)">Divergen! x keluar dari grafik</text>`:`<circle cx="${GX(gx)}" cy="${GY(gf(gx))}" r="8" fill="var(--accent)"/>`);
+  $('#gdK').textContent=gk;$('#gdXv').textContent=big?'±∞':fmt(gx);$('#gdF').textContent=big?'–':fmt(gf(gx));$('#gdD').textContent=big?'–':fmt(gd(gx))}
+$$('[data-gd]').forEach(b=>b.onclick=()=>{const al=+$('#gdA').value;for(let i=0;i<+b.dataset.gd;i++){if(Math.abs(gx)>1e3||!isFinite(gx))break;gx-=al*gd(gx);gk++;gtrail.push(gx)}gdDraw()});
+$('#gdX0').oninput=e=>{$('#gdX0v').textContent=fmt((+e.target.value),2);gdReset()};
+$('#gdA').oninput=e=>{$('#gdAv').textContent=fmt((+e.target.value),2);gdReset()};
+$('#gdReset').onclick=gdReset;gdReset();
+
+/* ---------- Demo entropi & KL ---------- */
+const H2=x=>-(x*Math.log(x)+(1-x)*Math.log(1-x)),KL2=(p,q)=>p*Math.log(p/q)+(1-p)*Math.log((1-p)/(1-q));
+function klDraw(){const p=+$('#klP').value,q=+$('#klQ').value;$('#klPv').textContent=fmt(p,2);$('#klQv').textContent=fmt(q,2);
+  $('#kHp').textContent=fmt(H2(p));$('#kHq').textContent=fmt(H2(q));$('#kPQ').textContent=fmt(KL2(p,q));$('#kQP').textContent=fmt(KL2(q,p));
+  const X=x=>20+x*520,Y=h=>145-h/0.7*125,c=[];for(let i=1;i<200;i++){const x=i/200;c.push(`${X(x)},${Y(H2(x))}`)}
+  const mk=(x,col)=>`<line x1="${X(x)}" x2="${X(x)}" y1="145" y2="${Y(H2(x))}" stroke="${col}" stroke-dasharray="3 3"/><circle cx="${X(x)}" cy="${Y(H2(x))}" r="6" fill="${col}"/>`;
+  $('#klPlot').innerHTML=`<line x1="20" x2="540" y1="145" y2="145" stroke="var(--border)"/><polyline points="${c.join(' ')}" fill="none" stroke="var(--muted)" stroke-width="2"/>`+
+    mk(p,'var(--accent)')+mk(q,'var(--warn)')+[0,0.5,1].map(x=>`<text x="${X(x)}" y="158" font-size="10" text-anchor="middle" fill="var(--muted)">${x}</text>`).join('')}
+$('#klP').oninput=klDraw;$('#klQ').oninput=klDraw;klDraw();
+
+/* ---------- Kuis ---------- */
+const QZ=[
+  {q:'Apa perbedaan max dan argmax?',o:['Tidak ada bedanya','max mengembalikan nilai terbesar, argmax mengembalikan input (misalnya aksi) yang menghasilkan nilai itu','argmax untuk minimum','max hanya untuk vektor'],a:1,w:'max_a Q(s,a) = nilai terbaik (dipakai di TD target), argmax_a Q(s,a) = aksi terbaik (dipakai untuk memilih aksi).'},
+  {q:'Sebuah aksi memberi reward 10 dengan peluang 0,2 dan reward 0 dengan peluang 0,8. Berapa ekspektasi reward-nya?',o:['10','5','2','0,2'],a:2,w:'𝔼 = 0,2·10 + 0,8·0 = 2.'},
+  {q:'Return Monte Carlo tidak bias tetapi variansinya tinggi. Mengapa?',o:['Karena memakai bootstrapping','Karena menjumlahkan banyak reward acak sepanjang episode, sehingga variansinya menumpuk','Karena γ selalu 1','Karena memakai neural network'],a:1,w:'Variansi jumlah variabel acak (yang independen) adalah jumlah variansinya. Makin panjang episode, makin berisik return-nya.'},
+  {q:'Dengan γ = 0,99 dan reward konstan 1 di setiap langkah tanpa akhir, return-nya adalah…',o:['99','100','1','tak hingga'],a:1,w:'r/(1−γ) = 1/0,01 = 100.'},
+  {q:'Untuk policy softmax, π = (0,1; 0,6; 0,3) dan aksi yang terpilih adalah aksi pertama (peluang 0,1). Berapa ∇log π(a)?',o:['(0,9; −0,6; −0,3)','(0,1; 0,6; 0,3)','(1; 0; 0)','(−0,1; 0,4; 0,7)'],a:0,w:'onehot(a) − π = (1−0,1; 0−0,6; 0−0,3) = (0,9; −0,6; −0,3).'},
+  {q:'Pernyataan yang benar tentang KL divergence adalah…',o:['KL(p‖q) = KL(q‖p)','KL bisa negatif','KL ≥ 0, dan bernilai 0 jika dan hanya jika p = q','KL sama dengan entropi'],a:2,w:'KL selalu ≥ 0 (Gibbs inequality), nol hanya jika distribusinya identik, dan tidak simetris.'}
+];
+$('#quiz').innerHTML=QZ.map((x,i)=>`<div class="q" data-i="${i}"><p>${i+1}. ${x.q}</p>${x.o.map((o,j)=>`<button data-j="${j}">${o}</button>`).join('')}<div class="why">${x.w}</div></div>`).join('');
+$$('.q button').forEach(b=>b.onclick=()=>{
+  const box=b.closest('.q'),x=QZ[box.dataset.i];
+  box.querySelectorAll('button').forEach(o=>o.classList.remove('right','wrong'));
+  b.classList.add(+b.dataset.j===x.a?'right':'wrong');
+  box.querySelector(`[data-j="${x.a}"]`).classList.add('right');
+  box.querySelector('.why').style.display='block';
+});
+</script>
+</body>
+</html>
