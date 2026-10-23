@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reinforcement Learning — Beginner</title>
+<style>
+:root{
+  --bg:#f7f8fa;--surface:#ffffff;--surface-2:#f0f2f6;--text:#1c2230;--muted:#5b6474;
+  --border:#e1e5ec;--accent:#3a6df0;--accent-soft:#e6edff;--good:#1f9d63;--bad:#d64545;--warn:#c98a12;
+  --code-bg:#f3f5f9;--sidebar-w:270px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+    --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--code-bg:#1d222b;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+  --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--code-bg:#1d222b;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+/* Sidebar */
+#sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);
+  overflow-y:auto;padding:22px 16px;z-index:20;transition:transform .25s}
+#sidebar .brand{font-weight:700;font-size:17px;margin:0 8px 2px}
+#sidebar .level{display:inline-block;margin:0 8px 16px;font-size:12px;padding:2px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar ol{list-style:none;margin:0;padding:0;counter-reset:toc}
+#sidebar li a{display:flex;gap:10px;padding:7px 10px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:14.5px;line-height:1.4}
+#sidebar li a::before{counter-increment:toc;content:counter(toc);min-width:20px;height:20px;border-radius:50%;background:var(--surface-2);
+  font-size:11.5px;display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+#sidebar li a:hover{background:var(--surface-2);color:var(--text)}
+#sidebar li a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar li a.active::before{background:var(--accent);color:#fff}
+#progress{height:4px;background:var(--surface-2);border-radius:4px;margin:0 8px 18px;overflow:hidden}
+#progress div{height:100%;width:0;background:var(--accent);transition:width .1s}
+#menuBtn{display:none;position:fixed;top:12px;left:12px;z-index:30;border:1px solid var(--border);background:var(--surface);color:var(--text);
+  border-radius:8px;padding:6px 12px;font-size:15px;cursor:pointer}
+#themeBtn{margin:18px 8px 0;font-size:13px}
+/* Main */
+main{margin-left:var(--sidebar-w);padding:40px 48px 80px;max-width:calc(var(--sidebar-w) + 900px)}
+main>*{max-width:860px}
+header.hero{padding:8px 0 24px;border-bottom:1px solid var(--border);margin-bottom:12px}
+header.hero h1{font-size:34px;line-height:1.2;margin:0 0 8px}
+header.hero p{color:var(--muted);margin:0}
+section{padding-top:28px}
+h2{font-size:25px;margin:16px 0 10px;padding-top:8px}
+h3{font-size:18.5px;margin:24px 0 6px}
+p,li{color:var(--text)}
+.muted{color:var(--muted)}
+.box{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:16px 20px;margin:16px 0}
+.box.tip{border-left:4px solid var(--good)}
+.box.note{border-left:4px solid var(--accent)}
+.box.warn{border-left:4px solid var(--warn)}
+.box>strong:first-child{display:block;margin-bottom:4px}
+.formula{font-family:"Cambria Math","Times New Roman",serif;font-size:19px;text-align:center;background:var(--surface-2);
+  border-radius:10px;padding:14px;margin:14px 0;overflow-x:auto;white-space:nowrap}
+.formula var{font-style:italic}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;background:var(--code-bg);padding:1px 6px;border-radius:5px}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-size:13.5px;line-height:1.55}
+pre code{background:none;padding:0}
+.c{color:var(--muted)} .k{color:var(--accent);font-weight:600} .s{color:var(--good)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;margin:12px 0;display:block;overflow-x:auto}
+th,td{border:1px solid var(--border);padding:8px 12px;text-align:left;vertical-align:top}
+th{background:var(--surface-2)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:14px 0}
+.card{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 16px}
+.card b{display:block;margin-bottom:2px}
+.card span{color:var(--muted);font-size:14.5px}
+/* Demo widgets */
+.demo{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:18px;margin:18px 0}
+.demo h4{margin:0 0 4px;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent)}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+button.btn{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:8px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+label.range{display:flex;align-items:center;gap:8px;font-size:14px}
+input[type=range]{accent-color:var(--accent)}
+.stat{font-size:14px;color:var(--muted)}
+.stat b{color:var(--text)}
+/* Loop diagram */
+.loop svg{width:100%;max-width:560px;display:block;margin:0 auto}
+.loop .flow{stroke-dasharray:6 6;animation:dash 1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-12}}
+.loop .pulse{animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+/* Bandit */
+.arms{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+.arm{border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;background:var(--surface-2);transition:transform .15s,border-color .15s}
+.arm.hit{transform:scale(1.04);border-color:var(--accent)}
+.arm .icon{font-size:28px}
+.bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin:6px 0}
+.bar div{height:100%;background:var(--accent);transition:width .2s}
+/* Gamma bars */
+.gbars{display:flex;align-items:flex-end;gap:6px;height:120px;margin:12px 0 4px}
+.gbars div{flex:1;background:var(--accent);border-radius:4px 4px 0 0;position:relative;min-height:2px;transition:height .15s}
+.gbars div.big{background:var(--good)}
+.glabels{display:flex;gap:6px;font-size:11.5px;color:var(--muted)}
+.glabels span{flex:1;text-align:center}
+/* Gridworld */
+.gw-wrap{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+#gw{display:grid;grid-template-columns:repeat(5,58px);gap:4px}
+#gw div{width:58px;height:58px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:11px;color:var(--muted);border:1px solid var(--border);position:relative;transition:background .2s}
+#gw div .ar{font-size:20px;color:var(--text);line-height:1}
+#gw div.agent{outline:3px solid var(--accent);outline-offset:-3px}
+#gw div .em{font-size:24px;line-height:1}
+#chart{width:100%;max-width:330px;height:130px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2)}
+.legend{font-size:13px;color:var(--muted)}
+/* Steps */
+.steps{counter-reset:st;list-style:none;padding:0}
+.steps li{counter-increment:st;position:relative;padding:4px 0 10px 42px}
+.steps li::before{content:counter(st);position:absolute;left:0;top:4px;width:28px;height:28px;border-radius:50%;background:var(--accent-soft);
+  color:var(--accent);font-weight:700;display:grid;place-items:center;font-size:14px}
+/* Quiz */
+.q{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 18px;margin:12px 0}
+.q p{margin:0 0 8px;font-weight:600}
+.q button{display:block;width:100%;text-align:left;margin:6px 0;border:1px solid var(--border);background:var(--surface-2);color:var(--text);
+  border-radius:8px;padding:8px 12px;font:inherit;font-size:14.5px;cursor:pointer}
+.q button.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 15%,transparent)}
+.q button.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,transparent)}
+.q .why{font-size:14px;color:var(--muted);display:none;margin-top:6px}
+footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:14px}
+@media (max-width:900px){
+  #sidebar{transform:translateX(-100%);box-shadow:0 0 30px rgba(0,0,0,.2)}
+  #sidebar.open{transform:none}
+  #menuBtn{display:block}
+  main{margin-left:0;padding:60px 16px 60px}
+  header.hero h1{font-size:27px}
+  #gw{grid-template-columns:repeat(5,minmax(0,1fr));width:100%;max-width:310px}
+  #gw div{width:auto;aspect-ratio:1;height:auto}
+}
+</style>
+</head>
+<body>
+<button id="menuBtn" aria-label="Buka daftar isi">☰ Daftar Isi</button>
+
+<nav id="sidebar" aria-label="Daftar isi">
+  <div class="brand">Reinforcement Learning</div>
+  <span class="level">Level 1 · Beginner</span>
+  <div id="progress"><div></div></div>
+  <ol id="toc">
+    <li><a href="#apa-itu-rl">Apa itu RL?</a></li>
+    <li><a href="#komponen">Komponen Utama</a></li>
+    <li><a href="#reward-return">Reward &amp; Return</a></li>
+    <li><a href="#eksplorasi">Eksplorasi vs Eksploitasi</a></li>
+    <li><a href="#mdp">Markov Decision Process</a></li>
+    <li><a href="#value">Value Function &amp; Q-Value</a></li>
+    <li><a href="#q-learning">Algoritma Q-Learning</a></li>
+    <li><a href="#gridworld">Demo: Gridworld</a></li>
+    <li><a href="#kode">Implementasi Python</a></li>
+    <li><a href="#kuis">Kuis &amp; Latihan</a></li>
+    <li><a href="#ringkasan">Ringkasan &amp; Glosarium</a></li>
+  </ol>
+  <button class="btn" id="themeBtn">🌓 Ganti tema</button>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Reinforcement Learning untuk Pemula</h1>
+  <p>Modul 1 dari 3 · Beginner → Intermediate → Advanced. Estimasi waktu belajar ± 90 menit.</p>
+</header>
+
+<div class="box note">
+  <strong>🎯 Tujuan belajar</strong>
+  Setelah modul ini kamu bisa: (1) menjelaskan cara kerja RL dengan bahasa sendiri, (2) menyebutkan komponen-komponennya,
+  (3) memahami trade-off eksplorasi vs eksploitasi, dan (4) membuat agen Q-Learning sederhana dengan Python.
+  <br><span class="muted">Prasyarat: Python dasar dan matematika SMA (penjumlahan, perkalian, peluang sederhana).</span>
+</div>
+
+<!-- 1 -->
+<section id="apa-itu-rl">
+<h2>1. Apa itu Reinforcement Learning?</h2>
+<p><b>Reinforcement Learning (RL)</b> adalah cabang machine learning di mana sebuah <b>agen</b> belajar mengambil keputusan dengan cara
+<i>mencoba-coba</i> (trial and error) di dalam sebuah <b>lingkungan</b>. Setiap tindakan memberi umpan balik berupa <b>reward</b> (hadiah)
+atau penalti. Tujuan agen: memaksimalkan total reward dalam jangka panjang.</p>
+
+<div class="box tip">
+  <strong>🐶 Analogi: melatih anjing</strong>
+  Kamu bilang "duduk". Kalau anjing duduk, ia dapat camilan (reward positif). Kalau tidak, tidak dapat apa-apa. Lama-kelamaan anjing
+  belajar bahwa "duduk saat mendengar perintah" = camilan. Kamu tidak pernah <i>menjelaskan</i> caranya — anjing menemukannya sendiri dari pengalaman.
+  Itulah inti RL.
+</div>
+
+<h3>Bedanya dengan jenis ML lain</h3>
+<table>
+  <tr><th></th><th>Supervised Learning</th><th>Unsupervised Learning</th><th>Reinforcement Learning</th></tr>
+  <tr><td><b>Data</b></td><td>Pasangan input + label benar</td><td>Input tanpa label</td><td>Pengalaman dari interaksi</td></tr>
+  <tr><td><b>Umpan balik</b></td><td>"Jawaban benarnya X"</td><td>Tidak ada</td><td>"Tindakanmu bernilai +5" (bisa tertunda)</td></tr>
+  <tr><td><b>Tujuan</b></td><td>Memprediksi label</td><td>Menemukan pola/kelompok</td><td>Memaksimalkan reward kumulatif</td></tr>
+  <tr><td><b>Contoh</b></td><td>Deteksi spam</td><td>Segmentasi pelanggan</td><td>AI bermain catur, robot berjalan</td></tr>
+</table>
+
+<h3>Contoh di dunia nyata</h3>
+<div class="grid2">
+  <div class="card"><b>🎮 Game</b><span>AlphaGo/AlphaZero mengalahkan juara dunia Go & catur; agen Atari belajar dari piksel layar.</span></div>
+  <div class="card"><b>🤖 Robotika</b><span>Robot belajar berjalan, menggenggam benda, atau menyeimbangkan diri.</span></div>
+  <div class="card"><b>💬 Chatbot / LLM</b><span>RLHF: model bahasa disempurnakan dengan reward dari preferensi manusia.</span></div>
+  <div class="card"><b>📈 Bisnis</b><span>Sistem rekomendasi, pengaturan harga dinamis, optimasi energi data center.</span></div>
+</div>
+</section>
+
+<!-- 2 -->
+<section id="komponen">
+<h2>2. Komponen Utama</h2>
+<p>Semua masalah RL bisa digambarkan sebagai <b>siklus interaksi</b> antara agen dan lingkungan yang berulang di setiap langkah waktu <var>t</var>:</p>
+
+<div class="demo loop">
+<svg viewBox="0 0 560 250" role="img" aria-label="Siklus agen dan lingkungan">
+  <defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker></defs>
+  <rect x="190" y="14" width="180" height="62" rx="12" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
+  <text x="280" y="42" text-anchor="middle" font-size="17" font-weight="700" fill="var(--text)">🤖 Agen</text>
+  <text x="280" y="62" text-anchor="middle" font-size="12.5" fill="var(--muted)">memilih aksi via policy π</text>
+  <rect x="190" y="174" width="180" height="62" rx="12" fill="var(--surface-2)" stroke="var(--border)" stroke-width="2"/>
+  <text x="280" y="202" text-anchor="middle" font-size="17" font-weight="700" fill="var(--text)">🌍 Lingkungan</text>
+  <text x="280" y="222" text-anchor="middle" font-size="12.5" fill="var(--muted)">dunia tempat agen bertindak</text>
+  <path class="flow" d="M370,45 H480 V205 H372" fill="none" stroke="var(--accent)" stroke-width="2.5" marker-end="url(#ah)"/>
+  <text x="490" y="130" font-size="14" fill="var(--text)" font-weight="600">aksi a<tspan font-size="10" dy="3">t</tspan></text>
+  <path class="flow" d="M190,195 H80 V55 H188" fill="none" stroke="var(--good)" stroke-width="2.5" marker-end="url(#ah)"/>
+  <path class="flow" d="M190,215 H50 V35 H188" fill="none" stroke="var(--warn)" stroke-width="2.5" marker-end="url(#ah)"/>
+  <text x="90" y="118" font-size="14" fill="var(--good)" font-weight="600" class="pulse">state s<tspan font-size="10" dy="3">t+1</tspan></text>
+  <text x="2" y="150" font-size="14" fill="var(--warn)" font-weight="600" class="pulse">reward r<tspan font-size="10" dy="3">t+1</tspan></text>
+</svg>
+</div>
+
+<div class="grid2">
+  <div class="card"><b>Agen (Agent)</b><span>Si pembuat keputusan. Contoh: pemain game, robot, program trading.</span></div>
+  <div class="card"><b>Lingkungan (Environment)</b><span>Semua hal di luar agen yang merespons aksinya. Contoh: papan catur, jalan raya.</span></div>
+  <div class="card"><b>State (s)</b><span>Gambaran situasi saat ini. Contoh: posisi semua bidak di papan.</span></div>
+  <div class="card"><b>Aksi (a)</b><span>Pilihan yang bisa dilakukan agen. Contoh: atas, bawah, kiri, kanan.</span></div>
+  <div class="card"><b>Reward (r)</b><span>Angka umpan balik setelah aksi. Positif = bagus, negatif = buruk.</span></div>
+  <div class="card"><b>Policy (π)</b><span>"Otak" agen: aturan yang memetakan state → aksi. Inilah yang ingin kita pelajari.</span></div>
+</div>
+
+<div class="box note">
+  <strong>📝 Policy deterministik vs stokastik</strong>
+  <b>Deterministik:</b> <code>π(s) = a</code> — di state <var>s</var> selalu pilih aksi <var>a</var>.<br>
+  <b>Stokastik:</b> <code>π(a|s)</code> = peluang memilih aksi <var>a</var> di state <var>s</var>, misalnya 70% kanan, 30% atas.
+</div>
+<p>Satu rangkaian interaksi dari awal sampai selesai (misalnya satu ronde game) disebut <b>episode</b>.
+Urutan yang dihasilkan: <code>s₀, a₀, r₁, s₁, a₁, r₂, s₂, …</code> sampai state terminal (menang/kalah/selesai).</p>
+</section>
+
+<!-- 3 -->
+<section id="reward-return">
+<h2>3. Reward &amp; Return</h2>
+<p>Agen tidak sekadar mengejar reward <i>sesaat</i>, tetapi total reward ke depan yang disebut <b>return</b> (<var>G</var>).
+Karena reward masa depan lebih tidak pasti, kita memberinya bobot lebih kecil dengan <b>discount factor</b> γ (gamma), 0 ≤ γ ≤ 1:</p>
+<div class="formula"><var>G<sub>t</sub></var> = <var>r</var><sub>t+1</sub> + γ·<var>r</var><sub>t+2</sub> + γ²·<var>r</var><sub>t+3</sub> + … = Σ<sub>k=0</sub><sup>∞</sup> γ<sup>k</sup>·<var>r</var><sub>t+k+1</sub></div>
+<ul>
+  <li><b>γ mendekati 0</b> → agen "rabun jauh", hanya peduli reward sekarang.</li>
+  <li><b>γ mendekati 1</b> → agen "visioner", menghargai reward masa depan hampir sama dengan sekarang.</li>
+</ul>
+
+<div class="demo">
+  <h4>Coba sendiri: pengaruh γ</h4>
+  <p class="stat" style="margin:0">Skenario: agen mendapat reward <b>+1</b> di setiap langkah 0–8, lalu <b>+10</b> di langkah 9. Batang = bobot γ<sup>k</sup> tiap langkah.</p>
+  <div class="controls"><label class="range">γ = <b id="gVal">0.90</b><input id="gRange" type="range" min="0" max="0.99" step="0.01" value="0.9"></label></div>
+  <div class="gbars" id="gBars"></div>
+  <div class="glabels" id="gLabels"></div>
+  <p class="stat">Return total <var>G</var> = <b id="gRet"></b> · Nilai reward +10 di akhir tinggal <b id="gBig"></b></p>
+</div>
+
+<div class="box warn">
+  <strong>⚠️ Hati-hati merancang reward</strong>
+  Agen akan mengoptimalkan <i>persis</i> apa yang kamu beri reward, bukan apa yang kamu <i>maksud</i>. Contoh terkenal: agen balap perahu yang
+  diberi poin untuk menabrak target malah berputar-putar mengumpulkan poin tanpa pernah menyelesaikan lomba. Fenomena ini disebut <b>reward hacking</b>.
+</div>
+</section>
+
+<!-- 4 -->
+<section id="eksplorasi">
+<h2>4. Eksplorasi vs Eksploitasi</h2>
+<p>Bayangkan kamu baru pindah ke kota baru. Kamu sudah menemukan satu warung makan yang enak. Apakah kamu terus makan di sana
+(<b>eksploitasi</b> — memakai pengetahuan terbaik saat ini), atau mencoba warung lain yang mungkin lebih enak (<b>eksplorasi</b> — mencari informasi baru)?</p>
+<p>Agen RL selalu menghadapi dilema ini. Terlalu banyak eksploitasi → terjebak pada pilihan "lumayan". Terlalu banyak eksplorasi → buang waktu pada pilihan buruk.</p>
+
+<h3>Strategi ε-greedy</h3>
+<p>Solusi paling sederhana: dengan peluang <b>ε</b> (epsilon) pilih aksi <b>acak</b>, sisanya (1 − ε) pilih aksi dengan <b>nilai tertinggi</b> saat ini.</p>
+<div class="formula">aksi = { acak, dengan peluang ε &nbsp;;&nbsp; argmax<sub>a</sub> <var>Q</var>(<var>a</var>), dengan peluang 1 − ε }</div>
+
+<div class="demo">
+  <h4>Demo: Multi-Armed Bandit (3 mesin slot)</h4>
+  <p class="stat" style="margin:0">Setiap mesin punya peluang menang (reward 1) yang <b>tersembunyi</b>. Agen harus menebak mana yang terbaik hanya dari mencoba.</p>
+  <div class="controls">
+    <label class="range">ε = <b id="eVal">0.10</b><input id="eRange" type="range" min="0" max="1" step="0.05" value="0.1"></label>
+    <button class="btn primary" data-pull="1">Tarik 1×</button>
+    <button class="btn" data-pull="100">Tarik 100×</button>
+    <button class="btn" id="bReveal">Lihat peluang asli</button>
+    <button class="btn" id="bReset">Reset</button>
+  </div>
+  <div class="arms" id="arms"></div>
+  <p class="stat">Total tarikan: <b id="bN">0</b> · Total reward: <b id="bR">0</b> · Rata-rata: <b id="bAvg">0.00</b> · Memilih mesin terbaik: <b id="bOpt">0%</b></p>
+  <p class="stat">💡 Coba ε = 0 (tanpa eksplorasi) lalu reset beberapa kali — agen sering terjebak di mesin yang bukan terbaik.</p>
+</div>
+<p>Estimasi nilai tiap mesin diperbarui dengan rata-rata berjalan (<i>incremental mean</i>):</p>
+<div class="formula"><var>Q</var>(<var>a</var>) ← <var>Q</var>(<var>a</var>) + (1/<var>N</var>(<var>a</var>)) · [ <var>r</var> − <var>Q</var>(<var>a</var>) ]</div>
+<p>Pola <b>"nilai lama + langkah × (target − nilai lama)"</b> ini akan muncul lagi di Q-Learning. Ingat baik-baik!</p>
+</section>
+
+<!-- 5 -->
+<section id="mdp">
+<h2>5. Markov Decision Process (MDP)</h2>
+<p>Untuk membahas RL secara rapi, masalahnya dirumuskan sebagai <b>MDP</b>, yaitu lima komponen:</p>
+<div class="formula">MDP = ( <var>S</var>, <var>A</var>, <var>P</var>, <var>R</var>, γ )</div>
+<table>
+  <tr><th>Simbol</th><th>Nama</th><th>Arti</th></tr>
+  <tr><td><var>S</var></td><td>State space</td><td>Himpunan semua state yang mungkin</td></tr>
+  <tr><td><var>A</var></td><td>Action space</td><td>Himpunan semua aksi yang mungkin</td></tr>
+  <tr><td><var>P</var>(s'|s,a)</td><td>Transisi</td><td>Peluang pindah ke s' jika melakukan aksi a di state s</td></tr>
+  <tr><td><var>R</var>(s,a)</td><td>Fungsi reward</td><td>Reward yang diterima</td></tr>
+  <tr><td>γ</td><td>Discount factor</td><td>Seberapa penting masa depan</td></tr>
+</table>
+
+<h3>Sifat Markov</h3>
+<p>"Masa depan hanya bergantung pada <b>masa kini</b>, bukan pada sejarah bagaimana kita sampai di sini."</p>
+<div class="box tip">
+  <strong>♟️ Contoh</strong>
+  Dalam catur, posisi bidak saat ini sudah cukup untuk menentukan langkah terbaik — tidak perlu tahu urutan langkah sebelumnya.
+  Jadi posisi papan memenuhi sifat Markov. Sebaliknya, satu <i>frame</i> foto bola tidak memberi tahu arah geraknya; kita butuh beberapa frame agar state-nya Markov.
+</div>
+
+<h3>Contoh MDP mini: Mahasiswa</h3>
+<div class="demo loop">
+<svg viewBox="0 0 560 190" role="img" aria-label="Contoh MDP mahasiswa">
+  <defs><marker id="ah2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker></defs>
+  <g font-size="13" text-anchor="middle">
+    <circle cx="90" cy="95" r="42" fill="var(--surface-2)" stroke="var(--border)" stroke-width="2"/>
+    <text x="90" y="92" fill="var(--text)" font-weight="700">😴 Lelah</text><text x="90" y="110" fill="var(--muted)" font-size="11">state</text>
+    <circle cx="280" cy="95" r="42" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="280" y="92" fill="var(--text)" font-weight="700">🙂 Segar</text><text x="280" y="110" fill="var(--muted)" font-size="11">state</text>
+    <circle cx="470" cy="95" r="42" fill="var(--surface-2)" stroke="var(--good)" stroke-width="2"/>
+    <text x="470" y="92" fill="var(--text)" font-weight="700">🎓 Lulus</text><text x="470" y="110" fill="var(--muted)" font-size="11">terminal</text>
+    <path d="M130,80 Q185,40 240,80" fill="none" stroke="var(--muted)" stroke-width="2" marker-end="url(#ah2)"/>
+    <text x="185" y="45" fill="var(--text)">tidur · r = 0</text>
+    <path d="M240,112 Q185,150 130,112" fill="none" stroke="var(--muted)" stroke-width="2" marker-end="url(#ah2)"/>
+    <text x="185" y="160" fill="var(--text)">main game · r = +1</text>
+    <path d="M322,95 H426" fill="none" stroke="var(--muted)" stroke-width="2" marker-end="url(#ah2)"/>
+    <text x="374" y="85" fill="var(--text)">belajar</text>
+    <text x="374" y="118" fill="var(--good)">r = +10</text>
+  </g>
+</svg>
+</div>
+<p class="muted">Main game memberi reward kecil sekarang (+1), tapi membawa ke state "Lelah". Belajar memberi reward besar (+10). Agen dengan γ yang cukup besar akan belajar memilih "belajar".</p>
+</section>
+
+<!-- 6 -->
+<section id="value">
+<h2>6. Value Function &amp; Q-Value</h2>
+<p>Bagaimana agen tahu aksi mana yang bagus jika reward-nya baru datang belakangan? Jawabannya: agen memperkirakan <b>nilai</b> (value).</p>
+<div class="grid2">
+  <div class="card"><b>State-Value V(s)</b><span>"Seberapa bagus berada di state <i>s</i>?" = rata-rata return yang diharapkan jika mulai dari <i>s</i> lalu mengikuti policy π.</span></div>
+  <div class="card"><b>Action-Value Q(s, a)</b><span>"Seberapa bagus melakukan aksi <i>a</i> di state <i>s</i>?" = rata-rata return jika di <i>s</i> melakukan <i>a</i>, lalu mengikuti π.</span></div>
+</div>
+<div class="formula"><var>V</var><sup>π</sup>(<var>s</var>) = 𝔼<sub>π</sub>[ <var>G<sub>t</sub></var> | <var>s<sub>t</sub></var> = <var>s</var> ] &nbsp;&nbsp;&nbsp; <var>Q</var><sup>π</sup>(<var>s</var>,<var>a</var>) = 𝔼<sub>π</sub>[ <var>G<sub>t</sub></var> | <var>s<sub>t</sub></var> = <var>s</var>, <var>a<sub>t</sub></var> = <var>a</var> ]</div>
+<p>Kalau kita tahu <b>Q yang optimal</b> (<var>Q</var>*), policy terbaik menjadi sangat mudah: <b>di setiap state, pilih aksi dengan Q tertinggi</b>.</p>
+<div class="formula">π*(<var>s</var>) = argmax<sub><var>a</var></sub> <var>Q</var>*(<var>s</var>, <var>a</var>)</div>
+
+<h3>Persamaan Bellman (intuisi)</h3>
+<p>Nilai sebuah state = reward langsung + nilai (terdiskon) state berikutnya. Ini hubungan <i>rekursif</i> yang menjadi fondasi hampir semua algoritma RL:</p>
+<div class="formula"><var>Q</var>*(<var>s</var>,<var>a</var>) = 𝔼[ <var>r</var> + γ · max<sub><var>a'</var></sub> <var>Q</var>*(<var>s'</var>, <var>a'</var>) ]</div>
+<div class="box tip"><strong>🗺️ Analogi</strong>
+  Kamu di persimpangan dan tahu "dari persimpangan berikutnya, rumah tinggal 5 menit". Maka nilai jalan ini = waktu ke persimpangan berikutnya + 5 menit.
+  Kamu tidak perlu menghitung seluruh rute dari nol — cukup gunakan estimasi dari langkah berikutnya.</div>
+</section>
+
+<!-- 7 -->
+<section id="q-learning">
+<h2>7. Algoritma Q-Learning</h2>
+<p><b>Q-Learning</b> (Watkins, 1989) adalah algoritma RL klasik yang mempelajari <var>Q</var>* langsung dari pengalaman, tanpa perlu tahu aturan
+lingkungan (<i>model-free</i>). Agen menyimpan sebuah <b>Q-table</b>: tabel berisi nilai Q untuk setiap pasangan (state, aksi).</p>
+
+<h3>Aturan update</h3>
+<div class="formula"><var>Q</var>(<var>s</var>,<var>a</var>) ← <var>Q</var>(<var>s</var>,<var>a</var>) + α · [ <span style="color:var(--good)"><var>r</var> + γ · max<sub><var>a'</var></sub> <var>Q</var>(<var>s'</var>,<var>a'</var>)</span> − <var>Q</var>(<var>s</var>,<var>a</var>) ]</div>
+<ul>
+  <li><span style="color:var(--good)"><b>Bagian hijau</b></span> = <b>TD target</b>: estimasi baru yang "lebih tahu" karena sudah melihat reward nyata.</li>
+  <li><b>[ target − Q lama ]</b> = <b>TD error</b>: seberapa meleset tebakan lama kita.</li>
+  <li><b>α</b> (alpha, learning rate, 0–1) = seberapa besar kita menggeser tebakan ke arah target.</li>
+</ul>
+
+<h3>Contoh hitungan</h3>
+<p>Misalkan <code>Q(s,a) = 2</code>, agen dapat <code>r = −1</code>, di state berikutnya <code>max Q(s',·) = 5</code>, dengan <code>γ = 0.9</code> dan <code>α = 0.5</code>:</p>
+<ol class="steps">
+  <li>TD target = −1 + 0.9 × 5 = <b>3.5</b></li>
+  <li>TD error = 3.5 − 2 = <b>1.5</b></li>
+  <li>Q baru = 2 + 0.5 × 1.5 = <b>2.75</b> → tebakan bergeser mendekati target.</li>
+</ol>
+
+<h3>Langkah lengkap algoritma</h3>
+<ol class="steps">
+  <li>Inisialisasi Q-table dengan nol untuk semua (state, aksi).</li>
+  <li>Untuk setiap episode: reset lingkungan, ambil state awal <var>s</var>.</li>
+  <li>Pilih aksi <var>a</var> dengan ε-greedy berdasarkan Q-table.</li>
+  <li>Lakukan aksi, amati reward <var>r</var> dan state baru <var>s'</var>.</li>
+  <li>Update <code>Q(s,a)</code> dengan rumus di atas.</li>
+  <li><var>s</var> ← <var>s'</var>. Ulangi langkah 3–6 sampai episode selesai.</li>
+  <li>(Opsional) Kurangi ε perlahan agar agen makin sering mengeksploitasi seiring waktu.</li>
+</ol>
+</section>
+
+<!-- 8 -->
+<section id="gridworld">
+<h2>8. Demo Interaktif: Gridworld</h2>
+<p>Agen 🤖 mulai di pojok kiri bawah dan harus mencapai 🏆 (+10). Masuk ke lubang 🕳️ = −10 dan episode berakhir. Setiap langkah bernilai −1
+(agar agen terdorong mencari jalan terpendek). Latih agen dan lihat Q-table "menyebar" dari tujuan ke seluruh grid.</p>
+<div class="demo">
+  <h4>Q-Learning Gridworld 5×5</h4>
+  <div class="controls">
+    <button class="btn primary" data-train="1">Latih 1 episode</button>
+    <button class="btn" data-train="50">Latih 50 episode</button>
+    <button class="btn" id="gwRun">▶ Jalankan agen</button>
+    <button class="btn" id="gwReset">Reset</button>
+  </div>
+  <div class="controls">
+    <label class="range">ε = <b id="gwEv">0.20</b><input id="gwE" type="range" min="0" max="1" step="0.05" value="0.2"></label>
+    <label class="range">α = <b id="gwAv">0.50</b><input id="gwA" type="range" min="0.05" max="1" step="0.05" value="0.5"></label>
+  </div>
+  <div class="gw-wrap">
+    <div id="gw"></div>
+    <div>
+      <p class="stat" style="margin:0 0 6px">Episode: <b id="gwEp">0</b> · Return terakhir: <b id="gwLast">–</b></p>
+      <svg id="chart" viewBox="0 0 330 130" preserveAspectRatio="none"><line x1="0" x2="330" y1="0" y2="0" id="zero" stroke="var(--border)" stroke-dasharray="4 4"/><polyline id="line" fill="none" stroke="var(--accent)" stroke-width="2"/></svg>
+      <p class="legend">Grafik: return per episode (rata-rata 10 episode). Makin naik = agen makin pintar.<br>
+      Panah = aksi terbaik (argmax Q). Warna: <span style="color:var(--good)">hijau</span> = nilai tinggi, <span style="color:var(--bad)">merah</span> = rendah.</p>
+    </div>
+  </div>
+</div>
+<div class="box note"><strong>🔍 Hal yang perlu diamati</strong>
+  <ul style="margin:4px 0 0">
+    <li>Setelah 1 episode, hanya sel di dekat tujuan/lubang yang berubah. Informasi reward merambat mundur sedikit demi sedikit.</li>
+    <li>Setelah ±100 episode, panah membentuk jalur terpendek yang menghindari lubang.</li>
+    <li>Coba ε = 0 sejak awal: agen bisa terjebak pada jalur yang kurang optimal.</li>
+  </ul>
+</div>
+</section>
+
+<!-- 9 -->
+<section id="kode">
+<h2>9. Implementasi Python</h2>
+<p>Kode berikut adalah versi Python dari demo di atas — hanya butuh <code>numpy</code>. Simpan sebagai <code>q_learning.py</code> lalu jalankan.</p>
+<pre><code><span class="k">import</span> numpy <span class="k">as</span> np
+
+<span class="c"># ---------- Lingkungan Gridworld 5x5 ----------</span>
+ROWS, COLS = <span class="s">5</span>, <span class="s">5</span>
+START, GOAL = (<span class="s">4</span>, <span class="s">0</span>), (<span class="s">0</span>, <span class="s">4</span>)
+HOLES = {(<span class="s">1</span>, <span class="s">1</span>), (<span class="s">1</span>, <span class="s">3</span>), (<span class="s">3</span>, <span class="s">2</span>), (<span class="s">2</span>, <span class="s">4</span>)}
+MOVES = [(-<span class="s">1</span>, <span class="s">0</span>), (<span class="s">0</span>, <span class="s">1</span>), (<span class="s">1</span>, <span class="s">0</span>), (<span class="s">0</span>, -<span class="s">1</span>)]  <span class="c"># atas, kanan, bawah, kiri</span>
+
+<span class="k">def</span> step(state, action):
+    r, c = state
+    dr, dc = MOVES[action]
+    nr = min(max(r + dr, <span class="s">0</span>), ROWS - <span class="s">1</span>)   <span class="c"># menabrak dinding = diam di tempat</span>
+    nc = min(max(c + dc, <span class="s">0</span>), COLS - <span class="s">1</span>)
+    nxt = (nr, nc)
+    <span class="k">if</span> nxt == GOAL:  <span class="k">return</span> nxt, <span class="s">10</span>, <span class="k">True</span>
+    <span class="k">if</span> nxt <span class="k">in</span> HOLES: <span class="k">return</span> nxt, -<span class="s">10</span>, <span class="k">True</span>
+    <span class="k">return</span> nxt, -<span class="s">1</span>, <span class="k">False</span>
+
+<span class="c"># ---------- Agen Q-Learning ----------</span>
+alpha, gamma, epsilon = <span class="s">0.5</span>, <span class="s">0.9</span>, <span class="s">0.2</span>
+Q = np.zeros((ROWS, COLS, <span class="s">4</span>))        <span class="c"># Q-table: state (baris, kolom) x 4 aksi</span>
+rng = np.random.default_rng(<span class="s">0</span>)
+
+<span class="k">for</span> episode <span class="k">in</span> range(<span class="s">500</span>):
+    s, done, total = START, <span class="k">False</span>, <span class="s">0</span>
+    <span class="k">for</span> _ <span class="k">in</span> range(<span class="s">100</span>):                  <span class="c"># batas langkah per episode</span>
+        <span class="c"># ε-greedy</span>
+        a = rng.integers(<span class="s">4</span>) <span class="k">if</span> rng.random() &lt; epsilon <span class="k">else</span> int(np.argmax(Q[s]))
+        s2, r, done = step(s, a)
+        <span class="c"># update Q-Learning</span>
+        target = r <span class="k">if</span> done <span class="k">else</span> r + gamma * np.max(Q[s2])
+        Q[s][a] += alpha * (target - Q[s][a])
+        s, total = s2, total + r
+        <span class="k">if</span> done: <span class="k">break</span>
+    epsilon = max(<span class="s">0.01</span>, epsilon * <span class="s">0.995</span>)   <span class="c"># kurangi eksplorasi perlahan</span>
+    <span class="k">if</span> (episode + <span class="s">1</span>) % <span class="s">100</span> == <span class="s">0</span>:
+        print(<span class="s">f"Episode {episode+1}: return = {total}"</span>)
+
+<span class="c"># ---------- Tampilkan policy hasil belajar ----------</span>
+arrows = <span class="s">"↑→↓←"</span>
+<span class="k">for</span> r <span class="k">in</span> range(ROWS):
+    row = <span class="s">""</span>
+    <span class="k">for</span> c <span class="k">in</span> range(COLS):
+        <span class="k">if</span> (r, c) == GOAL:    row += <span class="s">" G "</span>
+        <span class="k">elif</span> (r, c) <span class="k">in</span> HOLES: row += <span class="s">" X "</span>
+        <span class="k">else</span>: row += <span class="s">f" {arrows[np.argmax(Q[r, c])]} "</span>
+    print(row)</code></pre>
+<p>Contoh output akhir (bisa sedikit berbeda):</p>
+<pre><code>Episode 100: return = 1
+Episode 200: return = 3
+...
+Episode 500: return = 3
+ →  →  →  →  G
+ ↑  X  ↑  X  ↑
+ →  →  ↑  ←  X
+ ↑  ↑  X  ↑  ↓
+ →  ↑  ←  ↑  ↓</code></pre>
+<p class="muted">Kenapa return = 3? Jalur terpendek dari start ke 🏆 adalah 8 langkah: 7 langkah biasa (7 × −1) + langkah terakhir masuk tujuan (+10) = <b>+3</b>. Itu nilai maksimum yang mungkin — agen sudah menemukan jalur optimal.</p>
+
+<div class="box tip"><strong>🚀 Langkah selanjutnya: Gymnasium</strong>
+  Untuk lingkungan siap pakai (FrozenLake, CartPole, Taxi), install <code>pip install gymnasium</code>. Polanya sama:
+  <code>env.reset()</code> → <code>env.step(action)</code> → dapat <code>(state, reward, terminated, truncated, info)</code>.
+  Latihan: ganti fungsi <code>step</code> di atas dengan <code>gymnasium.make("FrozenLake-v1")</code>.
+</div>
+</section>
+
+<!-- 10 -->
+<section id="kuis">
+<h2>10. Kuis &amp; Latihan</h2>
+<p>Klik jawaban untuk melihat apakah benar.</p>
+<div id="quiz"></div>
+<h3>Latihan mandiri</h3>
+<ol>
+  <li>Di demo Gridworld, ubah ε menjadi 0 lalu latih 50 episode. Bandingkan hasilnya dengan ε = 0.2. Apa yang terjadi?</li>
+  <li>Di kode Python, ubah reward per langkah dari −1 menjadi 0. Apakah agen masih memilih jalur terpendek? Mengapa? (Petunjuk: perhatikan γ.)</li>
+  <li>Rancang MDP sederhana untuk masalah sehari-hari (misalnya mengatur AC hemat energi): tentukan state, aksi, dan reward-nya.</li>
+</ol>
+</section>
+
+<!-- 11 -->
+<section id="ringkasan">
+<h2>11. Ringkasan &amp; Glosarium</h2>
+<div class="box tip"><strong>✅ Inti modul ini</strong>
+  <ul style="margin:4px 0 0">
+    <li>RL = agen belajar dari reward lewat interaksi trial-and-error dengan lingkungan.</li>
+    <li>Tujuannya memaksimalkan <b>return</b> (reward kumulatif terdiskon γ), bukan reward sesaat.</li>
+    <li>Agen harus menyeimbangkan <b>eksplorasi</b> dan <b>eksploitasi</b> — ε-greedy adalah cara paling sederhana.</li>
+    <li>Masalah RL dirumuskan sebagai <b>MDP</b> (S, A, P, R, γ) yang memenuhi sifat Markov.</li>
+    <li><b>Q-Learning</b> mempelajari Q(s,a) dengan update: Q ← Q + α(r + γ·max Q' − Q). Policy = pilih aksi dengan Q terbesar.</li>
+  </ul>
+</div>
+<table>
+  <tr><th>Istilah</th><th>Arti singkat</th></tr>
+  <tr><td>Agent</td><td>Pembuat keputusan yang belajar</td></tr>
+  <tr><td>Environment</td><td>Dunia yang merespons aksi agen</td></tr>
+  <tr><td>State (s)</td><td>Kondisi/situasi saat ini</td></tr>
+  <tr><td>Action (a)</td><td>Pilihan yang diambil agen</td></tr>
+  <tr><td>Reward (r)</td><td>Umpan balik angka setelah aksi</td></tr>
+  <tr><td>Return (G)</td><td>Total reward terdiskon ke depan</td></tr>
+  <tr><td>Policy (π)</td><td>Strategi: pemetaan state → aksi</td></tr>
+  <tr><td>Episode</td><td>Satu rangkaian interaksi dari awal hingga state terminal</td></tr>
+  <tr><td>γ (gamma)</td><td>Discount factor: bobot reward masa depan</td></tr>
+  <tr><td>α (alpha)</td><td>Learning rate: besar langkah update</td></tr>
+  <tr><td>ε (epsilon)</td><td>Peluang memilih aksi acak (eksplorasi)</td></tr>
+  <tr><td>Q-table</td><td>Tabel nilai Q untuk setiap pasangan (state, aksi)</td></tr>
+  <tr><td>TD error</td><td>Selisih antara target dan estimasi saat ini</td></tr>
+</table>
+<div class="box note"><strong>🔜 Di Modul Intermediate</strong>
+  SARSA vs Q-Learning (on-policy vs off-policy), Monte Carlo, Dynamic Programming (value/policy iteration),
+  dan mengapa Q-table tidak cukup untuk masalah besar → pengantar <b>Deep Q-Network (DQN)</b>.
+</div>
+</section>
+
+<footer>Modul Reinforcement Learning · Level 1: Beginner. Referensi utama: Sutton &amp; Barto, <i>Reinforcement Learning: An Introduction</i> (2nd ed., 2018).</footer>
+</main>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+
+/* ---------- Sidebar, scrollspy, progress, tema ---------- */
+const sb=$('#sidebar');
+$('#menuBtn').onclick=()=>sb.classList.toggle('open');
+$$('#toc a').forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+const links=[...$$('#toc a')];
+const spy=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){links.forEach(l=>l.classList.toggle('active',l.hash==='#'+e.target.id))}
+}),{rootMargin:'-20% 0px -70% 0px'});
+$$('main section').forEach(s=>spy.observe(s));
+addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  $('#progress div').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+},{passive:true});
+$('#themeBtn').onclick=()=>{
+  const r=document.documentElement, dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme=dark?'light':'dark';
+  try{localStorage.setItem('rl-theme',r.dataset.theme)}catch(e){}
+};
+try{const t=localStorage.getItem('rl-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+
+/* ---------- Demo gamma ---------- */
+const rewards=[1,1,1,1,1,1,1,1,1,10];
+$('#gLabels').innerHTML=rewards.map((r,k)=>`<span>t${k}<br>${r>0?'+':''}${r}</span>`).join('');
+function drawGamma(){
+  const g=+$('#gRange').value; $('#gVal').textContent=g.toFixed(2);
+  let G=0;
+  $('#gBars').innerHTML=rewards.map((r,k)=>{const w=g**k;G+=w*r;return `<div class="${r>1?'big':''}" style="height:${Math.max(w*100,2)}%" title="γ^${k}=${w.toFixed(3)}"></div>`}).join('');
+  $('#gRet').textContent=G.toFixed(2);
+  $('#gBig').textContent=(10*g**9).toFixed(2);
+}
+$('#gRange').oninput=drawGamma; drawGamma();
+
+/* ---------- Demo bandit ---------- */
+const P=[0.3,0.55,0.75], icons=['🎰','🎰','🎰'];
+let est,cnt,tot,nOpt,revealed=false;
+function bReset(){est=[0,0,0];cnt=[0,0,0];tot=0;nOpt=0;bDraw()}
+function bDraw(hit){
+  $('#arms').innerHTML=P.map((p,i)=>`<div class="arm ${hit===i?'hit':''}"><div class="icon">${icons[i]}</div><b>Mesin ${'ABC'[i]}</b>
+    <div class="bar"><div style="width:${est[i]*100}%"></div></div>
+    <div class="stat">Estimasi Q: <b>${est[i].toFixed(2)}</b><br>Dicoba: ${cnt[i]}×<br>Asli: <b>${revealed?p.toFixed(2):'?'}</b></div></div>`).join('');
+  const n=cnt[0]+cnt[1]+cnt[2];
+  $('#bN').textContent=n;$('#bR').textContent=tot;
+  $('#bAvg').textContent=n?(tot/n).toFixed(2):'0.00';
+  $('#bOpt').textContent=n?Math.round(nOpt/n*100)+'%':'0%';
+}
+function argmaxRand(arr){const m=Math.max(...arr);const idx=arr.map((v,i)=>v===m?i:-1).filter(i=>i>=0);return idx[Math.floor(Math.random()*idx.length)]}
+function pull(k){
+  const eps=+$('#eRange').value;let a;
+  for(let i=0;i<k;i++){
+    a=Math.random()<eps?Math.floor(Math.random()*3):argmaxRand(est);
+    const r=Math.random()<P[a]?1:0;
+    cnt[a]++;tot+=r;if(a===2)nOpt++;
+    est[a]+=(r-est[a])/cnt[a];
+  }
+  bDraw(k===1?a:undefined);
+}
+$$('[data-pull]').forEach(b=>b.onclick=()=>pull(+b.dataset.pull));
+$('#eRange').oninput=e=>$('#eVal').textContent=(+e.target.value).toFixed(2);
+$('#bReveal').onclick=()=>{revealed=!revealed;bDraw()};
+$('#bReset').onclick=bReset; bReset();
+
+/* ---------- Demo gridworld Q-learning ---------- */
+const R=5,C=5,START=20,GOAL=4,HOLES=new Set([6,8,17,14]),GAMMA=0.9,ARW='↑→↓←';
+let Q,ep,hist,agentPos=null,timer=null;
+function gwReset(){Q=Array.from({length:R*C},()=>[0,0,0,0]);ep=0;hist=[];agentPos=null;clearInterval(timer);gwDraw()}
+function envStep(s,a){
+  let r=Math.floor(s/C),c=s%C;
+  if(a===0)r=Math.max(r-1,0);if(a===1)c=Math.min(c+1,C-1);if(a===2)r=Math.min(r+1,R-1);if(a===3)c=Math.max(c-1,0);
+  const n=r*C+c;
+  if(n===GOAL)return[n,10,true]; if(HOLES.has(n))return[n,-10,true]; return[n,-1,false];
+}
+function trainEpisode(){
+  const eps=+$('#gwE').value, alpha=+$('#gwA').value;
+  let s=START,total=0;
+  for(let t=0;t<100;t++){
+    const a=Math.random()<eps?Math.floor(Math.random()*4):argmaxRand(Q[s]);
+    const [s2,r,done]=envStep(s,a);
+    const target=done?r:r+GAMMA*Math.max(...Q[s2]);
+    Q[s][a]+=alpha*(target-Q[s][a]);
+    s=s2;total+=r;if(done)break;
+  }
+  ep++;hist.push(total);
+}
+function gwDraw(){
+  let html='';
+  for(let i=0;i<R*C;i++){
+    const cls=agentPos===i?'agent':'';
+    if(i===GOAL){html+=`<div class="${cls}" style="background:color-mix(in srgb,var(--good) 30%,transparent)"><span class="em">🏆</span>+10</div>`;continue}
+    if(HOLES.has(i)){html+=`<div class="${cls}" style="background:color-mix(in srgb,var(--bad) 25%,transparent)"><span class="em">${agentPos===i?'🤖':'🕳️'}</span>−10</div>`;continue}
+    const q=Q[i],m=Math.max(...q),seen=q.some(v=>v!==0);
+    const t=Math.max(0,Math.min(1,(m+10)/20));
+    const bg=seen?`color-mix(in srgb,var(--good) ${Math.round(t*45)}%,color-mix(in srgb,var(--bad) ${Math.round((1-t)*40)}%,transparent))`:'transparent';
+    const mid=agentPos===i?'<span class="em">🤖</span>':(seen?`<span class="ar">${ARW[q.indexOf(m)]}</span>`:(i===START?'<span class="em">🚩</span>':''));
+    html+=`<div class="${cls}" style="background:${bg}">${mid}${seen?m.toFixed(1):(i===START?'start':'')}</div>`;
+  }
+  $('#gw').innerHTML=html;
+  $('#gwEp').textContent=ep;$('#gwLast').textContent=hist.length?hist[hist.length-1]:'–';
+  // grafik moving average
+  const ma=hist.map((_,i)=>{const w=hist.slice(Math.max(0,i-9),i+1);return w.reduce((a,b)=>a+b,0)/w.length});
+  const lo=-60,hi=10,y=v=>130-(Math.max(lo,Math.min(hi,v))-lo)/(hi-lo)*130;
+  $('#zero').setAttribute('y1',y(0));$('#zero').setAttribute('y2',y(0));
+  $('#line').setAttribute('points',ma.map((v,i)=>`${ma.length<2?0:i/(ma.length-1)*330},${y(v)}`).join(' '));
+}
+$$('[data-train]').forEach(b=>b.onclick=()=>{clearInterval(timer);agentPos=null;for(let i=0;i<+b.dataset.train;i++)trainEpisode();gwDraw()});
+$('#gwRun').onclick=()=>{
+  clearInterval(timer);let s=START,steps=0;agentPos=s;gwDraw();
+  timer=setInterval(()=>{
+    const [s2,,done]=envStep(s,argmaxRand(Q[s]));s=s2;agentPos=s;gwDraw();
+    if(done||++steps>=20){clearInterval(timer);setTimeout(()=>{agentPos=null;gwDraw()},900)}
+  },300);
+};
+$('#gwReset').onclick=gwReset;
+$('#gwE').oninput=e=>$('#gwEv').textContent=(+e.target.value).toFixed(2);
+$('#gwA').oninput=e=>$('#gwAv').textContent=(+e.target.value).toFixed(2);
+gwReset();
+
+/* ---------- Kuis ---------- */
+const QZ=[
+  {q:'Apa yang dimaksimalkan oleh agen RL?',o:['Reward pada langkah berikutnya saja','Return: total reward terdiskon dalam jangka panjang','Jumlah aksi yang dilakukan','Akurasi prediksi label'],a:1,w:'Agen mengejar return (reward kumulatif), sehingga mau "berkorban" sekarang demi reward lebih besar nanti.'},
+  {q:'Jika γ = 0, agen akan…',o:['Hanya peduli reward langsung','Menganggap semua reward masa depan sama penting','Berhenti belajar','Selalu bereksplorasi'],a:0,w:'Dengan γ = 0, semua suku γᵏ untuk k ≥ 1 bernilai 0, jadi hanya reward langsung yang dihitung.'},
+  {q:'Pada ε-greedy dengan ε = 0.1, agen memilih aksi terbaik saat ini kira-kira…',o:['10% waktu','50% waktu','90% waktu (lebih sedikit, karena aksi acak kadang juga aksi terbaik)','100% waktu'],a:2,w:'90% eksploitasi + 10% acak. Aksi acak kadang kebetulan juga aksi terbaik, jadi totalnya sedikit di atas 90%.'},
+  {q:'Pada update Q-Learning, bagian "r + γ·max Q(s′,a′)" disebut…',o:['Learning rate','TD error','TD target','Policy'],a:2,w:'Itu TD target. TD error = target − Q(s,a), dan α mengatur seberapa besar kita bergerak ke arah target.'},
+  {q:'Mengapa Q-Learning disebut "model-free"?',o:['Tidak memakai Q-table','Tidak perlu tahu peluang transisi P dan fungsi reward lingkungan','Tidak memakai reward','Tidak butuh state'],a:1,w:'Agen belajar langsung dari sampel pengalaman (s, a, r, s′) tanpa perlu model matematis lingkungannya.'}
+];
+$('#quiz').innerHTML=QZ.map((x,i)=>`<div class="q" data-i="${i}"><p>${i+1}. ${x.q}</p>${x.o.map((o,j)=>`<button data-j="${j}">${o}</button>`).join('')}<div class="why">${x.w}</div></div>`).join('');
+$$('.q button').forEach(b=>b.onclick=()=>{
+  const box=b.closest('.q'),x=QZ[box.dataset.i];
+  box.querySelectorAll('button').forEach(o=>o.classList.remove('right','wrong'));
+  b.classList.add(+b.dataset.j===x.a?'right':'wrong');
+  box.querySelector(`[data-j="${x.a}"]`).classList.add('right');
+  box.querySelector('.why').style.display='block';
+});
+</script>
+</body>
+</html>
