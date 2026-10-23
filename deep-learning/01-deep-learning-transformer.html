@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deep Learning &amp; Transformer</title>
+<style>
+:root{
+  --bg:#f7f8fa;--surface:#ffffff;--surface-2:#f0f2f6;--text:#1c2230;--muted:#5b6474;
+  --border:#e1e5ec;--accent:#3a6df0;--accent-soft:#e6edff;--good:#1f9d63;--bad:#d64545;--warn:#c98a12;
+  --code-bg:#f3f5f9;--sidebar-w:270px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+    --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--code-bg:#1d222b;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+  --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--code-bg:#1d222b;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+/* Sidebar */
+#sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);
+  overflow-y:auto;padding:22px 16px;z-index:20;transition:transform .25s}
+#sidebar .brand{font-weight:700;font-size:17px;margin:0 8px 2px}
+#sidebar .level{display:inline-block;margin:0 8px 16px;font-size:12px;padding:2px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar ol{list-style:none;margin:0;padding:0;counter-reset:toc}
+#sidebar li a{display:flex;gap:10px;padding:7px 10px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:14.5px;line-height:1.4}
+#sidebar li a::before{counter-increment:toc;content:counter(toc);min-width:20px;height:20px;border-radius:50%;background:var(--surface-2);
+  font-size:11.5px;display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+#sidebar li a:hover{background:var(--surface-2);color:var(--text)}
+#sidebar li a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar li a.active::before{background:var(--accent);color:#fff}
+#progress{height:4px;background:var(--surface-2);border-radius:4px;margin:0 8px 18px;overflow:hidden}
+#progress div{height:100%;width:0;background:var(--accent);transition:width .1s}
+#menuBtn{display:none;position:fixed;top:12px;left:12px;z-index:30;border:1px solid var(--border);background:var(--surface);color:var(--text);
+  border-radius:8px;padding:6px 12px;font-size:15px;cursor:pointer}
+#themeBtn{margin:18px 8px 0;font-size:13px}
+/* Main */
+main{margin-left:var(--sidebar-w);padding:40px 48px 80px;max-width:calc(var(--sidebar-w) + 900px)}
+main>*{max-width:860px}
+header.hero{padding:8px 0 24px;border-bottom:1px solid var(--border);margin-bottom:12px}
+header.hero h1{font-size:34px;line-height:1.2;margin:0 0 8px}
+header.hero p{color:var(--muted);margin:0}
+section{padding-top:28px}
+h2{font-size:25px;margin:16px 0 10px;padding-top:8px}
+h3{font-size:18.5px;margin:24px 0 6px}
+p,li{color:var(--text)}
+main p,main li,.box,.card span{text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+.muted{color:var(--muted)}
+.box{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:16px 20px;margin:16px 0}
+.box.tip{border-left:4px solid var(--good)}
+.box.note{border-left:4px solid var(--accent)}
+.box.warn{border-left:4px solid var(--warn)}
+.box>strong:first-child{display:block;margin-bottom:4px}
+.formula{font-family:"Cambria Math","Times New Roman",serif;font-size:19px;text-align:center;background:var(--surface-2);
+  border-radius:10px;padding:14px;margin:14px 0;overflow-x:auto;white-space:nowrap}
+.formula var{font-style:italic}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;background:var(--code-bg);padding:1px 6px;border-radius:5px}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-size:13.5px;line-height:1.55}
+pre code{background:none;padding:0}
+.c{color:var(--muted)} .k{color:var(--accent);font-weight:600} .s{color:var(--good)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;margin:12px 0;display:block;overflow-x:auto}
+th,td{border:1px solid var(--border);padding:8px 12px;text-align:left;vertical-align:top}
+th{background:var(--surface-2)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:14px 0}
+.card{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 16px}
+.card b{display:block;margin-bottom:2px}
+.card span{color:var(--muted);font-size:14.5px}
+/* Demo widgets */
+.demo{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:18px;margin:18px 0}
+.demo h4{margin:0 0 4px;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent)}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+button.btn{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:8px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+label.range{display:flex;align-items:center;gap:8px;font-size:14px}
+input[type=range]{accent-color:var(--accent)}
+.stat{font-size:14px;color:var(--muted)}
+.stat b{color:var(--text)}
+/* Loop diagram */
+.loop svg{width:100%;max-width:560px;display:block;margin:0 auto}
+.loop .flow{stroke-dasharray:6 6;animation:dash 1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-12}}
+.loop .pulse{animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+/* Bandit */
+.arms{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+.arm{border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;background:var(--surface-2);transition:transform .15s,border-color .15s}
+.arm.hit{transform:scale(1.04);border-color:var(--accent)}
+.arm .icon{font-size:28px}
+.bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin:6px 0}
+.bar div{height:100%;background:var(--accent);transition:width .2s}
+/* Gamma bars */
+.gbars{display:flex;align-items:flex-end;gap:6px;height:120px;margin:12px 0 4px}
+.gbars div{flex:1;background:var(--accent);border-radius:4px 4px 0 0;position:relative;min-height:2px;transition:height .15s}
+.gbars div.big{background:var(--good)}
+.glabels{display:flex;gap:6px;font-size:11.5px;color:var(--muted)}
+.glabels span{flex:1;text-align:center}
+/* Gridworld */
+.gw-wrap{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+#gw{display:grid;grid-template-columns:repeat(5,58px);gap:4px}
+#gw div{width:58px;height:58px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:11px;color:var(--muted);border:1px solid var(--border);position:relative;transition:background .2s}
+#gw div .ar{font-size:20px;color:var(--text);line-height:1}
+#gw div.agent{outline:3px solid var(--accent);outline-offset:-3px}
+#gw div .em{font-size:24px;line-height:1}
+#chart{width:100%;max-width:330px;height:130px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2)}
+.legend{font-size:13px;color:var(--muted)}
+/* Steps */
+.steps{counter-reset:st;list-style:none;padding:0}
+.steps li{counter-increment:st;position:relative;padding:4px 0 10px 42px}
+.steps li::before{content:counter(st);position:absolute;left:0;top:4px;width:28px;height:28px;border-radius:50%;background:var(--accent-soft);
+  color:var(--accent);font-weight:700;display:grid;place-items:center;font-size:14px}
+/* Quiz */
+.q{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 18px;margin:12px 0}
+.q p{margin:0 0 8px;font-weight:600}
+.q button{display:block;width:100%;text-align:left;margin:6px 0;border:1px solid var(--border);background:var(--surface-2);color:var(--text);
+  border-radius:8px;padding:8px 12px;font:inherit;font-size:14.5px;cursor:pointer}
+.q button.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 15%,transparent)}
+.q button.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,transparent)}
+.q .why{font-size:14px;color:var(--muted);display:none;margin-top:6px}
+footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:14px}
+@media (max-width:900px){
+  #sidebar{transform:translateX(-100%);box-shadow:0 0 30px rgba(0,0,0,.2)}
+  #sidebar.open{transform:none}
+  #menuBtn{display:block}
+  main{margin-left:0;padding:60px 16px 60px}
+  header.hero h1{font-size:27px}
+  #gw{grid-template-columns:repeat(5,minmax(0,1fr));width:100%;max-width:310px}
+  #gw div{width:auto;aspect-ratio:1;height:auto}
+}
+/* ---- tambahan modul Intermediate ---- */
+.cells{display:grid;gap:4px;width:100%}
+.cells>div{aspect-ratio:1;border-radius:7px;border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:11px;color:var(--muted);transition:background .2s;min-width:0;overflow:hidden}
+.cells>div .ar{font-size:18px;color:var(--text);line-height:1}
+.cells>div .em{font-size:20px;line-height:1}
+#vi{grid-template-columns:repeat(4,1fr);max-width:300px}
+.cliff{grid-template-columns:repeat(12,1fr);max-width:560px;gap:3px}
+.cliff>div{border-radius:5px;font-size:10px}
+.cliff>div .ar{font-size:14px}
+.cliff>div .em{font-size:14px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.spectrum{display:flex;border-radius:10px;overflow:hidden;margin:14px 0;font-size:13px;text-align:center}
+.spectrum div{flex:1;padding:8px 4px;background:var(--surface-2);border-right:1px solid var(--border)}
+.spectrum div:first-child{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.spectrum div:last-child{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good);font-weight:600;border:0}
+.n{color:var(--warn)}
+.card span b{display:inline;margin:0}
+.nav-mod{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px}
+/* ---- tambahan modul Deep Learning ---- */
+.plot{width:100%;height:auto;border:1px solid var(--border);border-radius:8px;background:var(--surface-2)}
+.probs{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center;font-size:13px;margin:6px 0}
+.probs .bar{margin:0}
+.probs .off{opacity:.35;text-decoration:line-through}
+.kpi{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.kpi div{border:1px solid var(--border);background:var(--surface-2);border-radius:8px;padding:6px 12px;font-size:13px;color:var(--muted)}
+.kpi b{display:block;font-size:17px;color:var(--text)}
+#pgCanvas{width:100%;max-width:300px;aspect-ratio:1;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);display:block}
+select{font:inherit;font-size:14px;padding:5px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--text)}
+.act{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}
+.act div{border:1px solid var(--border);border-radius:10px;background:var(--surface);padding:8px 10px;font-size:13px}
+.act svg{width:100%;height:80px;display:block}
+.hm{display:grid;grid-template-columns:auto repeat(6,1fr);gap:3px;font-size:12px;margin:10px 0;max-width:560px}
+.hm div{padding:6px 2px;text-align:center;border-radius:5px;min-width:0;overflow:hidden}
+.hm .lab{color:var(--muted);font-weight:600;background:none}
+.hm .row{cursor:pointer;text-align:right;padding-right:8px}
+.hm .row.sel{color:var(--accent)}
+.hm .cell.sel{outline:2px solid var(--accent);outline-offset:-2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chips span{border:1px solid var(--border);background:var(--surface-2);border-radius:99px;padding:2px 10px;font-size:13px}
+</style>
+</head>
+<body>
+<button id="menuBtn" aria-label="Buka daftar isi">☰ Daftar Isi</button>
+
+<nav id="sidebar" aria-label="Daftar isi">
+  <div class="brand">Deep Learning &amp; Transformer</div>
+  <span class="level">Modul Jembatan ke LLM</span>
+  <div id="progress"><div></div></div>
+  <ol id="toc">
+    <li><a href="#peta">Gambaran Besar</a></li>
+    <li><a href="#neuron">Neuron &amp; MLP</a></li>
+    <li><a href="#aktivasi">Fungsi Aktivasi</a></li>
+    <li><a href="#loss">Loss Function</a></li>
+    <li><a href="#backprop">Backprop &amp; Optimizer</a></li>
+    <li><a href="#praktis">Training yang Sehat</a></li>
+    <li><a href="#cnnrnn">CNN, RNN &amp; Masalahnya</a></li>
+    <li><a href="#token">Tokenisasi &amp; Embedding</a></li>
+    <li><a href="#attention">Self-Attention</a></li>
+    <li><a href="#transformer">Blok Transformer</a></li>
+    <li><a href="#llm">Language Model &amp; Sampling</a></li>
+    <li><a href="#kode">Implementasi: Mini-GPT</a></li>
+    <li><a href="#kuis">Kuis &amp; Roadmap</a></li>
+  </ol>
+  <button class="btn" id="themeBtn">🌓 Ganti tema</button>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Deep Learning &amp; Transformer</h1>
+  <p>Dari satu neuron sampai GPT. Modul jembatan menuju RLHF dan LLM. Estimasi waktu belajar ± 4 jam.</p>
+</header>
+
+<div class="box note">
+  <strong>🎯 Tujuan belajar</strong>
+  Setelah modul ini kamu bisa: (1) menjelaskan cara neural network belajar (forward, loss, backprop, optimizer), (2) mendiagnosis masalah training
+  seperti overfitting dan learning rate yang salah, (3) memahami self-attention dan blok transformer sampai ke rumusnya,
+  (4) menjelaskan cara LLM menghasilkan teks, dan (5) membangun mini-GPT dari nol dengan PyTorch.
+  <br><span class="muted">Prasyarat: Python, dasar NumPy, dan <a href="../reinforcement-learning/00-matematika.html">Matematika untuk RL</a> (gradien, softmax, cross-entropy).
+  Modul ini berdiri sendiri, tetapi juga menjadi fondasi untuk bagian DQN/PPO dan RLHF di <a href="../reinforcement-learning/03-advanced.html">modul RL Advanced</a>.</span>
+</div>
+
+<!-- 1 -->
+<section id="peta">
+<h2>1. Gambaran Besar</h2>
+<p><b>Deep learning</b> adalah machine learning dengan <b>neural network berlapis banyak</b> yang mempelajari representasi data secara otomatis.
+Alih-alih merancang fitur dengan tangan ("deteksi tepi", "hitung kata"), jaringan menemukan sendiri fitur yang berguna dari data mentah: piksel, audio, atau teks.</p>
+<div class="grid2">
+  <div class="card"><b>1. Model</b><span>Fungsi berparameter <var>f</var><sub>θ</sub>(<var>x</var>). Contoh: MLP, CNN, transformer. θ bisa berjumlah ribuan sampai ratusan miliar.</span></div>
+  <div class="card"><b>2. Loss</b><span>Angka yang mengukur seberapa salah prediksi. Contoh: MSE, cross-entropy.</span></div>
+  <div class="card"><b>3. Optimizer</b><span>Cara memperbarui θ agar loss turun, berdasarkan gradien dari backpropagation. Contoh: SGD, Adam.</span></div>
+  <div class="card"><b>4. Data</b><span>Contoh untuk belajar. Kualitas dan jumlah data sering lebih menentukan daripada arsitektur.</span></div>
+</div>
+<p>Keempat komponen ini sama untuk <i>semua</i> model, dari klasifikasi gambar sederhana sampai GPT. Yang berubah hanya arsitektur, data, dan skalanya.</p>
+<h3>Linimasa singkat</h3>
+<table>
+  <tr><th>Tahun</th><th>Tonggak</th><th>Arti penting</th></tr>
+  <tr><td>1986</td><td>Backpropagation dipopulerkan (Rumelhart, Hinton, Williams)</td><td>Cara efisien melatih jaringan berlapis</td></tr>
+  <tr><td>1997</td><td>LSTM (Hochreiter &amp; Schmidhuber)</td><td>RNN yang bisa mengingat lebih lama</td></tr>
+  <tr><td>2012</td><td>AlexNet</td><td>CNN + GPU menang telak di ImageNet, awal era deep learning</td></tr>
+  <tr><td>2015</td><td>ResNet, DQN</td><td>Residual connection, RL dari piksel</td></tr>
+  <tr><td>2017</td><td>Transformer (<i>Attention Is All You Need</i>)</td><td>Arsitektur di balik hampir semua LLM</td></tr>
+  <tr><td>2018–2020</td><td>BERT, GPT-2, GPT-3</td><td>Pretraining skala besar, kemampuan muncul seiring skala</td></tr>
+  <tr><td>2022–sekarang</td><td>ChatGPT dan LLM modern</td><td>Transformer + RLHF menjadi asisten serbaguna</td></tr>
+</table>
+</section>
+
+<!-- 2 -->
+<section id="neuron">
+<h2>2. Neuron &amp; MLP</h2>
+<p>Satu <b>neuron</b> menghitung jumlah tertimbang dari input, menambahkan bias, lalu melewatkannya ke fungsi aktivasi:</p>
+<div class="formula"><var>y</var> = <var>g</var>( <var>w</var><sub>1</sub><var>x</var><sub>1</sub> + <var>w</var><sub>2</sub><var>x</var><sub>2</sub> + … + <var>b</var> ) = <var>g</var>( <var>w</var><sup>⊤</sup><var>x</var> + <var>b</var> )</div>
+<p>Banyak neuron yang disusun sejajar membentuk <b>layer</b>, yang ditulis ringkas dalam bentuk matriks: <var>h</var> = <var>g</var>(<var>Wx</var> + <var>b</var>).
+Menumpuk beberapa layer menghasilkan <b>Multi-Layer Perceptron (MLP)</b>:</p>
+<div class="formula"><var>ŷ</var> = <var>W</var><sub>3</sub> · <var>g</var>( <var>W</var><sub>2</sub> · <var>g</var>( <var>W</var><sub>1</sub><var>x</var> + <var>b</var><sub>1</sub> ) + <var>b</var><sub>2</sub> ) + <var>b</var><sub>3</sub></div>
+<div class="demo loop"><svg id="mlpSvg" viewBox="0 0 600 230" role="img" aria-label="Diagram MLP"></svg>
+<p class="legend" style="text-align:center;margin:0">Garis bergerak = sinyal mengalir maju (<i>forward pass</i>). Setiap garis adalah satu bobot <var>w</var> yang dipelajari.</p></div>
+<div class="box tip"><strong>💡 Kenapa harus "deep"?</strong>
+  Secara teori, MLP dengan satu hidden layer yang cukup lebar bisa mendekati fungsi kontinu apa pun (<i>universal approximation theorem</i>).
+  Dalam praktik, jaringan yang <b>lebih dalam</b> jauh lebih efisien: layer awal belajar fitur sederhana, layer berikutnya menggabungkannya menjadi fitur yang makin abstrak.
+</div>
+</section>
+
+<!-- 3 -->
+<section id="aktivasi">
+<h2>3. Fungsi Aktivasi</h2>
+<p>Tanpa aktivasi non-linear, berapa pun banyaknya layer, hasilnya tetap fungsi linear, karena <var>W</var><sub>2</sub>(<var>W</var><sub>1</sub><var>x</var>) = (<var>W</var><sub>2</sub><var>W</var><sub>1</sub>)<var>x</var>.
+Non-linearitas inilah yang membuat jaringan bisa mempelajari pola rumit.</p>
+<div class="act" id="actPlots"></div>
+<table>
+  <tr><th>Aktivasi</th><th>Kelebihan</th><th>Kekurangan / catatan</th></tr>
+  <tr><td>Sigmoid</td><td>Output 0–1, cocok untuk peluang</td><td>Gradien hampir nol di ujung (<i>vanishing gradient</i>). Jarang dipakai di hidden layer.</td></tr>
+  <tr><td>Tanh</td><td>Output −1 sampai 1, berpusat di nol</td><td>Masih bisa jenuh. Default di PPO untuk jaringan kecil.</td></tr>
+  <tr><td>ReLU</td><td>Sangat murah, gradien tidak jenuh untuk <var>x</var> &gt; 0</td><td>Neuron bisa "mati" (selalu 0). Default untuk CNN dan MLP.</td></tr>
+  <tr><td>GELU</td><td>Versi ReLU yang halus</td><td>Dipakai di BERT, GPT, dan kebanyakan transformer.</td></tr>
+</table>
+</section>
+
+<!-- 4 -->
+<section id="loss">
+<h2>4. Loss Function</h2>
+<div class="grid2">
+  <div class="card"><b>MSE (regresi)</b><span><var>L</var> = (1/<var>N</var>) Σ (<var>y</var> − <var>ŷ</var>)². Untuk memprediksi angka kontinu: harga, suhu, dan <b>nilai V/Q</b> pada critic dan DQN.</span></div>
+  <div class="card"><b>Cross-entropy (klasifikasi)</b><span><var>L</var> = −Σ<sub><var>k</var></sub> <var>y<sub>k</sub></var> log <var>p<sub>k</sub></var> = −log <var>p</var><sub>kelas benar</sub>. Untuk memilih satu dari <var>K</var> kelas, termasuk <b>memprediksi token berikutnya</b> di LLM.</span></div>
+</div>
+<p>Cross-entropy menghukum keras prediksi yang <b>yakin tetapi salah</b>: jika peluang kelas yang benar 0,9, loss = 0,105; jika 0,01, loss = 4,6.
+Pasangan softmax + cross-entropy memiliki gradien yang sangat sederhana terhadap logit:</p>
+<div class="formula">∂<var>L</var> / ∂<var>z</var> = <var>p</var> − <var>y</var> &nbsp;&nbsp; (peluang prediksi dikurangi one-hot label)</div>
+<p>Bandingkan dengan gradien log-softmax di policy gradient (onehot − π). Itu rumus yang sama dengan tanda terbalik, karena policy gradient memaksimalkan, bukan meminimalkan.
+Melatih LLM dengan cross-entropy dan melatih policy dengan REINFORCE ternyata sangat mirip. Bedanya hanya pada bobot setiap contoh.</p>
+</section>
+
+<!-- 5 -->
+<section id="backprop">
+<h2>5. Backpropagation &amp; Optimizer</h2>
+<p><b>Backpropagation</b> menghitung gradien loss terhadap <i>semua</i> parameter dengan aturan rantai, mulai dari output mundur ke input.
+Setiap operasi cukup tahu turunan lokalnya sendiri. Contoh dengan satu neuron, <var>ŷ</var> = <var>wx</var> + <var>b</var> dan <var>L</var> = (<var>ŷ</var> − <var>y</var>)²:</p>
+<ol class="steps">
+  <li><b>Forward</b>: <var>x</var> = 2, <var>w</var> = 0,5, <var>b</var> = 1 → <var>ŷ</var> = 2. Target <var>y</var> = 3 → <var>L</var> = (2 − 3)² = 1.</li>
+  <li><b>Backward</b>: ∂<var>L</var>/∂<var>ŷ</var> = 2(<var>ŷ</var> − <var>y</var>) = −2. Lalu ∂<var>L</var>/∂<var>w</var> = −2 · <var>x</var> = −4 dan ∂<var>L</var>/∂<var>b</var> = −2 · 1 = −2.</li>
+  <li><b>Update</b> (α = 0,1): <var>w</var> ← 0,5 + 0,4 = 0,9, <var>b</var> ← 1 + 0,2 = 1,2. Sekarang <var>ŷ</var> = 3,0 dan loss turun ke 0.</li>
+</ol>
+<h3>Optimizer</h3>
+<table>
+  <tr><th>Optimizer</th><th>Ide</th></tr>
+  <tr><td><b>SGD</b></td><td>θ ← θ − α∇<var>L</var>, dihitung dari <i>minibatch</i> (bukan seluruh data) agar cepat dan sedikit berisik (justru membantu generalisasi).</td></tr>
+  <tr><td><b>Momentum</b></td><td>Simpan "kecepatan" berupa rata-rata eksponensial gradien, sehingga lembah sempit dilalui dengan mulus.</td></tr>
+  <tr><td><b>Adam</b></td><td>Momentum + skala langkah per parameter berdasarkan rata-rata kuadrat gradien. Default di hampir semua proyek, termasuk DQN, PPO, dan LLM (varian <b>AdamW</b>).</td></tr>
+  <tr><td><b>LR schedule</b></td><td><i>Warmup</i> (lr naik pelan di awal) lalu <i>cosine decay</i>. Standar untuk melatih transformer.</td></tr>
+</table>
+
+<div class="demo">
+  <h4>Demo: Neural Network Playground</h4>
+  <p class="stat" style="margin:0">MLP 2 hidden layer dilatih <b>langsung di browser</b> (backprop + Adam ditulis manual dalam JavaScript) untuk memisahkan dua kelas titik.
+  Warna latar = prediksi jaringan di setiap titik bidang (<i>decision boundary</i>).</p>
+  <div class="controls">
+    <label class="range">Data <select id="pgData"><option value="spiral">Spiral</option><option value="circle">Lingkaran</option><option value="xor">XOR</option></select></label>
+    <label class="range">Neuron/layer <select id="pgH"><option>2</option><option>4</option><option selected>8</option><option>16</option></select></label>
+    <label class="range">Aktivasi <select id="pgAct"><option value="tanh">tanh</option><option value="relu">ReLU</option></select></label>
+    <label class="range">Learning rate <select id="pgLr"><option>0.003</option><option selected>0.03</option><option>0.3</option></select></label>
+  </div>
+  <div class="controls">
+    <button class="btn primary" id="pgRun">▶ Latih</button><button class="btn" id="pgStep">+100 langkah</button><button class="btn" id="pgReset">Reset bobot</button>
+  </div>
+  <div class="gw-wrap">
+    <canvas id="pgCanvas" width="240" height="240"></canvas>
+    <div><div class="kpi"><div>Langkah<b id="pgK">0</b></div><div>Loss<b id="pgL">–</b></div><div>Akurasi<b id="pgA">–</b></div><div>Parameter<b id="pgP">–</b></div></div>
+    <p class="legend">Coba: (1) spiral dengan 2 neuron/layer: jaringan terlalu kecil sehingga macet di akurasi ± 70%. (2) Naikkan ke 8–16 neuron: bisa mencapai 100%.
+    (3) Learning rate 0,003 butuh ± 1000 langkah, 0,03 biasanya ± 200 langkah. Di soal sekecil ini 0,3 justru tercepat karena Adam cukup tahan terhadap lr besar, tetapi pada model besar lr yang terlalu besar membuat training tidak stabil.
+    (4) Kadang loss tertahan di ± 0,66 ratusan langkah (<i>plateau</i>) karena inisialisasi bobot yang kurang beruntung. Klik <b>Reset bobot</b> lalu coba lagi.
+    (5) Bandingkan bentuk batas keputusan tanh (halus) vs ReLU (bersudut).</p></div>
+  </div>
+</div>
+</section>
+
+<!-- 6 -->
+<section id="praktis">
+<h2>6. Training yang Sehat</h2>
+<p>Tujuan sebenarnya bukan loss kecil di data latih, melainkan <b>generalisasi</b>: bekerja baik di data yang belum pernah dilihat.
+Selalu pisahkan data menjadi <b>train / validation / test</b>.</p>
+<table>
+  <tr><th>Gejala</th><th>Diagnosis</th><th>Solusi umum</th></tr>
+  <tr><td>Train loss turun, val loss naik</td><td><b>Overfitting</b> (menghafal)</td><td>Tambah data, augmentasi, weight decay, dropout, early stopping</td></tr>
+  <tr><td>Train loss tetap tinggi</td><td><b>Underfitting</b></td><td>Model lebih besar, latih lebih lama, cek bug data/label</td></tr>
+  <tr><td>Loss melonjak atau NaN</td><td>Learning rate terlalu besar, gradien meledak</td><td>Turunkan lr, gradient clipping, warmup, cek normalisasi input</td></tr>
+  <tr><td>Loss turun sangat lambat</td><td>lr terlalu kecil, inisialisasi buruk</td><td>Naikkan lr, pakai Adam, normalisasi</td></tr>
+</table>
+<div class="grid2">
+  <div class="card"><b>Normalisasi</b><span><b>BatchNorm</b> (CNN) dan <b>LayerNorm</b> (transformer) menjaga skala aktivasi tetap stabil di setiap layer, sehingga training lebih cepat dan stabil.</span></div>
+  <div class="card"><b>Residual connection</b><span><var>x</var> + <var>f</var>(<var>x</var>): gradien punya "jalan tol" langsung ke layer awal. Inilah yang memungkinkan jaringan ratusan layer (ResNet, transformer).</span></div>
+  <div class="card"><b>Regularisasi</b><span><b>Weight decay</b> menjaga bobot tetap kecil. <b>Dropout</b> mematikan neuron secara acak saat training agar jaringan tidak bergantung pada satu jalur.</span></div>
+  <div class="card"><b>Tips pertama</b><span>Sebelum melatih penuh, coba <i>overfit</i> satu batch kecil sampai loss ≈ 0. Kalau tidak bisa, hampir pasti ada bug.</span></div>
+</div>
+</section>
+
+<!-- 7 -->
+<section id="cnnrnn">
+<h2>7. CNN, RNN &amp; Masalahnya</h2>
+<div class="grid2">
+  <div class="card"><b>CNN (Convolutional NN)</b><span>Filter kecil yang digeser di seluruh gambar dengan <b>bobot yang dibagi</b> (weight sharing). Efisien untuk data grid seperti gambar. DQN Atari memakai 3 layer CNN untuk membaca layar.</span></div>
+  <div class="card"><b>RNN / LSTM</b><span>Memproses urutan satu elemen per langkah dengan "memori" <var>h<sub>t</sub></var> = <var>f</var>(<var>h</var><sub>t−1</sub>, <var>x<sub>t</sub></var>). Dulu menjadi standar untuk teks dan suara.</span></div>
+</div>
+<p>RNN punya dua masalah besar yang mendorong lahirnya transformer:</p>
+<ul>
+  <li><b>Sulit mengingat jauh</b>: informasi dari kata ke-1 harus melewati puluhan langkah untuk sampai ke kata ke-50, dan gradiennya mengecil di setiap langkah (<i>vanishing gradient</i>).</li>
+  <li><b>Tidak bisa diparalelkan</b>: langkah <var>t</var> harus menunggu langkah <var>t</var>−1, sehingga tidak memanfaatkan GPU secara optimal.</li>
+</ul>
+<p>Transformer menyelesaikan keduanya dengan <b>attention</b>: setiap token bisa langsung "melihat" token mana pun dalam satu langkah, dan semua posisi dihitung paralel.</p>
+</section>
+
+<!-- 8 -->
+<section id="token">
+<h2>8. Tokenisasi &amp; Embedding</h2>
+<p>Neural network hanya memproses angka. Teks diubah menjadi angka dalam dua tahap:</p>
+<h3>Tokenisasi</h3>
+<p>Teks dipotong menjadi <b>token</b>, biasanya potongan kata (<i>subword</i>) hasil algoritma seperti <b>BPE</b> (Byte Pair Encoding). Kata umum menjadi satu token, sedangkan kata langka dipecah.
+Setiap token punya ID di dalam kosakata (biasanya 30 ribu–200 ribu token). Contoh ilustrasi:</p>
+<div class="chips"><span>"Pem"</span><span>"belajar"</span><span>"an"</span><span>" mesin"</span><span>" itu"</span><span>" menyenangkan"</span><span>"!"</span></div>
+<p class="muted">Pemotongan persisnya bergantung pada tokenizer masing-masing model. Bahasa yang jarang muncul di data latih (termasuk bahasa Indonesia) cenderung dipecah menjadi lebih banyak token per kata dibanding bahasa Inggris.</p>
+<h3>Embedding</h3>
+<p>Setiap ID token dipetakan ke sebuah <b>vektor</b> berdimensi <var>d</var> (misalnya 768) lewat tabel yang dipelajari. Token dengan makna mirip akan memiliki vektor yang berdekatan,
+sehingga kemiripannya bisa diukur dengan dot product atau cosine similarity.</p>
+<h3>Informasi posisi</h3>
+<p>Attention sendiri tidak tahu urutan: "anjing menggigit orang" dan "orang menggigit anjing" berisi token yang sama. Karena itu ditambahkan <b>positional encoding</b>:
+embedding posisi yang dipelajari (GPT-2), fungsi sinusoidal (transformer asli), atau <b>RoPE</b> yang memutar vektor sesuai posisinya (LLaMA dan banyak LLM modern).</p>
+</section>
+
+<!-- 9 -->
+<section id="attention">
+<h2>9. Self-Attention</h2>
+<p>Ide utamanya: untuk memahami sebuah token, kumpulkan informasi dari token lain yang <b>relevan</b>. Setiap token membuat tiga vektor dari embedding-nya:</p>
+<div class="grid2">
+  <div class="card"><b>Query (Q)</b><span>"Informasi apa yang sedang saya cari?"</span></div>
+  <div class="card"><b>Key (K)</b><span>"Informasi apa yang saya tawarkan?"</span></div>
+  <div class="card"><b>Value (V)</b><span>"Ini isi yang akan saya berikan jika dipilih."</span></div>
+</div>
+<p>Q, K, V didapat dari perkalian matriks yang dipelajari: <var>Q</var> = <var>XW<sub>Q</sub></var>, <var>K</var> = <var>XW<sub>K</sub></var>, <var>V</var> = <var>XW<sub>V</sub></var>. Lalu:</p>
+<div class="formula">Attention(<var>Q</var>, <var>K</var>, <var>V</var>) = softmax( <var>QK</var><sup>⊤</sup> / √<var>d<sub>k</sub></var> ) · <var>V</var></div>
+<ol class="steps">
+  <li><var>QK</var><sup>⊤</sup>: skor kecocokan (dot product) setiap pasangan token, membentuk matriks <var>T</var>×<var>T</var>.</li>
+  <li>Bagi dengan √<var>d<sub>k</sub></var> agar skor tidak terlalu besar. Tanpa ini, softmax menjadi terlalu "tajam" dan gradiennya mengecil.</li>
+  <li>Softmax per baris: setiap token membagi 100% perhatiannya ke token lain.</li>
+  <li>Kalikan dengan <var>V</var>: output setiap token = rata-rata tertimbang Value dari token yang diperhatikannya.</li>
+</ol>
+
+<div class="demo">
+  <h4>Demo: matriks attention</h4>
+  <p class="stat" style="margin:0">Kalimat: <i>"Kucing itu tidur karena ia lelah"</i>. Vektor Q dan K di sini <b>dibuat tangan</b> (4 dimensi: subjek, aksi, keadaan, penghubung) agar mudah dipahami.
+  Di model sungguhan, vektor ini dipelajari. Klik nama token di kiri untuk melihat ke mana ia "memperhatikan".</p>
+  <div class="controls">
+    <label class="range"><input type="checkbox" id="atMask"> Causal mask (seperti GPT)</label>
+    <label class="range"><input type="checkbox" id="atScale" checked> Bagi dengan √d</label>
+  </div>
+  <div class="hm" id="atGrid"></div>
+  <p class="stat" id="atInfo"></p>
+  <p class="legend">Baris = token yang bertanya (Query), kolom = token yang ditanya (Key). Setiap baris berjumlah 100%.
+  Dengan causal mask, token hanya boleh melihat dirinya dan token <i>sebelumnya</i>, karena saat menulis teks, kata berikutnya memang belum ada.
+  Matikan "bagi dengan √d" untuk melihat distribusi yang lebih tajam.</p>
+</div>
+<h3>Multi-head attention</h3>
+<p>Satu "kepala" attention hanya bisa menangkap satu jenis hubungan. <b>Multi-head attention</b> menjalankan <var>h</var> attention paralel dengan proyeksi berbeda
+(misalnya satu kepala melacak subjek–kata kerja, kepala lain melacak kata ganti), lalu menggabungkan hasilnya. GPT-2 small memakai 12 kepala per layer.</p>
+</section>
+
+<!-- 10 -->
+<section id="transformer">
+<h2>10. Blok Transformer</h2>
+<p>Satu blok transformer (versi <b>decoder</b> ala GPT dengan <i>pre-LayerNorm</i>) terdiri dari dua sub-layer, masing-masing dibungkus residual connection:</p>
+<div class="demo loop"><svg viewBox="0 0 600 470" role="img" aria-label="Arsitektur blok transformer">
+  <defs><marker id="ah7" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker></defs>
+  <g font-size="12.5" text-anchor="middle" fill="var(--text)">
+    <rect x="60" y="108" width="300" height="256" rx="14" fill="none" stroke="var(--muted)" stroke-dasharray="6 5"/>
+    <path class="flow" d="M210,430 V58" stroke="var(--accent)" stroke-width="2.5" fill="none" marker-end="url(#ah7)"/>
+    <path class="flow" d="M210,352 H330 V245 H222" stroke="var(--good)" stroke-width="2" fill="none" marker-end="url(#ah7)"/>
+    <path class="flow" d="M210,237 H344 V130 H222" stroke="var(--good)" stroke-width="2" fill="none" marker-end="url(#ah7)"/>
+    <rect x="95" y="430" width="230" height="28" rx="8" fill="var(--surface-2)" stroke="var(--border)"/><text x="210" y="449">token: "kucing itu tidur"</text>
+    <rect x="95" y="378" width="230" height="30" rx="8" fill="var(--surface-2)" stroke="var(--border)"/><text x="210" y="398">Embedding token + posisi</text>
+    <rect x="95" y="318" width="230" height="26" rx="8" fill="var(--surface)" stroke="var(--border)"/><text x="210" y="335">LayerNorm</text>
+    <rect x="95" y="272" width="230" height="32" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/><text x="210" y="293" font-weight="700">Masked Multi-Head Attention</text>
+    <circle cx="210" cy="245" r="11" fill="var(--surface)" stroke="var(--good)" stroke-width="2"/><text x="210" y="250" font-size="15" fill="var(--good)">+</text>
+    <rect x="95" y="200" width="230" height="26" rx="8" fill="var(--surface)" stroke="var(--border)"/><text x="210" y="217">LayerNorm</text>
+    <rect x="95" y="156" width="230" height="32" rx="8" fill="color-mix(in srgb,var(--warn) 15%,transparent)" stroke="var(--warn)" stroke-width="2"/><text x="210" y="177" font-weight="700">Feed-Forward (MLP 4×d, GELU)</text>
+    <circle cx="210" cy="130" r="11" fill="var(--surface)" stroke="var(--good)" stroke-width="2"/><text x="210" y="135" font-size="15" fill="var(--good)">+</text>
+    <rect x="95" y="68" width="230" height="26" rx="8" fill="var(--surface)" stroke="var(--border)"/><text x="210" y="85">LayerNorm</text>
+    <rect x="95" y="22" width="230" height="32" rx="8" fill="var(--surface-2)" stroke="var(--border)"/><text x="210" y="43" font-weight="700">Linear → Softmax</text>
+    <g text-anchor="start" font-size="12">
+      <text x="375" y="42" fill="var(--text)" font-weight="600">P(token berikutnya)</text><text x="375" y="58" fill="var(--muted)">"di" 41%, "karena" 22%, …</text>
+      <text x="375" y="122" fill="var(--text)" font-weight="600">× N blok</text><text x="375" y="138" fill="var(--muted)">GPT-2 small: 12 · GPT-3: 96</text>
+      <text x="375" y="172" fill="var(--muted)">x + FFN(LN(x))</text><text x="375" y="188" fill="var(--muted)">"berpikir" per token</text>
+      <text x="375" y="284" fill="var(--muted)">x + Attention(LN(x))</text><text x="375" y="300" fill="var(--muted)">token saling bertukar info</text>
+      <text x="375" y="352" fill="var(--good)">garis hijau = residual</text>
+    </g>
+  </g>
+</svg></div>
+<ul>
+  <li><b>Attention</b> = token saling bertukar informasi ("komunikasi").</li>
+  <li><b>Feed-forward</b> = setiap token memproses informasi yang sudah dikumpulkan secara terpisah ("komputasi"). Sebagian besar parameter ada di sini.</li>
+  <li>Satu blok punya sekitar <b>12<var>d</var>²</b> parameter (4<var>d</var>² attention + 8<var>d</var>² FFN). GPT-2 small (<var>d</var> = 768, 12 blok) ≈ 85 juta di blok + 38 juta embedding ≈ <b>124 juta</b>.</li>
+</ul>
+<table>
+  <tr><th>Varian</th><th>Attention</th><th>Contoh</th><th>Cocok untuk</th></tr>
+  <tr><td><b>Encoder-only</b></td><td>Dua arah (melihat kiri &amp; kanan)</td><td>BERT</td><td>Klasifikasi, pencarian, embedding</td></tr>
+  <tr><td><b>Decoder-only</b></td><td>Causal (hanya ke kiri)</td><td>GPT, LLaMA, Claude</td><td>Generasi teks, chatbot</td></tr>
+  <tr><td><b>Encoder–decoder</b></td><td>Encoder dua arah + decoder causal + cross-attention</td><td>T5, transformer asli</td><td>Terjemahan, ringkasan</td></tr>
+</table>
+</section>
+
+<!-- 11 -->
+<section id="llm">
+<h2>11. Language Model &amp; Sampling</h2>
+<p>LLM decoder-only dilatih dengan tugas yang sangat sederhana: <b>prediksi token berikutnya</b>. Untuk setiap posisi <var>t</var>, loss-nya adalah cross-entropy:</p>
+<div class="formula"><var>L</var> = −(1/<var>T</var>) Σ<sub>t</sub> log <var>p</var><sub>θ</sub>( <var>x</var><sub>t+1</sub> | <var>x</var><sub>1</sub>, …, <var>x<sub>t</sub></var> )</div>
+<p>Berkat causal mask, satu kalimat sepanjang <var>T</var> token memberikan <var>T</var> contoh latihan sekaligus. Saat dipakai, model menghasilkan teks secara <b>autoregresif</b>:
+prediksi distribusi token berikutnya → ambil satu token → tambahkan ke input → ulangi.</p>
+<div class="demo">
+  <h4>Demo: strategi sampling</h4>
+  <p class="stat" style="margin:0">Prompt: <i>"Saya suka makan …"</i>. Logit model (contoh): nasi 3,0 · bakso 2,6 · sate 2,2 · buah 1,5 · pizza 1,0 · batu −1,0 · meja −2,0.</p>
+  <div class="controls">
+    <label class="range">Temperatur = <b id="smpTv">1,00</b><input id="smpT" type="range" min="0.1" max="2" step="0.05" value="1"></label>
+    <label class="range">top-k = <b id="smpKv">7</b><input id="smpK" type="range" min="1" max="7" step="1" value="7"></label>
+    <label class="range">top-p = <b id="smpPv">1,00</b><input id="smpP" type="range" min="0.1" max="1" step="0.05" value="1"></label>
+  </div>
+  <div id="smpBars" class="probs"></div>
+  <div class="controls"><button class="btn primary" data-smp="1">Ambil 1 token</button><button class="btn" data-smp="20">Ambil 20 token</button></div>
+  <div class="chips" id="smpOut"></div>
+  <p class="legend"><b>Temperatur</b> rendah → jawaban konsisten dan aman. Temperatur tinggi → kreatif tetapi bisa ngawur ("batu").
+  <b>top-k</b> hanya menyimpan <var>k</var> kandidat teratas. <b>top-p</b> (nucleus) menyimpan kandidat terkecil yang total peluangnya ≥ <var>p</var>. Token yang dicoret tidak akan pernah dipilih. Temperatur → 0 sama dengan <i>greedy decoding</i>.</p>
+</div>
+<h3>Dari model bahasa menjadi asisten</h3>
+<ol class="steps">
+  <li><b>Pretraining</b>: prediksi token berikutnya pada triliunan token teks internet dan buku. Model belajar bahasa, fakta, dan pola penalaran. <i>Scaling laws</i> menunjukkan loss turun secara teratur seiring bertambahnya parameter, data, dan komputasi (Chinchilla: ± 20 token data per parameter).</li>
+  <li><b>Supervised fine-tuning (SFT)</b>: latih lanjut dengan contoh percakapan berkualitas. Teknik hemat seperti <b>LoRA</b> hanya melatih matriks kecil tambahan, bukan seluruh bobot.</li>
+  <li><b>RLHF / DPO / RLVR</b>: perlakukan LLM sebagai <b>policy</b> (state = teks sejauh ini, aksi = token berikutnya) dan optimalkan dengan reward. Semua ini dibahas di <a href="../reinforcement-learning/03-advanced.html#rlhf">bagian 9 modul RL Advanced</a>.</li>
+</ol>
+<div class="box tip"><strong>⚡ Detail efisiensi saat inferensi</strong>
+  <b>KV cache</b>: Key dan Value token sebelumnya disimpan agar tidak dihitung ulang setiap kali token baru dibuat.
+  Biaya attention tumbuh kuadratik terhadap panjang konteks (<var>T</var>²), sehingga konteks panjang butuh trik seperti FlashAttention.
+</div>
+</section>
+
+<!-- 12 -->
+<section id="kode">
+<h2>12. Implementasi: Mini-GPT</h2>
+<h3>a. Self-attention dalam beberapa baris</h3>
+<p>Implementasi rumus attention secara manual, lalu dicek dengan fungsi bawaan PyTorch. Install: <code>pip install torch</code>.</p>
+<pre><code class="py">import torch
+import torch.nn.functional as F
+
+torch.manual_seed(0)
+T, d = 5, 8                                   # 5 token, dimensi 8
+x = torch.randn(T, d)                         # embedding token
+Wq, Wk, Wv = (torch.randn(d, d) / d**0.5 for _ in range(3))
+Q, K, V = x @ Wq, x @ Wk, x @ Wv
+
+scores = Q @ K.T / d**0.5                     # (T, T) skor kecocokan
+mask = torch.triu(torch.ones(T, T, dtype=torch.bool), diagonal=1)
+scores = scores.masked_fill(mask, float("-inf"))   # causal: tidak boleh melihat masa depan
+weights = F.softmax(scores, dim=-1)           # tiap baris berjumlah 1
+out = weights @ V                             # (T, d)
+
+print(weights.round(decimals=2))
+ref = F.scaled_dot_product_attention(Q[None], K[None], V[None], is_causal=True)[0]
+print("Sama dengan PyTorch?", torch.allclose(out, ref, atol=1e-6))</code></pre>
+<pre><code>tensor([[1.0000, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.4800, 0.5200, 0.0000, 0.0000, 0.0000],
+        [0.2000, 0.3300, 0.4700, 0.0000, 0.0000],
+        [0.1400, 0.3200, 0.2300, 0.3100, 0.0000],
+        [0.0700, 0.0600, 0.3900, 0.1000, 0.3900]])
+Sama dengan PyTorch? True</code></pre>
+
+<h3>b. Mini-GPT dari nol</h3>
+<p>Transformer decoder level karakter yang lengkap: embedding, positional embedding, blok dengan masked multi-head attention + FFN + residual + LayerNorm, cross-entropy loss, dan generasi autoregresif.
+Datanya adalah kalimat bahasa Indonesia buatan dari pola sederhana, sehingga kita bisa melihat apakah model berhasil mempelajari struktur kalimat. Training ± 3 menit di CPU.</p>
+<pre><code class="py">import random
+import torch, torch.nn as nn, torch.nn.functional as F
+
+# ---------- 1) Data: kalimat buatan dengan pola subjek-predikat-objek-keterangan ----------
+random.seed(0); torch.manual_seed(0)
+subjek = ["kucing", "anjing", "burung", "robot", "agen", "anak"]
+kerja = ["melihat", "mengejar", "mencari", "membawa", "menyukai"]
+objek = ["bola", "ikan", "makanan", "reward", "mainan", "bunga"]
+tempat = ["di taman", "di rumah", "di pasar", "di sekolah", "di jalan"]
+waktu = ["pagi ini", "kemarin", "setiap hari", "nanti malam"]
+
+def kalimat():
+    s = f"{random.choice(subjek)} itu {random.choice(kerja)} {random.choice(objek)} {random.choice(tempat)}"
+    if random.random() &lt; 0.5:
+        s += " " + random.choice(waktu)
+    return s + "."
+
+teks = "\n".join(kalimat() for _ in range(2000))
+chars = sorted(set(teks))
+stoi = {c: i for i, c in enumerate(chars)}
+encode = lambda s: [stoi[c] for c in s]
+decode = lambda ids: "".join(chars[i] for i in ids)
+data = torch.tensor(encode(teks))
+n = int(0.9 * len(data))
+train_data, val_data = data[:n], data[n:]
+
+VOCAB, T, D, H, L = len(chars), 64, 96, 4, 3   # kosakata, konteks, dimensi, head, layer
+
+def get_batch(split, B=32):
+    d = train_data if split == "train" else val_data
+    i = torch.randint(len(d) - T - 1, (B,))
+    x = torch.stack([d[j:j + T] for j in i])
+    y = torch.stack([d[j + 1:j + T + 1] for j in i])          # target = geser 1 karakter
+    return x, y
+
+# ---------- 2) Model ----------
+class Block(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.ln1, self.ln2 = nn.LayerNorm(D), nn.LayerNorm(D)
+        self.attn = nn.MultiheadAttention(D, H, batch_first=True)
+        self.ffn = nn.Sequential(nn.Linear(D, 4 * D), nn.GELU(), nn.Linear(4 * D, D))
+
+    def forward(self, x):
+        t = x.size(1)
+        mask = torch.triu(torch.ones(t, t, dtype=torch.bool), diagonal=1)   # causal mask
+        h = self.ln1(x)
+        x = x + self.attn(h, h, h, attn_mask=mask, need_weights=False)[0]  # residual 1
+        return x + self.ffn(self.ln2(x))                                    # residual 2
+
+class MiniGPT(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.tok, self.pos = nn.Embedding(VOCAB, D), nn.Embedding(T, D)
+        self.blocks = nn.Sequential(*[Block() for _ in range(L)])
+        self.ln, self.head = nn.LayerNorm(D), nn.Linear(D, VOCAB)
+
+    def forward(self, idx, targets=None):
+        x = self.tok(idx) + self.pos(torch.arange(idx.size(1)))
+        logits = self.head(self.ln(self.blocks(x)))
+        if targets is None:
+            return logits, None
+        return logits, F.cross_entropy(logits.view(-1, VOCAB), targets.view(-1))
+
+    @torch.no_grad()
+    def generate(self, idx, n, temperature=0.8):
+        for _ in range(n):
+            logits, _ = self(idx[:, -T:])
+            probs = F.softmax(logits[:, -1] / temperature, dim=-1)
+            idx = torch.cat([idx, torch.multinomial(probs, 1)], dim=1)   # autoregresif
+        return idx
+
+# ---------- 3) Training ----------
+model = MiniGPT()
+print(f"Parameter: {sum(p.numel() for p in model.parameters()):,} | kosakata: {VOCAB} karakter")
+opt = torch.optim.AdamW(model.parameters(), lr=1e-3)
+
+@torch.no_grad()
+def eval_loss(split):
+    return sum(model(*get_batch(split))[1].item() for _ in range(20)) / 20
+
+for step in range(2001):
+    _, loss = model(*get_batch("train"))
+    opt.zero_grad(); loss.backward(); opt.step()
+    if step % 400 == 0:
+        print(f"langkah {step:4d} | loss train {eval_loss('train'):.3f} | loss val {eval_loss('val'):.3f}")
+
+# ---------- 4) Generasi ----------
+awal = torch.tensor([encode("robot")])
+print("\n" + decode(model.generate(awal, 200)[0].tolist()))</code></pre>
+<p>Output:</p>
+<pre><code>Parameter: 346,488 | kosakata: 24 karakter
+langkah    0 | loss train 3.084 | loss val 3.081
+langkah  400 | loss train 0.248 | loss val 0.252
+langkah  800 | loss train 0.244 | loss val 0.244
+langkah 1200 | loss train 0.247 | loss val 0.249
+langkah 1600 | loss train 0.238 | loss val 0.242
+langkah 2000 | loss train 0.236 | loss val 0.239
+
+robot itu menyukai makanan di rumah.
+agen itu membawa bunga di sekolah.
+burung itu menyukai mainanan di taman setiap hari.
+anjing itu menyukai bunga di rumah setiap hari.
+anjing itu mencari makanan di ruma</code></pre>
+<div class="box note"><strong>📝 Membaca hasilnya</strong>
+  <ul style="margin:4px 0 0">
+    <li>Loss awal ≈ ln(kosakata), yaitu tebakan acak seragam. Loss kemudian turun drastis saat model mempelajari ejaan kata, lalu struktur kalimat.</li>
+    <li>Loss tidak bisa mendekati 0 karena data memang acak: setelah "kucing itu", ada 5 kata kerja yang sama mungkin. Batas bawahnya adalah entropi data itu sendiri.</li>
+    <li>Loss train ≈ loss val berarti model <b>tidak overfitting</b>: ia mempelajari pola, bukan menghafal kalimat.</li>
+    <li>Perhatikan kesalahan "mainan<b>an</b>". Model memprediksi per <i>karakter</i> dan masih sangat kecil, sehingga sesekali "tergelincir". LLM sungguhan memakai token subword, jauh lebih banyak parameter, dan data yang jauh lebih besar.</li>
+    <li>Model ini memakai komponen yang sama persis dengan GPT. Bedanya hanya skala (GPT-3 ± 1,7 juta kali lebih banyak parameter) dan data.</li>
+  </ul>
+</div>
+</section>
+
+<!-- 13 -->
+<section id="kuis">
+<h2>13. Kuis &amp; Roadmap</h2>
+<div id="quiz"></div>
+<h3>Latihan mandiri</h3>
+<ol>
+  <li>Di playground, cari jumlah neuron terkecil yang masih bisa memisahkan spiral. Apakah tanh atau ReLU yang lebih cepat?</li>
+  <li>Di mini-GPT, hapus positional embedding (<code>self.pos</code>). Apa yang terjadi pada loss dan kalimat yang dihasilkan? Mengapa?</li>
+  <li>Hapus causal mask di <code>Block</code>. Loss train akan turun sangat cepat, tetapi hasil generasinya kacau. Jelaskan mengapa (petunjuk: model "mencontek" jawaban).</li>
+  <li>Hitung jumlah parameter mini-GPT dengan rumus ± 12<var>d</var>²·<var>L</var> + embedding, lalu bandingkan dengan angka yang dicetak.</li>
+  <li>Ganti data dengan teks sungguhan (misalnya cerita rakyat), latih lebih lama, lalu bereksperimen dengan temperatur saat generasi.</li>
+</ol>
+<h3>🗺️ Roadmap selanjutnya</h3>
+<ol class="steps">
+  <li><b>Perkuat fondasi</b>: <i>Dive into Deep Learning</i> (d2l.ai) dan seri video Andrej Karpathy <i>Neural Networks: Zero to Hero</i> (sampai membangun GPT).</li>
+  <li><b>Baca paper asli</b>: <i>Attention Is All You Need</i> (Vaswani dkk., 2017), lalu GPT-2 dan GPT-3.</li>
+  <li><b>Pakai model sungguhan</b>: Hugging Face LLM Course, fine-tuning model kecil dengan LoRA.</li>
+  <li><b>Kembali ke RL</b>: baca ulang <a href="../reinforcement-learning/03-advanced.html#rlhf">RLHF di modul Advanced</a>, lalu praktik DPO/GRPO dengan pustaka TRL.</li>
+</ol>
+<div class="nav-mod"><a class="btn" href="../reinforcement-learning/00-matematika.html">← Matematika untuk RL</a><a class="btn" href="../reinforcement-learning/03-advanced.html">RL Advanced →</a></div>
+</section>
+
+<footer>Modul Deep Learning &amp; Transformer. Referensi: Goodfellow dkk., <i>Deep Learning</i> (2016); Vaswani dkk., <i>Attention Is All You Need</i> (2017);
+Zhang dkk., <i>Dive into Deep Learning</i>; Karpathy, <i>nanoGPT</i>.</footer>
+</main>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+/* ---------- Sidebar, scrollspy, progress, tema ---------- */
+const sb=$('#sidebar');
+$('#menuBtn').onclick=()=>sb.classList.toggle('open');
+$$('#toc a').forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+const links=[...$$('#toc a')];
+const spy=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){links.forEach(l=>l.classList.toggle('active',l.hash==='#'+e.target.id))}
+}),{rootMargin:'-20% 0px -70% 0px'});
+$$('main section').forEach(s=>spy.observe(s));
+addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  $('#progress div').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+},{passive:true});
+$('#themeBtn').onclick=()=>{
+  const r=document.documentElement, dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme=dark?'light':'dark';
+  try{localStorage.setItem('rl-theme',r.dataset.theme)}catch(e){}
+};
+try{const t=localStorage.getItem('rl-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+
+/* ---------- Highlight kode Python ---------- */
+$$('pre code.py').forEach(el=>{
+  el.innerHTML=el.textContent.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))
+    .replace(/(#.*$)|(f?"[^"\n]*")|\b(import|from|as|def|return|for|in|if|else|while|with|not|and|or|True|False|None|break|class|lambda)\b|\b(\d+\.?\d*(?:e-?\d+)?)\b/gm,
+      (m,c,s,k,n)=>c?`<span class="c">${c}</span>`:s?`<span class="s">${s}</span>`:k?`<span class="k">${k}</span>`:`<span class="n">${n}</span>`);
+});
+const fmt=(v,d=3)=>v.toFixed(d).replace('.',',');
+const randn=()=>Math.sqrt(-2*Math.log(1-Math.random()))*Math.cos(2*Math.PI*Math.random());
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const hex=h=>{h=h.replace('#','');return[0,2,4].map(i=>parseInt(h.substr(i,2),16))};
+
+/* ---------- Diagram MLP ---------- */
+(function(){const L=[[2,'input'],[4,'hidden 1'],[4,'hidden 2'],[1,'output']],X=[90,240,390,520],pos=L.map(([n],i)=>Array.from({length:n},(_,j)=>[X[i],115+(j-(n-1)/2)*44]));
+  let s='';for(let i=0;i<3;i++)for(const a of pos[i])for(const b of pos[i+1])s+=`<line class="flow" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="var(--accent)" stroke-opacity=".45" stroke-width="1.5"/>`;
+  pos.forEach((col,i)=>{col.forEach(([x,y],j)=>s+=`<circle cx="${x}" cy="${y}" r="15" fill="${i===0||i===3?'var(--accent-soft)':'var(--surface-2)'}" stroke="var(--accent)" stroke-width="2"/>`+
+    (i===0?`<text x="${x-24}" y="${y+4}" font-size="12" text-anchor="end" fill="var(--text)">x${j+1}</text>`:i===3?`<text x="${x+24}" y="${y+4}" font-size="12" fill="var(--text)">ŷ</text>`:''));
+    s+=`<text x="${X[i]}" y="222" font-size="12" text-anchor="middle" fill="var(--muted)">${L[i][1]}</text>`});
+  $('#mlpSvg').innerHTML=s})();
+
+/* ---------- Plot fungsi aktivasi ---------- */
+(function(){const F=[['Sigmoid','1/(1+e⁻ˣ)',x=>1/(1+Math.exp(-x))],['Tanh','tanh(x)',Math.tanh],['ReLU','max(0, x)',x=>Math.max(0,x)],
+  ['GELU','x·Φ(x)',x=>0.5*x*(1+Math.tanh(Math.sqrt(2/Math.PI)*(x+0.044715*x**3)))]];
+  const X=x=>(x+4)/8*160,Y=y=>60-y*20;
+  $('#actPlots').innerHTML=F.map(([n,f,g])=>{const p=[];for(let i=0;i<=80;i++){const x=-4+i/10;p.push(`${X(x)},${Y(g(x))}`)}
+    return `<div><b>${n}</b> <span class="muted">${f}</span><svg viewBox="0 0 160 80"><line x1="0" x2="160" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--border)"/><line x1="80" x2="80" y1="0" y2="80" stroke="var(--border)"/><polyline points="${p.join(' ')}" fill="none" stroke="var(--accent)" stroke-width="2.5"/></svg></div>`}).join('')})();
+
+/* ---------- Neural Network Playground ---------- */
+const PG={data:[],net:null,step:0,run:false};
+const ACT={tanh:[Math.tanh,(z,a)=>1-a*a],relu:[z=>z>0?z:0,z=>z>0?1:0]};
+function mkData(kind){const pts=[],N=200;
+  for(let i=0;i<N;i++){let x,y,l;
+    if(kind==='spiral'){const c=i%2,j=Math.floor(i/2),f=j/(N/2),r=0.08+0.85*f,t=2.6*Math.PI*f+c*Math.PI;x=r*Math.cos(t)+randn()*0.03;y=r*Math.sin(t)+randn()*0.03;l=c}
+    else{x=Math.random()*2-1;y=Math.random()*2-1;l=kind==='circle'?(x*x+y*y<0.36?1:0):(x*y>0?1:0)}
+    pts.push([x,y,l])}return pts}
+function mkNet(H){const g=(r,c)=>Array.from({length:r*c},()=>randn()*Math.sqrt(1/c));
+  const P={W1:g(H,2),b1:Array(H).fill(0),W2:g(H,H),b2:Array(H).fill(0),W3:g(1,H),b3:[0]},m={},v={};
+  for(const k in P){m[k]=P[k].map(()=>0);v[k]=P[k].map(()=>0)}return{H,P,m,v,t:0}}
+function fwd(x,y){const{H,P}=PG.net,f=ACT[$('#pgAct').value][0],z1=[],a1=[],z2=[],a2=[];
+  for(let i=0;i<H;i++){z1[i]=P.W1[2*i]*x+P.W1[2*i+1]*y+P.b1[i];a1[i]=f(z1[i])}
+  for(let i=0;i<H;i++){let s=P.b2[i];for(let j=0;j<H;j++)s+=P.W2[i*H+j]*a1[j];z2[i]=s;a2[i]=f(s)}
+  let z3=P.b3[0];for(let j=0;j<H;j++)z3+=P.W3[j]*a2[j];return{z1,a1,z2,a2,p:1/(1+Math.exp(-z3))}}
+function trainStep(){const net=PG.net,{H,P}=net,df=ACT[$('#pgAct').value][1],G={},N=PG.data.length;let loss=0,acc=0;
+  for(const k in P)G[k]=P[k].map(()=>0);
+  for(const[x,y,l]of PG.data){const c=fwd(x,y),p=Math.min(Math.max(c.p,1e-7),1-1e-7);
+    loss-=l*Math.log(p)+(1-l)*Math.log(1-p);acc+=(c.p>0.5)===(l===1)?1:0;
+    const d3=c.p-l,d2=[],d1=Array(H).fill(0);G.b3[0]+=d3;                       // dL/dz3 = p - y
+    for(let j=0;j<H;j++){G.W3[j]+=d3*c.a2[j];d2[j]=d3*P.W3[j]*df(c.z2[j],c.a2[j])}
+    for(let i=0;i<H;i++){G.b2[i]+=d2[i];for(let j=0;j<H;j++){G.W2[i*H+j]+=d2[i]*c.a1[j];d1[j]+=d2[i]*P.W2[i*H+j]}}
+    for(let j=0;j<H;j++){const dz=d1[j]*df(c.z1[j],c.a1[j]);G.W1[2*j]+=dz*x;G.W1[2*j+1]+=dz*y;G.b1[j]+=dz}}
+  net.t++;const lr=+$('#pgLr').value,B1=0.9,B2=0.999;                            // Adam
+  for(const k in P)for(let i=0;i<P[k].length;i++){const g=G[k][i]/N;net.m[k][i]=B1*net.m[k][i]+(1-B1)*g;net.v[k][i]=B2*net.v[k][i]+(1-B2)*g*g;
+    P[k][i]-=lr*(net.m[k][i]/(1-B1**net.t))/(Math.sqrt(net.v[k][i]/(1-B2**net.t))+1e-8)}
+  PG.step++;PG.loss=loss/N;PG.acc=acc/N}
+function pgRender(){const cv=$('#pgCanvas'),ctx=cv.getContext('2d'),A=hex(cssv('--warn')),B=hex(cssv('--accent')),R=40,S=240/R;
+  ctx.clearRect(0,0,240,240);
+  for(let i=0;i<R;i++)for(let j=0;j<R;j++){const p=fwd(-1+(i+0.5)*2/R,1-(j+0.5)*2/R).p,c=A.map((a,k)=>Math.round(a*(1-p)+B[k]*p));
+    ctx.fillStyle=`rgba(${c},${0.15+0.55*Math.abs(p-0.5)})`;ctx.fillRect(i*S,j*S,S,S)}
+  ctx.strokeStyle=cssv('--surface');ctx.lineWidth=1;
+  for(const[x,y,l]of PG.data){ctx.beginPath();ctx.arc((x+1)*120,(1-y)*120,3.6,0,7);ctx.fillStyle=`rgb(${l?B:A})`;ctx.fill();ctx.stroke()}
+  $('#pgK').textContent=PG.step;$('#pgL').textContent=PG.step?fmt(PG.loss,4):'–';$('#pgA').textContent=PG.step?Math.round(PG.acc*100)+'%':'–';
+  const H=PG.net.H;$('#pgP').textContent=2*H+H+H*H+H+H+1}
+function pgReset(newData){PG.run=false;$('#pgRun').textContent='▶ Latih';if(newData)PG.data=mkData($('#pgData').value);PG.net=mkNet(+$('#pgH').value);PG.step=0;pgRender()}
+function pgLoop(){if(!PG.run)return;for(let i=0;i<5;i++)trainStep();pgRender();if(PG.step>=3000){PG.run=false;$('#pgRun').textContent='▶ Latih';return}requestAnimationFrame(pgLoop)}
+$('#pgRun').onclick=()=>{PG.run=!PG.run;$('#pgRun').textContent=PG.run?'⏸ Jeda':'▶ Latih';if(PG.run)pgLoop()};
+$('#pgStep').onclick=()=>{for(let i=0;i<100;i++)trainStep();pgRender()};
+$('#pgReset').onclick=()=>pgReset(false);
+$('#pgData').onchange=()=>pgReset(true);$('#pgH').onchange=()=>pgReset(false);$('#pgAct').onchange=()=>pgReset(false);
+$('#themeBtn').addEventListener('click',()=>setTimeout(pgRender,0));
+pgReset(true);
+
+/* ---------- Demo attention ---------- */
+const TOK=['Kucing','itu','tidur','karena','ia','lelah'];
+const KEY=[[3,0,0,0],[1,0,0,1],[0,3,0,0],[0,0,0,3],[2,0,0,0],[0,0,3,0]];   // apa yang ditawarkan
+const QRY=[[1,1,0,0],[2,0,0,0],[2,0,1,0],[0,2,1,0],[3,0,0,0],[2,0,0,0]];   // apa yang dicari
+let atSel=4;
+function atDraw(){const mask=$('#atMask').checked,sc=$('#atScale').checked?2:1;
+  const W=QRY.map((q,i)=>{const s=KEY.map((k,j)=>mask&&j>i?-Infinity:q.reduce((a,v,d)=>a+v*k[d],0)/sc),m=Math.max(...s),e=s.map(v=>Math.exp(v-m)),z=e.reduce((a,b)=>a+b);return e.map(v=>v/z)});
+  let h='<div class="lab"></div>'+TOK.map(t=>`<div class="lab">${t}</div>`).join('');
+  W.forEach((r,i)=>{h+=`<div class="lab row ${i===atSel?'sel':''}" data-r="${i}">${TOK[i]} →</div>`+r.map(p=>`<div class="cell ${i===atSel?'sel':''}" style="background:color-mix(in srgb,var(--accent) ${Math.round(p*85)}%,var(--surface-2));color:${p>0.5?'#fff':'var(--text)'}">${Math.round(p*100)}%</div>`).join('')});
+  $('#atGrid').innerHTML=h;$$('#atGrid .row').forEach(e=>e.onclick=()=>{atSel=+e.dataset.r;atDraw()});
+  const r=W[atSel],best=r.indexOf(Math.max(...r));
+  $('#atInfo').innerHTML=`Token <b>"${TOK[atSel]}"</b> paling memperhatikan <b>"${TOK[best]}"</b> (${Math.round(r[best]*100)}%).`+(atSel===4?' Model "tahu" bahwa <i>ia</i> merujuk ke <i>kucing</i>.':'')}
+$('#atMask').onchange=atDraw;$('#atScale').onchange=atDraw;atDraw();
+
+/* ---------- Demo sampling ---------- */
+const NT=[['nasi',3.0],['bakso',2.6],['sate',2.2],['buah',1.5],['pizza',1.0],['batu',-1.0],['meja',-2.0]];
+function smpProbs(){const T=+$('#smpT').value,k=+$('#smpK').value,P=+$('#smpP').value;
+  const e=NT.map(([,z])=>Math.exp((z-3)/T)),s=e.reduce((a,b)=>a+b),p=e.map(x=>x/s);let cum=0;
+  const keep=p.map((v,i)=>{const ok=i<k&&(i===0||cum<P);cum+=v;return ok}),z=p.reduce((a,v,i)=>a+(keep[i]?v:0),0);
+  return NT.map(([w],i)=>({w,raw:p[i],keep:keep[i],p:keep[i]?p[i]/z:0}))}
+function smpDraw(){$('#smpTv').textContent=fmt(+$('#smpT').value,2);$('#smpKv').textContent=$('#smpK').value;$('#smpPv').textContent=fmt(+$('#smpP').value,2);
+  $('#smpBars').innerHTML=smpProbs().map(o=>`<span class="${o.keep?'':'off'}">${o.w}</span><div class="bar"><div style="width:${o.p*100}%"></div></div><b class="${o.keep?'':'off'}">${o.keep?(o.p*100).toFixed(1)+'%':'dibuang'}</b>`).join('')}
+$$('#smpT,#smpK,#smpP').forEach(e=>e.oninput=smpDraw);
+$$('[data-smp]').forEach(b=>b.onclick=()=>{const P=smpProbs(),out=[];for(let n=0;n<+b.dataset.smp;n++){let u=Math.random(),i=0;while(i<P.length-1&&(u-=P[i].p)>0)i++;while(!P[i].keep)i--;out.push(P[i].w)}
+  $('#smpOut').innerHTML=out.map(w=>`<span>${w}</span>`).join('')});
+smpDraw();
+
+/* ---------- Kuis ---------- */
+const QZ=[
+  {q:'Mengapa neural network membutuhkan fungsi aktivasi non-linear?',o:['Agar training lebih cepat','Tanpanya, tumpukan layer linear tetap setara dengan satu fungsi linear','Agar output selalu positif','Untuk mengurangi jumlah parameter'],a:1,w:'W₂(W₁x) = (W₂W₁)x. Non-linearitas yang membuat kedalaman bermakna.'},
+  {q:'Train loss terus turun tetapi validation loss mulai naik. Apa diagnosisnya?',o:['Underfitting','Overfitting','Learning rate terlalu kecil','Data validasi rusak'],a:1,w:'Model mulai menghafal data latih. Solusi: lebih banyak data, regularisasi, atau early stopping.'},
+  {q:'Pada softmax + cross-entropy, gradien loss terhadap logit adalah…',o:['y − p','p − y','log p','p · (1 − p)'],a:1,w:'∂L/∂z = p − y: peluang prediksi dikurangi label one-hot.'},
+  {q:'Mengapa skor attention dibagi √d_k?',o:['Agar hasilnya bilangan bulat','Agar dot product tidak terlalu besar sehingga softmax tidak terlalu tajam dan gradien tidak mengecil','Untuk menghemat memori','Agar urutan token diketahui'],a:1,w:'Dot product vektor berdimensi d tumbuh sekitar √d. Pembagian ini menjaga skala skor tetap stabil.'},
+  {q:'Apa fungsi causal mask di GPT?',o:['Mempercepat training','Mencegah token melihat token sesudahnya, karena saat generasi token masa depan belum ada','Menghapus token langka','Menggantikan positional encoding'],a:1,w:'Tanpa mask, model bisa "mencontek" token berikutnya saat training, sehingga tidak belajar memprediksi.'},
+  {q:'Menaikkan temperatur sampling akan…',o:['Membuat distribusi lebih tajam (lebih greedy)','Membuat distribusi lebih datar sehingga output lebih beragam/kreatif','Mengubah urutan peringkat token','Menambah kosakata'],a:1,w:'Logit dibagi T. T besar meratakan peluang, T kecil mendekati greedy. Urutan peringkat tidak berubah.'}
+];
+$('#quiz').innerHTML=QZ.map((x,i)=>`<div class="q" data-i="${i}"><p>${i+1}. ${x.q}</p>${x.o.map((o,j)=>`<button data-j="${j}">${o}</button>`).join('')}<div class="why">${x.w}</div></div>`).join('');
+$$('.q button').forEach(b=>b.onclick=()=>{
+  const box=b.closest('.q'),x=QZ[box.dataset.i];
+  box.querySelectorAll('button').forEach(o=>o.classList.remove('right','wrong'));
+  b.classList.add(+b.dataset.j===x.a?'right':'wrong');
+  box.querySelector(`[data-j="${x.a}"]`).classList.add('right');
+  box.querySelector('.why').style.display='block';
+});
+</script>
+</body>
+</html>
