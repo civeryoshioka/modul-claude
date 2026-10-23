@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reinforcement Learning — Intermediate</title>
+<style>
+:root{
+  --bg:#f7f8fa;--surface:#ffffff;--surface-2:#f0f2f6;--text:#1c2230;--muted:#5b6474;
+  --border:#e1e5ec;--accent:#3a6df0;--accent-soft:#e6edff;--good:#1f9d63;--bad:#d64545;--warn:#c98a12;
+  --code-bg:#f3f5f9;--sidebar-w:270px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+    --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--code-bg:#1d222b;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+  --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--code-bg:#1d222b;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+/* Sidebar */
+#sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);
+  overflow-y:auto;padding:22px 16px;z-index:20;transition:transform .25s}
+#sidebar .brand{font-weight:700;font-size:17px;margin:0 8px 2px}
+#sidebar .level{display:inline-block;margin:0 8px 16px;font-size:12px;padding:2px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar ol{list-style:none;margin:0;padding:0;counter-reset:toc}
+#sidebar li a{display:flex;gap:10px;padding:7px 10px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:14.5px;line-height:1.4}
+#sidebar li a::before{counter-increment:toc;content:counter(toc);min-width:20px;height:20px;border-radius:50%;background:var(--surface-2);
+  font-size:11.5px;display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+#sidebar li a:hover{background:var(--surface-2);color:var(--text)}
+#sidebar li a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar li a.active::before{background:var(--accent);color:#fff}
+#progress{height:4px;background:var(--surface-2);border-radius:4px;margin:0 8px 18px;overflow:hidden}
+#progress div{height:100%;width:0;background:var(--accent);transition:width .1s}
+#menuBtn{display:none;position:fixed;top:12px;left:12px;z-index:30;border:1px solid var(--border);background:var(--surface);color:var(--text);
+  border-radius:8px;padding:6px 12px;font-size:15px;cursor:pointer}
+#themeBtn{margin:18px 8px 0;font-size:13px}
+/* Main */
+main{margin-left:var(--sidebar-w);padding:40px 48px 80px;max-width:calc(var(--sidebar-w) + 900px)}
+main>*{max-width:860px}
+header.hero{padding:8px 0 24px;border-bottom:1px solid var(--border);margin-bottom:12px}
+header.hero h1{font-size:34px;line-height:1.2;margin:0 0 8px}
+header.hero p{color:var(--muted);margin:0}
+section{padding-top:28px}
+h2{font-size:25px;margin:16px 0 10px;padding-top:8px}
+h3{font-size:18.5px;margin:24px 0 6px}
+p,li{color:var(--text)}
+main p,main li,.box,.card span{text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+.muted{color:var(--muted)}
+.box{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:16px 20px;margin:16px 0}
+.box.tip{border-left:4px solid var(--good)}
+.box.note{border-left:4px solid var(--accent)}
+.box.warn{border-left:4px solid var(--warn)}
+.box>strong:first-child{display:block;margin-bottom:4px}
+.formula{font-family:"Cambria Math","Times New Roman",serif;font-size:19px;text-align:center;background:var(--surface-2);
+  border-radius:10px;padding:14px;margin:14px 0;overflow-x:auto;white-space:nowrap}
+.formula var{font-style:italic}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;background:var(--code-bg);padding:1px 6px;border-radius:5px}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-size:13.5px;line-height:1.55}
+pre code{background:none;padding:0}
+.c{color:var(--muted)} .k{color:var(--accent);font-weight:600} .s{color:var(--good)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;margin:12px 0;display:block;overflow-x:auto}
+th,td{border:1px solid var(--border);padding:8px 12px;text-align:left;vertical-align:top}
+th{background:var(--surface-2)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:14px 0}
+.card{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 16px}
+.card b{display:block;margin-bottom:2px}
+.card span{color:var(--muted);font-size:14.5px}
+/* Demo widgets */
+.demo{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:18px;margin:18px 0}
+.demo h4{margin:0 0 4px;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent)}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+button.btn{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:8px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+label.range{display:flex;align-items:center;gap:8px;font-size:14px}
+input[type=range]{accent-color:var(--accent)}
+.stat{font-size:14px;color:var(--muted)}
+.stat b{color:var(--text)}
+/* Loop diagram */
+.loop svg{width:100%;max-width:560px;display:block;margin:0 auto}
+.loop .flow{stroke-dasharray:6 6;animation:dash 1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-12}}
+.loop .pulse{animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+/* Bandit */
+.arms{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+.arm{border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;background:var(--surface-2);transition:transform .15s,border-color .15s}
+.arm.hit{transform:scale(1.04);border-color:var(--accent)}
+.arm .icon{font-size:28px}
+.bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin:6px 0}
+.bar div{height:100%;background:var(--accent);transition:width .2s}
+/* Gamma bars */
+.gbars{display:flex;align-items:flex-end;gap:6px;height:120px;margin:12px 0 4px}
+.gbars div{flex:1;background:var(--accent);border-radius:4px 4px 0 0;position:relative;min-height:2px;transition:height .15s}
+.gbars div.big{background:var(--good)}
+.glabels{display:flex;gap:6px;font-size:11.5px;color:var(--muted)}
+.glabels span{flex:1;text-align:center}
+/* Gridworld */
+.gw-wrap{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+#gw{display:grid;grid-template-columns:repeat(5,58px);gap:4px}
+#gw div{width:58px;height:58px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:11px;color:var(--muted);border:1px solid var(--border);position:relative;transition:background .2s}
+#gw div .ar{font-size:20px;color:var(--text);line-height:1}
+#gw div.agent{outline:3px solid var(--accent);outline-offset:-3px}
+#gw div .em{font-size:24px;line-height:1}
+#chart{width:100%;max-width:330px;height:130px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2)}
+.legend{font-size:13px;color:var(--muted)}
+/* Steps */
+.steps{counter-reset:st;list-style:none;padding:0}
+.steps li{counter-increment:st;position:relative;padding:4px 0 10px 42px}
+.steps li::before{content:counter(st);position:absolute;left:0;top:4px;width:28px;height:28px;border-radius:50%;background:var(--accent-soft);
+  color:var(--accent);font-weight:700;display:grid;place-items:center;font-size:14px}
+/* Quiz */
+.q{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 18px;margin:12px 0}
+.q p{margin:0 0 8px;font-weight:600}
+.q button{display:block;width:100%;text-align:left;margin:6px 0;border:1px solid var(--border);background:var(--surface-2);color:var(--text);
+  border-radius:8px;padding:8px 12px;font:inherit;font-size:14.5px;cursor:pointer}
+.q button.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 15%,transparent)}
+.q button.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,transparent)}
+.q .why{font-size:14px;color:var(--muted);display:none;margin-top:6px}
+footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:14px}
+@media (max-width:900px){
+  #sidebar{transform:translateX(-100%);box-shadow:0 0 30px rgba(0,0,0,.2)}
+  #sidebar.open{transform:none}
+  #menuBtn{display:block}
+  main{margin-left:0;padding:60px 16px 60px}
+  header.hero h1{font-size:27px}
+  #gw{grid-template-columns:repeat(5,minmax(0,1fr));width:100%;max-width:310px}
+  #gw div{width:auto;aspect-ratio:1;height:auto}
+}
+/* ---- tambahan modul Intermediate ---- */
+.cells{display:grid;gap:4px;width:100%}
+.cells>div{aspect-ratio:1;border-radius:7px;border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:11px;color:var(--muted);transition:background .2s;min-width:0;overflow:hidden}
+.cells>div .ar{font-size:18px;color:var(--text);line-height:1}
+.cells>div .em{font-size:20px;line-height:1}
+#vi{grid-template-columns:repeat(4,1fr);max-width:300px}
+.cliff{grid-template-columns:repeat(12,1fr);max-width:560px;gap:3px}
+.cliff>div{border-radius:5px;font-size:10px}
+.cliff>div .ar{font-size:14px}
+.cliff>div .em{font-size:14px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.spectrum{display:flex;border-radius:10px;overflow:hidden;margin:14px 0;font-size:13px;text-align:center}
+.spectrum div{flex:1;padding:8px 4px;background:var(--surface-2);border-right:1px solid var(--border)}
+.spectrum div:first-child{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.spectrum div:last-child{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good);font-weight:600;border:0}
+.n{color:var(--warn)}
+.card span b{display:inline;margin:0}
+.nav-mod{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px}
+</style>
+</head>
+<body>
+<button id="menuBtn" aria-label="Buka daftar isi">☰ Daftar Isi</button>
+
+<nav id="sidebar" aria-label="Daftar isi">
+  <div class="brand">Reinforcement Learning</div>
+  <span class="level">Level 2 · Intermediate</span>
+  <div id="progress"><div></div></div>
+  <ol id="toc">
+    <li><a href="#peta">Rekap &amp; Peta Algoritma</a></li>
+    <li><a href="#bellman">Persamaan Bellman</a></li>
+    <li><a href="#dp">Dynamic Programming</a></li>
+    <li><a href="#mc">Monte Carlo</a></li>
+    <li><a href="#td">Temporal Difference</a></li>
+    <li><a href="#sarsa">SARSA vs Q-Learning</a></li>
+    <li><a href="#nstep">n-step &amp; TD(λ)</a></li>
+    <li><a href="#approx">Function Approximation</a></li>
+    <li><a href="#dqn">Deep Q-Network (DQN)</a></li>
+    <li><a href="#kode">Implementasi Python</a></li>
+    <li><a href="#tips">Tips Praktis &amp; Debugging</a></li>
+    <li><a href="#kuis">Kuis &amp; Latihan</a></li>
+    <li><a href="#ringkasan">Ringkasan &amp; Glosarium</a></li>
+  </ol>
+  <button class="btn" id="themeBtn">🌓 Ganti tema</button>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Reinforcement Learning: Tingkat Menengah</h1>
+  <p>Modul 2 dari 3 · Beginner → <b>Intermediate</b> → Advanced. Estimasi waktu belajar ± 2,5 jam.</p>
+</header>
+
+<div class="box note">
+  <strong>🎯 Tujuan belajar</strong>
+  Setelah modul ini kamu bisa: (1) menurunkan dan memakai persamaan Bellman, (2) menjalankan value/policy iteration,
+  (3) membedakan Monte Carlo, TD, SARSA, dan Q-Learning beserta kelebihan-kekurangannya, (4) memahami mengapa butuh function approximation,
+  dan (5) mengimplementasikan DQN dengan PyTorch.
+  <br><span class="muted">Prasyarat: <a href="01-beginner.html">Modul Beginner</a>, dasar NumPy, dan sedikit pengalaman dengan neural network (PyTorch).</span>
+</div>
+
+<!-- 1 -->
+<section id="peta">
+<h2>1. Rekap &amp; Peta Algoritma</h2>
+<p>Di modul Beginner kamu sudah mengenal agen, state, aksi, reward, return <var>G</var>, MDP, dan Q-Learning tabular. Sekarang kita melihat
+gambaran besarnya: algoritma RL bisa dikelompokkan berdasarkan <b>apakah agen tahu model lingkungan</b> (peluang transisi <var>P</var> dan reward <var>R</var>)
+dan <b>apa yang dipelajari</b> (nilai atau langsung policy).</p>
+
+<div class="demo loop">
+<svg viewBox="0 0 600 230" role="img" aria-label="Peta keluarga algoritma RL">
+  <g font-size="12.5" text-anchor="middle" fill="var(--text)">
+    <g stroke="var(--border)" stroke-width="2" fill="none">
+      <path d="M300,40 V58 H120 V78 M300,58 H460 V78 M120,112 V148 M460,112 V128 H360 V148 M460,128 H522 V148"/>
+    </g>
+    <rect x="235" y="10" width="130" height="30" rx="8" fill="var(--surface-2)" stroke="var(--border)"/><text x="300" y="30" font-weight="700">Algoritma RL</text>
+    <rect x="40" y="78" width="160" height="34" rx="8" fill="var(--accent-soft)" stroke="var(--accent)"/><text x="120" y="93" font-weight="700">Model-based</text><text x="120" y="106" font-size="10.5" fill="var(--muted)">butuh / belajar P &amp; R</text>
+    <rect x="380" y="78" width="160" height="34" rx="8" fill="var(--surface-2)" stroke="var(--border)"/><text x="460" y="93" font-weight="700">Model-free</text><text x="460" y="106" font-size="10.5" fill="var(--muted)">belajar dari sampel</text>
+    <rect x="30" y="148" width="180" height="60" rx="8" fill="var(--accent-soft)" stroke="var(--accent)"/><text x="120" y="168" font-weight="600">Dynamic Programming</text><text x="120" y="184" font-size="11">Policy Iteration</text><text x="120" y="198" font-size="11">Value Iteration</text>
+    <rect x="285" y="148" width="150" height="74" rx="8" fill="var(--accent-soft)" stroke="var(--accent)"/><text x="360" y="166" font-weight="600">Value-based</text><text x="360" y="182" font-size="11">Monte Carlo, TD</text><text x="360" y="196" font-size="11">SARSA, Q-Learning</text><text x="360" y="210" font-size="11">DQN</text>
+    <rect x="455" y="148" width="135" height="60" rx="8" fill="var(--surface-2)" stroke="var(--border)" stroke-dasharray="5 4"/><text x="522" y="168" font-weight="600">Policy-based</text><text x="522" y="184" font-size="11">Policy Gradient</text><text x="522" y="198" font-size="11">Actor-Critic, PPO</text>
+  </g>
+</svg>
+<p class="legend" style="text-align:center;margin:4px 0 0"><span class="dot" style="background:var(--accent)"></span>dibahas di modul ini &nbsp; <span class="dot" style="border:1px dashed var(--muted)"></span>modul Advanced</p>
+</div>
+
+<div class="box tip"><strong>💡 Ide besar yang menyatukan semuanya</strong>
+  Hampir semua algoritma di modul ini mengikuti pola yang sama: <b>estimasi baru = estimasi lama + α × (target − estimasi lama)</b>.
+  Yang membedakan hanyalah <i>bagaimana target dihitung</i>: dari model (DP), dari return penuh (Monte Carlo), atau dari satu langkah + tebakan (TD).
+</div>
+</section>
+
+<!-- 2 -->
+<section id="bellman">
+<h2>2. Persamaan Bellman</h2>
+<p>Di Beginner kita melihat versi intuitifnya. Sekarang versi lengkap. Ide kuncinya: return dapat dipecah menjadi <b>reward langsung</b>
+ditambah <b>return terdiskon dari state berikutnya</b>, yaitu <var>G<sub>t</sub></var> = <var>r</var><sub>t+1</sub> + γ<var>G</var><sub>t+1</sub>.
+Dengan mengambil nilai harapan di kedua sisi, kita dapat:</p>
+
+<h3>Bellman expectation equation (untuk policy π tertentu)</h3>
+<div class="formula"><var>V</var><sup>π</sup>(<var>s</var>) = Σ<sub><var>a</var></sub> π(<var>a</var>|<var>s</var>) Σ<sub><var>s'</var></sub> <var>P</var>(<var>s'</var>|<var>s</var>,<var>a</var>) [ <var>R</var>(<var>s</var>,<var>a</var>,<var>s'</var>) + γ <var>V</var><sup>π</sup>(<var>s'</var>) ]</div>
+<p>Baca dari kiri ke kanan: rata-ratakan atas semua aksi yang mungkin dipilih policy, lalu atas semua state berikutnya yang mungkin terjadi.</p>
+
+<h3>Bellman optimality equation (untuk policy terbaik)</h3>
+<div class="formula"><var>V</var>*(<var>s</var>) = max<sub><var>a</var></sub> Σ<sub><var>s'</var></sub> <var>P</var>(<var>s'</var>|<var>s</var>,<var>a</var>) [ <var>R</var> + γ <var>V</var>*(<var>s'</var>) ]</div>
+<div class="formula"><var>Q</var>*(<var>s</var>,<var>a</var>) = Σ<sub><var>s'</var></sub> <var>P</var>(<var>s'</var>|<var>s</var>,<var>a</var>) [ <var>R</var> + γ max<sub><var>a'</var></sub> <var>Q</var>*(<var>s'</var>,<var>a'</var>) ]</div>
+<p>Perbedaannya hanya satu: <b>rata-rata atas π</b> diganti <b>max</b>. Agen optimal tidak "merata-ratakan" pilihan, ia selalu memilih yang terbaik.</p>
+
+<div class="box note"><strong>📐 Hubungan V dan Q</strong>
+  <code>V*(s) = max<sub>a</sub> Q*(s,a)</code> dan <code>Q*(s,a) = Σ P(s'|s,a)[R + γV*(s')]</code>.
+  Jika punya <var>V</var>*, kamu tetap butuh model <var>P</var> untuk memilih aksi. Jika punya <var>Q</var>*, cukup ambil argmax tanpa model.
+  Inilah alasan algoritma model-free (Q-Learning, DQN) mempelajari <var>Q</var>, bukan <var>V</var>.
+</div>
+</section>
+
+<!-- 3 -->
+<section id="dp">
+<h2>3. Dynamic Programming (DP)</h2>
+<p>Jika model lingkungan diketahui sepenuhnya, persamaan Bellman bisa diselesaikan dengan <b>iterasi</b>: mulai dari tebakan sembarang,
+lalu terapkan persamaan Bellman berulang-ulang sebagai aturan update. Karena operator Bellman bersifat <i>kontraksi</i> (untuk γ &lt; 1),
+nilai dijamin konvergen ke solusi yang benar.</p>
+
+<h3>Policy Iteration</h3>
+<ol class="steps">
+  <li><b>Policy evaluation</b>: hitung <var>V</var><sup>π</sup> untuk policy saat ini dengan mengulang update Bellman expectation sampai stabil.</li>
+  <li><b>Policy improvement</b>: buat policy baru yang <i>greedy</i> terhadap <var>V</var><sup>π</sup>: π'(<var>s</var>) = argmax<sub><var>a</var></sub> Σ <var>P</var>[<var>R</var> + γ<var>V</var><sup>π</sup>(<var>s'</var>)].</li>
+  <li>Ulangi sampai policy tidak berubah lagi. Policy tersebut dijamin optimal.</li>
+</ol>
+
+<h3>Value Iteration</h3>
+<p>Versi lebih ringkas: gabungkan evaluasi dan perbaikan dalam satu update dengan langsung memakai Bellman optimality:</p>
+<div class="formula"><var>V</var><sub>k+1</sub>(<var>s</var>) ← max<sub><var>a</var></sub> Σ<sub><var>s'</var></sub> <var>P</var>(<var>s'</var>|<var>s</var>,<var>a</var>) [ <var>R</var> + γ <var>V</var><sub>k</sub>(<var>s'</var>) ]</div>
+
+<div class="demo">
+  <h4>Demo: Value Iteration langkah demi langkah</h4>
+  <p class="stat" style="margin:0">Grid 4×4 deterministik. Masuk 🏆 = +10, masuk 🕳️ = −10 (keduanya terminal), langkah lain = −1.
+  Setiap klik "1 sweep" memperbarui <b>semua</b> state sekali. Perhatikan nilai yang menyebar dari tujuan.</p>
+  <div class="controls">
+    <button class="btn primary" id="viStep">1 sweep</button>
+    <button class="btn" id="viRun">Sampai konvergen</button>
+    <button class="btn" id="viReset">Reset</button>
+    <label class="range">γ = <b id="viGv">0.90</b><input id="viG" type="range" min="0" max="1" step="0.05" value="0.9"></label>
+  </div>
+  <div class="gw-wrap">
+    <div id="vi" class="cells"></div>
+    <div><p class="stat">Sweep ke-<b id="viK">0</b><br>Perubahan terbesar (Δ): <b id="viD">–</b></p>
+    <p class="legend">Iterasi berhenti saat Δ &lt; 0.001.<br>Panah = aksi greedy terhadap V.<br>Coba γ = 0: hanya tetangga 🏆 yang "tahu" arah.</p></div>
+  </div>
+</div>
+
+<div class="box warn"><strong>⚠️ Keterbatasan DP</strong>
+  (1) Butuh model <var>P</var> dan <var>R</var> yang lengkap, padahal di dunia nyata jarang tersedia.
+  (2) Setiap sweep menyentuh <i>semua</i> state, sehingga tidak praktis untuk ruang state yang sangat besar (<i>curse of dimensionality</i>).
+  Metode berikutnya (MC dan TD) mengatasi masalah pertama dengan belajar dari <b>sampel pengalaman</b>.
+</div>
+</section>
+
+<!-- 4 -->
+<section id="mc">
+<h2>4. Monte Carlo (MC)</h2>
+<p>Monte Carlo tidak butuh model. Idenya sederhana: <b>mainkan episode sampai selesai</b>, hitung return nyata <var>G<sub>t</sub></var> yang didapat
+dari setiap state yang dikunjungi, lalu rata-ratakan. Menurut hukum bilangan besar, rata-rata ini akan mendekati <var>V</var><sup>π</sup>(<var>s</var>).</p>
+<div class="formula"><var>V</var>(<var>s<sub>t</sub></var>) ← <var>V</var>(<var>s<sub>t</sub></var>) + α [ <span style="color:var(--good)"><var>G<sub>t</sub></var></span> − <var>V</var>(<var>s<sub>t</sub></var>) ]</div>
+<ul>
+  <li><b>First-visit MC</b>: hanya kunjungan pertama ke <var>s</var> dalam satu episode yang dihitung.</li>
+  <li><b>Every-visit MC</b>: setiap kunjungan dihitung. Keduanya konvergen ke nilai yang sama.</li>
+  <li>Untuk <i>kontrol</i> (mencari policy terbaik), estimasi <var>Q</var>(<var>s</var>,<var>a</var>) lalu perbaiki policy secara ε-greedy. Pola evaluasi → perbaikan ini disebut <b>Generalized Policy Iteration (GPI)</b>.</li>
+</ul>
+<div class="grid2">
+  <div class="card"><b>✅ Kelebihan</b><span>Tidak bias: target <var>G<sub>t</sub></var> adalah return yang benar-benar terjadi. Tidak butuh model. Tidak bergantung pada sifat Markov.</span></div>
+  <div class="card"><b>❌ Kekurangan</b><span>Variansi tinggi karena <var>G<sub>t</sub></var> bergantung pada banyak aksi dan transisi acak. Harus menunggu episode selesai, sehingga tidak bisa dipakai untuk tugas tanpa akhir.</span></div>
+</div>
+</section>
+
+<!-- 5 -->
+<section id="td">
+<h2>5. Temporal Difference (TD)</h2>
+<p>TD menggabungkan yang terbaik dari keduanya: belajar dari sampel seperti MC, tetapi <b>tidak perlu menunggu episode selesai</b> seperti DP.
+Caranya, return sisa diganti dengan <i>tebakan</i> nilai state berikutnya. Teknik memperbarui tebakan dengan tebakan lain ini disebut <b>bootstrapping</b>.</p>
+<div class="formula"><var>V</var>(<var>s<sub>t</sub></var>) ← <var>V</var>(<var>s<sub>t</sub></var>) + α [ <span style="color:var(--good)"><var>r</var><sub>t+1</sub> + γ <var>V</var>(<var>s</var><sub>t+1</sub>)</span> − <var>V</var>(<var>s<sub>t</sub></var>) ]</div>
+<p>Bagian hijau adalah <b>TD target</b>, dan selisihnya dengan <var>V</var>(<var>s<sub>t</sub></var>) adalah <b>TD error δ<sub>t</sub></b>. Ini persis pola Q-Learning yang sudah kamu kenal.</p>
+
+<div class="box tip"><strong>🚗 Analogi: memperkirakan waktu pulang kantor</strong>
+  Kamu memperkirakan perjalanan pulang 30 menit. Di tengah jalan ternyata macet parah.
+  <b>MC</b>: kamu baru mengoreksi perkiraan setelah sampai di rumah.
+  <b>TD</b>: kamu langsung mengoreksi perkiraan saat itu juga ("macet begini, sepertinya jadi 45 menit"). TD belajar dari setiap langkah, tidak hanya dari hasil akhir.
+</div>
+
+<h3>Perbandingan DP, MC, dan TD</h3>
+<div class="demo loop">
+<svg viewBox="0 0 560 220" role="img" aria-label="Pandangan terpadu DP, MC, TD">
+  <g font-size="12.5" fill="var(--text)">
+    <path d="M70,190 H540 M70,190 V15" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#ah3)" fill="none"/>
+    <defs><marker id="ah3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker></defs>
+    <text x="305" y="212" text-anchor="middle" fill="var(--muted)">lebar update (kanan = semua kemungkinan, butuh model)</text>
+    <text x="40" y="105" text-anchor="middle" fill="var(--muted)" transform="rotate(-90 40 105)">kedalaman update</text>
+    <rect x="95" y="135" width="170" height="40" rx="8" fill="var(--accent-soft)" stroke="var(--accent)"/><text x="180" y="152" text-anchor="middle" font-weight="700">TD</text><text x="180" y="167" text-anchor="middle" font-size="11" fill="var(--muted)">sampel · 1 langkah</text>
+    <rect x="345" y="135" width="170" height="40" rx="8" fill="var(--surface-2)" stroke="var(--border)"/><text x="430" y="152" text-anchor="middle" font-weight="700">DP</text><text x="430" y="167" text-anchor="middle" font-size="11" fill="var(--muted)">semua cabang · 1 langkah</text>
+    <rect x="95" y="25" width="170" height="40" rx="8" fill="color-mix(in srgb,var(--good) 18%,transparent)" stroke="var(--good)"/><text x="180" y="42" text-anchor="middle" font-weight="700">Monte Carlo</text><text x="180" y="57" text-anchor="middle" font-size="11" fill="var(--muted)">sampel · sampai akhir</text>
+    <rect x="345" y="25" width="170" height="40" rx="8" fill="var(--surface-2)" stroke="var(--border)" stroke-dasharray="4 4"/><text x="430" y="42" text-anchor="middle" font-weight="700">Exhaustive search</text><text x="430" y="57" text-anchor="middle" font-size="11" fill="var(--muted)">semua cabang · sampai akhir</text>
+  </g>
+</svg>
+</div>
+<table>
+  <tr><th></th><th>DP</th><th>Monte Carlo</th><th>TD</th></tr>
+  <tr><td><b>Butuh model?</b></td><td>Ya</td><td>Tidak</td><td>Tidak</td></tr>
+  <tr><td><b>Bootstrapping?</b></td><td>Ya</td><td>Tidak</td><td>Ya</td></tr>
+  <tr><td><b>Tunggu episode selesai?</b></td><td>–</td><td>Ya</td><td>Tidak (update tiap langkah)</td></tr>
+  <tr><td><b>Bias / variansi</b></td><td>Tanpa sampel</td><td>Tidak bias, variansi tinggi</td><td>Sedikit bias, variansi rendah</td></tr>
+  <tr><td><b>Tugas tanpa akhir?</b></td><td>Bisa</td><td>Tidak bisa</td><td>Bisa</td></tr>
+</table>
+</section>
+
+<!-- 6 -->
+<section id="sarsa">
+<h2>6. SARSA vs Q-Learning</h2>
+<p>Ketika TD dipakai untuk <i>kontrol</i> (mencari policy terbaik), kita mempelajari <var>Q</var>(<var>s</var>,<var>a</var>). Ada dua varian klasik
+yang hanya berbeda pada <b>satu suku</b> di TD target:</p>
+<div class="formula">SARSA: &nbsp; <var>Q</var>(<var>s</var>,<var>a</var>) ← <var>Q</var>(<var>s</var>,<var>a</var>) + α [ <var>r</var> + γ <span style="color:var(--good)"><var>Q</var>(<var>s'</var>,<var>a'</var>)</span> − <var>Q</var>(<var>s</var>,<var>a</var>) ]</div>
+<div class="formula">Q-Learning: &nbsp; <var>Q</var>(<var>s</var>,<var>a</var>) ← <var>Q</var>(<var>s</var>,<var>a</var>) + α [ <var>r</var> + γ <span style="color:var(--warn)">max<sub><var>a''</var></sub> <var>Q</var>(<var>s'</var>,<var>a''</var>)</span> − <var>Q</var>(<var>s</var>,<var>a</var>) ]</div>
+<div class="grid2">
+  <div class="card"><b>SARSA: on-policy</b><span>Nama dari tuple (<b>S</b>, <b>A</b>, <b>R</b>, <b>S'</b>, <b>A'</b>). Memakai aksi <var>a'</var> yang <i>benar-benar</i> akan diambil (termasuk aksi acak dari ε-greedy). Ia mempelajari nilai policy yang sedang dijalankan, jadi lebih "sadar" akan risiko eksplorasi.</span></div>
+  <div class="card"><b>Q-Learning: off-policy</b><span>Memakai aksi <i>terbaik</i> di <var>s'</var>, walaupun agen belum tentu mengambilnya. Ia mempelajari policy greedy optimal sambil berperilaku ε-greedy. Policy yang dipelajari (<i>target policy</i>) berbeda dengan policy yang dijalankan (<i>behavior policy</i>).</span></div>
+</div>
+
+<div class="demo">
+  <h4>Demo: Cliff Walking</h4>
+  <p class="stat" style="margin:0">Berjalan dari 🚩 ke 🏆. Baris bawah adalah jurang: jatuh = −100 dan kembali ke start. Setiap langkah = −1. ε = 0.1, α = 0.5, γ = 1.
+  Kedua agen dilatih bersamaan. Sel berwarna menunjukkan <b>jalur greedy</b> yang dipelajari masing-masing.</p>
+  <div class="controls">
+    <button class="btn primary" data-cliff="50">Latih 50 episode</button>
+    <button class="btn" data-cliff="300">Latih 300 episode</button>
+    <button class="btn" id="cReset">Reset</button>
+    <span class="stat">Episode: <b id="cEp">0</b></span>
+  </div>
+  <p class="stat" style="margin:10px 0 4px"><span class="dot" style="background:var(--good)"></span><b>SARSA</b> · rata-rata return 50 episode terakhir: <b id="cAvgS">–</b></p>
+  <div id="cliffS" class="cells cliff"></div>
+  <p class="stat" style="margin:12px 0 4px"><span class="dot" style="background:var(--warn)"></span><b>Q-Learning</b> · rata-rata return 50 episode terakhir: <b id="cAvgQ">–</b></p>
+  <div id="cliffQ" class="cells cliff"></div>
+  <svg id="cChart" viewBox="0 0 560 120" preserveAspectRatio="none" style="width:100%;max-width:560px;height:120px;margin-top:12px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2)">
+    <polyline id="cLineS" fill="none" stroke="var(--good)" stroke-width="2"/><polyline id="cLineQ" fill="none" stroke="var(--warn)" stroke-width="2"/></svg>
+  <p class="legend">Grafik: return per episode selama latihan (rata-rata bergerak 20 episode, sumbu y −100 sampai 0).</p>
+</div>
+<div class="box note"><strong>🔍 Kenapa hasilnya berbeda?</strong>
+  Q-Learning belajar jalur <b>terpendek</b> tepat di tepi jurang, karena ia menilai jalur seolah-olah agen tidak pernah bereksplorasi.
+  Namun selama latihan, ε-greedy sesekali membuat agen terpeleset ke jurang, sehingga return-nya saat latihan justru <b>lebih buruk</b>.
+  SARSA memperhitungkan eksplorasinya sendiri, sehingga memilih jalur <b>lebih aman</b> yang menjauh dari jurang.
+  Jika ε diturunkan perlahan menuju 0, keduanya akan konvergen ke jalur optimal.
+</div>
+<p><b>Expected SARSA</b> adalah jalan tengah: target memakai <i>rata-rata</i> nilai Q di <var>s'</var> sesuai peluang policy,
+Σ<sub><var>a'</var></sub> π(<var>a'</var>|<var>s'</var>) <var>Q</var>(<var>s'</var>,<var>a'</var>). Variansinya lebih rendah daripada SARSA biasa.</p>
+</section>
+
+<!-- 7 -->
+<section id="nstep">
+<h2>7. n-step Return &amp; TD(λ)</h2>
+<p>TD(0) melihat 1 langkah ke depan, sedangkan MC melihat sampai akhir episode. Di antara keduanya ada <b>n-step TD</b>:
+kumpulkan <var>n</var> reward nyata, lalu bootstrap dari tebakan setelahnya.</p>
+<div class="formula"><var>G</var><sub>t</sub><sup>(n)</sup> = <var>r</var><sub>t+1</sub> + γ<var>r</var><sub>t+2</sub> + … + γ<sup>n−1</sup><var>r</var><sub>t+n</sub> + γ<sup>n</sup> <var>V</var>(<var>s</var><sub>t+n</sub>)</div>
+<div class="spectrum"><div>n = 1<br>TD(0)</div><div>n = 2</div><div>n = 3</div><div>…</div><div>n = 10</div><div>n = ∞<br>Monte Carlo</div></div>
+<p>Nilai <var>n</var> menengah sering bekerja paling baik karena menyeimbangkan bias (dari bootstrapping) dan variansi (dari banyak reward acak).</p>
+<p><b>TD(λ)</b> tidak memilih satu <var>n</var>, melainkan merata-ratakan <i>semua</i> n-step return dengan bobot (1−λ)λ<sup>n−1</sup>.
+λ = 0 sama dengan TD(0), λ = 1 sama dengan Monte Carlo. Implementasinya memakai <b>eligibility trace</b>: "jejak" yang mencatat state mana
+yang baru dikunjungi, sehingga satu TD error dapat langsung memperbarui banyak state sebelumnya sekaligus.</p>
+<div class="box tip"><strong>💡 Relevansi modern</strong>
+  Gagasan yang sama muncul lagi di algoritma deep RL modern: <b>n-step return</b> dipakai di Rainbow DQN, dan <b>GAE (Generalized Advantage Estimation)</b>
+  di PPO adalah versi λ-return. Kamu akan menemuinya lagi di modul Advanced.
+</div>
+</section>
+
+<!-- 8 -->
+<section id="approx">
+<h2>8. Function Approximation</h2>
+<p>Q-table bekerja untuk gridworld, tetapi coba hitung ukuran tabel untuk masalah nyata:</p>
+<table>
+  <tr><th>Masalah</th><th>Jumlah state</th></tr>
+  <tr><td>Gridworld 5×5</td><td>25</td></tr>
+  <tr><td>Backgammon</td><td>± 10<sup>20</sup></td></tr>
+  <tr><td>Go 19×19</td><td>± 10<sup>170</sup> (lebih banyak dari atom di alam semesta)</td></tr>
+  <tr><td>Game Atari (layar 84×84, 4 frame, 256 warna)</td><td>256<sup>28.224</sup></td></tr>
+  <tr><td>CartPole, robot (nilai kontinu)</td><td>tak hingga</td></tr>
+</table>
+<p>Selain tidak muat di memori, tabel juga <b>tidak bisa menggeneralisasi</b>: pengalaman di satu state tidak membantu state lain yang mirip.
+Solusinya, ganti tabel dengan <b>fungsi berparameter</b> θ yang memperkirakan nilai:</p>
+<div class="formula"><var>Q</var>(<var>s</var>,<var>a</var>) ≈ <var>Q̂</var>(<var>s</var>,<var>a</var>; θ)</div>
+<div class="grid2">
+  <div class="card"><b>Linear</b><span><var>Q̂</var> = θ<sup>⊤</sup>φ(<var>s</var>,<var>a</var>), dengan φ fitur buatan tangan (misalnya tile coding). Stabil dan cepat, tetapi butuh rekayasa fitur.</span></div>
+  <div class="card"><b>Neural network</b><span>Fitur dipelajari otomatis langsung dari input mentah (misalnya piksel). Sangat kuat, tetapi pelatihannya bisa tidak stabil.</span></div>
+</div>
+<p>Parameter diperbarui dengan <b>semi-gradient</b> TD: gradien hanya diambil dari prediksi, sedangkan target dianggap konstanta.</p>
+<div class="formula">θ ← θ + α [ <var>r</var> + γ max<sub><var>a'</var></sub> <var>Q̂</var>(<var>s'</var>,<var>a'</var>;θ) − <var>Q̂</var>(<var>s</var>,<var>a</var>;θ) ] ∇<sub>θ</sub> <var>Q̂</var>(<var>s</var>,<var>a</var>;θ)</div>
+<div class="box warn"><strong>⚠️ The deadly triad</strong>
+  Gabungan tiga hal ini dapat membuat pelatihan <b>divergen</b> (nilai Q meledak ke tak hingga):
+  (1) <b>function approximation</b>, (2) <b>bootstrapping</b>, dan (3) <b>off-policy learning</b>.
+  Q-Learning dengan neural network memakai ketiganya sekaligus. DQN menambahkan dua trik khusus untuk menjinakkannya.
+</div>
+</section>
+
+<!-- 9 -->
+<section id="dqn">
+<h2>9. Deep Q-Network (DQN)</h2>
+<p>Pada 2015, DeepMind (Mnih dkk.) memperkenalkan DQN yang mampu bermain 49 game Atari langsung dari piksel layar, banyak di antaranya pada level manusia.
+DQN pada dasarnya adalah Q-Learning dengan neural network ditambah dua trik penstabil:</p>
+<div class="grid2">
+  <div class="card"><b>1. Experience replay</b><span>Simpan transisi (<var>s</var>, <var>a</var>, <var>r</var>, <var>s'</var>, done) ke buffer, lalu latih dengan minibatch <b>acak</b>. Ini memutus korelasi antar sampel berurutan dan memakai ulang pengalaman berkali-kali.</span></div>
+  <div class="card"><b>2. Target network</b><span>Salinan jaringan (θ<sup>−</sup>) yang dibekukan untuk menghitung target dan baru disinkronkan setiap <var>C</var> langkah. Target tidak ikut "bergeser" setiap update, sehingga pelatihan lebih stabil.</span></div>
+</div>
+
+<div class="demo loop">
+<svg viewBox="0 0 600 250" role="img" aria-label="Arsitektur DQN">
+  <defs><marker id="ah4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker></defs>
+  <g font-size="12.5" text-anchor="middle" fill="var(--text)">
+    <rect x="10" y="20" width="130" height="50" rx="10" fill="var(--surface-2)" stroke="var(--border)" stroke-width="2"/><text x="75" y="42" font-weight="700">🌍 Lingkungan</text><text x="75" y="58" font-size="10.5" fill="var(--muted)">CartPole, Atari…</text>
+    <rect x="235" y="20" width="140" height="50" rx="10" fill="var(--surface-2)" stroke="var(--border)" stroke-width="2"/><text x="305" y="42" font-weight="700">🗃️ Replay Buffer</text><text x="305" y="58" font-size="10.5" fill="var(--muted)">(s, a, r, s', done)</text>
+    <rect x="440" y="20" width="150" height="50" rx="10" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/><text x="515" y="42" font-weight="700">🧠 Q-Network θ</text><text x="515" y="58" font-size="10.5" fill="var(--muted)">Q(s,·;θ) → aksi</text>
+    <rect x="440" y="170" width="150" height="50" rx="10" fill="var(--surface-2)" stroke="var(--border)" stroke-width="2" stroke-dasharray="5 4"/><text x="515" y="192" font-weight="700">🧊 Target Net θ⁻</text><text x="515" y="208" font-size="10.5" fill="var(--muted)">dibekukan</text>
+    <rect x="225" y="170" width="160" height="50" rx="10" fill="color-mix(in srgb,var(--warn) 15%,transparent)" stroke="var(--warn)" stroke-width="2"/><text x="305" y="190" font-weight="700">📉 Loss</text><text x="305" y="207" font-size="10.5" fill="var(--muted)">(target − Q(s,a;θ))²</text>
+    <path class="flow" d="M140,45 H232" stroke="var(--accent)" stroke-width="2.5" fill="none" marker-end="url(#ah4)"/><text x="186" y="37" font-size="11">simpan</text>
+    <path class="flow" d="M375,45 H437" stroke="var(--accent)" stroke-width="2.5" fill="none" marker-end="url(#ah4)"/><text x="406" y="37" font-size="11">minibatch</text>
+    <path class="flow" d="M515,70 V100 H75 V73" stroke="var(--accent)" stroke-width="2.5" fill="none" marker-end="url(#ah4)"/><text x="300" y="94" font-size="11">aksi ε-greedy</text>
+    <path class="flow" d="M440,195 H388" stroke="var(--accent)" stroke-width="2.5" fill="none" marker-end="url(#ah4)"/><text x="414" y="187" font-size="11">target</text>
+    <path class="flow" d="M305,170 V130 H480 V73" stroke="var(--warn)" stroke-width="2.5" fill="none" marker-end="url(#ah4)"/><text x="400" y="124" font-size="11">gradien → update θ</text>
+    <path d="M560,70 V167" stroke="var(--muted)" stroke-width="2" stroke-dasharray="3 5" fill="none" marker-end="url(#ah4)"/><text x="552" y="152" font-size="10.5" fill="var(--muted)" text-anchor="end">salin θ → θ⁻ tiap C langkah</text>
+  </g>
+</svg>
+</div>
+<p>Fungsi loss yang diminimalkan:</p>
+<div class="formula"><var>L</var>(θ) = 𝔼<sub>(s,a,r,s')∼buffer</sub> [ ( <span style="color:var(--good)"><var>r</var> + γ max<sub><var>a'</var></sub> <var>Q</var>(<var>s'</var>,<var>a'</var>; θ<sup>−</sup>)</span> − <var>Q</var>(<var>s</var>,<var>a</var>; θ) )² ]</div>
+
+<h3>Perbaikan populer setelah DQN</h3>
+<table>
+  <tr><th>Varian</th><th>Masalah yang diatasi</th><th>Ide utama</th></tr>
+  <tr><td><b>Double DQN</b></td><td>Q-value <i>overestimation</i> akibat max atas nilai yang berisik</td><td>Pilih aksi dengan θ, nilai aksi dengan θ⁻: <code>r + γ Q(s', argmax Q(s',·;θ); θ⁻)</code></td></tr>
+  <tr><td><b>Dueling DQN</b></td><td>Banyak state di mana pilihan aksi tidak terlalu penting</td><td>Pisahkan output menjadi <var>V</var>(<var>s</var>) + <var>A</var>(<var>s</var>,<var>a</var>) (advantage)</td></tr>
+  <tr><td><b>Prioritized Replay</b></td><td>Sampel penting jarang terambil</td><td>Ambil transisi dengan TD error besar lebih sering</td></tr>
+  <tr><td><b>Rainbow</b></td><td>–</td><td>Menggabungkan 6 perbaikan sekaligus (termasuk n-step dan distributional RL)</td></tr>
+</table>
+</section>
+
+<!-- 10 -->
+<section id="kode">
+<h2>10. Implementasi Python</h2>
+<h3>a. SARSA vs Q-Learning pada Cliff Walking (NumPy)</h3>
+<p>Versi Python dari demo di bagian 6. Hanya butuh <code>numpy</code>.</p>
+<pre><code class="py">import numpy as np
+
+ROWS, COLS = 4, 12
+START, GOAL = (3, 0), (3, 11)
+MOVES = [(-1, 0), (0, 1), (1, 0), (0, -1)]   # atas, kanan, bawah, kiri
+
+def step(s, a):
+    r = min(max(s[0] + MOVES[a][0], 0), ROWS - 1)
+    c = min(max(s[1] + MOVES[a][1], 0), COLS - 1)
+    if r == 3 and 1 &lt;= c &lt;= 10:              # jatuh ke jurang
+        return START, -100, False
+    return (r, c), -1, (r, c) == GOAL
+
+def eps_greedy(Q, s, eps, rng):
+    if rng.random() &lt; eps:
+        return int(rng.integers(4))
+    q = Q[s]
+    return int(rng.choice(np.flatnonzero(q == q.max())))   # pecah seri secara acak
+
+def train(method, episodes=500, alpha=0.5, gamma=1.0, eps=0.1, seed=0):
+    rng = np.random.default_rng(seed)
+    Q = np.zeros((ROWS, COLS, 4))
+    returns = []
+    for _ in range(episodes):
+        s, total = START, 0
+        a = eps_greedy(Q, s, eps, rng)
+        while True:
+            s2, r, done = step(s, a)
+            a2 = eps_greedy(Q, s2, eps, rng)
+            if method == "sarsa":
+                nxt = Q[s2][a2]        # aksi yang BENAR-BENAR akan diambil
+            else:
+                nxt = Q[s2].max()      # aksi terbaik (belum tentu diambil)
+            target = r if done else r + gamma * nxt
+            Q[s][a] += alpha * (target - Q[s][a])
+            s, a, total = s2, a2, total + r
+            if done:
+                break
+        returns.append(total)
+    return Q, returns
+
+def show_path(Q):
+    grid = [["." for _ in range(COLS)] for _ in range(ROWS)]
+    for c in range(1, 11):
+        grid[3][c] = "C"
+    s = START
+    for _ in range(50):
+        grid[s[0]][s[1]] = "o"
+        if s == GOAL:
+            break
+        s, _, _ = step(s, int(np.argmax(Q[s])))
+    grid[3][11] = "G"
+    print("\n".join(" ".join(row) for row in grid))
+
+for method in ["sarsa", "qlearning"]:
+    Q, ret = train(method)
+    print(f"\n{method}: rata-rata return 100 episode terakhir = {np.mean(ret[-100:]):.1f}")
+    show_path(Q)</code></pre>
+<p>Output (o = jalur greedy, C = jurang):</p>
+<pre><code>sarsa: rata-rata return 100 episode terakhir = -26.2
+o o o o o o o o o o o .
+o . . . . . . . . . o o
+o . . . . . . . . . . o
+o C C C C C C C C C C G
+
+qlearning: rata-rata return 100 episode terakhir = -61.8
+. . . . . . . . . . . .
+. . . . . . . . . . . .
+o o o o o o o o o o o o
+o C C C C C C C C C C G</code></pre>
+
+<h3>b. DQN pada CartPole (PyTorch + Gymnasium)</h3>
+<p>Tujuan CartPole: menjaga tongkat tetap tegak di atas kereta selama mungkin (maksimal 500 langkah = return 500).
+Install dulu: <code>pip install torch gymnasium</code>.</p>
+<pre><code class="py">import random, collections
+import numpy as np, torch, torch.nn as nn, gymnasium as gym
+
+env = gym.make("CartPole-v1")
+n_obs, n_act = env.observation_space.shape[0], env.action_space.n
+
+def make_net():
+    return nn.Sequential(nn.Linear(n_obs, 128), nn.ReLU(),
+                         nn.Linear(128, 128), nn.ReLU(),
+                         nn.Linear(128, n_act))
+
+q_net, target_net = make_net(), make_net()
+target_net.load_state_dict(q_net.state_dict())          # θ⁻ ← θ
+opt = torch.optim.Adam(q_net.parameters(), lr=1e-3)
+buffer = collections.deque(maxlen=50_000)                # experience replay
+GAMMA, BATCH, SYNC_EVERY, WARMUP = 0.99, 64, 500, 1000
+eps, steps = 1.0, 0
+
+for episode in range(300):
+    s, _ = env.reset(seed=episode)
+    total, done = 0.0, False
+    while not done:
+        # 1) pilih aksi ε-greedy
+        if random.random() &lt; eps:
+            a = env.action_space.sample()
+        else:
+            with torch.no_grad():
+                a = int(q_net(torch.as_tensor(s)).argmax())
+        s2, r, terminated, truncated, _ = env.step(a)
+        done = terminated or truncated
+        # 2) simpan transisi; hanya 'terminated' yang memutus bootstrap
+        buffer.append((s, a, r, s2, terminated))
+        s, total, steps = s2, total + r, steps + 1
+
+        # 3) latih dengan minibatch acak dari buffer
+        if len(buffer) &gt;= WARMUP:
+            S, A, R, S2, T = map(np.array, zip(*random.sample(buffer, BATCH)))
+            S, S2 = torch.as_tensor(S), torch.as_tensor(S2)
+            A = torch.as_tensor(A)
+            R = torch.as_tensor(R, dtype=torch.float32)
+            T = torch.as_tensor(T, dtype=torch.float32)
+            q = q_net(S).gather(1, A.unsqueeze(1)).squeeze(1)          # Q(s,a;θ)
+            with torch.no_grad():
+                target = R + GAMMA * target_net(S2).max(1).values * (1 - T)
+            loss = nn.functional.smooth_l1_loss(q, target)              # Huber loss
+            opt.zero_grad(); loss.backward(); opt.step()
+
+        # 4) sinkronkan target network setiap SYNC_EVERY langkah
+        if steps % SYNC_EVERY == 0:
+            target_net.load_state_dict(q_net.state_dict())
+
+    eps = max(0.05, eps * 0.98)                          # kurangi eksplorasi
+    if (episode + 1) % 25 == 0:
+        print(f"Episode {episode+1:3d} | return {total:5.0f} | eps {eps:.2f}")</code></pre>
+<p>Contoh output (angka bisa berbeda karena faktor acak):</p>
+<pre><code>Episode  25 | return    13 | eps 0.60
+Episode  50 | return    11 | eps 0.36
+Episode  75 | return    15 | eps 0.22
+Episode 100 | return    11 | eps 0.13
+Episode 125 | return     8 | eps 0.08
+Episode 150 | return     9 | eps 0.05
+Episode 175 | return    14 | eps 0.05
+Episode 200 | return     9 | eps 0.05
+Episode 225 | return   125 | eps 0.05
+Episode 250 | return   195 | eps 0.05
+Episode 275 | return   118 | eps 0.05
+Episode 300 | return    95 | eps 0.05</code></pre>
+<div class="box note"><strong>📝 Detail penting: terminated vs truncated</strong>
+  Gymnasium membedakan episode yang <b>berakhir sungguhan</b> (<code>terminated</code>, misalnya tongkat jatuh) dan yang <b>dipotong batas waktu</b>
+  (<code>truncated</code>, misalnya mencapai 500 langkah). Saat terpotong, state berikutnya masih punya nilai, jadi kita <i>tetap</i> bootstrap.
+  Mencampur keduanya adalah bug klasik yang membuat agen belajar lebih buruk.
+</div>
+</section>
+
+<!-- 11 -->
+<section id="tips">
+<h2>11. Tips Praktis &amp; Debugging</h2>
+<p>RL terkenal sulit di-debug karena kegagalannya sering diam-diam: kode berjalan tanpa error, tetapi agen tidak belajar. Titik awal hyperparameter yang wajar:</p>
+<table>
+  <tr><th>Hyperparameter</th><th>Tabular</th><th>DQN</th><th>Catatan</th></tr>
+  <tr><td>γ (discount)</td><td>0.9 – 1.0</td><td>0.99</td><td>Episode panjang butuh γ lebih besar</td></tr>
+  <tr><td>α / learning rate</td><td>0.1 – 0.5</td><td>1e-4 – 1e-3</td><td>Terlalu besar → nilai berosilasi</td></tr>
+  <tr><td>ε</td><td>0.1 atau turun bertahap</td><td>1.0 → 0.05</td><td>Jangan turunkan terlalu cepat</td></tr>
+  <tr><td>Ukuran replay buffer</td><td>–</td><td>10<sup>4</sup> – 10<sup>6</sup></td><td>Lebih besar = lebih beragam, lebih lambat</td></tr>
+  <tr><td>Batch size</td><td>–</td><td>32 – 128</td><td></td></tr>
+  <tr><td>Sinkron target network</td><td>–</td><td>500 – 10.000 langkah</td><td>Atau soft update τ ≈ 0.005</td></tr>
+</table>
+<div class="box tip"><strong>✅ Checklist debugging</strong>
+  <ul style="margin:4px 0 0">
+    <li><b>Mulai dari lingkungan kecil</b> (gridworld, CartPole) sebelum ke masalah besar.</li>
+    <li><b>Plot semuanya</b>: return per episode, loss, rata-rata Q-value, dan ε. Q-value yang terus naik tanpa batas = tanda divergensi.</li>
+    <li><b>Jalankan beberapa seed</b> (minimal 3). Hasil satu seed bisa sangat menyesatkan.</li>
+    <li><b>Skala reward</b>: reward yang terlalu besar membuat gradien meledak. Pertimbangkan clipping atau normalisasi.</li>
+    <li><b>Cek penanganan terminal</b>: jangan bootstrap dari state terminal, tetapi tetap bootstrap saat episode terpotong.</li>
+    <li><b>Bandingkan dengan baseline acak</b>: kalau agen tidak lebih baik dari aksi acak, ada yang salah.</li>
+  </ul>
+</div>
+</section>
+
+<!-- 12 -->
+<section id="kuis">
+<h2>12. Kuis &amp; Latihan</h2>
+<p>Klik jawaban untuk melihat apakah benar.</p>
+<div id="quiz"></div>
+<h3>Latihan mandiri</h3>
+<ol>
+  <li>Di demo Value Iteration, berapa sweep yang dibutuhkan sampai konvergen untuk γ = 0.5 dan γ = 0.99? Jelaskan mengapa berbeda.</li>
+  <li>Ubah kode Cliff Walking: buat ε menurun (<code>eps = max(0.01, eps * 0.99)</code> per episode). Apakah jalur SARSA dan Q-Learning menjadi sama?</li>
+  <li>Implementasikan <b>Expected SARSA</b> dengan mengganti satu baris di fungsi <code>train</code>.</li>
+  <li>Ubah DQN menjadi <b>Double DQN</b>. Petunjuk: hitung <code>argmax</code> memakai <code>q_net</code>, lalu ambil nilainya dari <code>target_net</code>.</li>
+  <li>Hapus target network dari DQN (pakai <code>q_net</code> untuk target). Bandingkan kestabilan kurva return-nya.</li>
+</ol>
+</section>
+
+<!-- 13 -->
+<section id="ringkasan">
+<h2>13. Ringkasan &amp; Glosarium</h2>
+<div class="box tip"><strong>✅ Inti modul ini</strong>
+  <ul style="margin:4px 0 0">
+    <li><b>Persamaan Bellman</b> menghubungkan nilai sebuah state dengan nilai state berikutnya. Versi optimality memakai max.</li>
+    <li><b>DP</b> (policy/value iteration) menyelesaikan Bellman secara iteratif, tetapi butuh model lengkap.</li>
+    <li><b>Monte Carlo</b> belajar dari return episode penuh (tidak bias, variansi tinggi). <b>TD</b> belajar setiap langkah lewat bootstrapping (sedikit bias, variansi rendah).</li>
+    <li><b>SARSA</b> (on-policy) mempelajari policy yang sedang dijalankan. <b>Q-Learning</b> (off-policy) mempelajari policy greedy optimal.</li>
+    <li><b>n-step</b> dan <b>TD(λ)</b> menjembatani TD dan MC.</li>
+    <li><b>Function approximation</b> dibutuhkan untuk ruang state besar, tetapi waspadai <i>deadly triad</i>.</li>
+    <li><b>DQN</b> = Q-Learning + neural network + experience replay + target network.</li>
+  </ul>
+</div>
+<table>
+  <tr><th>Istilah</th><th>Arti singkat</th></tr>
+  <tr><td>Bootstrapping</td><td>Memperbarui estimasi memakai estimasi lain (bukan hasil akhir nyata)</td></tr>
+  <tr><td>Policy evaluation</td><td>Menghitung <var>V</var><sup>π</sup> untuk policy tertentu</td></tr>
+  <tr><td>Policy improvement</td><td>Membuat policy greedy terhadap nilai saat ini</td></tr>
+  <tr><td>GPI</td><td>Generalized Policy Iteration: siklus evaluasi ↔ perbaikan</td></tr>
+  <tr><td>On-policy</td><td>Mempelajari policy yang sama dengan yang dijalankan</td></tr>
+  <tr><td>Off-policy</td><td>Mempelajari policy target yang berbeda dari behavior policy</td></tr>
+  <tr><td>TD error (δ)</td><td><var>r</var> + γ<var>V</var>(<var>s'</var>) − <var>V</var>(<var>s</var>)</td></tr>
+  <tr><td>Eligibility trace</td><td>Jejak kunjungan state untuk menyalurkan TD error ke state-state sebelumnya</td></tr>
+  <tr><td>Experience replay</td><td>Buffer transisi yang disampel acak untuk pelatihan</td></tr>
+  <tr><td>Target network</td><td>Salinan jaringan yang dibekukan untuk menghitung target</td></tr>
+  <tr><td>Deadly triad</td><td>Function approx. + bootstrapping + off-policy → potensi divergensi</td></tr>
+</table>
+<div class="box note"><strong>🔜 Di Modul Advanced</strong>
+  Policy Gradient (REINFORCE), Actor-Critic (A2C), PPO, aksi kontinu (DDPG, TD3, SAC), model-based RL, eksplorasi lanjutan,
+  dan RLHF untuk large language model.
+</div>
+<div class="nav-mod"><a class="btn" href="01-beginner.html">← Modul 1: Beginner</a><span class="btn" style="opacity:.6">Modul 3: Advanced (segera) →</span></div>
+</section>
+
+<footer>Modul Reinforcement Learning · Level 2: Intermediate. Referensi: Sutton &amp; Barto, <i>Reinforcement Learning: An Introduction</i> (2nd ed., 2018);
+Mnih dkk., <i>Human-level control through deep reinforcement learning</i>, Nature (2015).</footer>
+</main>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+/* ---------- Sidebar, scrollspy, progress, tema ---------- */
+const sb=$('#sidebar');
+$('#menuBtn').onclick=()=>sb.classList.toggle('open');
+$$('#toc a').forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+const links=[...$$('#toc a')];
+const spy=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){links.forEach(l=>l.classList.toggle('active',l.hash==='#'+e.target.id))}
+}),{rootMargin:'-20% 0px -70% 0px'});
+$$('main section').forEach(s=>spy.observe(s));
+addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  $('#progress div').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+},{passive:true});
+$('#themeBtn').onclick=()=>{
+  const r=document.documentElement, dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme=dark?'light':'dark';
+  try{localStorage.setItem('rl-theme',r.dataset.theme)}catch(e){}
+};
+try{const t=localStorage.getItem('rl-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+function argmaxRand(arr){const m=Math.max(...arr);const idx=arr.map((v,i)=>v===m?i:-1).filter(i=>i>=0);return idx[Math.floor(Math.random()*idx.length)]}
+const ARW='↑→↓←';
+function move(s,a,R,C){let r=Math.floor(s/C),c=s%C;
+  if(a===0)r=Math.max(r-1,0);if(a===1)c=Math.min(c+1,C-1);if(a===2)r=Math.min(r+1,R-1);if(a===3)c=Math.max(c-1,0);return r*C+c}
+function heat(v,lo,hi){const t=Math.max(0,Math.min(1,(v-lo)/(hi-lo)));
+  return `color-mix(in srgb,var(--good) ${Math.round(t*45)}%,color-mix(in srgb,var(--bad) ${Math.round((1-t)*40)}%,transparent))`}
+
+/* ---------- Highlight kode Python ---------- */
+$$('pre code.py').forEach(el=>{
+  el.innerHTML=el.textContent.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))
+    .replace(/(#.*$)|(f?"[^"\n]*")|\b(import|from|as|def|return|for|in|if|else|while|with|not|and|or|True|False|None|break)\b|\b(\d+\.?\d*(?:e-?\d+)?)\b/gm,
+      (m,c,s,k,n)=>c?`<span class="c">${c}</span>`:s?`<span class="s">${s}</span>`:k?`<span class="k">${k}</span>`:`<span class="n">${n}</span>`);
+});
+
+/* ---------- Demo Value Iteration ---------- */
+const VG=3,VT=5,VS=12;let V,vk;
+function vNext(s,a){const n=move(s,a,4,4);return[n,n===VG?10:n===VT?-10:-1,n===VG||n===VT]}
+function vBest(s,g){let best=-Infinity,ba=0;for(let a=0;a<4;a++){const[n,r,d]=vNext(s,a);const q=r+(d?0:g*V[n]);if(q>best+1e-9){best=q;ba=a}}return[best,ba]}
+function viSweep(){const g=+$('#viG').value,nv=V.slice();let d=0;
+  for(let s=0;s<16;s++){if(s===VG||s===VT)continue;nv[s]=vBest(s,g)[0];d=Math.max(d,Math.abs(nv[s]-V[s]))}
+  V=nv;vk++;$('#viD').textContent=d.toFixed(3);return d}
+function viDraw(){const g=+$('#viG').value;let h='';
+  for(let s=0;s<16;s++){
+    if(s===VG){h+=`<div style="background:${heat(10,-10,10)}"><span class="em">🏆</span>+10</div>`;continue}
+    if(s===VT){h+=`<div style="background:${heat(-10,-10,10)}"><span class="em">🕳️</span>−10</div>`;continue}
+    const ar=vk?`<span class="ar">${ARW[vBest(s,g)[1]]}</span>`:(s===VS?'<span class="em">🚩</span>':'');
+    h+=`<div style="background:${vk?heat(V[s],-10,10):'transparent'}">${ar}${V[s].toFixed(2)}</div>`}
+  $('#vi').innerHTML=h;$('#viK').textContent=vk}
+function viReset(){V=new Array(16).fill(0);vk=0;$('#viD').textContent='–';viDraw()}
+$('#viStep').onclick=()=>{viSweep();viDraw()};
+$('#viRun').onclick=()=>{for(let i=0;i<500&&viSweep()>=1e-3;i++);viDraw()};
+$('#viReset').onclick=viReset;
+$('#viG').oninput=e=>{$('#viGv').textContent=(+e.target.value).toFixed(2);viReset()};
+viReset();
+
+/* ---------- Demo Cliff Walking: SARSA vs Q-Learning ---------- */
+const CR=4,CC=12,CS=36,CGL=47,isCliff=s=>s>36&&s<47;let ag;
+function cStep(s,a){const n=move(s,a,CR,CC);return isCliff(n)?[CS,-100,false]:[n,-1,n===CGL]}
+function cEps(Q,s){return Math.random()<0.1?Math.floor(Math.random()*4):argmaxRand(Q[s])}
+function cEpisode(x,sarsa){let s=CS,a=cEps(x.Q,s),tot=0;
+  for(let t=0;t<1000;t++){const[s2,r,d]=cStep(s,a);const a2=cEps(x.Q,s2);
+    const nxt=sarsa?x.Q[s2][a2]:Math.max(...x.Q[s2]);
+    x.Q[s][a]+=0.5*((d?r:r+nxt)-x.Q[s][a]);s=s2;a=a2;tot+=r;if(d)break}
+  x.h.push(tot)}
+function cDraw(){
+  const ma=h=>h.map((_,i)=>{const w=h.slice(Math.max(0,i-19),i+1);return w.reduce((p,q)=>p+q,0)/w.length});
+  const pts=h=>{const m=ma(h);return m.map((v,i)=>`${m.length<2?0:i/(m.length-1)*560},${-Math.max(-100,Math.min(0,v))*1.2}`).join(' ')};
+  for(const[k,id]of[['s','#cliffS'],['q','#cliffQ']]){
+    const x=ag[k],path=new Map();
+    if(x.h.length){let s=CS;for(let t=0;t<40&&s!==CGL&&!path.has(s);t++){const a=argmaxRand(x.Q[s]);path.set(s,a);s=cStep(s,a)[0]}}
+    let h='';for(let s=0;s<CR*CC;s++){
+      if(isCliff(s))h+=`<div style="background:color-mix(in srgb,var(--bad) 35%,transparent)"></div>`;
+      else if(s===CGL)h+=`<div><span class="em">🏆</span></div>`;
+      else if(path.has(s))h+=`<div style="background:color-mix(in srgb,var(${k==='s'?'--good':'--warn'}) 35%,transparent)"><span class="ar">${ARW[path.get(s)]}</span></div>`;
+      else h+=`<div>${s===CS?'<span class="em">🚩</span>':''}</div>`}
+    $(id).innerHTML=h;
+    const last=x.h.slice(-50);$(k==='s'?'#cAvgS':'#cAvgQ').textContent=last.length?(last.reduce((p,q)=>p+q,0)/last.length).toFixed(1):'–'}
+  $('#cLineS').setAttribute('points',pts(ag.s.h));$('#cLineQ').setAttribute('points',pts(ag.q.h));$('#cEp').textContent=ag.s.h.length}
+function cReset(){const mk=()=>({Q:Array.from({length:CR*CC},()=>[0,0,0,0]),h:[]});ag={s:mk(),q:mk()};cDraw()}
+$$('[data-cliff]').forEach(b=>b.onclick=()=>{for(let i=0;i<+b.dataset.cliff;i++){cEpisode(ag.s,true);cEpisode(ag.q,false)}cDraw()});
+$('#cReset').onclick=cReset;cReset();
+
+/* ---------- Kuis ---------- */
+const QZ=[
+  {q:'Apa perbedaan Bellman expectation dan Bellman optimality equation?',o:['Expectation memakai γ, optimality tidak','Expectation merata-ratakan atas aksi policy π, optimality mengambil max atas aksi','Optimality hanya untuk V, expectation hanya untuk Q','Tidak ada perbedaan'],a:1,w:'Bellman optimality mengganti Σ π(a|s) dengan max_a: agen optimal selalu memilih aksi terbaik.'},
+  {q:'Mengapa Dynamic Programming jarang dipakai langsung di masalah nyata?',o:['Tidak dijamin konvergen','Butuh model P dan R lengkap serta menyapu seluruh state','Hanya bisa untuk γ = 0','Butuh neural network'],a:1,w:'DP butuh model lingkungan yang lengkap dan setiap sweep menyentuh semua state, sehingga tidak praktis untuk ruang state besar.'},
+  {q:'Manakah pernyataan yang benar tentang Monte Carlo vs TD?',o:['MC bias rendah tapi variansi tinggi; TD sedikit bias tapi variansi rendah','MC butuh model, TD tidak','TD harus menunggu episode selesai','MC memakai bootstrapping'],a:0,w:'MC memakai return nyata (tidak bias, tapi berisik). TD memakai tebakan V(s′) (ada bias, tapi variansi kecil) dan bisa update tiap langkah.'},
+  {q:'Pada Cliff Walking dengan ε tetap 0.1, mengapa SARSA memilih jalur yang lebih jauh dari jurang?',o:['Karena SARSA tidak memakai reward','Karena SARSA on-policy, sehingga memperhitungkan risiko aksi acak dari ε-greedy','Karena learning rate SARSA lebih kecil','Karena SARSA memakai model lingkungan'],a:1,w:'SARSA memakai Q(s′,a′) dari aksi yang benar-benar diambil, termasuk aksi acak. Jalur di tepi jurang jadi bernilai rendah karena ada peluang terpeleset.'},
+  {q:'Apa fungsi target network di DQN?',o:['Mempercepat inferensi','Membuat target pelatihan stabil karena tidak berubah setiap update','Menyimpan transisi','Menggantikan ε-greedy'],a:1,w:'Tanpa target network, target ikut berubah setiap kali θ di-update (mengejar sasaran bergerak). θ⁻ yang dibekukan membuat pelatihan lebih stabil.'},
+  {q:'Yang TIDAK termasuk deadly triad adalah…',o:['Function approximation','Bootstrapping','Off-policy learning','Experience replay'],a:3,w:'Deadly triad = function approximation + bootstrapping + off-policy. Experience replay justru salah satu trik untuk menstabilkan pelatihan.'}
+];
+$('#quiz').innerHTML=QZ.map((x,i)=>`<div class="q" data-i="${i}"><p>${i+1}. ${x.q}</p>${x.o.map((o,j)=>`<button data-j="${j}">${o}</button>`).join('')}<div class="why">${x.w}</div></div>`).join('');
+$$('.q button').forEach(b=>b.onclick=()=>{
+  const box=b.closest('.q'),x=QZ[box.dataset.i];
+  box.querySelectorAll('button').forEach(o=>o.classList.remove('right','wrong'));
+  b.classList.add(+b.dataset.j===x.a?'right':'wrong');
+  box.querySelector(`[data-j="${x.a}"]`).classList.add('right');
+  box.querySelector('.why').style.display='block';
+});
+</script>
+</body>
+</html>
