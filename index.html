@@ -77,18 +77,18 @@ footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--border);color
 <header>
   <div>
     <h1>Modul Belajar AI Interaktif</h1>
-    <p class="lead">Kumpulan modul berbahasa Indonesia tentang Reinforcement Learning dan Deep Learning, dari dasar sampai teknik di balik LLM modern.
+    <p class="lead">Kumpulan modul berbahasa Indonesia tentang Reinforcement Learning, Deep Learning, dan Pemrosesan Sinyal, dari dasar sampai teknik di balik LLM modern.
     Setiap modul dilengkapi demo interaktif, contoh hitung manual langkah demi langkah, kode Python yang sudah diuji, dan kuis.</p>
   </div>
   <button class="btn" id="themeBtn">🌓 Ganti tema</button>
 </header>
 
 <div class="stats">
-  <div><b>5</b>modul</div>
-  <div><b>15</b>demo interaktif</div>
-  <div><b>43</b>contoh hitung manual</div>
-  <div><b>30</b>soal kuis</div>
-  <div><b>± 14,5 jam</b>total belajar</div>
+  <div><b>6</b>modul</div>
+  <div><b>22</b>demo interaktif</div>
+  <div><b>50</b>contoh hitung manual</div>
+  <div><b>38</b>soal kuis</div>
+  <div><b>± 17 jam</b>total belajar</div>
 </div>
 
 <h2>🧭 Jalur belajar yang disarankan</h2>
@@ -103,6 +103,10 @@ footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--border);color
 <h2>🧠 Deep Learning</h2>
 <p class="sub">Neural network dan transformer, fondasi DQN, PPO, dan large language model.</p>
 <div class="cards" id="dlCards"></div>
+
+<h2>📡 Pemrosesan Sinyal</h2>
+<p class="sub">Matematika di balik audio, gambar, dan sensor. Modul mandiri, tidak bergantung pada jalur RL di atas.</p>
+<div class="cards" id="spCards"></div>
 
 <div class="box">
   <strong>💡 Cara memakai modul</strong>
@@ -133,7 +137,10 @@ const M=[
    topics:['REINFORCE','Actor-Critic & GAE','PPO','SAC & TD3','Offline RL','RLHF/DPO/GRPO']},
   {id:'dl',grp:'dl',c:'--violet',tag:'Jembatan ke LLM',title:'Deep Learning & Transformer',href:'deep-learning/01-deep-learning-transformer.html',time:'± 4 jam',demo:3,calc:11,
    desc:'Dari satu neuron sampai GPT: backprop, optimizer, training yang sehat, self-attention dan blok transformer yang dihitung tangan, sampling, hingga mini-GPT dari nol.',
-   topics:['MLP & backprop','Adam','Tokenisasi','Self-attention','Transformer','Mini-GPT']}
+   topics:['MLP & backprop','Adam','Tokenisasi','Self-attention','Transformer','Mini-GPT']},
+  {id:'fourier',grp:'sp',c:'--accent',tag:'Mandiri',title:'Memahami Transformasi Fourier',href:'fourier/01-transformasi-fourier.html',time:'± 2,5 jam',demo:7,calc:7,quiz:8,
+   desc:'Intuisi dulu, rumus belakangan: analogi smoothie dan radio, epicycle, mesin pelilit, DFT dan FFT yang dihitung tangan, aliasing, sampai lab filter noise dan np.fft.',
+   topics:['Sinus & fase','Deret Fourier','Rumus Euler','Mesin pelilit','DFT & FFT','Aliasing','Filter']}
 ];
 const ORDER=['math','beg','int','dl','adv'];
 const $=s=>document.querySelector(s);
@@ -142,11 +149,12 @@ const save=()=>{try{localStorage.setItem('modul-done',JSON.stringify(done))}catc
 function card(m){return `<article class="card ${done[m.id]?'done':''}" style="--c:var(${m.c})">
   <span class="tag">${m.tag}</span><h3>${m.title}</h3><p>${m.desc}</p>
   <div class="chips">${m.topics.map(t=>`<span>${t}</span>`).join('')}</div>
-  <div class="meta"><span>⏱ ${m.time}</span><span>🎛 ${m.demo} demo</span><span>✍️ ${m.calc} hitung manual</span><span>❓ 6 kuis</span></div>
+  <div class="meta"><span>⏱ ${m.time}</span><span>🎛 ${m.demo} demo</span><span>✍️ ${m.calc} hitung manual</span><span>❓ ${m.quiz||6} kuis</span></div>
   <div class="foot"><label><input type="checkbox" data-id="${m.id}" ${done[m.id]?'checked':''}> Sudah selesai</label><a class="btn primary" href="${m.href}">Buka modul →</a></div></article>`}
 function render(){
   $('#rlCards').innerHTML=M.filter(m=>m.grp==='rl').map(card).join('');
   $('#dlCards').innerHTML=M.filter(m=>m.grp==='dl').map(card).join('');
+  $('#spCards').innerHTML=M.filter(m=>m.grp==='sp').map(card).join('');
   $('#path').innerHTML=ORDER.map((id,i)=>{const m=M.find(x=>x.id===id);
     return (i?'<span class="arrow">→</span>':'')+`<a class="step ${done[id]?'done':''}" href="${m.href}"><span class="num">${done[id]?'✓':i+1}</span><b>${m.title.replace('Reinforcement Learning: ','RL ')}</b><small>${m.tag} · ${m.time}</small></a>`}).join('');
   const n=ORDER.filter(id=>done[id]).length;$('#progTxt').textContent=`${n} dari 5 modul selesai`;$('#progBar').style.width=n/5*100+'%';

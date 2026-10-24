@@ -18,3 +18,9 @@ Kumpulan modul belajar interaktif berbentuk HTML (cukup buka file di browser, ta
 | Modul | File | Status |
 |---|---|---|
 | Deep Learning & Transformer (jembatan ke LLM/RLHF) | [`deep-learning/01-deep-learning-transformer.html`](deep-learning/01-deep-learning-transformer.html) | ✅ Selesai |
+
+## Pemrosesan Sinyal
+
+| Modul | File | Status |
+|---|---|---|
+| Memahami Transformasi Fourier (intuisi, DFT/FFT, aliasing, filter) | [`fourier/01-transformasi-fourier.html`](fourier/01-transformasi-fourier.html) | ✅ Selesai |

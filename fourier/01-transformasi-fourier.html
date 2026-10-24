@@ -1,0 +1,1096 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Memahami Transformasi Fourier</title>
+<style>
+:root{
+  --bg:#f7f8fa;--surface:#ffffff;--surface-2:#f0f2f6;--text:#1c2230;--muted:#5b6474;
+  --border:#e1e5ec;--accent:#3a6df0;--accent-soft:#e6edff;--good:#1f9d63;--bad:#d64545;--warn:#c98a12;--violet:#7c4dff;
+  --code-bg:#f3f5f9;--sidebar-w:270px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+    --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--violet:#a98bff;--code-bg:#1d222b;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+  --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--violet:#a98bff;--code-bg:#1d222b;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+/* Sidebar */
+#sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);
+  overflow-y:auto;padding:22px 16px;z-index:20;transition:transform .25s}
+#sidebar .brand{font-weight:700;font-size:17px;margin:0 8px 2px}
+#sidebar .level{display:inline-block;margin:0 8px 16px;font-size:12px;padding:2px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar ol{list-style:none;margin:0;padding:0;counter-reset:toc}
+#sidebar li a{display:flex;gap:10px;padding:7px 10px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:14.5px;line-height:1.4}
+#sidebar li a::before{counter-increment:toc;content:counter(toc);min-width:20px;height:20px;border-radius:50%;background:var(--surface-2);
+  font-size:11.5px;display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+#sidebar li a:hover{background:var(--surface-2);color:var(--text)}
+#sidebar li a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar li a.active::before{background:var(--accent);color:#fff}
+#progress{height:4px;background:var(--surface-2);border-radius:4px;margin:0 8px 18px;overflow:hidden}
+#progress div{height:100%;width:0;background:var(--accent);transition:width .1s}
+#menuBtn{display:none;position:fixed;top:12px;left:12px;z-index:30;border:1px solid var(--border);background:var(--surface);color:var(--text);
+  border-radius:8px;padding:6px 12px;font-size:15px;cursor:pointer}
+#themeBtn{margin:18px 8px 0;font-size:13px}
+/* Main */
+main{margin-left:var(--sidebar-w);padding:40px 48px 80px;max-width:calc(var(--sidebar-w) + 900px)}
+main>*{max-width:860px}
+header.hero{padding:8px 0 24px;border-bottom:1px solid var(--border);margin-bottom:12px}
+header.hero h1{font-size:34px;line-height:1.2;margin:0 0 8px;text-wrap:balance}
+header.hero p{color:var(--muted);margin:0}
+section{padding-top:28px}
+h2{font-size:25px;margin:16px 0 10px;padding-top:8px;text-wrap:balance}
+h3{font-size:18.5px;margin:24px 0 6px;text-wrap:balance}
+p,li{color:var(--text)}
+main p,main li,.box,.card span,.pair p{text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+.muted{color:var(--muted)}
+.box{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:16px 20px;margin:16px 0}
+.box.tip{border-left:4px solid var(--good)}
+.box.note{border-left:4px solid var(--accent)}
+.box.warn{border-left:4px solid var(--warn)}
+.box>strong:first-child{display:block;margin-bottom:4px}
+.formula{font-family:"Cambria Math","Times New Roman",serif;font-size:19px;text-align:center;background:var(--surface-2);
+  border-radius:10px;padding:14px;margin:14px 0;overflow-x:auto;white-space:nowrap}
+.formula.big{font-size:24px;padding:20px 14px}
+.formula var{font-style:italic}
+.formula small{font-family:system-ui,sans-serif;font-size:13px;color:var(--muted);display:block;white-space:normal;margin-top:4px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;background:var(--code-bg);padding:1px 6px;border-radius:5px}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-size:13.5px;line-height:1.55}
+pre code{background:none;padding:0}
+.c{color:var(--muted)} .k{color:var(--accent);font-weight:600} .s{color:var(--good)} .n{color:var(--warn)}
+.tbl{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--border);padding:7px 11px;text-align:left;vertical-align:top}
+th{background:var(--surface-2)}
+td.num,th.num{text-align:right}
+#d4Out td{white-space:nowrap}
+tr.hit td{background:color-mix(in srgb,var(--good) 12%,transparent)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:14px 0}
+.card{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 16px;min-width:0}
+.card b{display:block;margin-bottom:2px}
+.card span{color:var(--muted);font-size:14.5px}
+.card .ic{font-size:26px;line-height:1;display:block;margin-bottom:6px}
+/* warna penanda rumus */
+.h1{color:var(--accent);font-weight:600}.h2{color:var(--warn);font-weight:600}.h3{color:var(--good);font-weight:600}
+.h4{color:var(--violet);font-weight:600}.h5{color:var(--bad);font-weight:600}
+.anat{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:14px 0}
+.anat div{border:1px solid var(--border);border-top:4px solid var(--x);background:var(--surface);border-radius:10px;padding:10px 14px;font-size:14.5px;min-width:0}
+.anat b{display:block;color:var(--x);font-family:"Cambria Math","Times New Roman",serif;font-size:19px}
+/* Demo widgets */
+.demo{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:18px;margin:18px 0}
+.demo h4{margin:0 0 4px;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent)}
+.demo>p{margin:4px 0 8px;font-size:15px}
+.controls{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:10px 0}
+button.btn,select.btn{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:8px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer}
+button.btn:hover,select.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+label.range{display:flex;align-items:center;gap:8px;font-size:14px;flex-wrap:wrap}
+label.range b{min-width:3.6em;font-variant-numeric:tabular-nums}
+label.chk{display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer}
+input[type=range]{accent-color:var(--accent);max-width:180px}
+input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px}
+input[type=text]{font:inherit;font-size:15px;padding:7px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);flex:1;min-width:0;max-width:360px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.stat{font-size:14px;color:var(--muted)}
+.stat b{color:var(--text)}
+.kpi{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.kpi div{border:1px solid var(--border);background:var(--surface-2);border-radius:8px;padding:6px 12px;font-size:13px;color:var(--muted)}
+.kpi b{display:block;font-size:17px;color:var(--text);font-variant-numeric:tabular-nums}
+canvas.plot{display:block;width:100%;border:1px solid var(--border);border-radius:10px;background:var(--surface-2)}
+.cap{font-size:12.5px;color:var(--muted);margin:4px 2px 0}
+.legend{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:6px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.wind{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:12px;align-items:start}
+.wind>div{min-width:0}
+.hbars{display:flex;align-items:flex-end;gap:3px;height:90px;margin:10px 0 2px;border-bottom:1px solid var(--border)}
+.hbars div{flex:1;background:var(--border);border-radius:3px 3px 0 0;min-height:1px;transition:height .15s,background .15s}
+.hbars div.on{background:var(--accent)}
+.hlabels{display:flex;gap:3px;font-size:10.5px;color:var(--muted)}
+.hlabels span{flex:1;text-align:center}
+/* Diagram */
+.diagram{overflow-x:auto;margin:16px 0}
+.diagram svg{display:block;width:100%;min-width:520px;max-width:720px;margin:0 auto}
+.diagram text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+/* Pasangan Fourier */
+.pairs{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin:14px 0}
+.pair{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:12px 14px;min-width:0}
+.pair b{display:block;font-size:15px}
+.pair .two{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:6px;align-items:center;margin:8px 0 4px}
+.pair .two span{color:var(--muted);font-size:18px}
+.pair canvas{height:64px}
+.pair .lbl{display:grid;grid-template-columns:1fr 1fr;font-size:11.5px;color:var(--muted);text-align:center}
+.pair p{margin:4px 0 0;font-size:13.5px;color:var(--muted)}
+/* Steps */
+.steps{counter-reset:st;list-style:none;padding:0}
+.steps li{counter-increment:st;position:relative;padding:4px 0 10px 42px}
+.steps li::before{content:counter(st);position:absolute;left:0;top:4px;width:28px;height:28px;border-radius:50%;background:var(--accent-soft);
+  color:var(--accent);font-weight:700;display:grid;place-items:center;font-size:14px}
+/* Quiz */
+.q{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 18px;margin:12px 0}
+.q p{margin:0 0 8px;font-weight:600}
+.q button{display:block;width:100%;text-align:left;margin:6px 0;border:1px solid var(--border);background:var(--surface-2);color:var(--text);
+  border-radius:8px;padding:8px 12px;font:inherit;font-size:14.5px;cursor:pointer}
+.q button.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 15%,transparent)}
+.q button.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,transparent)}
+.q .why{font-size:14px;color:var(--muted);display:none;margin-top:6px}
+#qScore{font-size:14px;color:var(--muted)}
+.nav-mod{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px}
+.nav-mod a{text-decoration:none}
+footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:14px}
+@media (max-width:900px){
+  #sidebar{transform:translateX(-100%);box-shadow:0 0 30px rgba(0,0,0,.2)}
+  #sidebar.open{transform:none}
+  #menuBtn{display:block}
+  main{margin-left:0;padding:60px 16px 60px}
+  header.hero h1{font-size:27px}
+}
+@media (max-width:620px){
+  .wind{grid-template-columns:1fr}
+  .formula{font-size:17px}
+  .formula.big{font-size:20px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<button id="menuBtn" aria-label="Buka daftar isi">☰ Daftar Isi</button>
+
+<nav id="sidebar" aria-label="Daftar isi">
+  <a class="home-link" href="../index.html" style="display:block;margin:0 8px 12px;font-size:13px;text-decoration:none">← Beranda semua modul</a>
+  <div class="brand">Transformasi Fourier</div>
+  <span class="level">Pemrosesan Sinyal</span>
+  <div id="progress"><div></div></div>
+  <ol id="toc">
+    <li><a href="#peta">Kenapa Fourier Terasa Sulit?</a></li>
+    <li><a href="#analogi">Ide Besar lewat 4 Analogi</a></li>
+    <li><a href="#sinus">Mengenal Gelombang Sinus</a></li>
+    <li><a href="#sintesis">Menyusun Gelombang dari Sinus</a></li>
+    <li><a href="#korelasi">Membongkar: Kalikan lalu Jumlahkan</a></li>
+    <li><a href="#euler">Lingkaran Berputar &amp; Rumus Euler</a></li>
+    <li><a href="#pelilit">Mesin Pelilit Fourier</a></li>
+    <li><a href="#rumus">Membaca Rumusnya Pelan-pelan</a></li>
+    <li><a href="#dft">DFT: Fourier untuk Komputer</a></li>
+    <li><a href="#pasangan">Kamus Pasangan Waktu ↔ Frekuensi</a></li>
+    <li><a href="#aliasing">Sampling &amp; Aliasing</a></li>
+    <li><a href="#fft">FFT: Kenapa Bisa Secepat Itu</a></li>
+    <li><a href="#aplikasi">Aplikasi &amp; Lab Filter Noise</a></li>
+    <li><a href="#kode">Praktik dengan NumPy</a></li>
+    <li><a href="#kuis">Kuis &amp; Cheat Sheet</a></li>
+  </ol>
+  <button class="btn" id="themeBtn">🌓 Ganti tema</button>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Memahami Transformasi Fourier dari Nol</h1>
+  <p>Dari intuisi, gambar, dan simulasi dulu, baru kemudian rumus. Estimasi waktu belajar ± 2,5 jam.</p>
+</header>
+
+<div class="diagram" aria-label="Diagram: sinyal di domain waktu diubah menjadi resep frekuensi">
+<svg viewBox="0 0 680 215" role="img">
+  <rect x="10" y="18" width="230" height="150" rx="12" fill="var(--surface-2)" stroke="var(--border)"/>
+  <line x1="22" x2="228" y1="93" y2="93" stroke="var(--border)"/>
+  <polyline id="heroWave" fill="none" stroke="var(--text)" stroke-width="2" points=""/>
+  <text x="125" y="192" text-anchor="middle" font-size="14" font-weight="600" fill="var(--text)">Domain waktu</text>
+  <text x="125" y="208" text-anchor="middle" font-size="11.5" fill="var(--muted)">"bagaimana sinyal bergerak tiap saat"</text>
+
+  <line x1="242" x2="262" y1="70" y2="70" stroke="var(--accent)" stroke-width="2.5"/>
+  <rect x="262" y="42" width="156" height="56" rx="10" fill="var(--accent)"/>
+  <text x="340" y="66" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">Transformasi</text>
+  <text x="340" y="84" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">Fourier</text>
+  <line x1="418" x2="430" y1="70" y2="70" stroke="var(--accent)" stroke-width="2.5"/>
+  <polygon points="430,63 440,70 430,77" fill="var(--accent)"/>
+  <line x1="438" x2="252" y1="132" y2="132" stroke="var(--muted)" stroke-width="2" stroke-dasharray="6 5"/>
+  <polygon points="252,125 242,132 252,139" fill="var(--muted)"/>
+  <text x="340" y="125" text-anchor="middle" font-size="12" fill="var(--muted)">Invers: susun kembali</text>
+
+  <rect x="440" y="18" width="230" height="150" rx="12" fill="var(--surface-2)" stroke="var(--border)"/>
+  <line x1="455" x2="658" y1="148" y2="148" stroke="var(--muted)"/>
+  <rect x="482" y="48" width="18" height="100" rx="3" fill="var(--accent)"/>
+  <rect x="547" y="88" width="18" height="60" rx="3" fill="var(--warn)"/>
+  <rect x="619" y="113" width="18" height="35" rx="3" fill="var(--good)"/>
+  <text x="491" y="42" text-anchor="middle" font-size="11" fill="var(--text)">1,0</text>
+  <text x="556" y="82" text-anchor="middle" font-size="11" fill="var(--text)">0,6</text>
+  <text x="628" y="107" text-anchor="middle" font-size="11" fill="var(--text)">0,35</text>
+  <text x="491" y="162" text-anchor="middle" font-size="11" fill="var(--muted)">2 Hz</text>
+  <text x="556" y="162" text-anchor="middle" font-size="11" fill="var(--muted)">5 Hz</text>
+  <text x="628" y="162" text-anchor="middle" font-size="11" fill="var(--muted)">9 Hz</text>
+  <text x="555" y="192" text-anchor="middle" font-size="14" font-weight="600" fill="var(--text)">Domain frekuensi</text>
+  <text x="555" y="208" text-anchor="middle" font-size="11.5" fill="var(--muted)">"resep: bahan apa saja, seberapa banyak"</text>
+</svg>
+</div>
+
+<div class="box note">
+  <strong>🎯 Tujuan belajar</strong>
+  Setelah modul ini kamu bisa menjelaskan transformasi Fourier dengan kata-katamu sendiri, membaca rumus
+  <code>X(f) = ∫ x(t)·e<sup>−i2πft</sup> dt</code> potong demi potong, menghitung DFT kecil dengan tangan,
+  memahami kenapa sampling bisa "menipu" (aliasing), dan memakai <code>np.fft</code> untuk menganalisis serta membersihkan sinyal.
+  <br><span class="muted">Prasyarat: aljabar SMA, tahu sinus dan kosinus (akan diulang singkat). Bilangan kompleks dan integral dijelaskan seperlunya di dalam modul.</span>
+</div>
+
+<!-- 1 -->
+<section id="peta">
+<h2>1. Kenapa Fourier Terasa Sulit?</h2>
+<p>Hampir semua orang pertama kali bertemu transformasi Fourier dalam bentuk seperti ini:</p>
+<div class="formula big"><var>X</var>(<var>f</var>) = ∫<sub>−∞</sub><sup>∞</sup> <var>x</var>(<var>t</var>) · <var>e</var><sup>−<var>i</var>2π<var>ft</var></sup> <var>dt</var></div>
+<p>Wajar kalau langsung bingung. Rumus sependek ini sebenarnya memadatkan <b>empat ide berbeda</b> sekaligus, dan biasanya tidak satu pun dijelaskan secara terpisah. Kalau keempatnya dibongkar satu per satu, rumus di atas berubah dari mantra menjadi kalimat yang masuk akal.</p>
+<div class="grid2">
+  <div class="card"><b>Ide 1 · Sinyal = campuran sinus</b><span>Suara, getaran, atau grafik harga apa pun bisa dianggap sebagai jumlahan gelombang sinus dengan frekuensi berbeda. (Bagian 3–4)</span></div>
+  <div class="card"><b>Ide 2 · Mengukur kemiripan</b><span>Untuk tahu seberapa banyak frekuensi tertentu ada di dalam sinyal, kalikan sinyal dengan "gelombang penguji" lalu jumlahkan. (Bagian 5)</span></div>
+  <div class="card"><b>Ide 3 · Lingkaran berputar</b><span>Bilangan kompleks <var>e</var><sup><var>iθ</var></sup> hanyalah cara ringkas menulis titik yang berputar di lingkaran, sehingga sinus dan kosinus bisa diuji sekaligus. (Bagian 6–7)</span></div>
+  <div class="card"><b>Ide 4 · Integral = jumlahan</b><span>Tanda ∫ hanya berarti "jumlahkan sepanjang waktu". Di komputer, ia berubah menjadi Σ biasa. (Bagian 8–9)</span></div>
+</div>
+<div class="box tip"><strong>💡 Cara memakai modul ini</strong>
+  Jangan buru-buru ke rumus. Mainkan setiap simulasi sampai kamu bisa <i>menebak</i> hasilnya sebelum menggeser slider. Kerjakan contoh <b>✍️ hitung manual</b> dengan kertas dan pensil, lalu cocokkan dengan kalkulator di dalam modul. Kalau sebuah bagian terasa berat, lompat ke analogi di Bagian 2 lalu kembali lagi.
+</div>
+</section>
+
+<!-- 2 -->
+<section id="analogi">
+<h2>2. Ide Besar lewat 4 Analogi</h2>
+<p>Satu kalimat inti yang perlu kamu pegang: <b>transformasi Fourier mengubah pertanyaan "berapa nilai sinyal pada waktu <var>t</var>?" menjadi "seberapa banyak frekuensi <var>f</var> di dalam sinyal?"</b>. Informasinya sama persis, hanya cara memandangnya yang berbeda. Empat analogi berikut menyorot sisi yang berbeda dari ide itu.</p>
+<div class="grid2">
+  <div class="card"><span class="ic">🥤</span><b>Smoothie dan resepnya</b><span>Kamu diberi segelas smoothie dan ditanya: "Bahannya apa saja dan berapa banyak?" Transformasi Fourier adalah mesin yang menjawab "2 pisang, 1 cangkir stroberi, sedikit susu". Invers Fourier adalah blender: dari resep, kamu bisa membuat smoothie yang sama persis.</span></div>
+  <div class="card"><span class="ic">🌈</span><b>Prisma memecah cahaya</b><span>Cahaya putih terlihat seperti satu warna, padahal isinya campuran banyak frekuensi. Prisma memisahkannya menjadi pelangi, yaitu spektrum. Prisma secara harfiah melakukan transformasi Fourier pada cahaya.</span></div>
+  <div class="card"><span class="ic">👂</span><b>Telingamu sendiri</b><span>Saat akord C–E–G dimainkan, udara hanya bergetar sebagai satu garis berliku-liku. Namun kamu mendengar tiga nada. Di dalam koklea ada ribuan sel rambut yang masing-masing peka terhadap frekuensi berbeda. Telingamu adalah penganalisis Fourier biologis.</span></div>
+  <div class="card"><span class="ic">📻</span><b>Memutar kenop radio</b><span>Semua stasiun radio memancar bersamaan di udara. Saat kamu menyetel ke 101,5 MHz, rangkaian radio hanya "beresonansi" dengan frekuensi itu. Transformasi Fourier melakukan hal yang sama untuk <i>setiap</i> frekuensi satu per satu, lalu mencatat seberapa keras masing-masing "stasiun".</span></div>
+</div>
+<p>Analogi radio paling dekat dengan cara kerja rumusnya. Bagian 5 dan 7 akan menunjukkan bahwa "menyetel ke satu frekuensi" secara matematis berarti <b>mengalikan sinyal dengan gelombang penguji lalu menjumlahkan hasilnya</b>. Kalau frekuensinya cocok, hasilnya besar. Kalau tidak cocok, hasilnya saling meniadakan menjadi nol.</p>
+<div class="box warn"><strong>⚠️ Batas analogi</strong>
+  Smoothie tidak bisa dipisahkan kembali menjadi pisang utuh, sedangkan sinyal bisa: transformasi Fourier <b>tidak membuang informasi apa pun</b>. Spektrum (besar <i>dan</i> fase setiap frekuensi) cukup untuk merekonstruksi sinyal asli dengan sempurna. Inilah alasan kita bisa mengedit sinyal di domain frekuensi lalu mengembalikannya.
+</div>
+</section>
+
+<!-- 3 -->
+<section id="sinus">
+<h2>3. Mengenal Gelombang Sinus</h2>
+<p>Karena Fourier memandang semua sinyal sebagai campuran sinus, kita perlu akrab dulu dengan "bahan dasarnya". Sebuah gelombang sinus ditentukan oleh tiga angka saja:</p>
+<div class="formula"><var>y</var>(<var>t</var>) = <span class="h1"><var>A</var></span> · sin( 2π <span class="h2"><var>f</var></span> <var>t</var> + <span class="h3">φ</span> )</div>
+<div class="anat">
+  <div style="--x:var(--accent)"><b>A · amplitudo</b>Seberapa tinggi puncaknya. Di audio: seberapa keras.</div>
+  <div style="--x:var(--warn)"><b>f · frekuensi</b>Berapa kali berulang per detik, dalam hertz (Hz). Di audio: tinggi rendahnya nada.</div>
+  <div style="--x:var(--good)"><b>φ · fase</b>Posisi awal gelombang saat <var>t</var> = 0. Menggeser gelombang ke kiri atau kanan.</div>
+</div>
+<p>Lalu dari mana angka 2π? Satu putaran penuh lingkaran adalah 360°, atau 2π radian. Gelombang sinus sebenarnya adalah <b>bayangan dari sebuah titik yang berputar di lingkaran</b>. Kalau titik itu berputar <var>f</var> kali per detik, sudutnya bertambah 2π<var>f</var> radian per detik. Jadi 2π<var>ft</var> adalah sudut titik itu pada waktu <var>t</var>. Simulasi berikut memperlihatkannya: tinggi titik di lingkaran persis sama dengan tinggi gelombang.</p>
+
+<div class="demo">
+  <h4>🎛 Simulasi 1 · Anatomi gelombang sinus</h4>
+  <p>Geser ketiga slider. Perhatikan bahwa amplitudo mengubah ukuran lingkaran, frekuensi mengubah kecepatan putar, dan fase mengubah titik awal.</p>
+  <div class="controls">
+    <label class="range" for="d1A">Amplitudo <var>A</var> <input type="range" id="d1A" min="0.2" max="1.5" step="0.1" value="1"> <b id="d1Av"></b></label>
+    <label class="range" for="d1F">Frekuensi <var>f</var> <input type="range" id="d1F" min="0.5" max="4" step="0.5" value="1"> <b id="d1Fv"></b></label>
+    <label class="range" for="d1P">Fase φ <input type="range" id="d1P" min="0" max="360" step="15" value="0"> <b id="d1Pv"></b></label>
+    <button class="btn" id="d1Play">⏸ Jeda</button>
+  </div>
+  <canvas class="plot" id="cv1" style="height:220px"></canvas>
+  <p class="cap">Kiri: titik berputar di lingkaran berjari-jari <var>A</var>. Kanan: tinggi titik itu digambar terhadap waktu selama 2 detik.</p>
+</div>
+<div class="box tip"><strong>💡 Pegang gambar ini baik-baik</strong>
+  "Sinus = bayangan titik yang berputar" adalah kunci untuk Bagian 6. Nanti <var>e</var><sup><var>i</var>2π<var>ft</var></sup> ternyata hanyalah cara menulis <i>titik berputar itu sendiri</i>, bukan bayangannya.
+</div>
+</section>
+
+<!-- 4 -->
+<section id="sintesis">
+<h2>4. Menyusun Gelombang dari Sinus</h2>
+<p>Tahun 1807, Joseph Fourier sedang meneliti perambatan panas dan membuat klaim yang waktu itu dianggap berlebihan: <b>gelombang periodik apa pun, bahkan yang bersudut tajam seperti gelombang kotak, bisa disusun dari jumlahan sinus</b> dengan frekuensi <var>f</var><sub>0</sub>, 2<var>f</var><sub>0</sub>, 3<var>f</var><sub>0</sub>, dan seterusnya. Frekuensi kelipatan ini disebut <b>harmonik</b>. Jumlahannya disebut <b>deret Fourier</b>:</p>
+<div class="formula"><var>x</var>(<var>t</var>) = <var>a</var><sub>0</sub> + Σ<sub><var>k</var>=1</sub><sup>∞</sup> [ <var>a<sub>k</sub></var> cos(2π<var>k f</var><sub>0</sub><var>t</var>) + <var>b<sub>k</sub></var> sin(2π<var>k f</var><sub>0</sub><var>t</var>) ]</div>
+<p>Angka <var>a<sub>k</sub></var> dan <var>b<sub>k</sub></var> adalah "resep": seberapa banyak harmonik ke-<var>k</var> dicampurkan. Contoh terkenal adalah gelombang kotak dengan amplitudo 1:</p>
+<div class="formula">kotak(<var>x</var>) = <sup>4</sup>⁄<sub>π</sub> [ sin <var>x</var> + <sup>1</sup>⁄<sub>3</sub> sin 3<var>x</var> + <sup>1</sup>⁄<sub>5</sub> sin 5<var>x</var> + <sup>1</sup>⁄<sub>7</sub> sin 7<var>x</var> + … ]</div>
+<p>Hanya harmonik ganjil yang dipakai, dan bobotnya mengecil sebanding 1/<var>k</var>. Simulasi berikut menyusun gelombang itu dari lingkaran-lingkaran berputar (epicycle). Setiap lingkaran adalah satu sinus. Lingkaran kecil menempel di ujung lingkaran besar, dan ujung rantai terakhir menggambar gelombangnya.</p>
+
+<div class="demo">
+  <h4>🎛 Simulasi 2 · Pembangun gelombang (deret Fourier)</h4>
+  <p>Pilih bentuk target, lalu tambah jumlah harmonik. Tekan 🔊 untuk mendengar bedanya: makin banyak harmonik, suaranya makin "tajam".</p>
+  <div class="controls">
+    <select class="btn" id="d2S" aria-label="Bentuk gelombang target">
+      <option value="kotak">Gelombang kotak</option>
+      <option value="gergaji">Gelombang gigi gergaji</option>
+      <option value="segitiga">Gelombang segitiga</option>
+    </select>
+    <label class="range" for="d2N">Harmonik sampai ke-<var>k</var> = <input type="range" id="d2N" min="1" max="30" step="1" value="3"> <b id="d2Nv"></b></label>
+    <button class="btn" id="d2Play">⏸ Jeda</button>
+    <button class="btn primary" id="d2Snd">🔊 Dengarkan</button>
+  </div>
+  <canvas class="plot" id="cv2" style="height:260px"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--good)"></i>bentuk target</span><span><i class="dot" style="background:var(--accent)"></i>jumlahan sinus</span><span><i class="dot" style="background:var(--warn)"></i>ujung rantai epicycle</span></div>
+  <div class="hbars" id="d2Bars" aria-hidden="true"></div>
+  <div class="hlabels" id="d2Lab" aria-hidden="true"></div>
+  <p class="cap">Batang di bawah adalah <b>spektrum</b> bentuk itu: tinggi batang ke-<var>k</var> = besar |<var>b<sub>k</sub></var>|. Batang biru sedang dipakai.</p>
+  <div class="kpi"><div>Nilai pendekatan di <var>x</var> = π/2<b id="d2Peak"></b></div><div>Error rata-rata (RMS)<b id="d2Err"></b></div><div>Status suara<b id="d2Msg">siap</b></div></div>
+</div>
+
+<h3>✍️ Contoh hitung manual: gelombang kotak di titik puncak</h3>
+<p>Gelombang kotak bernilai 1 di <var>x</var> = π/2. Mari cek seberapa dekat deret Fourier ke angka itu bila kita memakai 1, 2, 3, lalu 4 suku. Di <var>x</var> = π/2: sin(π/2) = 1, sin(3π/2) = −1, sin(5π/2) = 1, sin(7π/2) = −1. Faktor 4/π ≈ 1,2732.</p>
+<ol class="steps">
+  <li>1 suku (<var>k</var>=1): 1,2732 × 1 = <b>1,273</b> (terlalu tinggi)</li>
+  <li>2 suku (<var>k</var>=1,3): 1,2732 × (1 − 1/3) = 1,2732 × 0,6667 = <b>0,849</b> (terlalu rendah)</li>
+  <li>3 suku (<var>k</var>=1,3,5): 1,2732 × (0,6667 + 0,2) = 1,2732 × 0,8667 = <b>1,103</b></li>
+  <li>4 suku (<var>k</var>=1,3,5,7): 1,2732 × (0,8667 − 0,1429) = 1,2732 × 0,7238 = <b>0,922</b></li>
+</ol>
+<p>Nilainya berayun di sekitar 1 dan makin lama makin dekat. Cocokkan dengan angka "Nilai pendekatan" di Simulasi 2 (pilih gelombang kotak, harmonik ke-1, 3, 5, 7). Bonus: deret 1 − 1/3 + 1/5 − 1/7 + … konvergen ke π/4, sehingga 4/π × π/4 = 1 tepat.</p>
+
+<div class="box warn"><strong>⚠️ Fenomena Gibbs</strong>
+  Perhatikan "telinga" kecil di dekat lompatan gelombang kotak. Sebanyak apa pun harmonik yang ditambahkan, lonjakan itu tidak pernah hilang, hanya makin sempit, dan tingginya menetap sekitar 9% dari lompatan. Ini bukan bug simulasi. Efek yang sama muncul sebagai "ringing" di sekitar tepi tajam pada gambar JPEG yang terlalu dikompres.
+</div>
+<div class="box tip"><strong>🎻 Kenapa piano dan biola terdengar beda?</strong>
+  Not A (440 Hz) di piano dan di biola punya frekuensi dasar yang sama. Bedanya ada di resep harmoniknya: seberapa kuat 880 Hz, 1320 Hz, 1760 Hz, dan seterusnya. Resep harmonik inilah yang disebut <b>timbre</b>, dan spektrum adalah cara melihatnya. Coba dengarkan gelombang kotak vs segitiga di simulasi: frekuensi dasarnya sama-sama 220 Hz.
+</div>
+</section>
+
+<!-- 5 -->
+<section id="korelasi">
+<h2>5. Membongkar: Kalikan lalu Jumlahkan</h2>
+<p>Bagian 4 berjalan dari resep ke sinyal (sintesis). Sekarang arah sebaliknya, yang justru menjadi inti transformasi Fourier: <b>diberi sinyal, bagaimana menemukan resepnya?</b></p>
+<p>Triknya sangat sederhana. Untuk mengetahui seberapa banyak frekuensi <var>f</var> di dalam sinyal, siapkan <b>gelombang penguji</b> berfrekuensi <var>f</var>. Kalikan sinyal dengan penguji titik demi titik, lalu jumlahkan semua hasil kalinya.</p>
+<ul>
+  <li>Jika sinyal mengandung frekuensi <var>f</var>, sinyal dan penguji naik-turun bersamaan. Positif × positif dan negatif × negatif sama-sama positif, sehingga jumlahnya <b>besar</b>.</li>
+  <li>Jika tidak mengandung, kadang searah dan kadang berlawanan. Hasil kali positif dan negatif <b>saling meniadakan</b>, sehingga jumlahnya mendekati nol.</li>
+</ul>
+<p>Ini sama dengan <i>dot product</i> di aljabar linear: mengukur seberapa "searah" dua vektor. Sinus dengan frekuensi berbeda selalu tegak lurus (ortogonal) satu sama lain, jadi masing-masing bisa diukur tanpa saling mengganggu.</p>
+
+<h3>✍️ Contoh hitung manual: tiga penguji</h3>
+<p>Sinyal kita adalah sinus yang berulang tepat 1 kali dalam 8 sampel: <var>x</var>[<var>n</var>] = sin(2π<var>n</var>/8). Kita uji dengan tiga penguji: (A) sinus 1 kali per 8 sampel, (B) sinus 2 kali per 8 sampel, (C) <b>kosinus</b> 1 kali per 8 sampel.</p>
+<div class="tbl"><table>
+  <tr><th><var>n</var></th><th class="num">0</th><th class="num">1</th><th class="num">2</th><th class="num">3</th><th class="num">4</th><th class="num">5</th><th class="num">6</th><th class="num">7</th><th class="num">Jumlah</th></tr>
+  <tr><td>sinyal <var>x</var>[<var>n</var>]</td><td class="num">0</td><td class="num">0,71</td><td class="num">1</td><td class="num">0,71</td><td class="num">0</td><td class="num">−0,71</td><td class="num">−1</td><td class="num">−0,71</td><td></td></tr>
+  <tr><td>penguji A: sin, 1×</td><td class="num">0</td><td class="num">0,71</td><td class="num">1</td><td class="num">0,71</td><td class="num">0</td><td class="num">−0,71</td><td class="num">−1</td><td class="num">−0,71</td><td></td></tr>
+  <tr class="hit"><td><b>x × A</b></td><td class="num">0</td><td class="num">0,5</td><td class="num">1</td><td class="num">0,5</td><td class="num">0</td><td class="num">0,5</td><td class="num">1</td><td class="num">0,5</td><td class="num"><b>4</b></td></tr>
+  <tr><td>penguji B: sin, 2×</td><td class="num">0</td><td class="num">1</td><td class="num">0</td><td class="num">−1</td><td class="num">0</td><td class="num">1</td><td class="num">0</td><td class="num">−1</td><td></td></tr>
+  <tr><td><b>x × B</b></td><td class="num">0</td><td class="num">0,71</td><td class="num">0</td><td class="num">−0,71</td><td class="num">0</td><td class="num">−0,71</td><td class="num">0</td><td class="num">0,71</td><td class="num"><b>0</b></td></tr>
+  <tr><td>penguji C: cos, 1×</td><td class="num">1</td><td class="num">0,71</td><td class="num">0</td><td class="num">−0,71</td><td class="num">−1</td><td class="num">−0,71</td><td class="num">0</td><td class="num">0,71</td><td></td></tr>
+  <tr><td><b>x × C</b></td><td class="num">0</td><td class="num">0,5</td><td class="num">0</td><td class="num">−0,5</td><td class="num">0</td><td class="num">0,5</td><td class="num">0</td><td class="num">−0,5</td><td class="num"><b>0</b></td></tr>
+</table></div>
+<ol class="steps">
+  <li>Penguji A frekuensinya cocok. Semua hasil kali ≥ 0, jumlahnya <b>4</b> (= <var>N</var>/2). Frekuensi ini ada di sinyal.</li>
+  <li>Penguji B frekuensinya beda. Hasil kalinya 0,71 dan −0,71 yang saling meniadakan, jumlahnya <b>0</b>. Frekuensi ini tidak ada.</li>
+  <li>Penguji C frekuensinya <i>cocok</i>, tetapi jumlahnya juga <b>0</b>! Penyebabnya adalah fase: kosinus tertinggal seperempat putaran dari sinus.</li>
+</ol>
+<div class="box warn"><strong>⚠️ Jebakan fase, dan alasan bilangan kompleks dipakai</strong>
+  Langkah 3 menunjukkan masalah serius: kalau kita hanya memakai penguji sinus, sinyal kosinus dengan frekuensi yang sama tidak terdeteksi sama sekali. Solusinya, <b>uji dengan dua penguji sekaligus</b>, kosinus dan sinus, lalu simpan kedua hasilnya:
+  <div class="formula"><var>C</var>(<var>f</var>) = Σ <var>x</var>[<var>n</var>]·cos(2π<var>fn</var>/<var>N</var>) &nbsp;&nbsp; <var>S</var>(<var>f</var>) = Σ <var>x</var>[<var>n</var>]·sin(2π<var>fn</var>/<var>N</var>)</div>
+  Besarnya frekuensi itu adalah √(<var>C</var>² + <var>S</var>²) dan fasenya terbaca dari perbandingan <var>C</var> dan <var>S</var>. Dua angka yang selalu berpasangan ini paling praktis disimpan sebagai <b>satu bilangan kompleks</b>. Itulah satu-satunya alasan bilangan kompleks muncul di rumus Fourier.
+</div>
+</section>
+
+<!-- 6 -->
+<section id="euler">
+<h2>6. Lingkaran Berputar &amp; Rumus Euler</h2>
+<p>Bilangan kompleks <var>a</var> + <var>bi</var> bisa kamu bayangkan sebagai <b>titik di bidang datar</b>: <var>a</var> adalah posisi horizontal (bagian real), <var>b</var> adalah posisi vertikal (bagian imajiner). Tidak perlu memikirkan "akar dari −1" dulu. Cukup anggap <var>i</var> sebagai penanda "ini koordinat vertikal".</p>
+<div class="diagram" aria-label="Diagram lingkaran satuan dan rumus Euler">
+<svg viewBox="0 0 560 250" role="img">
+  <line x1="40" x2="300" y1="125" y2="125" stroke="var(--muted)"/>
+  <line x1="170" x2="170" y1="12" y2="238" stroke="var(--muted)"/>
+  <text x="296" y="142" font-size="12" fill="var(--muted)" text-anchor="end">real</text>
+  <text x="176" y="22" font-size="12" fill="var(--muted)">imajiner</text>
+  <circle cx="170" cy="125" r="100" fill="none" stroke="var(--border)" stroke-width="2"/>
+  <line x1="170" y1="125" x2="220" y2="38.4" stroke="var(--accent)" stroke-width="3"/>
+  <line x1="220" y1="38.4" x2="220" y2="125" stroke="var(--warn)" stroke-width="2" stroke-dasharray="5 4"/>
+  <line x1="170" y1="128" x2="220" y2="128" stroke="var(--good)" stroke-width="3"/>
+  <path d="M 200 125 A 30 30 0 0 0 185 99" fill="none" stroke="var(--text)"/>
+  <text x="204" y="110" font-size="13" fill="var(--text)">θ</text>
+  <circle cx="220" cy="38.4" r="6" fill="var(--accent)"/>
+  <text x="228" y="34" font-size="13" fill="var(--accent)" font-weight="600">e^(iθ)</text>
+  <text x="196" y="146" font-size="12" fill="var(--good)" text-anchor="middle">cos θ</text>
+  <text x="226" y="88" font-size="12" fill="var(--warn)">sin θ</text>
+  <text x="275" y="129" font-size="11" fill="var(--muted)">1</text>
+  <text x="330" y="70" font-size="15" fill="var(--text)" font-weight="600">e^(iθ) = cos θ + i·sin θ</text>
+  <text x="330" y="98" font-size="13" fill="var(--muted)">= titik di lingkaran berjari-jari 1</text>
+  <text x="330" y="118" font-size="13" fill="var(--muted)">pada sudut θ</text>
+  <text x="330" y="160" font-size="13" fill="var(--text)">e^(−i2πft): titik yang berputar</text>
+  <text x="330" y="180" font-size="13" fill="var(--text)">f kali per detik, searah jarum jam</text>
+  <text x="330" y="200" font-size="13" fill="var(--muted)">(tanda minus = arah jarum jam)</text>
+</svg>
+</div>
+<p>Rumus Euler menyatakan:</p>
+<div class="formula big"><var>e</var><sup><var>iθ</var></sup> = <span class="h3">cos θ</span> + <var>i</var> · <span class="h2">sin θ</span></div>
+<p>Artinya, <var>e</var><sup><var>iθ</var></sup> adalah <b>titik pada lingkaran berjari-jari 1, di sudut θ</b>. Posisi horizontalnya cos θ, posisi vertikalnya sin θ. Bukti mengapa pangkat imajiner menghasilkan lingkaran memang menarik, tetapi untuk memahami Fourier kamu cukup memperlakukan <var>e</var><sup><var>iθ</var></sup> sebagai <b>singkatan untuk "titik berputar"</b>.</p>
+<p>Sekarang ganti θ dengan −2π<var>ft</var>. Seiring waktu <var>t</var> bertambah, sudutnya berubah terus, sehingga <var>e</var><sup>−<var>i</var>2π<var>ft</var></sup> adalah titik yang berputar <var>f</var> putaran per detik searah jarum jam. Dan perhatikan apa yang terjadi saat kita mengalikannya dengan sinyal:</p>
+<div class="formula"><var>x</var>(<var>t</var>) · <var>e</var><sup>−<var>i</var>2π<var>ft</var></sup> = <span class="h3"><var>x</var>(<var>t</var>)·cos(2π<var>ft</var>)</span> − <var>i</var> · <span class="h2"><var>x</var>(<var>t</var>)·sin(2π<var>ft</var>)</span></div>
+<p>Bagian realnya adalah penguji kosinus dan bagian imajinernya adalah penguji sinus dari Bagian 5. <b>Satu perkalian kompleks menjalankan dua penguji sekaligus.</b> Tidak ada sihir di sini, hanya cara menulis yang ringkas.</p>
+<div class="box note"><strong>🧭 Tafsiran geometris</strong>
+  <var>x</var>(<var>t</var>)·<var>e</var><sup>−<var>i</var>2π<var>ft</var></sup> adalah titik yang jaraknya dari pusat sebesar <var>x</var>(<var>t</var>) dan sudutnya terus berputar. Seiring waktu, titik ini menggambar sebuah kurva yang <b>melilit</b> pusat. Sinyal kita seolah "digulung" mengelilingi lingkaran. Bagian 7 menjadikan gambaran ini simulasi.
+</div>
+</section>
+
+<!-- 7 -->
+<section id="pelilit">
+<h2>7. Mesin Pelilit Fourier</h2>
+<p>Gambaran ini dipopulerkan oleh video 3Blue1Brown dan merupakan cara paling intuitif untuk "melihat" rumus Fourier bekerja. Prosedurnya:</p>
+<ol class="steps">
+  <li>Ambil grafik sinyal <var>x</var>(<var>t</var>) dan gulung mengelilingi titik pusat. Jarak dari pusat = nilai sinyal.</li>
+  <li>Kecepatan menggulung ditentukan oleh <b>frekuensi lilitan</b> <var>f</var>, yaitu berapa putaran per detik.</li>
+  <li>Hitung <b>titik pusat massa</b> kurva hasil gulungan, yaitu rata-rata semua titiknya.</li>
+  <li>Untuk sebagian besar <var>f</var>, kurva tersebar merata di semua arah dan pusat massanya dekat dengan pusat. Ketika <var>f</var> <b>sama</b> dengan frekuensi di dalam sinyal, puncak-puncak sinyal selalu jatuh di sisi yang sama, kurva menjadi berat sebelah, dan pusat massa melompat menjauh.</li>
+</ol>
+<div class="demo">
+  <h4>🎛 Simulasi 3 · Mesin pelilit</h4>
+  <p>Geser frekuensi lilitan perlahan dari 0 ke 6. Amati kapan bentuk gulungan tiba-tiba menjadi berat sebelah dan titik oranye (pusat massa) menjauh dari pusat.</p>
+  <div class="controls">
+    <select class="btn" id="d3S" aria-label="Pilih sinyal">
+      <option value="1">Sinyal: 1 nada (3 Hz)</option>
+      <option value="2">Sinyal: 2 nada (2 Hz + 5 Hz)</option>
+    </select>
+    <label class="range" for="d3W">Frekuensi lilitan <input type="range" id="d3W" min="0" max="6" step="0.01" value="1.2"> <b id="d3Wv"></b></label>
+    <button class="btn primary" id="d3Sweep">▶ Sapu otomatis</button>
+  </div>
+  <canvas class="plot" id="cv3s" style="height:90px"></canvas>
+  <p class="cap">Sinyal <var>x</var>(<var>t</var>) selama 4 detik. Sinyal diberi offset +1 agar selalu positif sehingga gulungannya mudah dilihat.</p>
+  <div class="wind">
+    <div><canvas class="plot" id="cv3w" style="height:280px"></canvas><p class="cap">Sinyal yang digulung. Titik oranye = pusat massa.</p></div>
+    <div><canvas class="plot" id="cv3c" style="height:280px"></canvas><p class="cap">Jarak pusat massa dari pusat untuk setiap frekuensi lilitan. <b>Inilah spektrum (transformasi Fourier) sinyal.</b></p></div>
+  </div>
+</div>
+<p>Kurva di panel kanan adalah transformasi Fourier itu sendiri. Puncak di 0 Hz berasal dari offset +1 (komponen konstan, disebut <b>DC</b>), sedangkan puncak lainnya berada tepat di frekuensi nada-nada penyusun sinyal. Tinggi puncaknya sebanding dengan amplitudo nada.</p>
+<div class="box tip"><strong>💡 Kenapa puncaknya punya lebar?</strong>
+  Kita hanya melilit sinyal selama 4 detik. Kalau frekuensi lilitan sedikit meleset dari 3 Hz, ketidakcocokannya baru terasa setelah beberapa putaran. Makin panjang sinyal yang diamati, makin tajam puncaknya. Ini cikal bakal "prinsip ketidakpastian" di Bagian 10.
+</div>
+</section>
+
+<!-- 8 -->
+<section id="rumus">
+<h2>8. Membaca Rumusnya Pelan-pelan</h2>
+<p>Sekarang semua potongan sudah lengkap. Mari baca lagi rumus yang tadi menakutkan, kali ini dengan warna:</p>
+<div class="formula big"><span class="h1"><var>X</var>(<var>f</var>)</span> = <span class="h4">∫<sub>−∞</sub><sup>∞</sup></span> <span class="h3"><var>x</var>(<var>t</var>)</span> · <span class="h2"><var>e</var><sup>−<var>i</var>2π<var>ft</var></sup></span> <span class="h4"><var>dt</var></span></div>
+<div class="anat">
+  <div style="--x:var(--good)"><b>x(t)</b>Sinyalmu: suara, getaran, atau data apa pun sebagai fungsi waktu.</div>
+  <div style="--x:var(--warn)"><b>e<sup>−i2πft</sup></b>Titik yang berputar <var>f</var> kali per detik searah jarum jam. Ini "penguji" ganda (kos + sin) sekaligus "mesin pelilit".</div>
+  <div style="--x:var(--violet)"><b>∫ … dt</b>Jumlahkan hasil kalinya sepanjang waktu. Sama dengan menghitung pusat massa gulungan (tanpa dibagi panjangnya).</div>
+  <div style="--x:var(--accent)"><b>X(f)</b>Satu bilangan kompleks per frekuensi. |<var>X</var>(<var>f</var>)| = seberapa banyak, sudutnya = fase.</div>
+</div>
+<div class="box note"><strong>🗣 Rumus dalam bahasa manusia</strong>
+  "Untuk setiap frekuensi <var>f</var>: gulung sinyal mengelilingi lingkaran dengan kecepatan <var>f</var> putaran per detik, lalu jumlahkan semua titiknya. Kalau hasilnya jauh dari nol, berarti frekuensi <var>f</var> ada di dalam sinyal. Seberapa jauh menyatakan kekuatannya, dan ke arah mana menyatakan fasenya."
+</div>
+<h3>Arah sebaliknya: transformasi invers</h3>
+<p>Dari resep <var>X</var>(<var>f</var>) kita bisa menyusun ulang sinyal. Rumusnya nyaris kembar, hanya tanda minus pada pangkat hilang:</p>
+<div class="formula big"><var>x</var>(<var>t</var>) = ∫<sub>−∞</sub><sup>∞</sup> <var>X</var>(<var>f</var>) · <var>e</var><sup>+<var>i</var>2π<var>ft</var></sup> <var>df</var></div>
+<p>Bacanya: "jumlahkan semua titik berputar dengan kecepatan <var>f</var>, masing-masing diberi ukuran dan sudut awal sesuai <var>X</var>(<var>f</var>)". Ini persis epicycle Simulasi 2. <b>Transformasi maju = membongkar, transformasi invers = menyusun.</b></p>
+<div class="box warn"><strong>⚠️ Jangan kaget melihat versi lain</strong>
+  Buku teknik sering memakai frekuensi sudut ω = 2π<var>f</var> dan menulis <var>X</var>(ω) = ∫ <var>x</var>(<var>t</var>)<var>e</var><sup>−<var>i</var>ω<var>t</var></sup> <var>dt</var>, dengan faktor 1/(2π) dipindah ke rumus invers. Fisikawan kadang membagi rata menjadi 1/√(2π) di kedua sisi, dan insinyur listrik menulis <var>j</var> alih-alih <var>i</var>. Semuanya ide yang sama. Yang berbeda hanya di mana konstanta diletakkan.
+</div>
+<h3>Lalu apa bedanya dengan deret Fourier?</h3>
+<div class="tbl"><table>
+  <tr><th>Nama</th><th>Sinyal waktu</th><th>Spektrum</th><th>Dipakai untuk</th></tr>
+  <tr><td>Deret Fourier</td><td>kontinu, periodik</td><td>diskret (harmonik <var>k f</var><sub>0</sub>)</td><td>nada musik, gelombang berulang</td></tr>
+  <tr><td>Transformasi Fourier</td><td>kontinu, tidak harus periodik</td><td>kontinu (semua <var>f</var>)</td><td>analisis teori, fisika</td></tr>
+  <tr><td>DTFT</td><td>diskret (sampel)</td><td>kontinu, periodik</td><td>teori filter digital</td></tr>
+  <tr><td><b>DFT / FFT</b></td><td>diskret, <var>N</var> sampel</td><td>diskret, <var>N</var> titik</td><td><b>semua yang dihitung komputer</b></td></tr>
+</table></div>
+</section>
+
+<!-- 9 -->
+<section id="dft">
+<h2>9. DFT: Fourier untuk Komputer</h2>
+<p>Komputer tidak punya sinyal kontinu, hanya daftar <var>N</var> sampel <var>x</var>[0], <var>x</var>[1], …, <var>x</var>[<var>N</var>−1]. Integral berubah menjadi penjumlahan, dan kita hanya menguji <var>N</var> frekuensi: 0, 1, 2, …, <var>N</var>−1 putaran per seluruh rekaman. Hasilnya adalah <b>Discrete Fourier Transform (DFT)</b>:</p>
+<div class="formula big"><var>X</var>[<var>k</var>] = Σ<sub><var>n</var>=0</sub><sup><var>N</var>−1</sup> <var>x</var>[<var>n</var>] · <var>e</var><sup>−<var>i</var>2π<var>kn</var>/<var>N</var></sup>
+  <small>dan inversnya: <var>x</var>[<var>n</var>] = (1/<var>N</var>) Σ<sub><var>k</var></sub> <var>X</var>[<var>k</var>] · <var>e</var><sup>+<var>i</var>2π<var>kn</var>/<var>N</var></sup></small></div>
+<p>Bandingkan dengan rumus kontinu: ∫ menjadi Σ, <var>t</var> menjadi indeks sampel <var>n</var>, dan <var>f</var> menjadi indeks <var>k</var> ("berapa putaran sepanjang <var>N</var> sampel"). Jika laju sampel <var>f<sub>s</sub></var> (sampel per detik), indeks <var>k</var> setara dengan frekuensi:</p>
+<div class="formula"><var>f<sub>k</sub></var> = <var>k</var> · <var>f<sub>s</sub></var> / <var>N</var> &nbsp;&nbsp;&nbsp; resolusi frekuensi Δ<var>f</var> = <var>f<sub>s</sub></var> / <var>N</var></div>
+
+<h3>✍️ Contoh hitung manual 1: <var>x</var> = [0, 1, 0, −1]</h3>
+<p>Dengan <var>N</var> = 4, nilai <var>e</var><sup>−<var>i</var>2π<var>kn</var>/4</sup> = (−<var>i</var>)<sup><var>kn</var></sup> hanya berputar di empat titik: 1, −<var>i</var>, −1, <var>i</var>. Kita susun tabelnya:</p>
+<div class="tbl"><table>
+  <tr><th></th><th class="num"><var>n</var>=0</th><th class="num"><var>n</var>=1</th><th class="num"><var>n</var>=2</th><th class="num"><var>n</var>=3</th><th>Hitungan <var>X</var>[<var>k</var>]</th></tr>
+  <tr><td><var>x</var>[<var>n</var>]</td><td class="num">0</td><td class="num">1</td><td class="num">0</td><td class="num">−1</td><td></td></tr>
+  <tr><td><var>k</var>=0</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td>0 + 1 + 0 − 1 = <b>0</b></td></tr>
+  <tr class="hit"><td><var>k</var>=1</td><td class="num">1</td><td class="num">−<var>i</var></td><td class="num">−1</td><td class="num"><var>i</var></td><td>1·(−<var>i</var>) + (−1)·<var>i</var> = <b>−2<var>i</var></b></td></tr>
+  <tr><td><var>k</var>=2</td><td class="num">1</td><td class="num">−1</td><td class="num">1</td><td class="num">−1</td><td>1·(−1) + (−1)·(−1) = <b>0</b></td></tr>
+  <tr class="hit"><td><var>k</var>=3</td><td class="num">1</td><td class="num"><var>i</var></td><td class="num">−1</td><td class="num">−<var>i</var></td><td>1·<var>i</var> + (−1)·(−<var>i</var>) = <b>2<var>i</var></b></td></tr>
+</table></div>
+<p>Hasilnya <var>X</var> = [0, −2<var>i</var>, 0, 2<var>i</var>]. Sinyal [0, 1, 0, −1] adalah satu siklus sinus, sehingga energinya muncul di <var>k</var> = 1. Besarnya |−2<var>i</var>| = 2 = <var>N</var>/2 dengan amplitudo asli 1. Hasilnya murni imajiner karena sinyalnya sinus (bukan kosinus), dan fase −90° itulah yang mencatat fakta tersebut.</p>
+<div class="box note"><strong>🪞 Kenapa ada kembaran di <var>k</var> = 3?</strong>
+  Untuk sinyal real, <var>X</var>[<var>N</var>−<var>k</var>] selalu sama dengan konjugat <var>X</var>[<var>k</var>]. Berputar 3 putaran searah jarum jam pada 4 sampel tidak bisa dibedakan dari berputar 1 putaran <i>berlawanan</i> arah jarum jam. Jadi <var>k</var> = 3 sebenarnya adalah "frekuensi −1". Sinus real = gabungan putaran kiri dan kanan yang bagian imajinernya saling meniadakan. Karena itu, untuk sinyal real kita cukup melihat separuh pertama spektrum, dan amplitudo aslinya = 2|<var>X</var>[<var>k</var>]|/<var>N</var>.
+</div>
+
+<h3>✍️ Contoh hitung manual 2: <var>x</var> = [1, 2, 3, 4] lalu kembali lagi</h3>
+<ol class="steps">
+  <li><var>X</var>[0] = 1 + 2 + 3 + 4 = <b>10</b>. Bin <var>k</var> = 0 selalu jumlah semua sampel, yaitu <var>N</var> × rata-rata (komponen DC).</li>
+  <li><var>X</var>[1] = 1·1 + 2·(−<var>i</var>) + 3·(−1) + 4·<var>i</var> = (1 − 3) + (−2 + 4)<var>i</var> = <b>−2 + 2<var>i</var></b></li>
+  <li><var>X</var>[2] = 1 − 2 + 3 − 4 = <b>−2</b> (penguji bolak-balik +1, −1: frekuensi tertinggi yang mungkin)</li>
+  <li><var>X</var>[3] = 1·1 + 2·<var>i</var> + 3·(−1) + 4·(−<var>i</var>) = <b>−2 − 2<var>i</var></b> (konjugat <var>X</var>[1], sesuai catatan di atas)</li>
+  <li>Cek invers untuk <var>n</var> = 0: <var>x</var>[0] = ¼ (10 + (−2+2<var>i</var>) + (−2) + (−2−2<var>i</var>)) = ¼ · 4 = <b>1</b>. Sinyal asli kembali utuh.</li>
+</ol>
+
+<div class="demo">
+  <h4>🎛 Simulasi 4 · Kalkulator DFT</h4>
+  <p>Ketik 2 sampai 16 angka dipisah spasi (desimal boleh pakai koma, misalnya <code>0,5 1 −1</code>), atau pakai tombol contoh. Cocokkan dengan hitungan manualmu.</p>
+  <div class="controls">
+    <input type="text" id="d4In" value="1 2 3 4" aria-label="Sampel sinyal">
+    <button class="btn primary" id="d4Go">Hitung DFT</button>
+  </div>
+  <div class="controls" id="d4Pre">
+    <button class="btn" data-v="0 1 0 -1">[0 1 0 −1]</button>
+    <button class="btn" data-v="1 2 3 4">[1 2 3 4]</button>
+    <button class="btn" data-v="1 1 1 1">[1 1 1 1]</button>
+    <button class="btn" data-v="1 0 0 0">[1 0 0 0]</button>
+    <button class="btn" data-v="1 -1 1 -1">[1 −1 1 −1]</button>
+    <button class="btn" data-v="0 0.71 1 0.71 0 -0.71 -1 -0.71">sinus 8 sampel</button>
+  </div>
+  <div class="tbl" id="d4Out"></div>
+  <div class="hbars" id="d4Bars" style="height:70px" aria-hidden="true"></div>
+  <div class="hlabels" id="d4Lab" aria-hidden="true"></div>
+  <p class="cap">Batang = |<var>X</var>[<var>k</var>]|. Coba [1 1 1 1] (konstan → hanya <var>k</var>=0) dan [1 0 0 0] (kedipan sesaat → semua <var>k</var> sama rata).</p>
+</div>
+
+<h3>✍️ Contoh hitung manual 3: membaca bin sebagai hertz</h3>
+<p>Kamu merekam getaran mesin dengan <var>f<sub>s</sub></var> = 1000 sampel/detik selama 0,5 detik, sehingga <var>N</var> = 500. Puncak terbesar ada di <var>k</var> = 60.</p>
+<ol class="steps">
+  <li>Resolusi: Δ<var>f</var> = <var>f<sub>s</sub></var>/<var>N</var> = 1000/500 = <b>2 Hz</b> per bin. (Sama dengan 1/durasi = 1/0,5 s.)</li>
+  <li>Frekuensi puncak: 60 × 2 = <b>120 Hz</b>. Bisa jadi dengung listrik 2 × 60 Hz, atau rotor yang berputar 7200 rpm.</li>
+  <li>Frekuensi tertinggi yang bermakna: bin <var>N</var>/2 = 250, yaitu <b>500 Hz</b> (= <var>f<sub>s</sub></var>/2, lihat Bagian 11).</li>
+  <li>Ingin membedakan 120 Hz dan 121 Hz? Butuh Δ<var>f</var> ≤ 1 Hz, jadi rekam minimal <b>1 detik</b>. Menaikkan <var>f<sub>s</sub></var> tidak membantu.</li>
+</ol>
+</section>
+
+<!-- 10 -->
+<section id="pasangan">
+<h2>10. Kamus Pasangan Waktu ↔ Frekuensi</h2>
+<p>Setelah melihat beberapa spektrum, pola-polanya mulai bisa dihafal seperti kosakata. Berikut pasangan paling penting. Kiri: sinyal di domain waktu. Kanan: transformasinya (sumbu frekuensi dari negatif ke positif, dengan 0 di tengah).</p>
+<div class="pairs" id="pairs"></div>
+<p>Pola besarnya: <b>apa yang sempit di satu domain menjadi lebar di domain lain</b>. Kedipan sesaat berisi semua frekuensi. Nada yang berbunyi selamanya hanya berisi satu frekuensi. Hanya fungsi Gaussian yang bentuknya sama di kedua sisi.</p>
+
+<div class="demo">
+  <h4>🎛 Simulasi 5 · Prinsip ketidakpastian</h4>
+  <p>Sebuah nada 8 Hz dibunyikan dalam "paket" berdurasi tertentu. Perpendek paketnya dan lihat spektrumnya melebar.</p>
+  <div class="controls">
+    <label class="range" for="d5S">Durasi paket σ<sub><var>t</var></sub> <input type="range" id="d5S" min="0.03" max="0.5" step="0.01" value="0.15"> <b id="d5Sv"></b></label>
+  </div>
+  <div class="wind" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+    <div><canvas class="plot" id="cv5t" style="height:170px"></canvas><p class="cap">Domain waktu, −1 s sampai 1 s</p></div>
+    <div><canvas class="plot" id="cv5f" style="height:170px"></canvas><p class="cap">Domain frekuensi, 0 sampai 20 Hz</p></div>
+  </div>
+  <div class="kpi"><div>Lebar waktu σ<sub><var>t</var></sub><b id="d5a"></b></div><div>Lebar frekuensi σ<sub><var>f</var></sub><b id="d5b"></b></div><div>σ<sub><var>t</var></sub> × σ<sub><var>f</var></sub><b id="d5c"></b></div></div>
+</div>
+<div class="box note"><strong>🥁 Tepuk tangan vs suling</strong>
+  Tepukan tangan sangat singkat, sehingga spektrumnya lebar dan kamu tidak bisa menyebut nadanya. Suling yang ditiup panjang punya spektrum sempit, sehingga nadanya jelas. Pada simulasi, hasil kali σ<sub><var>t</var></sub> × σ<sub><var>f</var></sub> untuk paket Gaussian selalu 1/(2π) ≈ 0,159 berapa pun durasinya. Secara umum ada batas bawah yang tidak bisa ditembus sinyal apa pun: jika lebar diukur dari sebaran energi |<var>x</var>|² dan |<var>X</var>|², batasnya 1/(4π) ≈ 0,08, dan Gaussian tepat mencapainya. Di mekanika kuantum, matematika yang sama persis menjadi prinsip ketidakpastian Heisenberg antara posisi dan momentum.
+</div>
+
+<h3>Sifat-sifat yang paling sering dipakai</h3>
+<div class="tbl"><table>
+  <tr><th>Operasi di domain waktu</th><th>Efek di domain frekuensi</th><th>Artinya</th></tr>
+  <tr><td><var>a</var>·<var>x</var>(<var>t</var>) + <var>b</var>·<var>y</var>(<var>t</var>)</td><td><var>a</var>·<var>X</var>(<var>f</var>) + <var>b</var>·<var>Y</var>(<var>f</var>)</td><td>Linear: campuran sinyal → campuran spektrum</td></tr>
+  <tr><td>geser waktu <var>x</var>(<var>t</var> − <var>t</var><sub>0</sub>)</td><td><var>X</var>(<var>f</var>)·<var>e</var><sup>−<var>i</var>2π<var>ft</var><sub>0</sub></sup></td><td>Besar spektrum tetap, hanya fase yang berubah</td></tr>
+  <tr><td>regangkan <var>x</var>(<var>at</var>)</td><td>(1/|<var>a</var>|)·<var>X</var>(<var>f</var>/<var>a</var>)</td><td>Rekaman dipercepat → nada naik dan spektrum melebar</td></tr>
+  <tr><td>konvolusi <var>x</var> ∗ <var>h</var></td><td>perkalian <var>X</var>·<var>H</var></td><td>Filter dan gema menjadi perkalian sederhana</td></tr>
+  <tr><td>perkalian <var>x</var>·<var>y</var></td><td>konvolusi <var>X</var> ∗ <var>Y</var></td><td>Memotong sinyal (windowing) membuat spektrum "meluber"</td></tr>
+  <tr><td>energi Σ|<var>x</var>|²</td><td>(1/<var>N</var>) Σ|<var>X</var>|²</td><td>Parseval: energi sama di kedua domain</td></tr>
+</table></div>
+</section>
+
+<!-- 11 -->
+<section id="aliasing">
+<h2>11. Sampling &amp; Aliasing</h2>
+<p>Pernah menonton video mobil yang rodanya tampak berputar pelan, diam, atau bahkan mundur? Kamera hanya mengambil sekitar 30 gambar per detik. Jika roda berputar hampir tepat satu putaran di antara dua gambar, setiap foto menangkap roda di posisi yang hampir sama, dan otak menyimpulkan roda berputar pelan. Inilah <b>aliasing</b>: frekuensi tinggi "menyamar" menjadi frekuensi rendah karena sampelnya terlalu jarang.</p>
+<div class="formula">Teorema Nyquist–Shannon: &nbsp; <var>f<sub>s</sub></var> &gt; 2 · <var>f</var><sub>maks</sub> &nbsp;&nbsp;&nbsp; <small>Frekuensi <var>f<sub>s</sub></var>/2 disebut frekuensi Nyquist. Komponen di atasnya akan terlipat ke bawah.</small></div>
+<div class="demo">
+  <h4>🎛 Simulasi 6 · Penyamaran frekuensi</h4>
+  <p>Garis tipis adalah sinyal asli. Titik-titik adalah sampel. Garis putus-putus adalah gelombang paling lambat yang melewati semua titik, yaitu yang "dilihat" komputer.</p>
+  <div class="controls">
+    <label class="range" for="d6F">Frekuensi sinyal <input type="range" id="d6F" min="1" max="30" step="1" value="7"> <b id="d6Fv"></b></label>
+    <label class="range" for="d6S">Laju sampel <var>f<sub>s</sub></var> <input type="range" id="d6S" min="4" max="40" step="1" value="10"> <b id="d6Sv"></b></label>
+  </div>
+  <canvas class="plot" id="cv6" style="height:200px"></canvas>
+  <div class="kpi"><div>Frekuensi Nyquist<b id="d6N"></b></div><div>Terlihat sebagai<b id="d6A"></b></div><div>Status<b id="d6St"></b></div></div>
+</div>
+<h3>✍️ Contoh hitung manual: ke mana frekuensi menyamar?</h3>
+<p>Rumusnya: frekuensi yang terlihat = |<var>f</var> − <var>m</var>·<var>f<sub>s</sub></var>|, dengan <var>m</var> bilangan bulat yang membuat hasilnya paling kecil.</p>
+<ol class="steps">
+  <li><var>f</var> = 70 Hz, <var>f<sub>s</sub></var> = 100 Hz. Nyquist = 50 Hz, jadi 70 Hz terlalu tinggi. <var>m</var> = 1: |70 − 100| = <b>30 Hz</b>.</li>
+  <li><var>f</var> = 7 Hz, <var>f<sub>s</sub></var> = 10 Hz (pengaturan awal simulasi). |7 − 10| = <b>3 Hz</b>. Cek di simulasi: garis putus-putus berulang 3 kali dalam 1 detik.</li>
+  <li><var>f</var> = 26 Hz, <var>f<sub>s</sub></var> = 25 Hz. |26 − 25| = <b>1 Hz</b>. Sinyal cepat terlihat seperti ayunan lambat, persis roda mobil di video.</li>
+</ol>
+<div class="box tip"><strong>🎵 Kenapa CD memakai 44.100 Hz?</strong>
+  Telinga manusia mendengar sampai sekitar 20.000 Hz. Nyquist meminta <var>f<sub>s</sub></var> &gt; 40.000 Hz, ditambah sedikit ruang untuk filter anti-aliasing yang membuang frekuensi di atas 20 kHz <i>sebelum</i> sampling. Setelah sampling, aliasing tidak bisa dibedakan dari sinyal asli dan tidak bisa dibuang lagi.
+</div>
+</section>
+
+<!-- 12 -->
+<section id="fft">
+<h2>12. FFT: Kenapa Bisa Secepat Itu</h2>
+<p>DFT langsung membutuhkan <var>N</var> perkalian untuk setiap <var>k</var>, dan ada <var>N</var> nilai <var>k</var>. Totalnya <var>N</var>² operasi. Untuk 1 detik audio CD (<var>N</var> = 44.100), itu hampir 2 miliar perkalian. <b>Fast Fourier Transform (FFT)</b> menghasilkan angka yang <i>persis sama</i> dengan sekitar <var>N</var> log<sub>2</sub> <var>N</var> operasi. Algoritmanya dipopulerkan oleh Cooley dan Tukey tahun 1965, meskipun Gauss sudah memakai ide serupa sekitar 1805.</p>
+<p>Idenya adalah <b>bagi dua lalu gabungkan</b>. Pisahkan sampel genap dan ganjil, hitung DFT masing-masing (ukurannya separuh), lalu gabungkan dengan satu putaran tambahan yang disebut <i>twiddle factor</i>:</p>
+<div class="formula"><var>X</var>[<var>k</var>] = <var>E</var>[<var>k</var>] + <var>W<sup>k</sup></var>·<var>O</var>[<var>k</var>] &nbsp;&nbsp; <var>X</var>[<var>k</var> + <var>N</var>/2] = <var>E</var>[<var>k</var>] − <var>W<sup>k</sup></var>·<var>O</var>[<var>k</var>] &nbsp;&nbsp; <small><var>W</var> = <var>e</var><sup>−<var>i</var>2π/<var>N</var></sup>, <var>E</var> = DFT sampel genap, <var>O</var> = DFT sampel ganjil</small></div>
+<p>Satu hasil <var>E</var>[<var>k</var>]·<var>O</var>[<var>k</var>] dipakai dua kali, untuk <var>X</var>[<var>k</var>] dan <var>X</var>[<var>k</var>+<var>N</var>/2]. Pembagian ini diulang terus sampai ukurannya 1, sehingga ada log<sub>2</sub> <var>N</var> tingkat yang masing-masing butuh sekitar <var>N</var> operasi.</p>
+<div class="diagram" aria-label="Diagram FFT untuk x = 1,2,3,4">
+<svg viewBox="0 0 600 230" role="img">
+  <g font-size="13" fill="var(--text)">
+    <text x="20" y="45">x[0]=1</text><text x="20" y="85">x[2]=3</text>
+    <text x="20" y="150">x[1]=2</text><text x="20" y="190">x[3]=4</text>
+  </g>
+  <rect x="120" y="22" width="140" height="80" rx="10" fill="var(--accent-soft)" stroke="var(--accent)"/>
+  <text x="190" y="52" text-anchor="middle" font-size="13" font-weight="600" fill="var(--accent)">DFT-2 genap</text>
+  <text x="190" y="72" text-anchor="middle" font-size="12" fill="var(--text)">E = [1+3, 1−3]</text>
+  <text x="190" y="90" text-anchor="middle" font-size="12" fill="var(--text)">= [4, −2]</text>
+  <rect x="120" y="128" width="140" height="80" rx="10" fill="var(--surface-2)" stroke="var(--warn)"/>
+  <text x="190" y="158" text-anchor="middle" font-size="13" font-weight="600" fill="var(--warn)">DFT-2 ganjil</text>
+  <text x="190" y="178" text-anchor="middle" font-size="12" fill="var(--text)">O = [2+4, 2−4]</text>
+  <text x="190" y="196" text-anchor="middle" font-size="12" fill="var(--text)">= [6, −2]</text>
+  <g stroke="var(--muted)" stroke-width="1.5">
+    <line x1="80" y1="41" x2="120" y2="50"/><line x1="80" y1="81" x2="120" y2="74"/>
+    <line x1="80" y1="146" x2="120" y2="156"/><line x1="80" y1="186" x2="120" y2="180"/>
+    <line x1="260" y1="50" x2="320" y2="40"/><line x1="260" y1="80" x2="320" y2="150"/>
+    <line x1="260" y1="156" x2="320" y2="80"/><line x1="260" y1="186" x2="320" y2="190"/>
+  </g>
+  <rect x="320" y="18" width="150" height="196" rx="10" fill="var(--surface-2)" stroke="var(--border)"/>
+  <text x="395" y="40" text-anchor="middle" font-size="13" font-weight="600" fill="var(--text)">Gabung</text>
+  <text x="395" y="58" text-anchor="middle" font-size="11.5" fill="var(--muted)">W¹ = e^(−iπ/2) = −i</text>
+  <text x="395" y="90" text-anchor="middle" font-size="12" fill="var(--text)">X0 = 4 + 6</text>
+  <text x="395" y="112" text-anchor="middle" font-size="12" fill="var(--text)">X1 = −2 + (−i)(−2)</text>
+  <text x="395" y="134" text-anchor="middle" font-size="12" fill="var(--text)">X2 = 4 − 6</text>
+  <text x="395" y="156" text-anchor="middle" font-size="12" fill="var(--text)">X3 = −2 − (−i)(−2)</text>
+  <g font-size="13" font-weight="600" fill="var(--good)">
+    <text x="490" y="94">= 10</text><text x="490" y="116">= −2 + 2i</text><text x="490" y="138">= −2</text><text x="490" y="160">= −2 − 2i</text>
+  </g>
+</svg>
+</div>
+<h3>✍️ Contoh hitung manual: FFT untuk [1, 2, 3, 4]</h3>
+<ol class="steps">
+  <li>Pisahkan: genap = [1, 3], ganjil = [2, 4].</li>
+  <li>DFT ukuran 2 itu mudah: [<var>a</var>, <var>b</var>] → [<var>a</var>+<var>b</var>, <var>a</var>−<var>b</var>]. Jadi <var>E</var> = [4, −2] dan <var>O</var> = [6, −2].</li>
+  <li><var>k</var> = 0, <var>W</var><sup>0</sup> = 1: <var>X</var>[0] = 4 + 6 = <b>10</b>, <var>X</var>[2] = 4 − 6 = <b>−2</b>.</li>
+  <li><var>k</var> = 1, <var>W</var><sup>1</sup> = −<var>i</var>: <var>W</var>·<var>O</var>[1] = (−<var>i</var>)(−2) = 2<var>i</var>. <var>X</var>[1] = −2 + 2<var>i</var>, <var>X</var>[3] = −2 − 2<var>i</var>.</li>
+</ol>
+<p>Hasilnya identik dengan contoh hitung manual 2 di Bagian 9, tetapi dengan perkalian lebih sedikit. Selisihnya meledak saat <var>N</var> membesar:</p>
+<div class="tbl"><table>
+  <tr><th class="num"><var>N</var></th><th class="num">DFT langsung (<var>N</var>²)</th><th class="num">FFT (<var>N</var> log<sub>2</sub><var>N</var>)</th><th class="num">Lebih cepat</th></tr>
+  <tr><td class="num">8</td><td class="num">64</td><td class="num">24</td><td class="num">2,7×</td></tr>
+  <tr><td class="num">1.024</td><td class="num">1.048.576</td><td class="num">10.240</td><td class="num">102×</td></tr>
+  <tr><td class="num">65.536</td><td class="num">4.294.967.296</td><td class="num">1.048.576</td><td class="num">4.096×</td></tr>
+  <tr><td class="num">1.048.576</td><td class="num">± 1,1 × 10<sup>12</sup></td><td class="num">± 2,1 × 10<sup>7</sup></td><td class="num">52.429×</td></tr>
+</table></div>
+<p>Tanpa FFT, hampir semua teknologi di bagian berikutnya tidak akan bisa berjalan secara real-time.</p>
+</section>
+
+<!-- 13 -->
+<section id="aplikasi">
+<h2>13. Aplikasi &amp; Lab Filter Noise</h2>
+<p>Hampir setiap perangkat digital di sekitarmu menjalankan FFT ribuan kali per detik. Polanya hampir selalu sama: <b>pindah ke domain frekuensi, lakukan sesuatu yang sulit di domain waktu, lalu kembali</b>.</p>
+<div class="grid2">
+  <div class="card"><span class="ic">🎚</span><b>Equalizer &amp; peredam bising</b><span>Bass dinaikkan dengan memperbesar <var>X</var>(<var>f</var>) di frekuensi rendah. Headphone ANC menganalisis bising mesin pesawat dan memancarkan versi berlawanan fasenya.</span></div>
+  <div class="card"><span class="ic">🎧</span><b>MP3 &amp; AAC</b><span>Sinyal dipecah menjadi frekuensi. Komponen yang tertutup suara lebih keras (masking) dan tidak akan terdengar dibuang, sehingga file menjadi ±10× lebih kecil.</span></div>
+  <div class="card"><span class="ic">🖼</span><b>JPEG</b><span>Memakai DCT, sepupu Fourier yang hanya memakai kosinus, pada blok 8×8 piksel. Detail frekuensi tinggi yang kurang terlihat mata dikuantisasi kasar.</span></div>
+  <div class="card"><span class="ic">🎶</span><b>Shazam</b><span>Lagu diubah menjadi spektrogram (FFT per potongan waktu), lalu puncak-puncaknya dijadikan "sidik jari" yang dicocokkan ke database.</span></div>
+  <div class="card"><span class="ic">🧲</span><b>MRI</b><span>Mesin MRI mengukur data langsung di domain frekuensi spasial ("k-space"). Gambar tubuh yang dilihat dokter adalah hasil transformasi Fourier invers 2D.</span></div>
+  <div class="card"><span class="ic">📶</span><b>WiFi, 4G, 5G</b><span>Teknik OFDM mengirim data di ratusan frekuensi sempit secara paralel. Pemancar memakai IFFT dan penerima memakai FFT.</span></div>
+</div>
+
+<div class="demo">
+  <h4>🎛 Simulasi 7 · Lab filter noise</h4>
+  <p>Susun sinyal dari tiga nada, tambahkan noise, lalu bersihkan dengan memotong frekuensi di spektrum. Inilah cara kerja equalizer dan filter digital: <b>DFT → nolkan bin yang tidak diinginkan → DFT invers</b>.</p>
+  <div class="controls">
+    <label class="chk"><input type="checkbox" id="d7c1" checked> 3 Hz (amp 1)</label>
+    <label class="chk"><input type="checkbox" id="d7c2" checked> 8 Hz (amp 0,6)</label>
+    <label class="chk"><input type="checkbox" id="d7c3"> 40 Hz "dengung" (amp 0,4)</label>
+  </div>
+  <div class="controls">
+    <label class="range" for="d7N">Noise <input type="range" id="d7N" min="0" max="1" step="0.05" value="0.5"> <b id="d7Nv"></b></label>
+    <select class="btn" id="d7T" aria-label="Jenis filter">
+      <option value="low">Low-pass (loloskan di bawah batas)</option>
+      <option value="high">High-pass (loloskan di atas batas)</option>
+    </select>
+    <label class="range" for="d7C">Batas <input type="range" id="d7C" min="1" max="64" step="1" value="12"> <b id="d7Cv"></b></label>
+    <button class="btn" id="d7New">🎲 Noise baru</button>
+  </div>
+  <canvas class="plot" id="cv7t" style="height:200px"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--muted)"></i>sinyal + noise</span><span><i class="dot" style="background:var(--good)"></i>sinyal bersih (target)</span><span><i class="dot" style="background:var(--accent)"></i>hasil filter</span></div>
+  <canvas class="plot" id="cv7f" style="height:150px;margin-top:10px"></canvas>
+  <p class="cap">Spektrum sinyal ber-noise, 0–64 Hz. Batang berwarna diloloskan dan batang pudar dibuang. Noise putih tersebar rata di semua frekuensi, sedangkan nada berkumpul di satu bin.</p>
+  <div class="kpi"><div>Error sebelum filter (RMS)<b id="d7e1"></b></div><div>Error sesudah filter (RMS)<b id="d7e2"></b></div></div>
+</div>
+<div class="box tip"><strong>🧪 Eksperimen yang disarankan</strong>
+  (1) Set batas ke 10 Hz: kedua nada lolos dan sebagian besar noise hilang. (2) Turunkan ke 5 Hz: nada 8 Hz ikut terbuang, sehingga error naik lagi. (3) Nyalakan "dengung" 40 Hz lalu pakai low-pass 20 Hz untuk menghapusnya. (4) Pakai high-pass 30 Hz untuk mengambil <i>hanya</i> dengungnya. Filter yang baik membuang noise sebanyak mungkin tanpa memotong sinyal yang kita inginkan.
+</div>
+</section>
+
+<!-- 14 -->
+<section id="kode">
+<h2>14. Praktik dengan NumPy</h2>
+<p>Kode berikut sudah dijalankan dan outputnya ditampilkan apa adanya. Ia menguji DFT manual terhadap <code>np.fft.fft</code>, mencari resep sinyal campuran, lalu membersihkan noise dengan filter di domain frekuensi, sama seperti Simulasi 7.</p>
+<pre><code class="py">import numpy as np
+
+# 1) DFT manual vs np.fft untuk x = [0, 1, 0, -1]
+x = np.array([0, 1, 0, -1])
+N = len(x)
+n = np.arange(N)
+X_manual = np.array([np.sum(x * np.exp(-2j*np.pi*k*n/N)) for k in range(N)])
+print("DFT manual :", np.round(X_manual, 3))
+print("np.fft.fft :", np.round(np.fft.fft(x), 3))
+
+# 2) Cari "resep" sinyal campuran
+fs = 100                          # 100 sampel per detik
+t = np.arange(0, 1, 1/fs)         # 1 detik -> 100 sampel
+sinyal = 1.0*np.sin(2*np.pi*5*t) + 0.5*np.sin(2*np.pi*12*t)
+X = np.fft.rfft(sinyal)
+f = np.fft.rfftfreq(len(sinyal), 1/fs)
+amp = 2*np.abs(X)/len(sinyal)     # skala ke amplitudo asli
+for fi, a in zip(f, amp):
+    if a > 0.1:
+        print(f"frekuensi {fi:4.1f} Hz -> amplitudo {a:.2f}")
+
+# 3) Filter: buang noise frekuensi tinggi
+rng = np.random.default_rng(0)
+kotor = sinyal + 0.4*rng.standard_normal(len(t))
+Xk = np.fft.rfft(kotor)
+Xk[f > 15] = 0                    # saring: buang semua di atas 15 Hz
+bersih = np.fft.irfft(Xk, n=len(t))
+print("error sebelum filter:", round(np.sqrt(np.mean((kotor - sinyal)**2)), 3))
+print("error sesudah filter:", round(np.sqrt(np.mean((bersih - sinyal)**2)), 3))</code></pre>
+<p class="muted">Output:</p>
+<pre><code>DFT manual : [ 0.+0.j  0.-2.j  0.+0.j -0.+2.j]
+np.fft.fft : [0.+0.j 0.-2.j 0.+0.j 0.+2.j]
+frekuensi  5.0 Hz -> amplitudo 1.00
+frekuensi 12.0 Hz -> amplitudo 0.50
+error sebelum filter: 0.386
+error sesudah filter: 0.235</code></pre>
+<div class="box note"><strong>📌 Catatan praktis</strong>
+  <ul>
+    <li><code>np.fft.rfft</code> khusus sinyal real dan hanya mengembalikan separuh spektrum (0 sampai <var>f<sub>s</sub></var>/2). Pasangannya <code>irfft</code>.</li>
+    <li><code>np.fft.fftfreq</code> / <code>rfftfreq</code> menerjemahkan indeks <var>k</var> ke hertz, sehingga kamu tidak perlu menghitung <var>k</var>·<var>f<sub>s</sub></var>/<var>N</var> sendiri.</li>
+    <li>Untuk mendapatkan amplitudo asli, kalikan |<var>X</var>| dengan 2/<var>N</var> (kecuali bin 0 dan bin Nyquist, cukup 1/<var>N</var>).</li>
+    <li>Jika frekuensi sinyal tidak jatuh tepat di sebuah bin, energinya "meluber" ke bin tetangga (spectral leakage). Kalikan sinyal dengan jendela seperti <code>np.hanning(N)</code> sebelum FFT untuk menguranginya.</li>
+    <li>-0. di output pertama hanyalah nol bertanda negatif hasil pembulatan floating point, bukan kesalahan.</li>
+  </ul>
+</div>
+</section>
+
+<!-- 15 -->
+<section id="kuis">
+<h2>15. Kuis &amp; Cheat Sheet</h2>
+<p id="qScore">Jawab semua soal untuk melihat skormu.</p>
+<div id="quiz"></div>
+<h3>Cheat sheet</h3>
+<div class="tbl"><table>
+  <tr><th>Konsep</th><th>Rumus / nilai</th><th>Ingat sebagai</th></tr>
+  <tr><td>Gelombang sinus</td><td><var>A</var> sin(2π<var>ft</var> + φ)</td><td>Bayangan titik berputar</td></tr>
+  <tr><td>Rumus Euler</td><td><var>e</var><sup><var>iθ</var></sup> = cos θ + <var>i</var> sin θ</td><td>Titik di lingkaran pada sudut θ</td></tr>
+  <tr><td>Transformasi Fourier</td><td><var>X</var>(<var>f</var>) = ∫ <var>x</var>(<var>t</var>) <var>e</var><sup>−<var>i</var>2π<var>ft</var></sup> <var>dt</var></td><td>Gulung, lalu jumlahkan</td></tr>
+  <tr><td>Invers</td><td><var>x</var>(<var>t</var>) = ∫ <var>X</var>(<var>f</var>) <var>e</var><sup>+<var>i</var>2π<var>ft</var></sup> <var>df</var></td><td>Susun ulang dari resep</td></tr>
+  <tr><td>DFT</td><td><var>X</var>[<var>k</var>] = Σ <var>x</var>[<var>n</var>] <var>e</var><sup>−<var>i</var>2π<var>kn</var>/<var>N</var></sup></td><td>Versi komputer, <var>N</var> bin</td></tr>
+  <tr><td>Frekuensi bin</td><td><var>f<sub>k</sub></var> = <var>k</var>·<var>f<sub>s</sub></var>/<var>N</var>, Δ<var>f</var> = 1/durasi</td><td>Rekam lebih lama = lebih tajam</td></tr>
+  <tr><td>Amplitudo asli</td><td>2|<var>X</var>[<var>k</var>]|/<var>N</var></td><td>Skala dari np.fft</td></tr>
+  <tr><td>Nyquist</td><td><var>f<sub>s</sub></var> &gt; 2<var>f</var><sub>maks</sub></td><td>Kurang dari itu → aliasing</td></tr>
+  <tr><td>Alias</td><td>|<var>f</var> − <var>m</var>·<var>f<sub>s</sub></var>|</td><td>Roda mobil di video</td></tr>
+  <tr><td>Ketidakpastian</td><td>σ<sub><var>t</var></sub>·σ<sub><var>f</var></sub> ≥ 1/(4π) (lebar energi)</td><td>Sempit ↔ lebar</td></tr>
+  <tr><td>Konvolusi</td><td><var>x</var> ∗ <var>h</var> ↔ <var>X</var>·<var>H</var></td><td>Filter = perkalian spektrum</td></tr>
+  <tr><td>FFT</td><td><var>O</var>(<var>N</var> log <var>N</var>)</td><td>Bagi genap/ganjil, gabung</td></tr>
+</table></div>
+<div class="box note"><strong>📚 Untuk memperdalam</strong>
+  Video 3Blue1Brown, <i>But what is the Fourier Transform? A visual introduction</i> (asal ide mesin pelilit) · Kalid Azad, <i>An Interactive Guide to the Fourier Transform</i> (BetterExplained, analogi smoothie) ·
+  Steven W. Smith, <i>The Scientist and Engineer's Guide to Digital Signal Processing</i> (gratis online, bab 8–12) · Oppenheim &amp; Willsky, <i>Signals and Systems</i> untuk versi kuliah yang lengkap.
+</div>
+<div class="nav-mod"><a class="btn" href="../index.html">← Kembali ke beranda</a><a class="btn" href="#peta">Ulangi dari awal ↑</a></div>
+</section>
+
+<footer>Modul Pemrosesan Sinyal · Memahami Transformasi Fourier dari Nol. Referensi: Smith, <i>The Scientist and Engineer's Guide to DSP</i> (1997); Oppenheim &amp; Willsky, <i>Signals and Systems</i> (1997); Cooley &amp; Tukey (1965).</footer>
+</main>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const TAU=2*Math.PI;
+/* ---------- Sidebar, scrollspy, progress, tema ---------- */
+const sb=$('#sidebar');
+$('#menuBtn').onclick=()=>sb.classList.toggle('open');
+$$('#toc a').forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+const links=[...$$('#toc a')];
+const spy=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){links.forEach(l=>l.classList.toggle('active',l.hash==='#'+e.target.id))}
+}),{rootMargin:'-20% 0px -70% 0px'});
+$$('main section').forEach(s=>spy.observe(s));
+addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  $('#progress div').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+},{passive:true});
+$('#themeBtn').onclick=()=>{
+  const r=document.documentElement, dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme=dark?'light':'dark';
+  try{localStorage.setItem('rl-theme',r.dataset.theme)}catch(e){}
+  redrawAll();
+};
+try{const t=localStorage.getItem('rl-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+
+/* ---------- Highlight kode Python ---------- */
+$$('pre code.py').forEach(el=>{
+  el.innerHTML=el.textContent.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))
+    .replace(/(#.*$)|(f?"[^"\n]*")|\b(import|from|as|def|return|for|in|if|else|while|with|not|and|or|True|False|None|break)\b|\b(\d+\.?\d*(?:e-?\d+)?)\b/gm,
+      (m,c,s,k,n)=>c?`<span class="c">${c}</span>`:s?`<span class="s">${s}</span>`:k?`<span class="k">${k}</span>`:`<span class="n">${n}</span>`);
+});
+
+/* ---------- Util gambar (warna diambil dari token tema) ---------- */
+const C={};
+function readColors(){const cs=getComputedStyle(document.documentElement);
+  ['text','muted','border','accent','good','bad','warn','violet','surface','surface-2'].forEach(k=>C[k]=cs.getPropertyValue('--'+k).trim())}
+const fmt=(v,d=2)=>(Math.abs(v)<0.5*Math.pow(10,-d)?0:v).toFixed(d).replace('-','−').replace('.',',');
+const fmtS=v=>{v=Math.abs(v)<5e-4?0:+v.toFixed(3);return String(v).replace('-','−').replace('.',',')};
+const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function prep(cv){const dpr=window.devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;
+  const W=Math.max(1,Math.round(w*dpr)),H=Math.max(1,Math.round(h*dpr));
+  if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H}
+  const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);g.lineJoin='round';g.lineCap='round';return [g,w,h]}
+function path(g,pts,color,lw=2,dash){g.beginPath();pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));
+  g.strokeStyle=color;g.lineWidth=lw;g.setLineDash(dash||[]);g.stroke();g.setLineDash([])}
+const line=(g,x1,y1,x2,y2,color,lw=1,dash)=>path(g,[[x1,y1],[x2,y2]],color,lw,dash);
+function dot(g,x,y,r,color){g.beginPath();g.arc(x,y,r,0,TAU);g.fillStyle=color;g.fill()}
+function txt(g,s,x,y,color,align='left',size=11){g.fillStyle=color;g.font=`${size}px system-ui,-apple-system,"Segoe UI",sans-serif`;g.textAlign=align;g.fillText(s,x,y)}
+const redraws=[];
+function redrawAll(){readColors();redraws.forEach(f=>f())}
+addEventListener('resize',()=>{clearTimeout(window._rt);window._rt=setTimeout(redrawAll,120)});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);
+/* animasi hanya berjalan untuk kanvas yang terlihat */
+const anims=[],visible=new Map();
+const vio=new IntersectionObserver(es=>es.forEach(e=>visible.set(e.target,e.isIntersecting)));
+function animate(el,step){anims.push({el,step});vio.observe(el)}
+let lastT=performance.now();
+function loop(now){const dt=Math.min(0.05,(now-lastT)/1000);lastT=now;anims.forEach(a=>{if(visible.get(a.el))a.step(dt)});requestAnimationFrame(loop)}
+readColors();
+
+/* ---------- Diagram pembuka ---------- */
+(()=>{const p=[];for(let i=0;i<=300;i++){const t=i/300;
+  const v=Math.sin(TAU*2*t)+0.6*Math.sin(TAU*5*t)+0.35*Math.sin(TAU*9*t);p.push(`${(22+t*206).toFixed(1)},${(93-v*30).toFixed(1)}`)}
+  $('#heroWave').setAttribute('points',p.join(' '))})();
+
+/* ---------- Simulasi 1: anatomi sinus ---------- */
+const cv1=$('#cv1');let d1T=0,d1On=!reduceMotion;
+function d1Draw(){const [g,w,h]=prep(cv1);const A=+$('#d1A').value,f=+$('#d1F').value,ph=+$('#d1P').value;
+  $('#d1Av').textContent=fmt(A,1);$('#d1Fv').textContent=fmt(f,1)+' Hz';$('#d1Pv').textContent=ph+'°';
+  const phr=ph*Math.PI/180,R=Math.min(h*0.4,w*0.16),u=R/1.5,cx=R+16,cy=h/2-6,x0=cx+R+30,x1=w-12,T=2;
+  const X=t=>x0+t/T*(x1-x0);
+  line(g,cx-R-6,cy,cx+R+6,cy,C.border);line(g,cx,cy-R-6,cx,cy+R+6,C.border);
+  line(g,x0,cy,x1,cy,C.border);
+  [0,0.5,1,1.5,2].forEach(s=>{line(g,X(s),cy-4,X(s),cy+4,C.muted);txt(g,fmt(s,1).replace(',0','')+' s',X(s),h-8,C.muted,'center')});
+  line(g,x0,cy-A*u,x1,cy-A*u,C.border,1,[2,4]);txt(g,'+A',x0-6,cy-A*u+4,C.muted,'right');
+  g.beginPath();g.arc(cx,cy,A*u,0,TAU);g.strokeStyle=C.muted;g.lineWidth=1.5;g.stroke();
+  const pts=[];for(let i=0;i<=500;i++){const t=i/500*T;pts.push([X(t),cy-A*u*Math.sin(TAU*f*t+phr)])}
+  path(g,pts,C.accent,2.5);
+  const tm=d1T%T,th=TAU*f*tm+phr,px=cx+A*u*Math.cos(th),py=cy-A*u*Math.sin(th);
+  line(g,px,cy,px,py,C.good,2);line(g,cx,cy,px,py,C.warn,2.5);line(g,px,py,X(tm),py,C.muted,1,[4,4]);
+  dot(g,px,py,5,C.warn);dot(g,X(tm),py,5,C.accent);
+  txt(g,'sudut = 2πft + φ',8,16,C.muted)}
+['#d1A','#d1F','#d1P'].forEach(id=>$(id).oninput=d1Draw);
+$('#d1Play').onclick=()=>{d1On=!d1On;$('#d1Play').textContent=d1On?'⏸ Jeda':'▶ Putar'};
+$('#d1Play').textContent=d1On?'⏸ Jeda':'▶ Putar';
+animate(cv1,dt=>{if(d1On){d1T+=dt*0.6;d1Draw()}});redraws.push(d1Draw);
+
+/* ---------- Simulasi 2: deret Fourier & epicycle ---------- */
+const SH={
+  kotak:{b:k=>k%2?4/(Math.PI*k):0,y:x=>Math.sin(x)>=0?1:-1},
+  gergaji:{b:k=>(k%2?2:-2)/(Math.PI*k),y:x=>{const u=x/Math.PI;return u-2*Math.floor((u+1)/2)}},
+  segitiga:{b:k=>k%2?(((k-1)/2)%2?-1:1)*8/(Math.PI*Math.PI*k*k):0,y:x=>2/Math.PI*Math.asin(Math.sin(x))}
+};
+const cv2=$('#cv2');let d2Th=0.6,d2On=!reduceMotion;
+const d2Sum=(x,N,b)=>{let s=0;for(let k=1;k<=N;k++){const c=b(k);if(c)s+=c*Math.sin(k*x)}return s};
+function d2Draw(){const [g,w,h]=prep(cv2);const sh=SH[$('#d2S').value],N=+$('#d2N').value;
+  const L=Math.min(w*0.38,280),cy=h/2,s=Math.min(h*0.3,L*0.34),cx=L/2,x0=L+12,x1=w-12,span=4*Math.PI;
+  const X=x=>x0+x/span*(x1-x0);
+  line(g,x0,cy,x1,cy,C.border);line(g,x0,cy-s,x1,cy-s,C.border,1,[2,4]);line(g,x0,cy+s,x1,cy+s,C.border,1,[2,4]);
+  txt(g,'+1',x1,cy-s-4,C.muted,'right');txt(g,'−1',x1,cy+s+13,C.muted,'right');
+  const tp=[],ap=[];for(let i=0;i<=700;i++){const x=i/700*span;tp.push([X(x),cy-s*sh.y(x)]);ap.push([X(x),cy-s*d2Sum(x,N,sh.b)])}
+  path(g,tp,C.good,1.5,[5,4]);path(g,ap,C.accent,2.5);
+  const th=d2Th%span;let px=cx,py=cy;
+  for(let k=1;k<=N;k++){const c=sh.b(k);if(!c)continue;
+    g.globalAlpha=.4;g.beginPath();g.arc(px,py,Math.abs(c)*s,0,TAU);g.strokeStyle=C.muted;g.lineWidth=1;g.stroke();g.globalAlpha=1;
+    const nx=px+c*s*Math.cos(k*th),ny=py-c*s*Math.sin(k*th);line(g,px,py,nx,ny,C.text,1.4);px=nx;py=ny}
+  line(g,px,py,X(th),py,C.warn,1,[4,4]);dot(g,px,py,4,C.warn);dot(g,X(th),py,4.5,C.warn);
+  txt(g,'epicycle',8,16,C.muted)}
+function d2Info(){const sh=SH[$('#d2S').value],N=+$('#d2N').value;$('#d2Nv').textContent=N;
+  const bs=Array.from({length:30},(_,i)=>Math.abs(sh.b(i+1))),m=bs[0];
+  $('#d2Bars').innerHTML=bs.map((v,i)=>`<div class="${i<N&&v?'on':''}" style="height:${v/m*100}%"></div>`).join('');
+  $('#d2Lab').innerHTML=bs.map((_,i)=>`<span>${i===0||(i+1)%5===0?i+1:''}</span>`).join('');
+  $('#d2Peak').textContent=fmt(d2Sum(Math.PI/2,N,sh.b),3);
+  let e=0;const M=1000;for(let i=0;i<M;i++){const x=(i+0.5)/M*TAU,d=d2Sum(x,N,sh.b)-sh.y(x);e+=d*d}
+  $('#d2Err').textContent=fmt(Math.sqrt(e/M),3)}
+['#d2S','#d2N'].forEach(id=>$(id).oninput=()=>{d2Info();d2Draw()});
+$('#d2Play').onclick=()=>{d2On=!d2On;$('#d2Play').textContent=d2On?'⏸ Jeda':'▶ Putar'};
+$('#d2Play').textContent=d2On?'⏸ Jeda':'▶ Putar';
+let actx=null;
+$('#d2Snd').onclick=()=>{try{
+  actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume();
+  const sh=SH[$('#d2S').value],N=+$('#d2N').value,real=new Float32Array(N+1),imag=new Float32Array(N+1);
+  for(let k=1;k<=N;k++)imag[k]=sh.b(k);
+  const o=actx.createOscillator(),gn=actx.createGain(),t=actx.currentTime;
+  o.setPeriodicWave(actx.createPeriodicWave(real,imag));o.frequency.value=220;
+  gn.gain.setValueAtTime(0,t);gn.gain.linearRampToValueAtTime(0.2,t+0.03);gn.gain.setValueAtTime(0.2,t+1);gn.gain.linearRampToValueAtTime(0,t+1.2);
+  o.connect(gn);gn.connect(actx.destination);o.start(t);o.stop(t+1.25);
+  $('#d2Msg').textContent=`220 Hz, ${N} harmonik`;
+}catch(e){$('#d2Msg').textContent='audio tidak didukung'}};
+animate(cv2,dt=>{if(d2On){d2Th+=dt*Math.PI*0.5;d2Draw()}});d2Info();redraws.push(d2Draw);
+
+/* ---------- Simulasi 3: mesin pelilit ---------- */
+const D3T=4,D3M=1200,D3SIG={1:t=>1+0.8*Math.cos(TAU*3*t),2:t=>1+0.45*Math.cos(TAU*2*t)+0.45*Math.cos(TAU*5*t)};
+let d3x=[],d3Curve=[],d3Sweep=false;
+const cv3s=$('#cv3s'),cv3w=$('#cv3w'),cv3c=$('#cv3c');
+function d3Com(w){let re=0,im=0;for(let i=0;i<D3M;i++){const a=TAU*w*i/D3M*D3T;re+=d3x[i]*Math.cos(a);im-=d3x[i]*Math.sin(a)}return [re/D3M,im/D3M]}
+function d3Prep(){const fn=D3SIG[$('#d3S').value];d3x=Array.from({length:D3M},(_,i)=>fn(i/D3M*D3T));
+  d3Curve=Array.from({length:601},(_,j)=>Math.hypot(...d3Com(j/100)))}
+function d3Draw(){const W=+$('#d3W').value;$('#d3Wv').textContent=fmt(W,2)+' Hz';
+  // sinyal
+  let [g,w,h]=prep(cv3s);const Xs=t=>10+t/D3T*(w-20),Ys=v=>h-12-v/2*(h-24);
+  line(g,10,Ys(0),w-10,Ys(0),C.border);line(g,10,Ys(1),w-10,Ys(1),C.border,1,[2,4]);
+  path(g,d3x.map((v,i)=>[Xs(i/D3M*D3T),Ys(v)]),C.good,1.8);
+  [0,1,2,3,4].forEach(s=>txt(g,s+' s',Xs(s),h-1,C.muted,s===0?'left':s===4?'right':'center',10));
+  // gulungan
+  [g,w,h]=prep(cv3w);const cx=w/2,cy=h/2,sc=Math.min(w,h)/2*0.92/1.9;
+  line(g,cx-sc*1.9,cy,cx+sc*1.9,cy,C.border);line(g,cx,cy-sc*1.9,cx,cy+sc*1.9,C.border);
+  g.beginPath();g.arc(cx,cy,sc,0,TAU);g.strokeStyle=C.border;g.setLineDash([2,4]);g.lineWidth=1;g.stroke();g.setLineDash([]);
+  const pts=d3x.map((v,i)=>{const a=-TAU*W*i/D3M*D3T;return [cx+v*sc*Math.cos(a),cy-v*sc*Math.sin(a)]});
+  g.globalAlpha=.85;path(g,pts,C.accent,1.3);g.globalAlpha=1;
+  const [re,im]=d3Com(W),mx=cx+re*sc,my=cy-im*sc;
+  line(g,cx,cy,mx,my,C.warn,2.5);dot(g,mx,my,6.5,C.warn);dot(g,cx,cy,2.5,C.text);
+  txt(g,`lilitan ${fmt(W,2)} putaran/detik`,8,16,C.muted);txt(g,`|pusat massa| = ${fmt(Math.hypot(re,im),2)}`,8,h-8,C.warn);
+  // kurva spektrum
+  [g,w,h]=prep(cv3c);const pl=34,pr=12,pt=14,pb=26,Xc=v=>pl+v/6*(w-pl-pr),Yc=v=>h-pb-v/1.05*(h-pt-pb);
+  [0,0.5,1].forEach(v=>{line(g,pl,Yc(v),w-pr,Yc(v),C.border,1,v?[2,4]:undefined);txt(g,fmt(v,1),pl-6,Yc(v)+4,C.muted,'right',10)});
+  for(let s=0;s<=6;s++){line(g,Xc(s),h-pb,Xc(s),h-pb+4,C.muted);txt(g,s<6?s+'':'6 Hz',s<6?Xc(s):w-2,h-pb+16,C.muted,s<6?'center':'right',10)}
+  const upto=Math.round(W*100);
+  path(g,d3Curve.map((v,j)=>[Xc(j/100),Yc(v)]),C.border,1.5);
+  path(g,d3Curve.slice(0,upto+1).map((v,j)=>[Xc(j/100),Yc(v)]),C.accent,2.2);
+  line(g,Xc(W),pt,Xc(W),h-pb,C.warn,1,[4,4]);dot(g,Xc(W),Yc(Math.hypot(re,im)),5,C.warn)}
+$('#d3W').oninput=()=>{d3Sweep=false;$('#d3Sweep').textContent='▶ Sapu otomatis';d3Draw()};
+$('#d3S').oninput=()=>{d3Prep();d3Draw()};
+$('#d3Sweep').onclick=()=>{d3Sweep=!d3Sweep;if(d3Sweep&&+$('#d3W').value>=5.99)$('#d3W').value=0;$('#d3Sweep').textContent=d3Sweep?'⏸ Berhenti':'▶ Sapu otomatis'};
+animate(cv3w,dt=>{if(!d3Sweep)return;let v=+$('#d3W').value+dt*0.5;if(v>=6){v=6;d3Sweep=false;$('#d3Sweep').textContent='▶ Sapu otomatis'}
+  $('#d3W').value=v;d3Draw()});
+d3Prep();redraws.push(d3Draw);
+
+/* ---------- Simulasi 4: kalkulator DFT ---------- */
+function parseNums(s){s=s.trim().replace(/[−–]/g,'-');if(!s)return [];
+  const parts=/[\s;]/.test(s)?s.split(/[\s;]+/):s.split(',');return parts.filter(p=>p!=='').map(p=>p.replace(',','.')===''?NaN:+p.replace(',','.'))}
+function fmtC(re,im){const r=Math.abs(re)<5e-4?0:re,i=Math.abs(im)<5e-4?0:im;if(i===0)return fmtS(r);
+  const ai=Math.abs(i),im_=(ai===1?'':fmtS(ai))+'i';if(r===0)return (i<0?'−':'')+im_;return fmtS(r)+(i<0?' − ':' + ')+im_}
+function d4Go(){const x=parseNums($('#d4In').value);
+  if(x.length<2||x.length>16||x.some(v=>!isFinite(v))){$('#d4Out').innerHTML='<p class="stat">Masukkan 2 sampai 16 angka yang dipisah spasi, misalnya <code>1 2 3 4</code>.</p>';$('#d4Bars').innerHTML='';$('#d4Lab').innerHTML='';return}
+  const N=x.length,R=[];
+  for(let k=0;k<N;k++){let re=0,im=0;for(let n=0;n<N;n++){const a=TAU*k*n/N;re+=x[n]*Math.cos(a);im-=x[n]*Math.sin(a)}R.push([re,im,Math.hypot(re,im)])}
+  const mx=Math.max(...R.map(r=>r[2]));
+  $('#d4Out').innerHTML=`<table><tr><th class="num"><var>k</var></th><th><var>X</var>[<var>k</var>]</th><th class="num">|<var>X</var>[<var>k</var>]|</th><th class="num">fase</th><th class="num">amplitudo asli</th></tr>`+
+    R.map(([re,im,m],k)=>`<tr class="${mx>1e-9&&m>mx-1e-9?'hit':''}"><td class="num">${k}</td><td>${fmtC(re,im)}</td><td class="num">${fmtS(m)}</td><td class="num">${m<1e-9?'–':fmt(Math.atan2(Math.abs(im)<5e-10?0:im,re)*180/Math.PI,1)+'°'}</td><td class="num">${k===0||2*k===N?fmtS(m/N):k<N/2?fmtS(2*m/N):'<span class="muted">kembaran</span>'}</td></tr>`).join('')+'</table>';
+  $('#d4Bars').innerHTML=R.map(r=>`<div class="on" style="height:${mx>1e-9?r[2]/mx*100:0}%"></div>`).join('');
+  $('#d4Lab').innerHTML=R.map((_,k)=>`<span>${k}</span>`).join('')}
+$('#d4Go').onclick=d4Go;$('#d4In').addEventListener('keydown',e=>{if(e.key==='Enter')d4Go()});
+$$('#d4Pre button').forEach(b=>b.onclick=()=>{$('#d4In').value=b.dataset.v;d4Go()});
+d4Go();
+
+/* ---------- Kamus pasangan Fourier ---------- */
+const PAIRS=[
+  {n:'Sinus murni ↔ dua paku',d:'Nada abadi berfrekuensi f hanya punya energi di +f dan −f.',t:{fn:t=>Math.cos(TAU*3*t),r:[-1,1],b:.5,s:.4},f:{sp:[[-3,1],[3,1]],r:[-6,6]}},
+  {n:'Konstan ↔ paku di 0',d:'Sinyal yang tidak pernah berubah hanya berisi frekuensi 0 (komponen DC).',t:{fn:()=>0.7,r:[-1,1]},f:{sp:[[0,1]],r:[-6,6]}},
+  {n:'Kedipan ↔ datar',d:'Satu ketukan sesaat mengandung semua frekuensi dengan kekuatan sama rata.',t:{sp:[[0,1]],r:[-1,1]},f:{fn:()=>0.6,r:[-6,6]}},
+  {n:'Pulsa kotak ↔ sinc',d:'Tepi tajam membutuhkan banyak frekuensi tinggi, sehingga muncul riak yang menurun pelan.',t:{fn:t=>Math.abs(t)<0.25?1:0,r:[-1,1]},f:{fn:f=>Math.abs(f)<1e-9?1:Math.sin(Math.PI*f*0.5)/(Math.PI*f*0.5),r:[-10,10]}},
+  {n:'Gaussian ↔ Gaussian',d:'Satu-satunya bentuk yang sama di kedua sisi. Sempit di waktu berarti lebar di frekuensi.',t:{fn:t=>Math.exp(-t*t/(2*.15*.15)),r:[-1,1]},f:{fn:f=>Math.exp(-2*Math.PI*Math.PI*.15*.15*f*f),r:[-6,6]}},
+  {n:'Deret kedipan ↔ deret paku',d:'Kedipan tiap 0,5 s menjadi paku tiap 2 Hz. Inilah dasar matematika sampling.',t:{sp:[-1,-.5,0,.5,1].map(v=>[v,1]),r:[-1.15,1.15]},f:{sp:[-6,-4,-2,0,2,4,6].map(v=>[v,1]),r:[-7,7]}}
+];
+$('#pairs').innerHTML=PAIRS.map(p=>`<div class="pair"><b>${p.n}</b><div class="two"><canvas class="plot"></canvas><span aria-hidden="true">⇄</span><canvas class="plot"></canvas></div><div class="lbl"><span>waktu</span><span>frekuensi</span></div><p>${p.d}</p></div>`).join('');
+function mini(cv,o,color){const [g,w,h]=prep(cv),b=(o.b||.8)*h,s=(o.s||.65)*h,X=v=>6+(v-o.r[0])/(o.r[1]-o.r[0])*(w-12);
+  line(g,4,b,w-4,b,C.border);line(g,X(0),b-3,X(0),b+3,C.muted);
+  if(o.fn){const p=[];for(let i=0;i<=240;i++){const v=o.r[0]+i/240*(o.r[1]-o.r[0]);p.push([X(v),b-o.fn(v)*s])}path(g,p,color,1.8)}
+  if(o.sp)o.sp.forEach(([v,a])=>{line(g,X(v),b,X(v),b-a*s,color,2);dot(g,X(v),b-a*s,2.8,color)})}
+function pairsDraw(){$$('#pairs .pair').forEach((el,i)=>{const cs=el.querySelectorAll('canvas');mini(cs[0],PAIRS[i].t,C.good);mini(cs[1],PAIRS[i].f,C.accent)})}
+pairsDraw();redraws.push(pairsDraw);
+
+/* ---------- Simulasi 5: ketidakpastian ---------- */
+function d5Draw(){const s=+$('#d5S').value,sf=1/(TAU*s),f0=8;
+  $('#d5Sv').textContent=fmt(s,2)+' s';$('#d5a').textContent=fmt(s,3)+' s';$('#d5b').textContent=fmt(sf,2)+' Hz';$('#d5c').textContent=fmt(s*sf,3);
+  let [g,w,h]=prep($('#cv5t'));const cy=h/2-6,a=h*0.38,Xt=t=>8+(t+1)/2*(w-16);
+  line(g,8,cy,w-8,cy,C.border);
+  const env=[],envN=[],p=[];for(let i=0;i<=900;i++){const t=-1+i/900*2,e=Math.exp(-t*t/(2*s*s));env.push([Xt(t),cy-e*a]);envN.push([Xt(t),cy+e*a]);p.push([Xt(t),cy-e*Math.cos(TAU*f0*t)*a])}
+  path(g,env,C.muted,1,[3,4]);path(g,envN,C.muted,1,[3,4]);path(g,p,C.good,1.8);
+  [-1,0,1].forEach(t=>txt(g,t+' s',Xt(t),h-4,C.muted,t<0?'left':t>0?'right':'center',10));
+  [g,w,h]=prep($('#cv5f'));const by=h-22,fa=h-40,Xf=f=>10+f/20*(w-20);
+  line(g,10,by,w-10,by,C.border);
+  const q=[[Xf(0),by]];for(let i=0;i<=400;i++){const f=i/400*20;q.push([Xf(f),by-Math.exp(-((f-f0)**2)/(2*sf*sf))*fa])}q.push([Xf(20),by]);
+  g.beginPath();q.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.globalAlpha=.22;g.fillStyle=C.accent;g.fill();g.globalAlpha=1;
+  path(g,q.slice(1,-1),C.accent,2);
+  [0,5,10,15,20].forEach(f=>{line(g,Xf(f),by,Xf(f),by+4,C.muted);txt(g,f+'',Xf(f),by+15,C.muted,'center',10)});
+  txt(g,'8 Hz',Xf(8),14,C.muted,'center',10)}
+$('#d5S').oninput=d5Draw;d5Draw();redraws.push(d5Draw);
+
+/* ---------- Simulasi 6: aliasing ---------- */
+function d6Draw(){const f=+$('#d6F').value,fs=+$('#d6S').value,m=Math.round(f/fs),fa=f-m*fs,ny=fs/2;
+  $('#d6Fv').textContent=f+' Hz';$('#d6Sv').textContent=fs+' Hz';$('#d6N').textContent=fmt(ny,1)+' Hz';$('#d6A').textContent=Math.abs(fa)+' Hz';
+  const st=$('#d6St');st.textContent=f<ny?'✅ aman':f===ny?'⚠️ tepat di batas':'⚠️ aliasing';st.style.color=f<ny?'var(--good)':'var(--warn)';
+  const [g,w,h]=prep($('#cv6')),cy=h/2-8,a=h*0.36,X=t=>12+t*(w-24);
+  line(g,12,cy,w-12,cy,C.border);
+  [0,0.5,1].forEach(t=>txt(g,fmt(t,1).replace(',0','')+' s',X(t),h-6,C.muted,t===0?'left':t===1?'right':'center',10));
+  const tp=[];for(let i=0;i<=1500;i++){const t=i/1500;tp.push([X(t),cy-Math.sin(TAU*f*t)*a])}path(g,tp,C.muted,1.1);
+  const ap=[];for(let i=0;i<=600;i++){const t=i/600;ap.push([X(t),cy-Math.sin(TAU*fa*t)*a])}path(g,ap,f<ny?C.good:C.warn,2.2,[6,5]);
+  for(let n=0;n<=fs;n++){const t=n/fs,y=cy-Math.sin(TAU*f*t)*a;line(g,X(t),cy,X(t),y,C.accent,1);dot(g,X(t),y,4.5,C.accent)}}
+['#d6F','#d6S'].forEach(id=>$(id).oninput=d6Draw);d6Draw();redraws.push(d6Draw);
+
+/* ---------- Simulasi 7: lab filter ---------- */
+const N7=256,H7=N7/2,COS7=new Float64Array(N7),SIN7=new Float64Array(N7);
+for(let i=0;i<N7;i++){COS7[i]=Math.cos(TAU*i/N7);SIN7[i]=Math.sin(TAU*i/N7)}
+function mulberry32(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+let d7Seed=11,d7Noise=[],d7={};
+function d7NewNoise(){const r=mulberry32(d7Seed++);d7Noise=Array.from({length:N7},()=>Math.sqrt(-2*Math.log(1-r()))*Math.cos(TAU*r()))}
+function d7Run(){const on=['#d7c1','#d7c2','#d7c3'].map(id=>$(id).checked),A=[1,.6,.4],F=[3,8,40],nz=+$('#d7N').value,low=$('#d7T').value==='low',cut=+$('#d7C').value;
+  $('#d7Nv').textContent=fmt(nz,2);$('#d7Cv').textContent=cut+' Hz';
+  const clean=new Float64Array(N7),noisy=new Float64Array(N7),filt=new Float64Array(N7);
+  for(let n=0;n<N7;n++){let v=0;for(let j=0;j<3;j++)if(on[j])v+=A[j]*Math.sin(TAU*F[j]*n/N7);clean[n]=v;noisy[n]=v+nz*d7Noise[n]}
+  const re=new Float64Array(H7+1),im=new Float64Array(H7+1);
+  for(let k=0;k<=H7;k++){let a=0,b=0;for(let n=0;n<N7;n++){const i=(k*n)%N7;a+=noisy[n]*COS7[i];b-=noisy[n]*SIN7[i]}re[k]=a;im[k]=b}
+  const keep=k=>low?k<=cut:k>=cut;
+  for(let n=0;n<N7;n++){let s=keep(0)?re[0]:0;
+    for(let k=1;k<H7;k++)if(keep(k)){const i=(k*n)%N7;s+=2*(re[k]*COS7[i]-im[k]*SIN7[i])}
+    if(keep(H7))s+=re[H7]*(n%2?-1:1);filt[n]=s/N7}
+  const rms=(p,q)=>Math.sqrt(p.reduce((a,v,i)=>a+(v-q[i])**2,0)/N7);
+  $('#d7e1').textContent=fmt(rms(noisy,clean),3);$('#d7e2').textContent=fmt(rms(filt,clean),3);
+  d7={clean,noisy,filt,re,im,keep,cut,low};d7Draw()}
+function d7Draw(){const {clean,noisy,filt,re,im,keep,cut,low}=d7;
+  let [g,w,h]=prep($('#cv7t'));const cy=h/2-6,a=(h/2-16)/2.4,X=n=>10+n/(N7-1)*(w-20),Y=v=>cy-Math.max(-2.6,Math.min(2.6,v))*a;
+  line(g,10,cy,w-10,cy,C.border);
+  path(g,Array.from(noisy,(v,n)=>[X(n),Y(v)]),C.muted,1);
+  path(g,Array.from(clean,(v,n)=>[X(n),Y(v)]),C.good,2,[6,4]);
+  path(g,Array.from(filt,(v,n)=>[X(n),Y(v)]),C.accent,2.2);
+  [0,0.5,1].forEach(t=>txt(g,fmt(t,1).replace(',0','')+' s',X(t*(N7-1)),h-4,C.muted,t===0?'left':t===1?'right':'center',10));
+  [g,w,h]=prep($('#cv7f'));const K=64,pl=10,pb=20,bw=(w-2*pl)/(K+1),amp=k=>(k===0?1:2)*Math.hypot(re[k],im[k])/N7;
+  let mx=1.05;for(let k=0;k<=K;k++)mx=Math.max(mx,amp(k)*1.05);
+  const Yf=v=>h-pb-v/mx*(h-pb-14);
+  for(let k=0;k<=K;k++){const x=pl+k*bw;g.fillStyle=keep(k)?C.accent:C.border;g.fillRect(x+bw*0.15,Yf(amp(k)),bw*0.7,h-pb-Yf(amp(k)))}
+  line(g,pl,h-pb,w-pl,h-pb,C.muted);
+  const xc=pl+(low?cut+1:cut)*bw;line(g,xc,8,xc,h-pb,C.warn,1.5,[4,4]);txt(g,'batas',xc+4,16,C.warn,'left',10);
+  for(let k=0;k<K;k+=8)txt(g,k+'',pl+(k+0.5)*bw,h-5,C.muted,'center',10);
+  txt(g,K+' Hz',w-2,h-5,C.muted,'right',10)}
+['#d7c1','#d7c2','#d7c3','#d7N','#d7T','#d7C'].forEach(id=>$(id).oninput=d7Run);
+$('#d7New').onclick=()=>{d7NewNoise();d7Run()};
+d7NewNoise();d7Run();redraws.push(d7Draw);
+
+/* ---------- Kuis ---------- */
+const QZ=[
+  {q:'Secara paling sederhana, transformasi Fourier mengubah sinyal dari…',o:['domain frekuensi ke domain waktu','domain waktu ke domain frekuensi: "seberapa banyak tiap frekuensi" di dalam sinyal','sinyal analog ke digital','sinyal berisik menjadi bersih'],a:1,w:'Informasinya sama, hanya sudut pandangnya yang berubah: dari "nilai tiap saat" menjadi "resep frekuensi". Membersihkan noise adalah salah satu kegunaannya, bukan definisinya.'},
+  {q:'Spektrum sinyal x(t) = 3·sin(2π·50t) berisi…',o:['banyak puncak di kelipatan 50 Hz','satu puncak di 50 Hz (dan kembarannya di −50 Hz) dengan besar sebanding 3','puncak di 3 Hz','datar di semua frekuensi'],a:1,w:'Sinus murni hanya mengandung satu frekuensi. Amplitudo 3 menentukan tinggi puncaknya.'},
+  {q:'Di Bagian 5, penguji sinus gagal mendeteksi sinyal kosinus dengan frekuensi yang sama. Apa solusinya?',o:['Memakai frekuensi penguji yang lebih tinggi','Menguji dengan kosinus dan sinus sekaligus, lalu menyimpan kedua hasilnya sebagai satu bilangan kompleks','Membuang fase sinyal','Mengambil sampel lebih banyak'],a:1,w:'Dua penguji (kos dan sin) menangkap amplitudo dan fase. e^(−iθ) = cos θ − i sin θ melakukan keduanya dalam satu perkalian.'},
+  {q:'Pada mesin pelilit, kapan pusat massa gulungan melompat jauh dari titik pusat?',o:['Saat frekuensi lilitan = 0','Saat frekuensi lilitan sama dengan salah satu frekuensi yang ada di dalam sinyal','Saat sinyalnya paling keras','Selalu, untuk frekuensi lilitan berapa pun'],a:1,w:'Saat frekuensinya cocok, puncak-puncak sinyal selalu jatuh di sisi yang sama sehingga gulungan berat sebelah. (Lonjakan di 0 Hz hanya muncul karena sinyal diberi offset +1.)'},
+  {q:'DFT dari x = [1, 1, 1, 1] adalah…',o:['[1, 1, 1, 1]','[4, 0, 0, 0]','[0, 4, 0, 0]','[1, 0, 0, 0]'],a:1,w:'Sinyal konstan hanya berisi frekuensi 0. X[0] = jumlah semua sampel = 4, sedangkan bin lainnya saling meniadakan.'},
+  {q:'Sinyal 70 Hz di-sampling dengan 100 sampel/detik. Komputer akan melihatnya sebagai…',o:['70 Hz','140 Hz','30 Hz','50 Hz'],a:2,w:'Nyquist = 50 Hz, jadi 70 Hz terlipat: |70 − 100| = 30 Hz.'},
+  {q:'Sebuah pulsa yang sangat singkat di domain waktu akan memiliki spektrum yang…',o:['sangat sempit','sangat lebar','sama sempitnya','kosong'],a:1,w:'Sempit di satu domain berarti lebar di domain lain (prinsip ketidakpastian). Kedipan sesaat yang ideal berisi semua frekuensi.'},
+  {q:'Apa hubungan FFT dengan DFT?',o:['FFT adalah pendekatan DFT yang kurang akurat','FFT menghasilkan angka yang sama persis dengan DFT, tetapi dengan ±N log N operasi alih-alih N²','FFT hanya untuk gambar','FFT tidak bisa dibalik'],a:1,w:'FFT adalah algoritma untuk menghitung DFT yang sama, dengan memecah sampel genap/ganjil secara rekursif.'}
+];
+const answered={};
+$('#quiz').innerHTML=QZ.map((x,i)=>`<div class="q" data-i="${i}"><p>${i+1}. ${x.q}</p>${x.o.map((o,j)=>`<button data-j="${j}">${o}</button>`).join('')}<div class="why">${x.w}</div></div>`).join('');
+$$('.q button').forEach(b=>b.onclick=()=>{
+  const box=b.closest('.q'),i=box.dataset.i,x=QZ[i];
+  box.querySelectorAll('button').forEach(o=>o.classList.remove('right','wrong'));
+  b.classList.add(+b.dataset.j===x.a?'right':'wrong');
+  box.querySelector(`[data-j="${x.a}"]`).classList.add('right');
+  box.querySelector('.why').style.display='block';
+  if(!(i in answered))answered[i]=+b.dataset.j===x.a;
+  const n=Object.keys(answered).length,ok=Object.values(answered).filter(Boolean).length;
+  $('#qScore').textContent=n<QZ.length?`Terjawab ${n} dari ${QZ.length} · benar ${ok} (jawaban pertama yang dihitung)`:`Skor akhir: ${ok} dari ${QZ.length}. ${ok===QZ.length?'Sempurna! 🎉':ok>=6?'Bagus, ulangi bagian yang masih salah.':'Coba baca ulang Bagian 5–9 lalu ulangi kuisnya.'}`;
+});
+
+/* ---------- Gambar awal & mulai animasi ---------- */
+d1Draw();d2Draw();d3Draw();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
