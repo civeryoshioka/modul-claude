@@ -1,0 +1,1107 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Memahami Limit</title>
+<style>
+:root{
+  --bg:#f7f8fa;--surface:#ffffff;--surface-2:#f0f2f6;--text:#1c2230;--muted:#5b6474;
+  --border:#e1e5ec;--accent:#3a6df0;--accent-soft:#e6edff;--good:#1f9d63;--bad:#d64545;--warn:#c98a12;--violet:#7c4dff;
+  --code-bg:#f3f5f9;--sidebar-w:270px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+    --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--violet:#a98bff;--code-bg:#1d222b;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+  --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--violet:#a98bff;--code-bg:#1d222b;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+/* Sidebar */
+#sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);
+  overflow-y:auto;padding:22px 16px;z-index:20;transition:transform .25s}
+#sidebar .brand{font-weight:700;font-size:17px;margin:0 8px 2px}
+#sidebar .level{display:inline-block;margin:0 8px 16px;font-size:12px;padding:2px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar ol{list-style:none;margin:0;padding:0;counter-reset:toc}
+#sidebar li a{display:flex;gap:10px;padding:7px 10px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:14.5px;line-height:1.4}
+#sidebar li a::before{counter-increment:toc;content:counter(toc);min-width:20px;height:20px;border-radius:50%;background:var(--surface-2);
+  font-size:11.5px;display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+#sidebar li a:hover{background:var(--surface-2);color:var(--text)}
+#sidebar li a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar li a.active::before{background:var(--accent);color:#fff}
+#progress{height:4px;background:var(--surface-2);border-radius:4px;margin:0 8px 18px;overflow:hidden}
+#progress div{height:100%;width:0;background:var(--accent);transition:width .1s}
+#menuBtn{display:none;position:fixed;top:12px;left:12px;z-index:30;border:1px solid var(--border);background:var(--surface);color:var(--text);
+  border-radius:8px;padding:6px 12px;font-size:15px;cursor:pointer}
+#themeBtn{margin:18px 8px 0;font-size:13px}
+/* Main */
+main{margin-left:var(--sidebar-w);padding:40px 48px 80px;max-width:calc(var(--sidebar-w) + 900px)}
+main>*{max-width:860px}
+header.hero{padding:8px 0 24px;border-bottom:1px solid var(--border);margin-bottom:12px}
+header.hero h1{font-size:34px;line-height:1.2;margin:0 0 8px;text-wrap:balance}
+header.hero p{color:var(--muted);margin:0}
+section{padding-top:28px}
+h2{font-size:25px;margin:16px 0 10px;padding-top:8px;text-wrap:balance}
+h3{font-size:18.5px;margin:24px 0 6px;text-wrap:balance}
+p,li{color:var(--text)}
+main p,main li,.box,.card span{text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+.muted{color:var(--muted)}
+.box{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:16px 20px;margin:16px 0}
+.box.tip{border-left:4px solid var(--good)}
+.box.note{border-left:4px solid var(--accent)}
+.box.warn{border-left:4px solid var(--warn)}
+.box>strong:first-child{display:block;margin-bottom:4px}
+.box ul,.box ol{margin:6px 0 0;padding-left:22px}
+.formula{font-family:"Cambria Math","Times New Roman",serif;font-size:19px;text-align:center;background:var(--surface-2);
+  border-radius:10px;padding:14px;margin:14px 0;overflow-x:auto;white-space:nowrap}
+.formula.big{font-size:24px;padding:20px 14px}
+.formula var{font-style:italic}
+.formula small{font-family:system-ui,sans-serif;font-size:13px;color:var(--muted);display:block;white-space:normal;margin-top:4px}
+/* notasi integral: tanda ∫ besar, batas bertumpuk, pecahan */
+.ig{font-size:1.5em;line-height:1;vertical-align:-.2em;margin-right:1px}
+.lim{display:inline-flex;flex-direction:column;vertical-align:middle;font-size:.58em;line-height:1.25;margin-right:3px;text-align:left}
+.lim.r{margin:0 3px 0 1px}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.9em;line-height:1.3;margin:0 2px}
+.frac>span:first-child{border-bottom:1.5px solid currentColor;padding:0 4px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;background:var(--code-bg);padding:1px 6px;border-radius:5px}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-size:13.5px;line-height:1.55}
+pre code{background:none;padding:0}
+.c{color:var(--muted)} .k{color:var(--accent);font-weight:600} .s{color:var(--good)} .n{color:var(--warn)}
+.tbl{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--border);padding:7px 11px;text-align:left;vertical-align:top}
+th{background:var(--surface-2)}
+td.num,th.num{text-align:right}
+tr.hit td{background:color-mix(in srgb,var(--good) 12%,transparent)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:14px 0}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:14px 0}
+.card{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 16px;min-width:0}
+.card b{display:block;margin-bottom:2px}
+.card span{color:var(--muted);font-size:14.5px}
+.card .ic{font-size:26px;line-height:1;display:block;margin-bottom:6px}
+/* warna penanda rumus */
+.h1{color:var(--accent);font-weight:600}.h2{color:var(--warn);font-weight:600}.h3{color:var(--good);font-weight:600}
+.h4{color:var(--violet);font-weight:600}.h5{color:var(--bad);font-weight:600}
+.anat{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:14px 0}
+.anat div{border:1px solid var(--border);border-top:4px solid var(--x);background:var(--surface);border-radius:10px;padding:10px 14px;font-size:14.5px;min-width:0}
+.anat b{display:block;color:var(--x);font-family:"Cambria Math","Times New Roman",serif;font-size:19px}
+/* Demo widgets */
+.demo{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:18px;margin:18px 0}
+.demo h4{margin:0 0 4px;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent)}
+.demo>p{margin:4px 0 8px;font-size:15px}
+.controls{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:10px 0}
+select.btn{max-width:100%;text-overflow:ellipsis}
+button.btn,select.btn{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:8px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer}
+button.btn:hover,select.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+label.range{display:flex;align-items:center;gap:8px;font-size:14px;flex-wrap:wrap}
+label.range b{min-width:3.6em;font-variant-numeric:tabular-nums}
+label.chk{display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer}
+input[type=range]{accent-color:var(--accent);max-width:180px}
+input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px}
+input[type=number]{font:inherit;font-size:14px;width:110px;padding:5px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--text)}
+.kpi{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.kpi div{border:1px solid var(--border);background:var(--surface-2);border-radius:8px;padding:6px 12px;font-size:13px;color:var(--muted)}
+.kpi b{display:block;font-size:17px;color:var(--text);font-variant-numeric:tabular-nums}
+canvas.plot{display:block;width:100%;border:1px solid var(--border);border-radius:10px;background:var(--surface-2)}
+.cap{font-size:12.5px;color:var(--muted);margin:4px 2px 0}
+.legend{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:6px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.sumline{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;color:var(--muted);background:var(--surface-2);border-radius:8px;padding:6px 10px;margin:8px 0 0;overflow-x:auto;white-space:nowrap}
+.msg{font-size:14px;margin:8px 0 0;padding:8px 12px;border-radius:8px;background:var(--accent-soft);color:var(--text)}
+.alat{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:6px 14px;margin:10px 0}
+.alat label{display:flex;align-items:center;gap:8px;font-size:13.5px;cursor:pointer;border:1px solid var(--border);border-radius:8px;padding:5px 10px;background:var(--surface-2)}
+.alat label small{color:var(--muted);margin-left:auto;white-space:nowrap;font-variant-numeric:tabular-nums}
+/* Diagram */
+.diagram{overflow-x:auto;margin:16px 0}
+.diagram svg{display:block;width:100%;min-width:520px;max-width:720px;margin:0 auto}
+.diagram text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+/* Steps */
+.steps{counter-reset:st;list-style:none;padding:0}
+.steps li{counter-increment:st;position:relative;padding:4px 0 10px 42px}
+.steps li::before{content:counter(st);position:absolute;left:0;top:4px;width:28px;height:28px;border-radius:50%;background:var(--accent-soft);
+  color:var(--accent);font-weight:700;display:grid;place-items:center;font-size:14px}
+/* Quiz */
+.q{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 18px;margin:12px 0}
+.q p{margin:0 0 8px;font-weight:600}
+.q button{display:block;width:100%;text-align:left;margin:6px 0;border:1px solid var(--border);background:var(--surface-2);color:var(--text);
+  border-radius:8px;padding:8px 12px;font:inherit;font-size:14.5px;cursor:pointer}
+.q button.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 15%,transparent)}
+.q button.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,transparent)}
+.q .why{font-size:14px;color:var(--muted);display:none;margin-top:6px}
+#qScore{font-size:14px;color:var(--muted)}
+.nav-mod{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px}
+.nav-mod a{text-decoration:none}
+footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:14px}
+@media (max-width:900px){
+  #sidebar{transform:translateX(-100%);box-shadow:0 0 30px rgba(0,0,0,.2)}
+  #sidebar.open{transform:none}
+  #menuBtn{display:block}
+  main{margin-left:0;padding:60px 16px 60px}
+  header.hero h1{font-size:27px}
+}
+@media (max-width:620px){
+  .formula{font-size:17px}
+  .formula.big{font-size:20px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<button id="menuBtn" aria-label="Buka daftar isi">☰ Daftar Isi</button>
+
+<nav id="sidebar" aria-label="Daftar isi">
+  <a class="home-link" href="../index.html" style="display:block;margin:0 8px 12px;font-size:13px;text-decoration:none">← Beranda semua modul</a>
+  <div class="brand">Memahami Limit</div>
+  <span class="level">Kalkulus · Modul 1 dari 4</span>
+  <div id="progress"><div></div></div>
+  <ol id="toc">
+    <li><a href="#peta">Kenapa Limit Terasa Sulit?</a></li>
+    <li><a href="#analogi">Ide Besar lewat 6 Analogi</a></li>
+    <li><a href="#mendekat">Mendekat tanpa Menyentuh</a></li>
+    <li><a href="#sisi">Limit Kiri &amp; Kanan</a></li>
+    <li><a href="#aljabar">Menjinakkan 0/0</a></li>
+    <li><a href="#apit">Teorema Apit &amp; sin x / x</a></li>
+    <li><a href="#takhingga">Limit di Tak Hingga</a></li>
+    <li><a href="#euler">Bilangan e dari Bunga Majemuk</a></li>
+    <li><a href="#deret">Jumlah Tak Hingga: Zeno</a></li>
+    <li><a href="#kontinu">Kekontinuan</a></li>
+    <li><a href="#epsilon">Definisi ε–δ: Tantangan Toleransi</a></li>
+    <li><a href="#aplikasi">Limit di Dunia Nyata</a></li>
+    <li><a href="#kode">Praktik dengan Python</a></li>
+    <li><a href="#jebakan">Jebakan yang Sering Terjadi</a></li>
+    <li><a href="#kuis">Kuis &amp; Cheat Sheet</a></li>
+  </ol>
+  <button class="btn" id="themeBtn">🌓 Ganti tema</button>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Memahami Limit dari Nol</h1>
+  <p>Fondasi seluruh kalkulus, dijelaskan lewat analogi, gambar, dan simulasi sebelum rumus, sampai pemakaiannya di dunia nyata. Estimasi waktu belajar ± 2,5 jam.</p>
+</header>
+
+<div class="diagram" aria-label="Diagram: x mendekati a dari dua arah, nilai fungsi mendekati L walaupun di titik a ada lubang">
+<svg viewBox="0 0 690 232" role="img">
+  <rect x="10" y="14" width="205" height="160" rx="12" fill="var(--surface-2)" stroke="var(--border)"/>
+  <line x1="25" y1="100" x2="200" y2="100" stroke="var(--muted)" stroke-width="1.5"/>
+  <line x1="112" y1="92" x2="112" y2="108" stroke="var(--text)" stroke-width="2"/>
+  <text x="112" y="126" text-anchor="middle" font-size="14" font-weight="700" fill="var(--text)">a</text>
+  <circle cx="40" cy="100" r="4" fill="var(--warn)" opacity=".35"/><circle cx="70" cy="100" r="4" fill="var(--warn)" opacity=".55"/><circle cx="91" cy="100" r="4" fill="var(--warn)" opacity=".75"/><circle cx="103" cy="100" r="4" fill="var(--warn)"/>
+  <circle cx="184" cy="100" r="4" fill="var(--good)" opacity=".35"/><circle cx="154" cy="100" r="4" fill="var(--good)" opacity=".55"/><circle cx="133" cy="100" r="4" fill="var(--good)" opacity=".75"/><circle cx="121" cy="100" r="4" fill="var(--good)"/>
+  <text x="62" y="80" text-anchor="middle" font-size="12" fill="var(--warn)" font-weight="600">dari kiri →</text>
+  <text x="160" y="80" text-anchor="middle" font-size="12" fill="var(--good)" font-weight="600">← dari kanan</text>
+  <text x="112" y="196" text-anchor="middle" font-size="14" font-weight="600" fill="var(--text)">1 · Mendekat</text>
+  <text x="112" y="213" text-anchor="middle" font-size="11.5" fill="var(--muted)">"makin dekat, tapi tak pernah tiba"</text>
+  <polygon points="222,88 234,94 222,100" fill="var(--muted)"/>
+
+  <rect x="242" y="14" width="205" height="160" rx="12" fill="var(--surface-2)" stroke="var(--border)"/>
+  <polyline id="heroCurve" fill="none" stroke="var(--text)" stroke-width="2.4" points=""/>
+  <line x1="344" y1="160" x2="344" y2="94" stroke="var(--muted)" stroke-dasharray="4 4"/>
+  <line x1="256" y1="88" x2="337" y2="88" stroke="var(--muted)" stroke-dasharray="4 4"/>
+  <circle cx="344" cy="88" r="6" fill="var(--surface-2)" stroke="var(--accent)" stroke-width="2.5"/>
+  <text x="344" y="170" text-anchor="middle" font-size="12" fill="var(--text)">a</text>
+  <text x="262" y="82" font-size="12" fill="var(--accent)" font-weight="600">L</text>
+  <text x="344" y="196" text-anchor="middle" font-size="14" font-weight="600" fill="var(--text)">2 · Lihat tujuannya</text>
+  <text x="344" y="213" text-anchor="middle" font-size="11.5" fill="var(--muted)">"walau di a ada lubang"</text>
+  <polygon points="454,88 466,94 454,100" fill="var(--muted)"/>
+
+  <rect x="474" y="14" width="205" height="160" rx="12" fill="var(--accent-soft)" stroke="var(--accent)"/>
+  <text x="576" y="80" text-anchor="middle" font-size="30" fill="var(--accent)" font-family="Cambria Math,Times New Roman,serif">lim f(x) = L</text>
+  <text x="530" y="104" text-anchor="middle" font-size="14" fill="var(--accent)" font-family="Cambria Math,Times New Roman,serif">x→a</text>
+  <text x="576" y="140" text-anchor="middle" font-size="12" fill="var(--muted)">"f menuju L saat x menuju a"</text>
+  <text x="576" y="196" text-anchor="middle" font-size="14" font-weight="600" fill="var(--text)">3 · Tulis limitnya</text>
+  <text x="576" y="213" text-anchor="middle" font-size="11.5" fill="var(--muted)">"fondasi turunan &amp; integral"</text>
+</svg>
+</div>
+
+<div class="box note">
+  <strong>🎯 Tujuan belajar</strong>
+  Setelah modul ini kamu bisa menjelaskan limit dengan kata-katamu sendiri sebagai <b>"ke mana sebuah nilai menuju, bukan di mana ia berada"</b>,
+  membaca notasi <code>lim x→a f(x) = L</code>, membedakan limit kiri dan kanan, menjinakkan bentuk 0/0, menghitung limit di tak hingga,
+  memahami asal-usul bilangan <var>e</var> dan jumlah tak hingga, mengenali fungsi kontinu, membaca definisi ε–δ sebagai "tantangan toleransi", dan menerapkannya ke kasus nyata.
+  <br><span class="muted">Prasyarat: aljabar SMA (pemfaktoran, pecahan, akar) dan membaca grafik fungsi. Modul ini adalah pintu masuk ke <a href="02-turunan.html">Memahami Turunan</a> dan <a href="03-integral.html">Memahami Integral</a>.</span>
+</div>
+
+<!-- 1 -->
+<section id="peta">
+<h2>1. Kenapa Limit Terasa Sulit?</h2>
+<p>Banyak orang bertemu limit pertama kali dalam bentuk definisi resmi yang terlihat seperti kode rahasia:</p>
+<div class="formula">∀ε &gt; 0, ∃δ &gt; 0 sehingga 0 &lt; |<var>x</var> − <var>a</var>| &lt; δ ⇒ |<var>f</var>(<var>x</var>) − <var>L</var>| &lt; ε</div>
+<p>Atau sebaliknya, limit diajarkan sebagai resep tanpa makna: "masukkan angkanya; kalau hasilnya 0/0, faktorkan; kalau ada akar, kalikan sekawan". Siswa pun bisa mengerjakan soal tanpa pernah tahu <i>untuk apa</i> limit ada. Padahal limit lahir dari pertanyaan yang sangat wajar:</p>
+<div class="formula">"Kalau aku <b>makin dekat</b> ke suatu titik, nilainya <b>menuju</b> ke mana?"<small>Bahkan ketika titik itu sendiri tidak bisa dihitung (0/0), tidak bisa dicapai (tak hingga), atau butuh langkah yang tak terhingga banyaknya.</small></div>
+<p>Kalkulus berdiri di atas pertanyaan ini. Kecepatan sesaat adalah limit dari kecepatan rata-rata. Luas di bawah kurva adalah limit dari jumlah persegi panjang. Bilangan <var>e</var> adalah limit dari bunga majemuk. Kita bongkar menjadi empat ide:</p>
+<div class="grid2">
+  <div class="card"><b>Ide 1 · Limit = tujuan, bukan lokasi</b><span>Limit menanyakan ke mana nilai fungsi <i>menuju</i> saat <var>x</var> mendekati <var>a</var>. Apa yang terjadi tepat di <var>a</var> tidak penting, bahkan boleh tidak terdefinisi. (Bagian 3–4)</span></div>
+  <div class="card"><b>Ide 2 · 0/0 adalah sinyal, bukan jawaban</b><span>Bentuk 0/0 berarti "butuh informasi lebih". Aljabar membuka bungkusnya dan memperlihatkan tujuan yang sebenarnya. (Bagian 5–6)</span></div>
+  <div class="card"><b>Ide 3 · Tak hingga bisa dijinakkan</b><span>Nilai bisa menuju angka tertentu walaupun <var>x</var> membesar tanpa batas atau langkahnya tak terhingga banyaknya. (Bagian 7–9)</span></div>
+  <div class="card"><b>Ide 4 · "Sedekat yang kamu mau"</b><span>Definisi ε–δ hanyalah cara presisi untuk berkata "aku bisa membuat galatnya sekecil apa pun yang kamu minta", seperti toleransi di pabrik. (Bagian 10–11)</span></div>
+</div>
+<div class="box tip"><strong>💡 Cara memakai modul ini</strong>
+  Jangan buru-buru ke rumus. Mainkan setiap simulasi sampai kamu bisa <i>menebak</i> hasilnya sebelum menggeser slider. Kerjakan contoh <b>✍️ hitung manual</b> dengan kertas dan pensil, lalu cocokkan dengan angka di simulasi. Kalau sebuah bagian terasa berat, kembali ke analogi di Bagian 2.
+  Urutan yang disarankan untuk seri kalkulus: <b>Limit → <a href="02-turunan.html">Turunan</a> → <a href="03-integral.html">Integral</a></b>.
+</div>
+</section>
+
+<!-- 2 -->
+<section id="analogi">
+<h2>2. Ide Besar lewat 6 Analogi</h2>
+<p>Satu kalimat inti yang perlu kamu pegang: <b>limit menjawab "nilainya menuju ke mana?", bukan "nilainya berapa di sana?"</b>. Enam analogi berikut menyorot sisi yang berbeda dari ide itu, dan semuanya akan muncul lagi di bagian-bagian berikutnya.</p>
+<div class="grid2">
+  <div class="card"><span class="ic">🚶</span><b>Berjalan setengah jarak</b><span>Kamu berdiri 2 meter dari tembok. Setiap langkah, kamu menempuh setengah dari sisa jarak: 1 m, 0,5 m, 0,25 m, … Kamu tidak pernah menyentuh tembok, tetapi jelas ke mana kamu menuju: tembok itu. Itulah limit dari posisimu.</span></div>
+  <div class="card"><span class="ic">🌉</span><b>Jembatan berlubang</b><span>Sebuah jalan mulus punya satu lubang kecil di tengah jembatan. Dari ujung mana pun kamu datang, kamu tahu persis di ketinggian berapa jalan itu seharusnya berada di lubang tersebut. Limit "menambal" lubang dengan melihat sekitarnya.</span></div>
+  <div class="card"><span class="ic">🅿️</span><b>Tarif parkir</b><span>Parkir 1 jam 59 menit dan 2 jam 1 menit hanya beda 2 menit, tetapi tarifnya melompat. Mendekati "2 jam" dari kiri dan dari kanan memberi angka berbeda, jadi tidak ada satu tujuan. Inilah contoh limit yang tidak ada.</span></div>
+  <div class="card"><span class="ic">🏦</span><b>Bunga yang makin sering</b><span>Bunga 100% setahun yang dibayar setahun sekali, tiap bulan, tiap hari, tiap detik… Saldo bertambah, tetapi tidak meledak tanpa batas. Ia menuju sebuah angka istimewa: 2,71828…, bilangan <var>e</var>.</span></div>
+  <div class="card"><span class="ic">🏭</span><b>Toleransi pabrik</b><span>Pembeli berkata: "diameter baut harus 10 mm ± 0,01 mm". Pabrik menjawab: "kalau begitu, suhu mesin harus dijaga ± 0,5 °C". Limit yang sah berarti pabrik selalu bisa menjawab, seketat apa pun toleransi yang diminta.</span></div>
+  <div class="card"><span class="ic">🔍</span><b>Foto yang diperbesar</b><span>Satu piksel di tengah foto rusak. Kamu tetap bisa menebak warnanya dari piksel-piksel di sekitarnya, dan tebakanmu makin yakin kalau kamu melihat area yang makin sempit di sekelilingnya.</span></div>
+</div>
+<p>Analogi berjalan setengah jarak menjelaskan "mendekat tanpa tiba", analogi jembatan menjelaskan kenapa nilai <i>tepat di titik</i> tidak penting, dan analogi tarif parkir mengingatkan bahwa kedua arah harus sepakat.</p>
+<div class="box warn"><strong>⚠️ Batas analogi</strong>
+  "Tidak pernah tiba" bukan syarat limit. Fungsi yang mulus seperti <var>f</var>(<var>x</var>) = 2<var>x</var> tentu saja "tiba" di 6 ketika <var>x</var> = 3, dan limitnya juga 6. Limit hanya <b>tidak peduli</b> apakah nilai itu dicapai. Ia hanya melihat ke mana nilai-nilai di sekitarnya mengarah.
+</div>
+</section>
+
+<!-- 3 -->
+<section id="mendekat">
+<h2>3. Mendekat tanpa Menyentuh</h2>
+<p>Lihat fungsi <var>f</var>(<var>x</var>) = (<var>x</var>² − 1)/(<var>x</var> − 1). Masukkan <var>x</var> = 1, hasilnya 0/0, yang tidak bisa dihitung. Fungsi ini benar-benar tidak terdefinisi di <var>x</var> = 1. Tetapi kita bisa bertanya: kalau <var>x</var> dibuat <i>sangat dekat</i> ke 1, nilainya menuju ke mana?</p>
+
+<div class="demo">
+  <h4>🎛 Simulasi 1 · Kalkulator pendekat</h4>
+  <p>Geser slider "kedekatan" ke kanan. Titik oranye mendekat dari kiri, titik hijau dari kanan. Perhatikan nilai fungsi mereka di kotak bawah.</p>
+  <div class="controls">
+    <select class="btn" id="d1F" aria-label="Fungsi">
+      <option value="lubang">(x² − 1)/(x − 1), x → 1</option>
+      <option value="sinx">sin x / x, x → 0</option>
+      <option value="akar">(√x − 2)/(x − 4), x → 4</option>
+      <option value="e">(1 + x)^(1/x), x → 0</option>
+    </select>
+    <label class="range" for="d1K">Kedekatan <input type="range" id="d1K" min="0" max="6" step="0.05" value="1"> <b id="d1Kv"></b></label>
+    <button class="btn primary" id="d1Play">▶ Dekati</button>
+  </div>
+  <canvas class="plot" id="cv1" style="height:300px"></canvas>
+  <div class="kpi"><div>x dari kiri<b id="d1xl"></b></div><div>f(x) dari kiri<b id="d1fl"></b></div><div>x dari kanan<b id="d1xr"></b></div><div>f(x) dari kanan<b id="d1fr"></b></div><div>f(a) sendiri<b id="d1fa"></b></div></div>
+  <p class="msg" id="d1Msg"></p>
+</div>
+
+<h3>✍️ Contoh hitung manual 1: tabel pendekatan</h3>
+<p>Hitung <var>f</var>(<var>x</var>) = (<var>x</var>² − 1)/(<var>x</var> − 1) untuk <var>x</var> yang makin dekat ke 1. Contoh: <var>f</var>(0,9) = (0,81 − 1)/(0,9 − 1) = (−0,19)/(−0,1) = 1,9.</p>
+<div class="tbl"><table>
+  <tr><th class="num"><var>x</var> (dari kiri)</th><th class="num"><var>f</var>(<var>x</var>)</th><th class="num"><var>x</var> (dari kanan)</th><th class="num"><var>f</var>(<var>x</var>)</th></tr>
+  <tr><td class="num">0,9</td><td class="num">1,9</td><td class="num">1,1</td><td class="num">2,1</td></tr>
+  <tr><td class="num">0,99</td><td class="num">1,99</td><td class="num">1,01</td><td class="num">2,01</td></tr>
+  <tr><td class="num">0,999</td><td class="num">1,999</td><td class="num">1,001</td><td class="num">2,001</td></tr>
+  <tr class="hit"><td class="num">→ 1</td><td class="num">→ 2</td><td class="num">→ 1</td><td class="num">→ 2</td></tr>
+</table></div>
+<p>Dari kedua arah, nilainya menuju 2. Grafiknya adalah garis lurus <var>y</var> = <var>x</var> + 1 dengan satu lubang di titik (1, 2): persis analogi jembatan berlubang. Kita menulis:</p>
+
+<h3>Membaca notasinya</h3>
+<div class="formula big"><span class="h1" style="display:inline-flex;flex-direction:column;vertical-align:middle;line-height:1.2;text-align:center">lim<small class="h4" style="margin:0;font-size:13px"><var>x</var>→<var>a</var></small></span> <span class="h2"><var>f</var>(<var>x</var>)</span> = <span class="h3"><var>L</var></span></div>
+<div class="anat">
+  <div style="--x:var(--accent)"><b>lim · limit</b>"Lihat ke mana nilainya menuju", dari kata Latin <i>limes</i> (batas).</div>
+  <div style="--x:var(--violet)"><b>x → a · mendekat</b><var>x</var> dibuat sedekat mungkin ke <var>a</var>, dari kedua arah, tetapi <b>tidak sama dengan</b> <var>a</var>.</div>
+  <div style="--x:var(--warn)"><b>f(x) · nilai yang diamati</b>Fungsi yang kita pantau selama <var>x</var> mendekat.</div>
+  <div style="--x:var(--good)"><b>L · tujuan</b>Angka yang didekati <var>f</var>(<var>x</var>), sedekat yang kita mau.</div>
+</div>
+<p>Untuk contoh tadi: lim<sub><var>x</var>→1</sub> (<var>x</var>² − 1)/(<var>x</var> − 1) = 2, walaupun <var>f</var>(1) tidak terdefinisi. Bahkan kalau seseorang secara iseng mendefinisikan <var>f</var>(1) = 5, limitnya tetap 2. <b>Limit tidak pernah melihat titik <var>a</var> itu sendiri.</b></p>
+</section>
+
+<!-- 4 -->
+<section id="sisi">
+<h2>4. Limit Kiri &amp; Kanan</h2>
+<p>Mendekati <var>a</var> bisa dilakukan dari dua arah. <b>Limit kiri</b>, ditulis lim<sub><var>x</var>→<var>a</var>⁻</sub>, hanya memakai <var>x</var> &lt; <var>a</var>. <b>Limit kanan</b>, ditulis lim<sub><var>x</var>→<var>a</var>⁺</sub>, hanya memakai <var>x</var> &gt; <var>a</var>. Aturannya sederhana:</p>
+<div class="formula">limit ada &nbsp;⇔&nbsp; limit kiri ada, limit kanan ada, dan <b>keduanya sama</b></div>
+<p>Kalau kedua arah tidak sepakat, limitnya tidak ada. Simulasi berikut menampilkan lima perilaku yang paling sering muncul.</p>
+
+<div class="demo">
+  <h4>🎛 Simulasi 2 · Lima wajah limit</h4>
+  <p>Pilih jenis fungsi, lalu geser kedekatan. Perhatikan ke mana titik dari kiri (oranye) dan dari kanan (hijau) menuju, dan bandingkan dengan titik <var>f</var>(<var>a</var>) (ungu).</p>
+  <div class="controls">
+    <select class="btn" id="d2F" aria-label="Jenis fungsi">
+      <option value="kontinu">Mulus: semua sepakat</option>
+      <option value="lubang">Lubang yang ditambal salah</option>
+      <option value="parkir">Lompatan: tarif parkir</option>
+      <option value="asimtot">Meledak: 1/(x − 1)</option>
+      <option value="osilasi">Bergetar: sin(1/x)</option>
+    </select>
+    <label class="range" for="d2K">Kedekatan <input type="range" id="d2K" min="0" max="3" step="0.02" value="0.3"> <b id="d2Kv"></b></label>
+  </div>
+  <canvas class="plot" id="cv2" style="height:300px"></canvas>
+  <div class="kpi"><div>Limit kiri<b id="d2L"></b></div><div>Limit kanan<b id="d2R"></b></div><div>Nilai f(a)<b id="d2A"></b></div><div>Kesimpulan<b id="d2C"></b></div></div>
+  <p class="msg" id="d2Msg"></p>
+</div>
+
+<h3>✍️ Contoh hitung manual 2: tarif parkir</h3>
+<p>Sebuah gedung menarik Rp3.000 untuk jam pertama dan Rp2.000 untuk setiap jam berikutnya. Jam yang belum penuh dihitung satu jam penuh. Jadi biaya untuk <var>t</var> jam (<var>t</var> &gt; 0) adalah <var>B</var>(<var>t</var>) = 3.000 + 2.000 × (⌈<var>t</var>⌉ − 1), dengan ⌈<var>t</var>⌉ adalah <var>t</var> dibulatkan ke atas.</p>
+<ol class="steps">
+  <li>Dari kiri: <var>t</var> = 1,9; 1,99; 1,999 jam → ⌈<var>t</var>⌉ = 2 → biaya Rp5.000. Limit kiri = <b>Rp5.000</b>.</li>
+  <li>Dari kanan: <var>t</var> = 2,1; 2,01; 2,001 jam → ⌈<var>t</var>⌉ = 3 → biaya Rp7.000. Limit kanan = <b>Rp7.000</b>.</li>
+  <li>Tepat 2 jam: ⌈2⌉ = 2 → <var>B</var>(2) = Rp5.000.</li>
+  <li>Kiri ≠ kanan, jadi lim<sub><var>t</var>→2</sub> <var>B</var>(<var>t</var>) <b>tidak ada</b>. Di dunia nyata, inilah kenapa orang buru-buru keluar parkiran di menit ke-58: fungsi yang melompat menciptakan "tebing" harga.</li>
+</ol>
+<div class="box tip"><strong>💡 Fungsi tangga ada di mana-mana</strong>
+  Tarif ojek per km, tarif pos per gram, golongan tarif listrik, lapisan pajak penghasilan, dan nilai huruf (A, B, C) dari skor ujian semuanya adalah fungsi tangga. Di setiap anak tangga, limit kiri dan kanan berbeda. Saat merancang aturan seperti ini, pembuat kebijakan sering menambahkan "transisi halus" supaya tidak ada tebing yang terlalu curam.
+</div>
+</section>
+
+<!-- 5 -->
+<section id="aljabar">
+<h2>5. Menjinakkan 0/0</h2>
+<p>Untuk fungsi yang "baik" (polinom, sin, cos, eksponen, akar di dalam daerah asalnya), limit cukup dihitung dengan <b>substitusi langsung</b>: lim<sub><var>x</var>→2</sub> (<var>x</var>² + 3<var>x</var>) = 4 + 6 = 10. Masalah baru muncul ketika substitusi menghasilkan <b>0/0</b>.</p>
+<p>0/0 disebut <b>bentuk tak tentu</b>. Ia bukan 0, bukan 1, dan bukan "tak terdefinisi lalu selesai". Ia berarti "pembilang dan penyebut sama-sama menuju nol, dan pemenangnya belum ketahuan". Contoh: <var>x</var>/<var>x</var> → 1, <var>x</var>²/<var>x</var> → 0, dan <var>x</var>/<var>x</var>² → ∞, padahal ketiganya berbentuk 0/0 di <var>x</var> = 0. Tugas kita adalah membuka bungkusnya dengan aljabar.</p>
+<div class="grid3">
+  <div class="card"><b>Faktorkan, lalu coret</b><span>Kalau pembilang dan penyebut sama-sama nol di <var>a</var>, keduanya punya faktor (<var>x</var> − <var>a</var>). Coret faktor itu, karena selama <var>x</var> ≠ <var>a</var> pencoretan sah.</span></div>
+  <div class="card"><b>Kalikan sekawan</b><span>Untuk bentuk berakar seperti √<var>x</var> − 2, kalikan dengan pasangannya √<var>x</var> + 2 supaya akar hilang: (√<var>x</var> − 2)(√<var>x</var> + 2) = <var>x</var> − 4.</span></div>
+  <div class="card"><b>Pakai limit istimewa</b><span>Beberapa limit penting, seperti sin <var>x</var>/<var>x</var> → 1, tidak bisa diselesaikan dengan aljabar biasa dan dibuktikan dengan cara lain (Bagian 6).</span></div>
+</div>
+<h3>✍️ Contoh hitung manual 3: faktorkan</h3>
+<ol class="steps">
+  <li>lim<sub><var>x</var>→3</sub> (<var>x</var>² − 9)/(<var>x</var> − 3). Substitusi: (9 − 9)/(3 − 3) = 0/0. Sinyal untuk bekerja.</li>
+  <li>Faktorkan: <var>x</var>² − 9 = (<var>x</var> − 3)(<var>x</var> + 3)</li>
+  <li>Coret (<var>x</var> − 3), sah karena <var>x</var> ≠ 3 selama mendekat: sisa <var>x</var> + 3</li>
+  <li>Substitusi sekarang aman: 3 + 3 = <b>6</b></li>
+</ol>
+<h3>✍️ Contoh hitung manual 4: kalikan sekawan</h3>
+<ol class="steps">
+  <li>lim<sub><var>x</var>→4</sub> (√<var>x</var> − 2)/(<var>x</var> − 4). Substitusi: (2 − 2)/0 = 0/0.</li>
+  <li>Kalikan atas dan bawah dengan √<var>x</var> + 2: pembilangnya menjadi (√<var>x</var>)² − 2² = <var>x</var> − 4.</li>
+  <li>Bentuknya sekarang (<var>x</var> − 4)/[(<var>x</var> − 4)(√<var>x</var> + 2)] = 1/(√<var>x</var> + 2)</li>
+  <li>Substitusi: 1/(2 + 2) = <b>1/4 = 0,25</b>. Cocokkan dengan Simulasi 1 (pilihan ketiga).</li>
+</ol>
+<div class="box note"><strong>🧮 Hukum-hukum limit</strong>
+  Kalau lim <var>f</var> = <var>A</var> dan lim <var>g</var> = <var>B</var>, maka lim (<var>f</var> ± <var>g</var>) = <var>A</var> ± <var>B</var>, lim (<var>f</var> · <var>g</var>) = <var>A</var> · <var>B</var>, dan lim (<var>f</var>/<var>g</var>) = <var>A</var>/<var>B</var> asalkan <var>B</var> ≠ 0. Artinya limit "menghormati" operasi hitung biasa. Satu-satunya saat aturan ini macet adalah ketika hasilnya berbentuk tak tentu: 0/0, ∞/∞, ∞ − ∞, 0 · ∞, 1<sup>∞</sup>, 0<sup>0</sup>, dan ∞<sup>0</sup>.
+</div>
+</section>
+
+<!-- 6 -->
+<section id="apit">
+<h2>6. Teorema Apit &amp; sin x / x</h2>
+<p>Bayangkan seorang pencuri berjalan di antara dua polisi yang menggandeng lengannya. Kalau kedua polisi berjalan menuju kantor polisi, pencuri itu mau tidak mau ikut sampai ke kantor polisi. Itulah <b>teorema apit</b>:</p>
+<div class="formula">jika <var>g</var>(<var>x</var>) ≤ <var>f</var>(<var>x</var>) ≤ <var>h</var>(<var>x</var>) di sekitar <var>a</var>, dan lim <var>g</var> = lim <var>h</var> = <var>L</var>, maka lim <var>f</var> = <var>L</var></div>
+<p>Teorema ini dipakai untuk limit yang tidak bisa dibuka dengan aljabar. Contoh paling terkenal adalah sin <var>x</var>/<var>x</var> saat <var>x</var> → 0 (dengan <var>x</var> dalam <b>radian</b>). Gambar lingkaran berjari-jari 1 berikut memperlihatkan tiga bangun yang luasnya berurutan: segitiga kecil ≤ juring ≤ segitiga besar.</p>
+<div class="diagram" aria-label="Diagram: pada lingkaran satuan, segitiga dalam lebih kecil dari juring, juring lebih kecil dari segitiga singgung">
+<svg viewBox="0 0 640 260" role="img">
+  <path id="apArc" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+  <path id="apSector" fill="var(--accent)" fill-opacity=".2" stroke="var(--accent)" stroke-width="1.5"/>
+  <polygon id="apTri" fill="var(--good)" fill-opacity=".3" stroke="var(--good)" stroke-width="1.5"/>
+  <polygon id="apTan" fill="none" stroke="var(--warn)" stroke-width="2"/>
+  <line id="apSin" stroke="var(--good)" stroke-width="3"/>
+  <line id="apTanL" stroke="var(--warn)" stroke-width="3"/>
+  <text id="apSinT" font-size="13" fill="var(--good)" font-weight="600">sin x</text>
+  <text id="apTanT" font-size="13" fill="var(--warn)" font-weight="600">tan x</text>
+  <text id="apXT" font-size="13" fill="var(--accent)" font-weight="600">x</text>
+  <text id="ap1T" font-size="12" fill="var(--muted)">1</text>
+  <text x="380" y="60" font-size="13" fill="var(--text)">Luas segitiga dalam = ½ sin x</text>
+  <text x="380" y="82" font-size="13" fill="var(--text)">Luas juring = ½ x</text>
+  <text x="380" y="104" font-size="13" fill="var(--text)">Luas segitiga singgung = ½ tan x</text>
+  <text x="380" y="136" font-size="13" fill="var(--muted)">sin x ≤ x ≤ tan x, bagi dengan sin x,</text>
+  <text x="380" y="156" font-size="13" fill="var(--muted)">lalu balik semuanya:</text>
+  <text x="380" y="186" font-size="16" fill="var(--accent)" font-weight="600">cos x ≤ sin x / x ≤ 1</text>
+  <text x="380" y="212" font-size="12" fill="var(--muted)">cos x → 1 dan 1 → 1, jadi sin x / x → 1</text>
+</svg>
+</div>
+
+<div class="demo">
+  <h4>🎛 Simulasi 3 · Diapit dua polisi</h4>
+  <p>Perbesar jendela di sekitar 0. Fungsi biru selalu terjepit di antara batas bawah (hijau) dan batas atas (oranye), dan keduanya bertemu di titik yang sama.</p>
+  <div class="controls">
+    <select class="btn" id="d3F" aria-label="Fungsi">
+      <option value="sinx">sin x / x, diapit cos x dan 1</option>
+      <option value="xsin">x · sin(1/x), diapit −|x| dan |x|</option>
+    </select>
+    <label class="range" for="d3Z">Perbesaran <input type="range" id="d3Z" min="0" max="2.5" step="0.02" value="0"> <b id="d3Zv"></b></label>
+  </div>
+  <canvas class="plot" id="cv3" style="height:300px"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--good)"></i>batas bawah</span><span><i class="dot" style="background:var(--accent)"></i>fungsi yang diapit</span><span><i class="dot" style="background:var(--warn)"></i>batas atas</span></div>
+  <div class="kpi"><div>Di tepi jendela <var>x</var><b id="d3x"></b></div><div>Batas bawah<b id="d3g"></b></div><div>Fungsi<b id="d3f"></b></div><div>Batas atas<b id="d3h"></b></div></div>
+</div>
+<h3>✍️ Contoh hitung manual 5: sin x / x dengan kalkulator</h3>
+<p>Pastikan kalkulator dalam mode <b>radian</b> (RAD).</p>
+<ol class="steps">
+  <li><var>x</var> = 0,5: sin 0,5 ≈ 0,479426, dibagi 0,5 = <b>0,958851</b></li>
+  <li><var>x</var> = 0,1: sin 0,1 ≈ 0,0998334, dibagi 0,1 = <b>0,998334</b></li>
+  <li><var>x</var> = 0,01: sin 0,01 ≈ 0,00999983, dibagi 0,01 = <b>0,999983</b></li>
+  <li>Menuju <b>1</b>. Artinya untuk sudut kecil, <b>sin <var>x</var> ≈ <var>x</var></b>. Kalau kalkulator dalam mode derajat, hasilnya menuju π/180 ≈ 0,01745, karena 1° = π/180 radian. Inilah salah satu alasan kalkulus selalu memakai radian.</li>
+</ol>
+<div class="box tip"><strong>💡 sin x ≈ x dipakai insinyur setiap hari</strong>
+  Rumus periode ayunan bandul <var>T</var> = 2π√(<var>L</var>/<var>g</var>) yang diajarkan di SMA sebenarnya adalah hasil dari menyederhanakan sin θ menjadi θ, sehingga hanya akurat untuk ayunan kecil. Pendekatan yang sama dipakai dalam optika (lensa tipis), survei tanah, dan perhitungan lendutan jembatan. Semuanya bersandar pada satu limit: sin <var>x</var>/<var>x</var> → 1.
+</div>
+</section>
+
+<!-- 7 -->
+<section id="takhingga">
+<h2>7. Limit di Tak Hingga</h2>
+<p>Kadang yang kita tanyakan bukan "<var>x</var> mendekati sebuah angka", melainkan "<var>x</var> membesar tanpa batas". Ditulis lim<sub><var>x</var>→∞</sub> <var>f</var>(<var>x</var>). Pertanyaannya: dalam jangka sangat panjang, nilainya menetap di mana? Kalau menuju sebuah angka <var>L</var>, garis <var>y</var> = <var>L</var> disebut <b>asimtot datar</b>.</p>
+<p>Kuncinya adalah <b>"siapa yang tumbuh paling cepat, dia yang menang"</b>. Untuk <var>x</var> = 1.000.000, suku 3<var>x</var>² bernilai 3 triliun, sedangkan 5<var>x</var> hanya 5 juta. Suku-suku kecil tenggelam. Urutan kekuatan pertumbuhan yang perlu kamu ingat:</p>
+<div class="formula">ln <var>x</var> &nbsp;≪&nbsp; √<var>x</var> &nbsp;≪&nbsp; <var>x</var> &nbsp;≪&nbsp; <var>x</var>² &nbsp;≪&nbsp; <var>x</var>³ &nbsp;≪&nbsp; 2<sup><var>x</var></sup> &nbsp;≪&nbsp; <var>x</var>!<small>Untuk <var>x</var> cukup besar, yang di kanan selalu mengalahkan yang di kiri, berapa pun koefisiennya. Ini juga dasar notasi Big-O di ilmu komputer.</small></div>
+
+<div class="demo">
+  <h4>🎛 Simulasi 4 · Perjalanan menuju tak hingga</h4>
+  <p>Sumbu <var>x</var> memakai skala logaritmik (1, 10, 100, …, 1 juta) supaya perjalanan panjang muat di layar. Geser <var>x</var> dan lihat fungsi menempel ke asimtotnya.</p>
+  <div class="controls">
+    <select class="btn" id="d4F" aria-label="Fungsi">
+      <option value="r1">(3x² + 5x)/(2x² − 1)</option>
+      <option value="r2">(2x + 1)/(x² + 1)</option>
+      <option value="biaya">Biaya rata-rata per unit</option>
+    </select>
+    <label class="range" for="d4X"><var>x</var> = <input type="range" id="d4X" min="0" max="6" step="0.01" value="1"> <b id="d4Xv"></b></label>
+  </div>
+  <canvas class="plot" id="cv4" style="height:300px"></canvas>
+  <div class="kpi"><div>Nilai f(x)<b id="d4f"></b></div><div>Asimtot (limit)<b id="d4L"></b></div><div>Selisih ke limit<b id="d4D"></b></div></div>
+  <p class="msg" id="d4Msg"></p>
+</div>
+<h3>✍️ Contoh hitung manual 6: fungsi rasional</h3>
+<ol class="steps">
+  <li>lim<sub><var>x</var>→∞</sub> (3<var>x</var>² + 5<var>x</var>)/(2<var>x</var>² − 1). Substitusi memberi ∞/∞, bentuk tak tentu.</li>
+  <li>Bagi pembilang dan penyebut dengan pangkat tertinggi, <var>x</var>²: (3 + 5/<var>x</var>)/(2 − 1/<var>x</var>²)</li>
+  <li>Saat <var>x</var> → ∞, 5/<var>x</var> → 0 dan 1/<var>x</var>² → 0. Hasil: <b>3/2 = 1,5</b></li>
+  <li>Cek angka: <var>x</var> = 10 memberi 350/199 ≈ 1,759; <var>x</var> = 1.000 memberi 3.005.000/1.999.999 ≈ 1,5025. Aturan cepatnya: kalau pangkat tertinggi atas dan bawah sama, limitnya adalah perbandingan koefisien terdepan. Kalau pangkat bawah lebih tinggi, limitnya 0. Kalau pangkat atas lebih tinggi, limitnya ±∞.</li>
+</ol>
+<h3>✍️ Contoh hitung manual 7: kenapa produksi massal lebih murah</h3>
+<p>Sebuah UMKM keripik menyewa mesin seharga Rp5.000.000 per bulan (biaya tetap), dan setiap bungkus butuh bahan Rp2.000 (biaya variabel). Biaya rata-rata per bungkus untuk <var>q</var> bungkus adalah <var>R</var>(<var>q</var>) = 5.000.000/<var>q</var> + 2.000.</p>
+<ol class="steps">
+  <li><var>q</var> = 100 bungkus: 50.000 + 2.000 = <b>Rp52.000</b> per bungkus</li>
+  <li><var>q</var> = 1.000 bungkus: 5.000 + 2.000 = <b>Rp7.000</b> per bungkus</li>
+  <li><var>q</var> = 100.000 bungkus: 50 + 2.000 = <b>Rp2.050</b> per bungkus</li>
+  <li>lim<sub><var>q</var>→∞</sub> <var>R</var>(<var>q</var>) = <b>Rp2.000</b>. Biaya tetap "diencerkan" ke banyak bungkus sampai tak berarti, tetapi biaya bahan tidak pernah bisa hilang. Inilah <i>skala ekonomi</i>, dan limitnya memberi tahu batas bawah harga pokok yang tidak mungkin ditembus. Pilih "Biaya rata-rata per unit" di Simulasi 4.</li>
+</ol>
+<div class="box note"><strong>♾️ Limit bernilai tak hingga</strong>
+  Kebalikannya juga ada: ketika <var>x</var> mendekati sebuah angka, nilai fungsi bisa membesar tanpa batas. Contoh: lim<sub><var>x</var>→0</sub> 1/<var>x</var>² = ∞, dan garis <var>x</var> = 0 disebut <b>asimtot tegak</b>. Hati-hati: menulis "= ∞" adalah cara singkat untuk berkata "limitnya tidak ada <i>karena</i> nilainya membesar tanpa batas". ∞ bukan bilangan. Di fisika, energi yang dibutuhkan untuk mempercepat benda bermassa mendekati kecepatan cahaya juga menuju tak hingga, dan itulah sebabnya kecepatan cahaya tidak bisa dicapai.
+</div>
+</section>
+
+<!-- 8 -->
+<section id="euler">
+<h2>8. Bilangan e dari Bunga Majemuk</h2>
+<p>Salah satu limit paling penting dalam matematika lahir dari pertanyaan bankir. Tahun 1683, Jacob Bernoulli bertanya: kalau bunga 100% per tahun dibayarkan <i>makin sering</i>, apakah saldo bisa tumbuh tanpa batas?</p>
+<p>Simpan Rp1.000.000 dengan bunga 100% per tahun. Kalau dibayar sekali di akhir tahun, saldo menjadi Rp2.000.000. Kalau dibayar dua kali (50% per setengah tahun), saldo menjadi 1.000.000 × 1,5 × 1,5 = Rp2.250.000, karena bunga semester pertama ikut berbunga. Kalau dibayar <var>k</var> kali, saldonya 1.000.000 × (1 + 1/<var>k</var>)<sup><var>k</var></sup>.</p>
+
+<div class="demo">
+  <h4>🎛 Simulasi 5 · Bank bunga majemuk</h4>
+  <p>Tambah frekuensi pembayaran bunga. Tangga biru adalah saldo yang naik setiap kali bunga dibayar. Kurva putus-putus adalah pertumbuhan "sempurna" yang kontinu.</p>
+  <div class="controls">
+    <label class="range" for="d5K">Bunga dibayar <input type="range" id="d5K" min="0" max="9" step="1" value="1"> <b id="d5Kv"></b></label>
+  </div>
+  <canvas class="plot" id="cv5" style="height:300px"></canvas>
+  <div class="kpi"><div>Pembayaran per tahun<b id="d5N"></b></div><div>Saldo akhir tahun<b id="d5S"></b></div><div>Batas atas (bunga kontinu)<b id="d5E"></b></div><div>Selisih ke batas<b id="d5D"></b></div></div>
+</div>
+<h3>✍️ Contoh hitung manual 8: mengejar e</h3>
+<div class="tbl"><table>
+  <tr><th>Bunga dibayar</th><th class="num"><var>k</var></th><th class="num">(1 + 1/<var>k</var>)<sup><var>k</var></sup></th><th class="num">Saldo dari Rp1.000.000</th></tr>
+  <tr><td>Tahunan</td><td class="num">1</td><td class="num">2</td><td class="num">Rp2.000.000</td></tr>
+  <tr><td>Semesteran</td><td class="num">2</td><td class="num">1,5² = 2,25</td><td class="num">Rp2.250.000</td></tr>
+  <tr><td>Bulanan</td><td class="num">12</td><td class="num">2,613035</td><td class="num">Rp2.613.035</td></tr>
+  <tr><td>Harian</td><td class="num">365</td><td class="num">2,714567</td><td class="num">Rp2.714.567</td></tr>
+  <tr><td>Per jam</td><td class="num">8.760</td><td class="num">2,718127</td><td class="num">Rp2.718.127</td></tr>
+  <tr class="hit"><td>Kontinu (limit)</td><td class="num">→ ∞</td><td class="num"><var>e</var> = 2,718282…</td><td class="num">Rp2.718.282</td></tr>
+</table></div>
+<p>Saldo terus naik, tetapi kenaikannya makin kecil, dan tidak pernah melewati Rp2.718.282. Angka tujuan itu dinamai <b><var>e</var></b> oleh Leonhard Euler:</p>
+<div class="formula big"><var>e</var> = <span style="display:inline-flex;flex-direction:column;vertical-align:middle;line-height:1.2;text-align:center">lim<small style="margin:0;font-size:12px"><var>k</var>→∞</small></span> (1 + <span class="frac"><span>1</span><span><var>k</var></span></span>)<sup><var>k</var></sup> ≈ 2,718281828<small>Bentuk ini adalah tak tentu jenis 1<sup>∞</sup>: dasarnya menuju 1, pangkatnya menuju ∞. Dua tarikan yang berlawanan bertemu di 2,718…</small></div>
+<p>Bilangan <var>e</var> muncul di mana pun ada pertumbuhan atau peluruhan yang lajunya sebanding dengan besarnya sendiri: pertumbuhan bakteri, peluruhan radioaktif (penanggalan karbon), pendinginan kopi, pengosongan kapasitor, dan bunga kontinu di keuangan. Di modul <a href="02-turunan.html">Turunan</a> kamu akan melihat sifat ajaibnya: <var>e<sup>x</sup></var> adalah turunannya sendiri.</p>
+</section>
+
+<!-- 9 -->
+<section id="deret">
+<h2>9. Jumlah Tak Hingga: Zeno</h2>
+<p>Sekitar 450 SM, filsuf Yunani Zeno dari Elea mengajukan paradoks: untuk berjalan ke tembok, kamu harus menempuh setengah jarak dulu, lalu setengah dari sisanya, lalu setengahnya lagi, dan seterusnya tanpa akhir. Karena langkahnya tak terhingga banyaknya, Zeno menyimpulkan kamu tidak akan pernah sampai. Selama lebih dari 2.000 tahun paradoks ini mengganggu para pemikir. Limit akhirnya menjawab: <b>jumlah tak terhingga banyak bilangan bisa bernilai berhingga</b>.</p>
+<div class="formula"><span class="frac"><span>1</span><span>2</span></span> + <span class="frac"><span>1</span><span>4</span></span> + <span class="frac"><span>1</span><span>8</span></span> + <span class="frac"><span>1</span><span>16</span></span> + … = <span style="display:inline-flex;flex-direction:column;vertical-align:middle;line-height:1.2;text-align:center">lim<small style="margin:0;font-size:12px"><var>n</var>→∞</small></span> (1 − <span class="frac"><span>1</span><span>2<sup><var>n</var></sup></span></span>) = 1<small>Jumlah tak hingga didefinisikan sebagai limit dari jumlah parsial, yaitu jumlah <var>n</var> suku pertama.</small></div>
+
+<div class="demo">
+  <h4>🎛 Simulasi 6 · Kotak Zeno</h4>
+  <p>Setiap suku mengisi setengah dari sisa kotak. Tambah jumlah suku: kotak makin penuh, sisa makin kecil, tetapi jumlahnya tidak pernah melewati 1.</p>
+  <div class="controls">
+    <label class="range" for="d6N">Jumlah suku <var>n</var> = <input type="range" id="d6N" min="1" max="30" step="1" value="3"> <b id="d6Nv"></b></label>
+    <button class="btn primary" id="d6Play">▶ Tambah terus</button>
+  </div>
+  <canvas class="plot" id="cv6" style="height:280px"></canvas>
+  <div class="kpi"><div>Jumlah parsial<b id="d6S"></b></div><div>Sisa menuju 1<b id="d6R"></b></div><div>Suku terakhir<b id="d6T"></b></div></div>
+</div>
+<p>Rumus umumnya adalah <b>deret geometri</b>: setiap suku adalah suku sebelumnya dikali rasio <var>r</var>. Kalau |<var>r</var>| &lt; 1, jumlah tak hingganya adalah:</p>
+<div class="formula"><var>a</var> + <var>ar</var> + <var>ar</var>² + <var>ar</var>³ + … = <span class="frac"><span><var>a</var></span><span>1 − <var>r</var></span></span><small>Bukti singkat: misalkan jumlahnya <var>S</var>. Maka <var>S</var> − <var>rS</var> = <var>a</var>, karena semua suku lain saling meniadakan. Jadi <var>S</var> = <var>a</var>/(1 − <var>r</var>). Untuk Zeno: <var>a</var> = ½, <var>r</var> = ½, sehingga <var>S</var> = 1.</small></div>
+<h3>✍️ Contoh hitung manual 9: apakah 0,999… = 1?</h3>
+<ol class="steps">
+  <li>Tulis sebagai deret: 0,999… = 9/10 + 9/100 + 9/1000 + …</li>
+  <li>Ini deret geometri dengan <var>a</var> = 9/10 dan <var>r</var> = 1/10.</li>
+  <li>Jumlahnya: (9/10)/(1 − 1/10) = (9/10)/(9/10) = <b>1</b></li>
+  <li>Jadi 0,999… dan 1 adalah <b>bilangan yang sama persis</b>, hanya ditulis dengan dua cara. Bukan "hampir 1" atau "1 dikurangi sedikit". "Berulang tanpa akhir" adalah sebuah limit, dan limitnya tepat 1.</li>
+</ol>
+</section>
+
+<!-- 10 -->
+<section id="kontinu">
+<h2>10. Kekontinuan</h2>
+<p>Secara intuitif, fungsi <b>kontinu</b> adalah fungsi yang grafiknya bisa digambar tanpa mengangkat pensil: tidak ada lubang, lompatan, atau ledakan. Limit membuat intuisi itu presisi. Fungsi <var>f</var> kontinu di <var>a</var> kalau tiga syarat terpenuhi:</p>
+<ol class="steps">
+  <li><var>f</var>(<var>a</var>) terdefinisi (jembatannya tidak berlubang)</li>
+  <li>lim<sub><var>x</var>→<var>a</var></sub> <var>f</var>(<var>x</var>) ada (kiri dan kanan sepakat)</li>
+  <li>Keduanya sama: lim<sub><var>x</var>→<var>a</var></sub> <var>f</var>(<var>x</var>) = <var>f</var>(<var>a</var>) (jalan menuju ke tempat yang benar)</li>
+</ol>
+<p>Kelima wajah di Simulasi 2 menunjukkan apa yang terjadi saat salah satu syarat gagal: "lubang yang ditambal salah" melanggar syarat 3, "tarif parkir" dan "bergetar" melanggar syarat 2, "meledak" melanggar syarat 1 dan 2. Hanya pilihan "mulus" yang kontinu.</p>
+<h3>Teorema Nilai Antara</h3>
+<p>Fungsi kontinu punya sifat yang terdengar sepele tetapi sangat berguna: <b>kalau <var>f</var> kontinu di [<var>a</var>, <var>b</var>], maka <var>f</var> pasti melewati setiap nilai di antara <var>f</var>(<var>a</var>) dan <var>f</var>(<var>b</var>)</b>. Suhu udara jam 6 pagi 24 °C dan jam 12 siang 32 °C, jadi pasti ada saat suhunya tepat 28 °C, karena suhu tidak bisa melompat. Pendaki yang naik dari 1.000 m ke 3.000 m pasti pernah berada tepat di 2.000 m.</p>
+<p>Teorema ini melahirkan algoritma yang sangat praktis: <b>metode bagi dua</b> (<i>bisection</i>). Kalau <var>f</var>(<var>a</var>) negatif dan <var>f</var>(<var>b</var>) positif, akar persamaan pasti ada di antaranya. Ambil titik tengah, cek tandanya, buang separuh yang salah, ulangi. Lebar selang menyusut menjadi setengah setiap langkah dan menuju nol, sehingga ujung-ujungnya menuju akar sebagai sebuah limit.</p>
+<h3>✍️ Contoh hitung manual 10: mencari √2 dengan bagi dua</h3>
+<p>√2 adalah akar dari <var>f</var>(<var>x</var>) = <var>x</var>² − 2. Karena <var>f</var>(1) = −1 &lt; 0 dan <var>f</var>(2) = 2 &gt; 0, akarnya ada di [1, 2].</p>
+<div class="tbl"><table>
+  <tr><th class="num">Langkah</th><th>Selang</th><th class="num">Titik tengah <var>m</var></th><th class="num"><var>m</var>² − 2</th><th>Tindakan</th></tr>
+  <tr><td class="num">1</td><td>[1; 2]</td><td class="num">1,5</td><td class="num">+0,25</td><td>akar di kiri → [1; 1,5]</td></tr>
+  <tr><td class="num">2</td><td>[1; 1,5]</td><td class="num">1,25</td><td class="num">−0,4375</td><td>akar di kanan → [1,25; 1,5]</td></tr>
+  <tr><td class="num">3</td><td>[1,25; 1,5]</td><td class="num">1,375</td><td class="num">−0,109</td><td>akar di kanan → [1,375; 1,5]</td></tr>
+  <tr><td class="num">4</td><td>[1,375; 1,5]</td><td class="num">1,4375</td><td class="num">+0,066</td><td>akar di kiri → [1,375; 1,4375]</td></tr>
+</table></div>
+<p>Setelah 4 langkah, √2 terjepit di selang selebar 0,0625. Setelah 20 langkah, lebarnya kurang dari 0,000001 (lihat Bagian 13). Programmer memakai ide yang sama dengan nama <code>git bisect</code> untuk mencari commit yang memasukkan bug: dari 1.000 commit, cukup sekitar 10 kali pengecekan.</p>
+</section>
+
+<!-- 11 -->
+<section id="epsilon">
+<h2>11. Definisi ε–δ: Tantangan Toleransi</h2>
+<p>Sekarang kita siap membaca "kode rahasia" di Bagian 1. Kata "mendekati" terdengar jelas, tetapi tidak cukup presisi untuk membuktikan apa pun. Pada abad ke-19, Augustin-Louis Cauchy dan Karl Weierstrass mengubahnya menjadi sebuah <b>permainan dua pemain</b>:</p>
+<ol class="steps">
+  <li><b>Penantang</b> memilih toleransi ε (epsilon) untuk keluaran: "Aku mau <var>f</var>(<var>x</var>) berada dalam jarak ε dari <var>L</var>."</li>
+  <li><b>Kamu</b> harus menjawab dengan toleransi δ (delta) untuk masukan: "Asal <var>x</var> berada dalam jarak δ dari <var>a</var> (tetapi bukan <var>a</var> sendiri), permintaanmu terpenuhi."</li>
+  <li>Kalau kamu <b>selalu</b> bisa menjawab, untuk ε sekecil apa pun, maka lim<sub><var>x</var>→<var>a</var></sub> <var>f</var>(<var>x</var>) = <var>L</var>. Kalau ada satu ε yang tidak bisa kamu jawab, limitnya bukan <var>L</var>.</li>
+</ol>
+<p>Persis seperti pabrik baut: pembeli menentukan toleransi diameter (ε), dan insinyur harus menemukan toleransi suhu mesin (δ) yang menjamin diameter baut memenuhi syarat. Pabrik yang "punya limit" adalah pabrik yang selalu sanggup memenuhi toleransi seketat apa pun.</p>
+
+<div class="demo">
+  <h4>🎛 Simulasi 7 · Permainan ε–δ</h4>
+  <p>Pita oranye adalah toleransi keluaran ±ε di sekitar <var>L</var>. Pita hijau adalah toleransi masukan ±δ di sekitar <var>a</var>. Kamu menang kalau seluruh kurva di dalam pita hijau juga berada di dalam pita oranye.</p>
+  <div class="controls">
+    <select class="btn" id="d7F" aria-label="Fungsi">
+      <option value="linear">f(x) = 2x + 1, a = 1, L = 3</option>
+      <option value="kuadrat">f(x) = x², a = 2, L = 4</option>
+      <option value="lompat">Lompatan, a = 0, coba L = 0,5</option>
+    </select>
+    <label class="range" for="d7E">ε <input type="range" id="d7E" min="0.05" max="1.5" step="0.01" value="0.6"> <b id="d7Ev"></b></label>
+    <label class="range" for="d7D">δ <input type="range" id="d7D" min="0.01" max="1" step="0.005" value="0.5"> <b id="d7Dv"></b></label>
+  </div>
+  <canvas class="plot" id="cv7" style="height:320px"></canvas>
+  <div class="kpi"><div>Status<b id="d7S"></b></div><div>δ terbesar yang masih menang<b id="d7M"></b></div></div>
+  <p class="msg" id="d7Msg"></p>
+</div>
+<h3>✍️ Contoh hitung manual 11: membuktikan lim<sub><var>x</var>→1</sub> (2<var>x</var> + 1) = 3</h3>
+<ol class="steps">
+  <li>Penantang memberi ε. Kita ingin |<var>f</var>(<var>x</var>) − 3| &lt; ε, yaitu |2<var>x</var> + 1 − 3| = |2<var>x</var> − 2| = <b>2|<var>x</var> − 1|</b> &lt; ε.</li>
+  <li>Itu terpenuhi kalau |<var>x</var> − 1| &lt; ε/2. Jadi jawab dengan <b>δ = ε/2</b>.</li>
+  <li>Contoh: ε = 0,1 → δ = 0,05. Untuk <var>x</var> = 1,04: <var>f</var> = 3,08, selisihnya 0,08 &lt; 0,1 ✓. Cocokkan dengan Simulasi 7: pilih fungsi linear, set ε = 0,1, dan lihat bahwa δ terbesar yang menang adalah 0,05.</li>
+  <li>Karena rumus δ = ε/2 berhasil untuk <i>setiap</i> ε &gt; 0, limitnya terbukti 3. Faktor 2 di sini adalah kemiringan garis: makin curam fungsi, makin ketat δ yang dibutuhkan. Di modul turunan, angka "seberapa sensitif" ini akan menjadi turunan.</li>
+</ol>
+</section>
+
+<!-- 12 -->
+<section id="aplikasi">
+<h2>12. Limit di Dunia Nyata</h2>
+<p>Limit jarang terlihat langsung, tetapi hampir semua alat ukur dan algoritma modern bersandar padanya:</p>
+<div class="tbl"><table>
+  <tr><th>Bidang</th><th>Yang dicari</th><th>Limitnya</th><th>Contoh nyata</th></tr>
+  <tr><td>Kalkulus</td><td>Laju sesaat</td><td>Limit kecepatan rata-rata</td><td><a href="02-turunan.html">Turunan</a>: speedometer, biaya marjinal, gradient descent</td></tr>
+  <tr><td>Kalkulus</td><td>Total dari laju</td><td>Limit jumlah Riemann</td><td><a href="03-integral.html">Integral</a>: kWh di meteran listrik, volume tangki</td></tr>
+  <tr><td>Keuangan</td><td>Bunga kontinu</td><td>(1 + 1/<var>k</var>)<sup><var>k</var></sup> → <var>e</var></td><td>Rumus harga obligasi dan opsi memakai <var>e</var><sup><var>rt</var></sup></td></tr>
+  <tr><td>Farmasi</td><td>Kadar obat stabil</td><td>Deret geometri</td><td>Dosis rutin harian mencapai "keadaan tunak" setelah ± 5 waktu paruh</td></tr>
+  <tr><td>Ekonomi</td><td>Harga pokok jangka panjang</td><td>Limit di tak hingga</td><td>Skala ekonomi: biaya rata-rata menuju biaya variabel</td></tr>
+  <tr><td>Manufaktur</td><td>Jaminan presisi</td><td>Logika ε–δ</td><td>Toleransi komponen mesin, analisis sensitivitas</td></tr>
+  <tr><td>Ilmu komputer</td><td>Hasil algoritma iteratif</td><td>Barisan yang konvergen</td><td>Metode bagi dua, metode Newton, pelatihan AI; notasi Big-O</td></tr>
+  <tr><td>Biologi</td><td>Populasi jangka panjang</td><td>Asimtot datar</td><td>Model logistik: populasi ikan di danau menuju daya dukung lingkungan</td></tr>
+  <tr><td>Fisika</td><td>Pendekatan sudut kecil, kecepatan cahaya</td><td>sin <var>x</var>/<var>x</var> → 1, asimtot tegak</td><td>Bandul, lensa, energi relativistik</td></tr>
+</table></div>
+
+<h3>Studi kasus · Obat yang diminum setiap hari</h3>
+<p>Dokter meresepkan obat 100 mg sekali sehari. Tubuh membuang separuh obat dalam 24 jam (waktu paruhnya 24 jam). Apakah obat akan menumpuk terus sampai berbahaya? Sesaat setelah minum dosis ke-<var>n</var>, kadar obat adalah sisa dari semua dosis sebelumnya:</p>
+<div class="formula">100 + 50 + 25 + 12,5 + … = 100 × (1 + ½ + ¼ + …)</div>
+<h3>✍️ Contoh hitung manual 12: kadar obat jangka panjang</h3>
+<ol class="steps">
+  <li>Hari 1: 100 mg. Hari 2: separuhnya tersisa 50, ditambah dosis baru: 150 mg. Hari 3: 75 + 100 = 175 mg. Hari 4: 187,5 mg.</li>
+  <li>Polanya adalah deret geometri dengan <var>a</var> = 100 dan <var>r</var> = ½.</li>
+  <li>Limitnya: 100/(1 − ½) = <b>200 mg</b>. Obat tidak menumpuk tanpa batas, tetapi stabil di kadar dua kali dosis harian.</li>
+  <li>Hari ke-5 sudah 193,75 mg, yaitu 97% dari limitnya. Inilah dasar aturan praktis farmakologi bahwa "keadaan tunak tercapai setelah 4–5 waktu paruh", dan kenapa sebagian obat butuh beberapa hari sebelum efeknya penuh. Dokter juga memakai rumus ini untuk memilih dosis awal yang lebih besar (<i>loading dose</i>) supaya kadar 200 mg langsung tercapai.</li>
+</ol>
+
+<div class="box note"><strong>🖥️ Pelajaran dari komputer: limit numerik bisa menipu</strong>
+  Komputer tidak bisa "mendekat tanpa batas", karena angkanya hanya punya ± 16 digit. Di Bagian 13 kamu akan melihat (1 + 1/<var>k</var>)<sup><var>k</var></sup> dengan <var>k</var> = 10<sup>16</sup> menghasilkan <b>1</b>, bukan 2,718, karena 1 + 10<sup>−16</sup> dibulatkan menjadi 1. Begitu juga (1 − cos <var>x</var>)/<var>x</var>² untuk <var>x</var> = 10<sup>−8</sup> menghasilkan <b>0</b>, padahal limitnya 0,5. Solusinya adalah menulis ulang rumus secara aljabar (misalnya dengan identitas 1 − cos <var>x</var> = 2 sin²(<var>x</var>/2)), persis seperti teknik menjinakkan 0/0 di Bagian 5. Aljabar limit bukan sekadar latihan sekolah; ia menyelamatkan program dari galat numerik.
+</div>
+</section>
+
+<!-- 13 -->
+<section id="kode">
+<h2>13. Praktik dengan Python</h2>
+<p>Kode berikut merangkum seluruh modul: tabel pendekatan, limit simbolik dengan SymPy, bunga majemuk menuju <var>e</var>, jebakan angka floating-point, deret geometri dan dosis obat, serta metode bagi dua. Butuh <code>numpy</code> dan <code>sympy</code> (<code>pip install numpy sympy</code>).</p>
+<pre><code class="py">import numpy as np
+import sympy as sp
+
+# 1) Mendekati x = 1 dari kiri dan kanan: f(1) sendiri tidak terdefinisi (0/0)
+f = lambda x: (x**2 - 1) / (x - 1)
+for h in [0.1, 0.01, 0.001]:
+    print(f"x={1 - h:<6} f={f(1 - h):.4f}    x={1 + h:<6} f={f(1 + h):.4f}")
+
+# 2) Limit simbolik dengan SymPy
+x, n = sp.symbols('x n')
+print("\nlim x→3 (x²−9)/(x−3)          =", sp.limit((x**2 - 9) / (x - 3), x, 3))
+print("lim x→4 (√x−2)/(x−4)          =", sp.limit((sp.sqrt(x) - 2) / (x - 4), x, 4))
+print("lim x→0 sin x / x             =", sp.limit(sp.sin(x) / x, x, 0))
+print("lim x→∞ (3x²+5x)/(2x²−1)      =", sp.limit((3*x**2 + 5*x) / (2*x**2 - 1), x, sp.oo))
+print("lim n→∞ (1 + 1/n)ⁿ            =", sp.limit((1 + 1/n)**n, n, sp.oo))
+print("lim x→0⁺ 1/x, lim x→0⁻ 1/x    =", sp.limit(1/x, x, 0, '+'), sp.limit(1/x, x, 0, '-'))
+
+# 3) Bunga majemuk: Rp1 dengan bunga 100% per tahun, dibungakan k kali
+print()
+for k in [1, 2, 12, 365, 8760, 10**8, 10**16]:
+    print(f"k={k:<18,} → {(1 + 1/k)**k:.10f}".replace(",", "."))
+
+# 4) Jebakan float: (1 − cos x)/x² seharusnya menuju 0,5
+print()
+for xv in [1e-2, 1e-4, 1e-6, 1e-8]:
+    naif = (1 - np.cos(xv)) / xv**2
+    aman = 2 * np.sin(xv / 2)**2 / xv**2       # identitas 1 − cos x = 2 sin²(x/2)
+    print(f"x={xv:.0e}  naif={naif:.6f}  aman={aman:.6f}")
+
+# 5) Deret geometri 1/2 + 1/4 + 1/8 + ... dan dosis obat berulang
+s = 0.0
+print()
+for k in range(1, 51):
+    s += 0.5**k
+    if k in (1, 2, 5, 10, 20, 50):
+        print(f"{k:2d} suku: {s:.15f}")
+kadar = 0.0
+for hari in range(1, 8):
+    kadar = kadar * 0.5 + 100                  # sisa separuh + dosis baru 100 mg
+    print(f"hari {hari}: {kadar:.2f} mg", end="  " if hari % 4 else "\n")
+
+# 6) Metode bagi dua: akar x² − 2 = 0 di [1, 2]
+a, b = 1.0, 2.0
+print()
+for i in range(1, 21):
+    m = (a + b) / 2
+    if m * m - 2 > 0:
+        b = m
+    else:
+        a = m
+    if i in (1, 2, 3, 4, 10, 20):
+        print(f"langkah {i:2d}: [{a:.6f}, {b:.6f}]  lebar {b - a:.1e}")</code></pre>
+<p>Output asli (NumPy 2.5, SymPy 1.14):</p>
+<pre><code>x=0.9    f=1.9000    x=1.1    f=2.1000
+x=0.99   f=1.9900    x=1.01   f=2.0100
+x=0.999  f=1.9990    x=1.001  f=2.0010
+
+lim x→3 (x²−9)/(x−3)          = 6
+lim x→4 (√x−2)/(x−4)          = 1/4
+lim x→0 sin x / x             = 1
+lim x→∞ (3x²+5x)/(2x²−1)      = 3/2
+lim n→∞ (1 + 1/n)ⁿ            = E
+lim x→0⁺ 1/x, lim x→0⁻ 1/x    = oo -oo
+
+k=1                  → 2.0000000000
+k=2                  → 2.2500000000
+k=12                 → 2.6130352902
+k=365                → 2.7145674820
+k=8.760              → 2.7181266916
+k=100.000.000        → 2.7182817983
+k=10.000.000.000.000.000 → 1.0000000000
+
+x=1e-02  naif=0.499996  aman=0.499996
+x=1e-04  naif=0.500000  aman=0.500000
+x=1e-06  naif=0.500044  aman=0.500000
+x=1e-08  naif=0.000000  aman=0.500000
+
+ 1 suku: 0.500000000000000
+ 2 suku: 0.750000000000000
+ 5 suku: 0.968750000000000
+10 suku: 0.999023437500000
+20 suku: 0.999999046325684
+50 suku: 0.999999999999999
+hari 1: 100.00 mg  hari 2: 150.00 mg  hari 3: 175.00 mg  hari 4: 187.50 mg
+hari 5: 193.75 mg  hari 6: 196.88 mg  hari 7: 198.44 mg
+
+langkah  1: [1.000000, 1.500000]  lebar 5.0e-01
+langkah  2: [1.250000, 1.500000]  lebar 2.5e-01
+langkah  3: [1.375000, 1.500000]  lebar 1.2e-01
+langkah  4: [1.375000, 1.437500]  lebar 6.2e-02
+langkah 10: [1.414062, 1.415039]  lebar 9.8e-04
+langkah 20: [1.414213, 1.414214]  lebar 9.5e-07</code></pre>
+<p>Beberapa hal yang layak diperhatikan dari output ini:</p>
+<ul>
+  <li><b>SymPy</b> mengembalikan <code>E</code> untuk bilangan <var>e</var> dan <code>oo</code> untuk ∞. Limit kanan dan kiri dari 1/<var>x</var> di 0 adalah +∞ dan −∞, jadi limit dua arahnya tidak ada.</li>
+  <li><b>Bunga majemuk</b> mendekati 2,71828 dengan mulus sampai <var>k</var> = 10<sup>8</sup>, lalu "runtuh" menjadi 1 di <var>k</var> = 10<sup>16</sup>. Limit matematikanya tidak berubah; yang gagal adalah presisi komputer.</li>
+  <li><b>Rumus naif</b> (1 − cos <var>x</var>)/<var>x</var>² mulai melenceng di <var>x</var> = 10<sup>−6</sup> dan hancur di 10<sup>−8</sup>. Rumus yang ditulis ulang tetap tepat 0,5. Mengurangkan dua angka yang hampir sama (1 dan cos <var>x</var>) membuang digit-digit berharga.</li>
+  <li><b>Deret 50 suku</b> dicetak 0,999999999999999 karena jumlah sebenarnya 1 − 2<sup>−50</sup> ≈ 1 − 8,9 × 10<sup>−16</sup>, jaraknya dari 1 hanya sebesar presisi komputer.</li>
+</ul>
+</section>
+
+<!-- 14 -->
+<section id="jebakan">
+<h2>14. Jebakan yang Sering Terjadi</h2>
+<div class="grid2">
+  <div class="card"><b>1 · "0/0 = 1" atau "0/0 = 0"</b><span>0/0 adalah bentuk tak tentu. <var>x</var>/<var>x</var>, <var>x</var>²/<var>x</var>, dan <var>x</var>/<var>x</var>² semuanya 0/0 di nol, tetapi limitnya 1, 0, dan ∞. Buka bungkusnya dengan aljabar.</span></div>
+  <div class="card"><b>2 · "∞ − ∞ = 0"</b><span>lim<sub><var>x</var>→∞</sub> (√(<var>x</var>² + <var>x</var>) − <var>x</var>) bukan 0, melainkan ½. Kalikan sekawan: hasilnya <var>x</var>/(√(<var>x</var>² + <var>x</var>) + <var>x</var>) → ½.</span></div>
+  <div class="card"><b>3 · "1<sup>∞</sup> = 1"</b><span>(1 + 1/<var>k</var>)<sup><var>k</var></sup> berbentuk 1<sup>∞</sup>, tetapi limitnya <var>e</var> ≈ 2,718, bukan 1. Dasar yang mendekati 1 dan pangkat yang membesar saling tarik-menarik.</span></div>
+  <div class="card"><b>4 · Limit = nilai fungsi?</b><span>Hanya kalau fungsinya kontinu. Pada fungsi berlubang atau yang ditambal salah, lim<sub><var>x</var>→<var>a</var></sub> <var>f</var>(<var>x</var>) bisa berbeda dari <var>f</var>(<var>a</var>), atau <var>f</var>(<var>a</var>) bahkan tidak ada.</span></div>
+  <div class="card"><b>5 · Kalkulator mode derajat</b><span>sin <var>x</var>/<var>x</var> → 1 hanya berlaku dalam radian. Dalam mode derajat hasilnya menuju π/180 ≈ 0,01745.</span></div>
+  <div class="card"><b>6 · Hanya mengecek satu arah</b><span>Tarif parkir mendekati Rp5.000 dari kiri. Kalau kamu lupa mengecek kanan (Rp7.000), kamu akan salah menyimpulkan limitnya ada.</span></div>
+</div>
+<div class="box warn"><strong>⚠️ Jebakan paling licik: tabel angka yang menipu</strong>
+  Coba tebak lim<sub><var>x</var>→0</sub> sin(π/<var>x</var>) dengan tabel. Pilih <var>x</var> = 0,1; 0,01; 0,001: hasilnya sin(10π), sin(100π), sin(1000π), yang semuanya <b>tepat 0</b>. Tabelnya "meyakinkan" bahwa limitnya 0. Padahal limitnya <b>tidak ada</b>: untuk <var>x</var> = 2/(4<var>k</var> + 1), nilainya selalu 1, dan fungsi ini bergetar antara −1 dan 1 makin cepat saat mendekati 0 (lihat pilihan "bergetar" di Simulasi 2). Pelajarannya: <b>tabel dan komputer bisa memberi petunjuk, tetapi tidak membuktikan</b>. Bukti datang dari aljabar, teorema apit, atau ε–δ.
+</div>
+</section>
+
+<!-- 15 -->
+<section id="kuis">
+<h2>15. Kuis &amp; Cheat Sheet</h2>
+<p id="qScore">Jawab semua soal untuk melihat skormu.</p>
+<div id="quiz"></div>
+<h3>Cheat sheet</h3>
+<div class="tbl"><table>
+  <tr><th>Konsep</th><th>Rumus / nilai</th><th>Ingat sebagai</th></tr>
+  <tr><td>Ide inti</td><td>lim<sub><var>x</var>→<var>a</var></sub> <var>f</var>(<var>x</var>) = <var>L</var></td><td>Ke mana menuju, bukan di mana berada</td></tr>
+  <tr><td>Limit ada</td><td>limit kiri = limit kanan</td><td>Tarif parkir: kiri ≠ kanan → tidak ada</td></tr>
+  <tr><td>Substitusi langsung</td><td>berlaku untuk fungsi kontinu</td><td>Coba dulu, baru berpikir</td></tr>
+  <tr><td>Bentuk tak tentu</td><td>0/0, ∞/∞, ∞ − ∞, 0·∞, 1<sup>∞</sup>, 0<sup>0</sup>, ∞<sup>0</sup></td><td>Sinyal untuk bekerja, bukan jawaban</td></tr>
+  <tr><td>Faktorkan</td><td>(<var>x</var>² − 9)/(<var>x</var> − 3) = <var>x</var> + 3 → 6</td><td>Coret faktor (<var>x</var> − <var>a</var>)</td></tr>
+  <tr><td>Sekawan</td><td>(√<var>x</var> − 2)(√<var>x</var> + 2) = <var>x</var> − 4</td><td>Hilangkan akar</td></tr>
+  <tr><td>Teorema apit</td><td><var>g</var> ≤ <var>f</var> ≤ <var>h</var>, lim <var>g</var> = lim <var>h</var> = <var>L</var> ⇒ lim <var>f</var> = <var>L</var></td><td>Dua polisi</td></tr>
+  <tr><td>Limit istimewa</td><td>sin <var>x</var>/<var>x</var> → 1 (radian)</td><td>sin <var>x</var> ≈ <var>x</var> untuk sudut kecil</td></tr>
+  <tr><td>Tak hingga</td><td>bagi dengan pangkat tertinggi</td><td>Yang tumbuh paling cepat menang</td></tr>
+  <tr><td>Urutan pertumbuhan</td><td>ln <var>x</var> ≪ <var>x</var><sup><var>p</var></sup> ≪ 2<sup><var>x</var></sup> ≪ <var>x</var>!</td><td>Big-O</td></tr>
+  <tr><td>Bilangan <var>e</var></td><td>(1 + 1/<var>k</var>)<sup><var>k</var></sup> → 2,71828…</td><td>Bunga majemuk kontinu</td></tr>
+  <tr><td>Deret geometri</td><td><var>a</var>/(1 − <var>r</var>), |<var>r</var>| &lt; 1</td><td>Zeno, 0,999… = 1, kadar obat</td></tr>
+  <tr><td>Kontinu di <var>a</var></td><td><var>f</var>(<var>a</var>) ada, limit ada, keduanya sama</td><td>Gambar tanpa mengangkat pensil</td></tr>
+  <tr><td>Nilai antara</td><td>kontinu ⇒ melewati semua nilai di antaranya</td><td>Metode bagi dua, <code>git bisect</code></td></tr>
+  <tr><td>ε–δ</td><td>∀ε ∃δ: 0 &lt; |<var>x</var> − <var>a</var>| &lt; δ ⇒ |<var>f</var>(<var>x</var>) − <var>L</var>| &lt; ε</td><td>Toleransi pabrik</td></tr>
+  <tr><td>Turunan &amp; integral</td><td>keduanya didefinisikan sebagai limit</td><td><a href="02-turunan.html">Turunan</a> · <a href="03-integral.html">Integral</a></td></tr>
+</table></div>
+<div class="box note"><strong>📚 Untuk memperdalam</strong>
+  Video 3Blue1Brown, seri <i>Essence of Calculus</i> (bab 7 tentang limit dan ε–δ) · Silvanus P. Thompson, <i>Calculus Made Easy</i> (1910, domain publik) ·
+  Gilbert Strang, <i>Calculus</i> (MIT OpenCourseWare, gratis) · Michael Spivak, <i>Calculus</i> untuk pembahasan ε–δ yang ketat · James Stewart, <i>Calculus</i> untuk latihan soal versi kuliah.
+</div>
+<div class="nav-mod"><a class="btn" href="../index.html">← Kembali ke beranda</a><a class="btn" href="#peta">Ulangi dari awal ↑</a><a class="btn" href="02-turunan.html">Lanjut: Memahami Turunan →</a></div>
+</section>
+
+<footer>Modul Kalkulus · Memahami Limit dari Nol. Referensi: Thompson, <i>Calculus Made Easy</i> (1910); Strang, <i>Calculus</i> (MIT OCW); Spivak, <i>Calculus</i>; Stewart, <i>Calculus: Early Transcendentals</i>; Cauchy (1821); Weierstrass (1861).</footer>
+</main>
+<script>
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const TAU=2*Math.PI, PI=Math.PI;
+/* ---------- Sidebar, scrollspy, progress, tema ---------- */
+const sb=$('#sidebar');
+$('#menuBtn').onclick=()=>sb.classList.toggle('open');
+$$('#toc a').forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+const links=[...$$('#toc a')];
+const spy=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){links.forEach(l=>l.classList.toggle('active',l.hash==='#'+e.target.id))}
+}),{rootMargin:'-20% 0px -70% 0px'});
+$$('main section').forEach(s=>spy.observe(s));
+addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  $('#progress div').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+},{passive:true});
+$('#themeBtn').onclick=()=>{
+  const r=document.documentElement, dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme=dark?'light':'dark';
+  try{localStorage.setItem('rl-theme',r.dataset.theme)}catch(e){}
+  redrawAll();
+};
+try{const t=localStorage.getItem('rl-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+
+/* ---------- Highlight kode Python ---------- */
+$$('pre code.py').forEach(el=>{
+  el.innerHTML=el.textContent.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))
+    .replace(/(#.*$)|(f?"[^"\n]*"|'[^'\n]*')|\b(import|from|as|def|return|for|in|if|else|while|with|not|and|or|True|False|None|lambda)\b|\b(\d+\.?\d*(?:e-?\d+)?)\b/gm,
+      (m,c,s,k,n)=>c?`<span class="c">${c}</span>`:s?`<span class="s">${s}</span>`:k?`<span class="k">${k}</span>`:`<span class="n">${n}</span>`);
+});
+
+/* ---------- Util gambar (warna diambil dari token tema) ---------- */
+const C={};
+function readColors(){const cs=getComputedStyle(document.documentElement);
+  ['text','muted','border','accent','good','bad','warn','violet','surface','surface-2'].forEach(k=>C[k]=cs.getPropertyValue('--'+k).trim())}
+const fmt=(v,d=2)=>(Math.abs(v)<0.5*Math.pow(10,-d)?0:v).toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d}).replace('-','−');
+const fmtS=v=>{v=Math.abs(v)<5e-4?0:+v.toFixed(3);return String(v).replace('-','−').replace('.',',')};
+const rupiah=v=>'Rp'+Math.round(v).toLocaleString('id-ID');
+const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function prep(cv){const dpr=window.devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;
+  const W=Math.max(1,Math.round(w*dpr)),H=Math.max(1,Math.round(h*dpr));
+  if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H}
+  const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);g.lineJoin='round';g.lineCap='round';return [g,w,h]}
+function path(g,pts,color,lw=2,dash){g.beginPath();pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));
+  g.strokeStyle=color;g.lineWidth=lw;g.setLineDash(dash||[]);g.stroke();g.setLineDash([])}
+const line=(g,x1,y1,x2,y2,color,lw=1,dash)=>path(g,[[x1,y1],[x2,y2]],color,lw,dash);
+function dot(g,x,y,r,color){g.beginPath();g.arc(x,y,r,0,TAU);g.fillStyle=color;g.fill()}
+function txt(g,s,x,y,color,align='left',size=11,weight=''){g.fillStyle=color;g.font=`${weight} ${size}px system-ui,-apple-system,"Segoe UI",sans-serif`;g.textAlign=align;g.fillText(s,x,y)}
+function poly(g,pts,color,alpha){g.beginPath();pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.globalAlpha=alpha;g.fillStyle=color;g.fill();g.globalAlpha=1}
+/* langkah sumbu yang "bulat" */
+function ticks(a,b,n=5){const s0=(b-a)/n,m=Math.pow(10,Math.floor(Math.log10(s0))),r=s0/m,st=(r<1.5?1:r<3?2:r<7?5:10)*m,out=[];
+  for(let v=Math.ceil(a/st-1e-9)*st;v<=b+1e-9;v+=st)out.push(+v.toFixed(10));return out}
+/* bingkai plot: kembalikan pemetaan data → piksel dan gambar grid + sumbu */
+function frame(g,w,h,xr,yr,o={}){
+  const L=o.l??42,R=o.r??14,T=o.t??14,B=o.b??26,y0=o.y0??0,H=o.h??h;
+  const X=x=>L+(x-xr[0])/(xr[1]-xr[0])*(w-L-R), Y=y=>y0+H-B-(y-yr[0])/(yr[1]-yr[0])*(H-T-B);
+  (o.yt||ticks(yr[0],yr[1],4)).forEach(v=>{line(g,L,Y(v),w-R,Y(v),C.border,1,[2,4]);txt(g,o.yf?o.yf(v):fmtS(v),L-6,Y(v)+4,C.muted,'right')});
+  (o.xt||ticks(xr[0],xr[1],6)).forEach(v=>{line(g,X(v),Y(yr[0]),X(v),Y(yr[0])+4,C.muted);txt(g,o.xf?o.xf(v):fmtS(v),X(v),Y(yr[0])+16,C.muted,'center')});
+  line(g,L,Y(yr[0]),L,Y(yr[1]),C.muted);
+  const ax=Math.min(Math.max(0,yr[0]),yr[1]);line(g,L,Y(ax),w-R,Y(ax),C.muted,1.2);
+  if(o.xl)txt(g,o.xl,w-R,Y(yr[0])-6,C.muted,'right');
+  if(o.yl)txt(g,o.yl,L+6,y0+T+8,C.muted,'left');
+  return {X,Y,L,R,T,B};
+}
+/* isi daerah antara kurva dan sumbu x */
+function fillUnder(g,X,Y,f,a,b,color,alpha,n=240){if(b<=a)return;const pts=[[X(a),Y(0)]];
+  for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;pts.push([X(x),Y(f(x))])}pts.push([X(b),Y(0)]);poly(g,pts,color,alpha)}
+function curve(g,X,Y,f,a,b,color,lw=2.2,n=400,dash){const p=[];for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;p.push([X(x),Y(f(x))])}path(g,p,color,lw,dash)}
+const redraws=[];
+function redrawAll(){readColors();redraws.forEach(f=>f())}
+addEventListener('resize',()=>{clearTimeout(window._rt);window._rt=setTimeout(redrawAll,120)});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);
+/* animasi hanya berjalan untuk kanvas yang terlihat */
+const anims=[],visible=new Map();
+const vio=new IntersectionObserver(es=>es.forEach(e=>visible.set(e.target,e.isIntersecting)));
+function animate(el,step){anims.push({el,step});vio.observe(el)}
+let lastT=performance.now();
+function loop(now){const dt=Math.min(0.05,(now-lastT)/1000);lastT=now;anims.forEach(a=>{if(visible.get(a.el))a.step(dt)});requestAnimationFrame(loop)}
+readColors();
+
+/* ---------- Util tambahan ---------- */
+function clipTo(g,F,w,h,o={}){g.save();g.beginPath();g.rect(F.L,(o.y0??0)+F.T,w-F.L-F.R,(o.h??h)-F.T-F.B);g.clip()}
+/* kurva yang melompati nilai tak hingga/NaN dan lonjakan besar (asimtot) */
+function curveSafe(g,X,Y,f,a,b,color,lw=2.2,n=600,jump=Infinity){g.beginPath();let pen=false,prev=null;
+  for(let i=0;i<=n;i++){const x=a+(b-a)*i/n,y=f(x);
+    if(!isFinite(y)||(prev!==null&&Math.abs(y-prev)>jump)){pen=false;prev=isFinite(y)?y:null;continue}
+    pen?g.lineTo(X(x),Y(y)):g.moveTo(X(x),Y(y));pen=true;prev=y}
+  g.strokeStyle=color;g.lineWidth=lw;g.setLineDash([]);g.stroke()}
+function ring(g,x,y,r,color,fill){g.beginPath();g.arc(x,y,r,0,TAU);g.fillStyle=fill||C['surface-2'];g.fill();g.strokeStyle=color;g.lineWidth=2.2;g.stroke()}
+const fmtN=(v,d)=>!isFinite(v)?(v>0?'+∞':'−∞'):fmt(v,d);
+
+/* ---------- Diagram pembuka & diagram apit (SVG) ---------- */
+(()=>{const p=[];for(let x=256;x<=432;x+=2){const u=x-344;p.push(`${x},${(88-u*0.55-0.002*u*u).toFixed(1)}`)}
+  $('#heroCurve').setAttribute('points',p.join(' '));
+  const O=[60,232],R=170,a=0.72,P=[O[0]+R*Math.cos(a),O[1]-R*Math.sin(a)],A=[O[0]+R,O[1]],T=[O[0]+R,O[1]-R*Math.tan(a)],Q=[O[0],O[1]-R];
+  const s=v=>v.map(n=>n.toFixed(1)).join(',');
+  $('#apArc').setAttribute('d',`M ${s(A)} A ${R} ${R} 0 0 0 ${s(Q)}`);
+  $('#apSector').setAttribute('d',`M ${s(O)} L ${s(A)} A ${R} ${R} 0 0 0 ${s(P)} Z`);
+  $('#apTri').setAttribute('points',`${s(O)} ${s(A)} ${s(P)}`);
+  $('#apTan').setAttribute('points',`${s(O)} ${s(A)} ${s(T)}`);
+  const set=(id,o)=>Object.entries(o).forEach(([k,v])=>$(id).setAttribute(k,typeof v==='number'?v.toFixed(1):v));
+  set('#apSin',{x1:P[0],y1:P[1],x2:P[0],y2:O[1]});set('#apTanL',{x1:A[0],y1:A[1],x2:T[0],y2:T[1]});
+  set('#apSinT',{x:P[0]-48,y:(P[1]+O[1])/2+4});set('#apTanT',{x:A[0]+8,y:(A[1]+T[1])/2+4});
+  set('#apXT',{x:O[0]+38,y:O[1]-12});set('#ap1T',{x:(O[0]+A[0])/2,y:O[1]+16});
+})();
+
+/* ---------- Simulasi 1: kalkulator pendekat ---------- */
+const F1={
+  lubang:{f:x=>(x*x-1)/(x-1),a:1,L:2,xr:[-0.5,2.5],yr:[-0.6,3.6],Ls:'2',fa:'tak terdefinisi (0/0)'},
+  sinx:{f:x=>Math.sin(x)/x,a:0,L:1,xr:[-7,7],yr:[-0.4,1.25],Ls:'1',fa:'tak terdefinisi (0/0)'},
+  akar:{f:x=>(Math.sqrt(x)-2)/(x-4),a:4,L:0.25,xr:[0,8],yr:[0,0.6],Ls:'1/4',fa:'tak terdefinisi (0/0)'},
+  e:{f:x=>Math.pow(1+x,1/x),a:0,L:Math.E,xr:[-0.7,2],yr:[1.4,4.6],Ls:'e ≈ 2,71828',fa:'tak terdefinisi (1^∞)'}
+};
+const cv1=$('#cv1');let d1On=false;
+function d1Draw(){const [g,w,h]=prep(cv1);const F=F1[$('#d1F').value],k=+$('#d1K').value,hh=Math.pow(10,-k),xl=F.a-hh,xr=F.a+hh;
+  const P=frame(g,w,h,F.xr,F.yr,{});
+  clipTo(g,P,w,h);curveSafe(g,P.X,P.Y,F.f,F.xr[0],F.xr[1],C.text,2.2,801);
+  line(g,P.L,P.Y(F.L),P.X(F.a),P.Y(F.L),C.accent,1,[4,4]);g.restore();
+  ring(g,P.X(F.a),P.Y(F.L),6,C.accent);
+  const fl=F.f(xl),fr=F.f(xr);
+  [[xl,fl,C.warn],[xr,fr,C.good]].forEach(([x,y,c])=>{if(x>F.xr[0]&&x<F.xr[1]){line(g,P.X(x),P.Y(F.yr[0]),P.X(x),P.Y(y),c,1,[3,4]);dot(g,P.X(x),P.Y(y),5,c)}});
+  txt(g,'L = '+F.Ls,P.L+6,P.Y(F.L)-6,C.accent,'left',12,'600');
+  const dg=Math.min(8,Math.ceil(k)+2);
+  $('#d1Kv').textContent='jarak 10^−'+fmt(k,1).replace(',0','');
+  $('#d1xl').textContent=fmt(xl,dg);$('#d1xr').textContent=fmt(xr,dg);
+  $('#d1fl').textContent=fmt(fl,7);$('#d1fr').textContent=fmt(fr,7);$('#d1fa').textContent=F.fa;
+  $('#d1Msg').textContent=k<1.5?'Masih agak jauh. Geser kedekatan ke kanan atau tekan ▶ Dekati.':`Dari kiri dan kanan, nilai fungsi sama-sama menuju ${F.Ls}, walaupun f(a) sendiri tidak bisa dihitung. Itulah limitnya.`}
+$('#d1F').onchange=d1Draw;
+$('#d1K').oninput=()=>{d1On=false;$('#d1Play').textContent='▶ Dekati';d1Draw()};
+$('#d1Play').onclick=()=>{if(+$('#d1K').value>=6)$('#d1K').value=0;d1On=!d1On;$('#d1Play').textContent=d1On?'⏸ Jeda':'▶ Dekati'};
+animate(cv1,dt=>{if(!d1On)return;let k=+$('#d1K').value+dt*1.1;if(k>=6){k=6;d1On=false;$('#d1Play').textContent='▶ Dekati'}$('#d1K').value=k;d1Draw()});
+redraws.push(d1Draw);
+
+/* ---------- Simulasi 2: lima wajah limit ---------- */
+const parkir=t=>t<=0?NaN:3000+2000*(Math.ceil(t-1e-12)-1);
+const F2={
+  kontinu:{f:x=>x*x/2+1,a:1,xr:[-1,3],yr:[0,5.6],L:'1,5',R:'1,5',A:'1,5',C:'kontinu ✓',fa:1.5,
+    msg:'Kiri, kanan, dan nilai di titik a semuanya sepakat di 1,5. Fungsi ini kontinu di a.'},
+  lubang:{f:x=>x+1,a:1,xr:[-1,3],yr:[-0.2,4.4],L:'2',R:'2',A:'3',C:'limit 2 ≠ f(a)',fa:3,hole:2,
+    msg:'Kedua arah menuju 2, jadi limitnya ada dan bernilai 2. Tetapi seseorang mendefinisikan f(1) = 3. Limit tidak peduli: ia tetap 2. Fungsinya tidak kontinu di a.'},
+  parkir:{f:parkir,a:2,xr:[0,4],yr:[0,10500],L:'Rp5.000',R:'Rp7.000',A:'Rp5.000',C:'limit tidak ada',fa:5000,step:true,
+    msg:'Dari kiri menuju Rp5.000, dari kanan menuju Rp7.000. Kedua arah tidak sepakat, jadi limit di t = 2 jam tidak ada.'},
+  asimtot:{f:x=>1/(x-1),a:1,xr:[-1,3],yr:[-9,9],L:'−∞',R:'+∞',A:'tak terdefinisi',C:'limit tidak ada',fa:null,jump:30,
+    msg:'Dari kiri nilainya terjun ke −∞, dari kanan melesat ke +∞. Garis x = 1 adalah asimtot tegak.'},
+  osilasi:{f:x=>Math.sin(1/x),a:0,xr:[-1,1],yr:[-1.4,1.4],L:'tidak ada',R:'tidak ada',A:'tak terdefinisi',C:'limit tidak ada',fa:null,n:6000,
+    msg:'Makin dekat ke 0, fungsi bergetar antara −1 dan 1 makin cepat tanpa pernah menetap. Tidak ada satu tujuan, jadi limitnya tidak ada.'}
+};
+const cv2=$('#cv2');
+function d2Draw(){const [g,w,h]=prep(cv2);const key=$('#d2F').value,F=F2[key],k=+$('#d2K').value,span=F.xr[1]-F.xr[0],hh=span*0.4*Math.pow(10,-k);
+  const P=frame(g,w,h,F.xr,F.yr,key==='parkir'?{l:58,yt:[0,2500,5000,7500,10000],yf:v=>v?(v/1000).toLocaleString('id-ID')+'rb':'0',xf:v=>fmtS(v)+' j'}:{});
+  clipTo(g,P,w,h);
+  if(F.step){for(let n=1;n<=4;n++){const y=parkir(n);line(g,P.X(n-1),P.Y(y),P.X(n),P.Y(y),C.text,2.4);
+      ring(g,P.X(n-1),P.Y(y),4.5,C.text);dot(g,P.X(n),P.Y(y),4.5,C.text)}}
+  else curveSafe(g,P.X,P.Y,F.f,F.xr[0],F.xr[1],C.text,2.2,F.n||801,F.jump||Infinity);
+  if(key==='asimtot')line(g,P.X(1),P.Y(F.yr[0]),P.X(1),P.Y(F.yr[1]),C.muted,1,[5,5]);
+  g.restore();
+  if(F.hole)ring(g,P.X(F.a),P.Y(F.hole),5.5,C.text);
+  if(F.fa!==null)dot(g,P.X(F.a),P.Y(F.fa),6,C.violet);
+  const xl=F.a-hh,xr=F.a+hh;
+  [[xl,C.warn],[xr,C.good]].forEach(([x,c])=>{let y=F.f(x);if(!isFinite(y))return;const yc=Math.max(F.yr[0],Math.min(F.yr[1],y));
+    line(g,P.X(x),P.Y(F.yr[0]),P.X(x),P.Y(yc),c,1,[3,4]);dot(g,P.X(x),P.Y(yc),5.5,c);
+    txt(g,key==='parkir'?rupiah(y):fmtN(y,3),P.X(x)+(c===C.warn?-8:8),P.Y(yc)-9,c,c===C.warn?'right':'left',11.5,'600')});
+  $('#d2Kv').textContent=fmt(k,1);
+  $('#d2L').textContent=F.L;$('#d2R').textContent=F.R;$('#d2A').textContent=F.A;$('#d2C').textContent=F.C;$('#d2Msg').textContent=F.msg}
+['#d2F','#d2K'].forEach(id=>$(id).oninput=d2Draw);redraws.push(d2Draw);
+
+/* ---------- Simulasi 3: teorema apit ---------- */
+const F3={
+  sinx:{f:x=>Math.sin(x)/x,lo:Math.cos,hi:()=>1,R0:3},
+  xsin:{f:x=>x*Math.sin(1/x),lo:x=>-Math.abs(x),hi:x=>Math.abs(x),R0:1}
+};
+const cv3=$('#cv3');
+function d3Draw(){const [g,w,h]=prep(cv3);const F=F3[$('#d3F').value],z=Math.pow(10,+$('#d3Z').value),R=F.R0/z;
+  let lo=Infinity,hi=-Infinity;for(let i=0;i<=400;i++){const x=-R+2*R*i/400;if(Math.abs(x)<1e-12)continue;[F.lo(x),F.hi(x),F.f(x)].forEach(v=>{lo=Math.min(lo,v);hi=Math.max(hi,v)})}
+  const pad=(hi-lo)*0.12||0.01,st=ticks(-R,R,4)[1]-ticks(-R,R,4)[0],dg=Math.max(0,Math.ceil(-Math.log10(st))),
+    sty=ticks(lo-pad,hi+pad,4),dy=Math.max(0,Math.ceil(-Math.log10((sty[1]-sty[0])||1))),
+    lf=d=>v=>v.toFixed(d).replace('-','−').replace('.',',');
+  const P=frame(g,w,h,[-R,R],[lo-pad,hi+pad],{l:52,xf:lf(dg),yf:lf(dy),xt:ticks(-R,R,4),yt:sty});
+  clipTo(g,P,w,h);
+  const fx=x=>Math.abs(x)<1e-12?NaN:F.f(x);
+  curve(g,P.X,P.Y,F.lo,-R,R,C.good,2.2,400);curve(g,P.X,P.Y,F.hi,-R,R,C.warn,2.2,400);
+  curveSafe(g,P.X,P.Y,fx,-R,R,C.accent,2.2,$('#d3F').value==='xsin'?4000:600);
+  g.restore();
+  const L=$('#d3F').value==='sinx'?1:0;ring(g,P.X(0),P.Y(L),5.5,C.accent);
+  $('#d3Zv').textContent=Math.round(z).toLocaleString('id-ID')+'×';
+  $('#d3x').textContent=lf(dg+1)(R);$('#d3g').textContent=fmt(F.lo(R),6);$('#d3f').textContent=fmt(F.f(R),6);$('#d3h').textContent=fmt(F.hi(R),6)}
+['#d3F','#d3Z'].forEach(id=>$(id).oninput=d3Draw);redraws.push(d3Draw);
+
+/* ---------- Simulasi 4: menuju tak hingga (sumbu x logaritmik) ---------- */
+const F4={
+  r1:{f:x=>(3*x*x+5*x)/(2*x*x-1),L:1.5,yr:[1.2,3],Ls:'3/2 = 1,5',yf:v=>fmtS(v)},
+  r2:{f:x=>(2*x+1)/(x*x+1),L:0,yr:[-0.1,1.7],Ls:'0',yf:v=>fmtS(v)},
+  biaya:{f:q=>5e6/q+2000,L:2000,yr:[0,20000],Ls:'Rp2.000',yf:v=>v?(v/1000)+'rb':'0'}
+};
+const cv4=$('#cv4'),labX=['1','10','100','1rb','10rb','100rb','1jt'];
+function d4Draw(){const [g,w,h]=prep(cv4);const key=$('#d4F').value,F=F4[key],s=+$('#d4X').value,x=Math.pow(10,s);
+  const P=frame(g,w,h,[0,6],F.yr,{l:50,xt:[0,1,2,3,4,5,6],xf:v=>labX[v],yf:F.yf,xl:key==='biaya'?'jumlah bungkus q (skala log)':'x (skala log)'});
+  line(g,P.L,P.Y(F.L),w-P.R,P.Y(F.L),C.warn,1.6,[6,5]);txt(g,'asimtot y = '+F.Ls,w-P.R-4,P.Y(F.L)-6,C.warn,'right',11.5,'600');
+  clipTo(g,P,w,h);curve(g,P.X,P.Y,u=>F.f(Math.pow(10,u)),0,6,C.text,2.4,600);g.restore();
+  const v=F.f(x);if(v>F.yr[1]){const px=P.X(s),py=P.Y(F.yr[1])+4;poly(g,[[px,py],[px-7,py+11],[px+7,py+11]],C.accent,1);txt(g,'↑ '+(key==='biaya'?rupiah(v):fmt(v,3))+' (di atas layar)',px+12,py+12,C.accent,'left',11.5,'600')}else dot(g,P.X(s),P.Y(v),6,C.accent);
+  const big=x>=1000;$('#d4Xv').textContent=Math.round(x).toLocaleString('id-ID');
+  $('#d4f').textContent=key==='biaya'?rupiah(v):fmt(v,6);$('#d4L').textContent=F.Ls;
+  $('#d4D').textContent=key==='biaya'?rupiah(v-F.L):fmt(Math.abs(v-F.L),6);
+  $('#d4Msg').textContent=key==='biaya'?`Dengan ${Math.round(x).toLocaleString('id-ID')} bungkus, biaya rata-rata ${rupiah(v)} per bungkus. Biaya tetap Rp5 juta makin "encer", tetapi biaya bahan Rp2.000 tidak pernah hilang.`
+    :key==='r1'?(big?'Suku 3x² dan 2x² mendominasi; 5x dan −1 sudah tak berarti. Nilainya menempel di 3/2.':'Untuk x kecil, suku 5x dan −1 masih berpengaruh. Geser x lebih jauh.')
+    :(big?'Penyebut x² tumbuh jauh lebih cepat dari pembilang 2x, jadi pecahannya menyusut menuju 0.':'Pangkat penyebut (2) lebih tinggi dari pembilang (1). Tebak ke mana arahnya, lalu geser x.')}
+['#d4F','#d4X'].forEach(id=>$(id).oninput=d4Draw);redraws.push(d4Draw);
+
+/* ---------- Simulasi 5: bunga majemuk menuju e ---------- */
+const K5=[[1,'tahunan'],[2,'semesteran'],[3,'tiap 4 bulan'],[4,'kuartalan'],[12,'bulanan'],[52,'mingguan'],[365,'harian'],[8760,'per jam'],[525600,'per menit'],[31536000,'per detik']];
+const cv5=$('#cv5');
+function d5Draw(){const [g,w,h]=prep(cv5);const [k,lbl]=K5[+$('#d5K').value],r=1+1/k;
+  const P=frame(g,w,h,[0,1],[0.9,2.9],{l:52,yt:[1,1.5,2,2.5],yf:v=>fmtS(v)+' jt',xt:[0,0.25,0.5,0.75,1],xf:v=>['Jan','Apr','Jul','Okt','Des'][v*4],yl:'saldo'});
+  line(g,P.L,P.Y(Math.E),w-P.R,P.Y(Math.E),C.warn,1.2,[3,4]);txt(g,'e ≈ 2,718 jt',w-P.R-4,P.Y(Math.E)-6,C.warn,'right',11.5,'600');
+  curve(g,P.X,P.Y,Math.exp,0,1,C.warn,1.8,200,[6,5]);
+  const pts=[];
+  if(k<=400){for(let j=0;j<k;j++){const y=Math.pow(r,j);pts.push([P.X(j/k),P.Y(y)],[P.X((j+1)/k),P.Y(y)])}pts.push([P.X(1),P.Y(Math.pow(r,k))])}
+  else for(let i=0;i<=800;i++){const t=i/800;pts.push([P.X(t),P.Y(Math.pow(r,Math.floor(t*k+1e-9)))])}
+  path(g,pts,C.accent,2.4);
+  const S=Math.pow(r,k);dot(g,P.X(1),P.Y(S),5.5,C.accent);
+  $('#d5Kv').textContent=lbl;$('#d5N').textContent=k.toLocaleString('id-ID')+' kali';
+  $('#d5S').textContent=rupiah(S*1e6);$('#d5E').textContent=rupiah(Math.E*1e6);$('#d5D').textContent=rupiah((Math.E-S)*1e6)}
+$('#d5K').oninput=d5Draw;redraws.push(d5Draw);
+
+/* ---------- Simulasi 6: kotak Zeno ---------- */
+const cv6=$('#cv6');let d6On=false,d6Acc=0;const COL6=['accent','good','warn','violet'];
+function d6Draw(){const [g,w,h]=prep(cv6);const n=+$('#d6N').value,wide=w>560;
+  const sz=wide?h-40:Math.min(150,w-40),sx=wide?24:(w-sz)/2,sy=wide?20:12;
+  g.fillStyle=C.surface;g.fillRect(sx,sy,sz,sz);
+  let rx=sx,ry=sy,rw=sz,rh=sz;
+  for(let i=1;i<=n;i++){let px,py,pw,ph;
+    if(i%2){pw=rw/2;ph=rh;px=rx;py=ry;rx+=pw;rw-=pw}else{pw=rw;ph=rh/2;px=rx;py=ry;ry+=ph;rh-=ph}
+    g.fillStyle=C[COL6[(i-1)%4]];g.globalAlpha=.45;g.fillRect(px,py,pw,ph);g.globalAlpha=1;
+    g.strokeStyle=C.surface;g.lineWidth=1;g.strokeRect(px,py,pw,ph);
+    if(i<=4&&Math.min(pw,ph)>22)txt(g,'1/'+Math.pow(2,i),px+pw/2,py+ph/2+4,C.text,'center',12,'600')}
+  path(g,[[sx,sy],[sx+sz,sy],[sx+sz,sy+sz],[sx,sy+sz],[sx,sy]],C.text,1.6);
+  /* garis bilangan dan pejalan Zeno */
+  const lx0=wide?sx+sz+50:30,lx1=w-40,ly=wide?h/2+10:sy+sz+70,X=v=>lx0+v*(lx1-lx0);
+  line(g,lx0,ly,lx1,ly,C.muted,1.5);
+  [[0,'0'],[0.5,'½'],[0.75,'¾'],[1,'1']].forEach(([v,s])=>{line(g,X(v),ly-5,X(v),ly+5,C.muted);txt(g,s,X(v),ly+20,C.muted,'center',12)});
+  g.fillStyle=C.text;g.fillRect(X(1),ly-46,6,52);txt(g,'tembok',X(1)+3,ly-52,C.muted,'center',11);
+  let s=0;for(let i=1;i<=n;i++){s+=Math.pow(0.5,i);dot(g,X(s),ly,i===n?6:3,i===n?C.accent:C.muted)}
+  dot(g,X(s),ly-30,7,C.accent);line(g,X(s),ly-23,X(s),ly-8,C.accent,2.5);
+  txt(g,'jumlah '+n+' suku',X(s)-10,ly-42,C.accent,'right',12,'600');
+  $('#d6Nv').textContent=n;$('#d6S').textContent=(1-Math.pow(2,-n)).toLocaleString('id-ID',{maximumFractionDigits:10});
+  const r=Math.pow(2,-n);$('#d6R').textContent=r>=1e-4?fmt(r,6):r.toExponential(1).replace('.',',').replace('e-',' × 10^−');
+  $('#d6T').textContent='1/'+Math.pow(2,n).toLocaleString('id-ID')}
+$('#d6N').oninput=()=>{d6On=false;$('#d6Play').textContent='▶ Tambah terus';d6Draw()};
+$('#d6Play').onclick=()=>{if(+$('#d6N').value>=30)$('#d6N').value=1;d6On=!d6On;$('#d6Play').textContent=d6On?'⏸ Jeda':'▶ Tambah terus';d6Draw()};
+animate(cv6,dt=>{if(!d6On)return;d6Acc+=dt;if(d6Acc<0.45)return;d6Acc=0;const n=+$('#d6N').value;
+  if(n>=30){d6On=false;$('#d6Play').textContent='▶ Tambah terus';return}$('#d6N').value=n+1;d6Draw()});
+redraws.push(d6Draw);
+
+/* ---------- Simulasi 7: permainan ε–δ ---------- */
+const F7={
+  linear:{f:x=>2*x+1,a:1,L:3,xr:[-0.5,2.5],yr:[-0.5,6.5]},
+  kuadrat:{f:x=>x*x,a:2,L:4,xr:[0,3.5],yr:[-0.5,9.5]},
+  lompat:{f:x=>x<0?0:1,a:0,L:0.5,xr:[-1.5,1.5],yr:[-0.8,1.8],step:true}
+};
+const cv7=$('#cv7');
+function d7Win(F,eps,del){const N=500;for(let i=0;i<=N;i++){const x=F.a-del+2*del*(i/N)*0.99999+del*0.000005;if(Math.abs(x-F.a)<1e-12)continue;if(Math.abs(F.f(x)-F.L)>=eps)return false}return true}
+function d7Draw(){const [g,w,h]=prep(cv7);const key=$('#d7F').value,F=F7[key],eps=+$('#d7E').value,del=+$('#d7D').value;
+  const P=frame(g,w,h,F.xr,F.yr,{});
+  poly(g,[[P.L,P.Y(F.L-eps)],[P.L,P.Y(F.L+eps)],[w-P.R,P.Y(F.L+eps)],[w-P.R,P.Y(F.L-eps)]],C.warn,0.16);
+  [F.L-eps,F.L+eps].forEach(y=>line(g,P.L,P.Y(y),w-P.R,P.Y(y),C.warn,1.2,[5,4]));
+  poly(g,[[P.X(F.a-del),P.Y(F.yr[0])],[P.X(F.a-del),P.Y(F.yr[1])],[P.X(F.a+del),P.Y(F.yr[1])],[P.X(F.a+del),P.Y(F.yr[0])]],C.good,0.14);
+  [F.a-del,F.a+del].forEach(x=>line(g,P.X(x),P.Y(F.yr[0]),P.X(x),P.Y(F.yr[1]),C.good,1.2,[5,4]));
+  clipTo(g,P,w,h);
+  if(F.step){line(g,P.X(F.xr[0]),P.Y(0),P.X(0),P.Y(0),C.muted,2);line(g,P.X(0),P.Y(1),P.X(F.xr[1]),P.Y(1),C.muted,2)}
+  else curve(g,P.X,P.Y,F.f,F.xr[0],F.xr[1],C.muted,2,400);
+  const N=240;for(let i=0;i<N;i++){const x0=F.a-del+2*del*i/N,x1=x0+2*del/N,xm=(x0+x1)/2;if(F.step&&x0<0&&x1>0)continue;
+    const ok=Math.abs(F.f(xm)-F.L)<eps;line(g,P.X(x0),P.Y(F.f(x0)),P.X(x1),P.Y(F.f(x1)),ok?C.good:C.bad,3.2)}
+  g.restore();
+  ring(g,P.X(F.a),P.Y(F.L),5.5,C.text);
+  txt(g,'L ± ε',P.L+6,P.Y(F.L+eps)-5,C.warn,'left',11.5,'600');txt(g,'a ± δ',P.X(F.a+del)+5,P.T+14,C.good,'left',11.5,'600');
+  const win=d7Win(F,eps,del);
+  let lo=0,hi=2,maxS;if(d7Win(F,eps,hi))maxS='berapa pun ✓';else if(!d7Win(F,eps,1e-6))maxS='tidak ada ✗';
+  else{for(let i=0;i<50;i++){const m=(lo+hi)/2;d7Win(F,eps,m)?lo=m:hi=m}maxS=fmt(lo,3)}
+  $('#d7Ev').textContent=fmt(eps,2);$('#d7Dv').textContent=fmt(del,3);
+  $('#d7S').textContent=win?'menang ✓':'kalah ✗';$('#d7M').textContent=maxS;
+  let msg;
+  if(key==='lompat'&&eps<=0.5)msg='Untuk ε ≤ 0,5 tidak ada δ yang menang: dari kiri nilainya 0, dari kanan 1, dan keduanya berjarak 0,5 dari L. Jadi limitnya bukan 0,5. Coba L lain pun gagal, karena limit fungsi ini memang tidak ada.';
+  else if(win)msg=`Menang! Untuk ε = ${fmt(eps,2)}, semua titik kurva dalam pita hijau tetap berada di pita oranye.`+(key==='linear'?` Perhatikan δ terbesar selalu ε/2 = ${fmt(eps/2,3)}.`:key==='kuadrat'?' Makin kecil ε, makin kecil δ yang dibutuhkan, tetapi selalu ada.':' Untuk ε > 0,5, lompatannya masih muat di dalam pita.');
+  else msg='Belum: ada bagian kurva (merah) di dalam pita hijau yang keluar dari pita oranye. Perkecil δ.';
+  $('#d7Msg').textContent=msg}
+['#d7F','#d7E','#d7D'].forEach(id=>$(id).oninput=d7Draw);redraws.push(d7Draw);
+
+/* ---------- Kuis ---------- */
+const QZ=[
+  {q:'Pernyataan lim x→a f(x) = L berarti…',o:['f(a) = L','nilai f(x) mendekati L ketika x mendekati a (dari kedua arah), apa pun nilai f(a)','x mendekati L ketika f mendekati a','f(x) tidak pernah sama dengan L'],a:1,w:'Limit hanya melihat nilai di sekitar a, bukan di a sendiri. f(a) boleh berbeda atau bahkan tidak ada.'},
+  {q:'lim x→2 (x² − 4)/(x − 2) = …',o:['0','tidak ada, karena 0/0','4','2'],a:2,w:'Faktorkan: (x − 2)(x + 2)/(x − 2) = x + 2 → 4. Bentuk 0/0 hanyalah sinyal untuk menyederhanakan.'},
+  {q:'Limit kiri sebuah fungsi di t = 2 adalah 5.000 dan limit kanannya 7.000. Maka limit di t = 2…',o:['6.000 (rata-ratanya)','5.000','7.000','tidak ada'],a:3,w:'Limit dua arah hanya ada jika limit kiri dan kanan sama.'},
+  {q:'lim x→0 sin x / x (x dalam radian) = …',o:['0','1','tidak ada','π/180'],a:1,w:'Dibuktikan dengan teorema apit: cos x ≤ sin x / x ≤ 1. Nilai π/180 muncul kalau kalkulator salah memakai mode derajat.'},
+  {q:'lim x→∞ (5x³ + x)/(2x³ − 7) = …',o:['0','∞','5/2','−5/7'],a:2,w:'Pangkat tertinggi atas dan bawah sama (3), jadi limitnya perbandingan koefisien terdepan: 5/2.'},
+  {q:'Rp1.000.000 dengan bunga 100% per tahun yang dibungakan setiap detik akan menjadi kira-kira…',o:['tak hingga','Rp2.000.000','Rp2.718.282','Rp3.000.000'],a:2,w:'(1 + 1/k)^k menuju e ≈ 2,71828 saat k → ∞. Pembungaan yang makin sering tidak membuat saldo meledak.'},
+  {q:'½ + ¼ + ⅛ + 1/16 + … (tanpa akhir) = …',o:['tak hingga','1','2','tidak bisa dihitung'],a:1,w:'Deret geometri a/(1 − r) = (½)/(1 − ½) = 1. Inilah jawaban untuk paradoks Zeno.'},
+  {q:'Manakah yang benar tentang 0,999… (angka 9 berulang tanpa akhir)?',o:['Sedikit lebih kecil dari 1','Sama persis dengan 1','Tidak terdefinisi','Sama dengan 0,9'],a:1,w:'0,999… = 9/10 + 9/100 + … = (9/10)/(1 − 1/10) = 1. Dua penulisan untuk bilangan yang sama.'},
+  {q:'Fungsi f kontinu di x = a jika…',o:['f(a) terdefinisi','limitnya ada','f(a) terdefinisi, limitnya ada, dan keduanya sama','grafiknya berupa garis lurus'],a:2,w:'Ketiga syarat harus terpenuhi. Fungsi berlubang yang "ditambal salah" punya limit dan f(a), tetapi keduanya berbeda.'},
+  {q:'Untuk membuktikan lim x→2 3x = 6 dengan ε–δ, jika penantang memberi ε = 0,3, δ yang cukup adalah…',o:['0,9','0,3','0,1','0,6'],a:2,w:'|3x − 6| = 3|x − 2| < 0,3 jika |x − 2| < 0,1. Secara umum δ = ε/3.'}
+];
+const answered={};
+$('#quiz').innerHTML=QZ.map((x,i)=>`<div class="q" data-i="${i}"><p>${i+1}. ${x.q}</p>${x.o.map((o,j)=>`<button data-j="${j}">${o}</button>`).join('')}<div class="why">${x.w}</div></div>`).join('');
+$$('.q button').forEach(b=>b.onclick=()=>{
+  const box=b.closest('.q'),i=box.dataset.i,x=QZ[i];
+  box.querySelectorAll('button').forEach(o=>o.classList.remove('right','wrong'));
+  b.classList.add(+b.dataset.j===x.a?'right':'wrong');
+  box.querySelector(`[data-j="${x.a}"]`).classList.add('right');
+  box.querySelector('.why').style.display='block';
+  if(!(i in answered))answered[i]=+b.dataset.j===x.a;
+  const n=Object.keys(answered).length,ok=Object.values(answered).filter(Boolean).length;
+  $('#qScore').textContent=n<QZ.length?`Terjawab ${n} dari ${QZ.length} · benar ${ok} (jawaban pertama yang dihitung)`:`Skor akhir: ${ok} dari ${QZ.length}. ${ok===QZ.length?'Sempurna! 🎉':ok>=7?'Bagus, ulangi bagian yang masih salah.':'Coba baca ulang Bagian 3–9 lalu ulangi kuisnya.'}`;
+});
+
+/* ---------- Gambar awal & mulai animasi ---------- */
+redrawAll();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
