@@ -24,3 +24,9 @@ Kumpulan modul belajar interaktif berbentuk HTML (cukup buka file di browser, ta
 | Modul | File | Status |
 |---|---|---|
 | Memahami Transformasi Fourier (intuisi, DFT/FFT, aliasing, filter) | [`fourier/01-transformasi-fourier.html`](fourier/01-transformasi-fourier.html) | ✅ Selesai |
+
+## Kalkulus
+
+| Modul | File | Status |
+|---|---|---|
+| Memahami Integral dari Nol (intuisi, jumlah Riemann, Teorema Dasar, teknik, numerik, aplikasi) | [`kalkulus/01-integral.html`](kalkulus/01-integral.html) | ✅ Selesai |

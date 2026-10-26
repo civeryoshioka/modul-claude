@@ -1,0 +1,1237 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Memahami Integral</title>
+<style>
+:root{
+  --bg:#f7f8fa;--surface:#ffffff;--surface-2:#f0f2f6;--text:#1c2230;--muted:#5b6474;
+  --border:#e1e5ec;--accent:#3a6df0;--accent-soft:#e6edff;--good:#1f9d63;--bad:#d64545;--warn:#c98a12;--violet:#7c4dff;
+  --code-bg:#f3f5f9;--sidebar-w:270px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+    --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--violet:#a98bff;--code-bg:#1d222b;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+  --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--violet:#a98bff;--code-bg:#1d222b;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+/* Sidebar */
+#sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);
+  overflow-y:auto;padding:22px 16px;z-index:20;transition:transform .25s}
+#sidebar .brand{font-weight:700;font-size:17px;margin:0 8px 2px}
+#sidebar .level{display:inline-block;margin:0 8px 16px;font-size:12px;padding:2px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar ol{list-style:none;margin:0;padding:0;counter-reset:toc}
+#sidebar li a{display:flex;gap:10px;padding:7px 10px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:14.5px;line-height:1.4}
+#sidebar li a::before{counter-increment:toc;content:counter(toc);min-width:20px;height:20px;border-radius:50%;background:var(--surface-2);
+  font-size:11.5px;display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+#sidebar li a:hover{background:var(--surface-2);color:var(--text)}
+#sidebar li a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar li a.active::before{background:var(--accent);color:#fff}
+#progress{height:4px;background:var(--surface-2);border-radius:4px;margin:0 8px 18px;overflow:hidden}
+#progress div{height:100%;width:0;background:var(--accent);transition:width .1s}
+#menuBtn{display:none;position:fixed;top:12px;left:12px;z-index:30;border:1px solid var(--border);background:var(--surface);color:var(--text);
+  border-radius:8px;padding:6px 12px;font-size:15px;cursor:pointer}
+#themeBtn{margin:18px 8px 0;font-size:13px}
+/* Main */
+main{margin-left:var(--sidebar-w);padding:40px 48px 80px;max-width:calc(var(--sidebar-w) + 900px)}
+main>*{max-width:860px}
+header.hero{padding:8px 0 24px;border-bottom:1px solid var(--border);margin-bottom:12px}
+header.hero h1{font-size:34px;line-height:1.2;margin:0 0 8px;text-wrap:balance}
+header.hero p{color:var(--muted);margin:0}
+section{padding-top:28px}
+h2{font-size:25px;margin:16px 0 10px;padding-top:8px;text-wrap:balance}
+h3{font-size:18.5px;margin:24px 0 6px;text-wrap:balance}
+p,li{color:var(--text)}
+main p,main li,.box,.card span{text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+.muted{color:var(--muted)}
+.box{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:16px 20px;margin:16px 0}
+.box.tip{border-left:4px solid var(--good)}
+.box.note{border-left:4px solid var(--accent)}
+.box.warn{border-left:4px solid var(--warn)}
+.box>strong:first-child{display:block;margin-bottom:4px}
+.box ul,.box ol{margin:6px 0 0;padding-left:22px}
+.formula{font-family:"Cambria Math","Times New Roman",serif;font-size:19px;text-align:center;background:var(--surface-2);
+  border-radius:10px;padding:14px;margin:14px 0;overflow-x:auto;white-space:nowrap}
+.formula.big{font-size:24px;padding:20px 14px}
+.formula var{font-style:italic}
+.formula small{font-family:system-ui,sans-serif;font-size:13px;color:var(--muted);display:block;white-space:normal;margin-top:4px}
+/* notasi integral: tanda ∫ besar, batas bertumpuk, pecahan */
+.ig{font-size:1.5em;line-height:1;vertical-align:-.2em;margin-right:1px}
+.lim{display:inline-flex;flex-direction:column;vertical-align:middle;font-size:.58em;line-height:1.25;margin-right:3px;text-align:left}
+.lim.r{margin:0 3px 0 1px}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.9em;line-height:1.3;margin:0 2px}
+.frac>span:first-child{border-bottom:1.5px solid currentColor;padding:0 4px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;background:var(--code-bg);padding:1px 6px;border-radius:5px}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-size:13.5px;line-height:1.55}
+pre code{background:none;padding:0}
+.c{color:var(--muted)} .k{color:var(--accent);font-weight:600} .s{color:var(--good)} .n{color:var(--warn)}
+.tbl{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--border);padding:7px 11px;text-align:left;vertical-align:top}
+th{background:var(--surface-2)}
+td.num,th.num{text-align:right}
+tr.hit td{background:color-mix(in srgb,var(--good) 12%,transparent)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:14px 0}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:14px 0}
+.card{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 16px;min-width:0}
+.card b{display:block;margin-bottom:2px}
+.card span{color:var(--muted);font-size:14.5px}
+.card .ic{font-size:26px;line-height:1;display:block;margin-bottom:6px}
+/* warna penanda rumus */
+.h1{color:var(--accent);font-weight:600}.h2{color:var(--warn);font-weight:600}.h3{color:var(--good);font-weight:600}
+.h4{color:var(--violet);font-weight:600}.h5{color:var(--bad);font-weight:600}
+.anat{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:14px 0}
+.anat div{border:1px solid var(--border);border-top:4px solid var(--x);background:var(--surface);border-radius:10px;padding:10px 14px;font-size:14.5px;min-width:0}
+.anat b{display:block;color:var(--x);font-family:"Cambria Math","Times New Roman",serif;font-size:19px}
+/* Demo widgets */
+.demo{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:18px;margin:18px 0}
+.demo h4{margin:0 0 4px;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent)}
+.demo>p{margin:4px 0 8px;font-size:15px}
+.controls{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:10px 0}
+select.btn{max-width:100%;text-overflow:ellipsis}
+button.btn,select.btn{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:8px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer}
+button.btn:hover,select.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+label.range{display:flex;align-items:center;gap:8px;font-size:14px;flex-wrap:wrap}
+label.range b{min-width:3.6em;font-variant-numeric:tabular-nums}
+label.chk{display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer}
+input[type=range]{accent-color:var(--accent);max-width:180px}
+input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px}
+input[type=number]{font:inherit;font-size:14px;width:110px;padding:5px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--text)}
+.kpi{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.kpi div{border:1px solid var(--border);background:var(--surface-2);border-radius:8px;padding:6px 12px;font-size:13px;color:var(--muted)}
+.kpi b{display:block;font-size:17px;color:var(--text);font-variant-numeric:tabular-nums}
+canvas.plot{display:block;width:100%;border:1px solid var(--border);border-radius:10px;background:var(--surface-2)}
+.cap{font-size:12.5px;color:var(--muted);margin:4px 2px 0}
+.legend{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:6px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.sumline{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;color:var(--muted);background:var(--surface-2);border-radius:8px;padding:6px 10px;margin:8px 0 0;overflow-x:auto;white-space:nowrap}
+.msg{font-size:14px;margin:8px 0 0;padding:8px 12px;border-radius:8px;background:var(--accent-soft);color:var(--text)}
+.alat{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:6px 14px;margin:10px 0}
+.alat label{display:flex;align-items:center;gap:8px;font-size:13.5px;cursor:pointer;border:1px solid var(--border);border-radius:8px;padding:5px 10px;background:var(--surface-2)}
+.alat label small{color:var(--muted);margin-left:auto;white-space:nowrap;font-variant-numeric:tabular-nums}
+/* Diagram */
+.diagram{overflow-x:auto;margin:16px 0}
+.diagram svg{display:block;width:100%;min-width:520px;max-width:720px;margin:0 auto}
+.diagram text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+/* Steps */
+.steps{counter-reset:st;list-style:none;padding:0}
+.steps li{counter-increment:st;position:relative;padding:4px 0 10px 42px}
+.steps li::before{content:counter(st);position:absolute;left:0;top:4px;width:28px;height:28px;border-radius:50%;background:var(--accent-soft);
+  color:var(--accent);font-weight:700;display:grid;place-items:center;font-size:14px}
+/* Quiz */
+.q{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 18px;margin:12px 0}
+.q p{margin:0 0 8px;font-weight:600}
+.q button{display:block;width:100%;text-align:left;margin:6px 0;border:1px solid var(--border);background:var(--surface-2);color:var(--text);
+  border-radius:8px;padding:8px 12px;font:inherit;font-size:14.5px;cursor:pointer}
+.q button.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 15%,transparent)}
+.q button.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,transparent)}
+.q .why{font-size:14px;color:var(--muted);display:none;margin-top:6px}
+#qScore{font-size:14px;color:var(--muted)}
+.nav-mod{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px}
+.nav-mod a{text-decoration:none}
+footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:14px}
+@media (max-width:900px){
+  #sidebar{transform:translateX(-100%);box-shadow:0 0 30px rgba(0,0,0,.2)}
+  #sidebar.open{transform:none}
+  #menuBtn{display:block}
+  main{margin-left:0;padding:60px 16px 60px}
+  header.hero h1{font-size:27px}
+}
+@media (max-width:620px){
+  .formula{font-size:17px}
+  .formula.big{font-size:20px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<button id="menuBtn" aria-label="Buka daftar isi">☰ Daftar Isi</button>
+
+<nav id="sidebar" aria-label="Daftar isi">
+  <a class="home-link" href="../index.html" style="display:block;margin:0 8px 12px;font-size:13px;text-decoration:none">← Beranda semua modul</a>
+  <div class="brand">Memahami Integral</div>
+  <span class="level">Kalkulus</span>
+  <div id="progress"><div></div></div>
+  <ol id="toc">
+    <li><a href="#peta">Kenapa Integral Terasa Sulit?</a></li>
+    <li><a href="#analogi">Ide Besar lewat 6 Analogi</a></li>
+    <li><a href="#jarak">Dari Speedometer ke Odometer</a></li>
+    <li><a href="#riemann">Iris Tipis, lalu Jumlahkan</a></li>
+    <li><a href="#notasi">Membaca Notasi ∫ f(x) dx</a></li>
+    <li><a href="#bertanda">Luas Bertanda: Saat Kurva di Bawah Nol</a></li>
+    <li><a href="#akumulasi">Fungsi Akumulasi: Odometer Matematika</a></li>
+    <li><a href="#tdk">Teorema Dasar Kalkulus</a></li>
+    <li><a href="#antiturunan">Antiturunan &amp; Misteri +C</a></li>
+    <li><a href="#teknik">Teknik: Substitusi &amp; Parsial</a></li>
+    <li><a href="#numerik">Integral Numerik: Cara Komputer</a></li>
+    <li><a href="#aplikasi">Integral di Dunia Nyata</a></li>
+    <li><a href="#kode">Praktik dengan Python</a></li>
+    <li><a href="#jebakan">Jebakan yang Sering Terjadi</a></li>
+    <li><a href="#kuis">Kuis &amp; Cheat Sheet</a></li>
+  </ol>
+  <button class="btn" id="themeBtn">🌓 Ganti tema</button>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Memahami Integral dari Nol</h1>
+  <p>Bukan sekadar hafalan rumus: dari analogi, gambar, dan simulasi dulu, lalu ke rumus, sampai pemakaiannya di dunia nyata. Estimasi waktu belajar ± 2,5 jam.</p>
+</header>
+
+<div class="diagram" aria-label="Diagram: luas di bawah kurva diiris menjadi persegi panjang tipis lalu dijumlahkan">
+<svg viewBox="0 0 690 232" role="img">
+  <rect x="10" y="14" width="205" height="160" rx="12" fill="var(--surface-2)" stroke="var(--border)"/>
+  <polygon id="heroArea" fill="var(--accent)" fill-opacity=".22" points=""/>
+  <polyline id="heroCurve1" fill="none" stroke="var(--text)" stroke-width="2.2" points=""/>
+  <text x="112" y="196" text-anchor="middle" font-size="14" font-weight="600" fill="var(--text)">1 · Bentuk lengkung</text>
+  <text x="112" y="213" text-anchor="middle" font-size="11.5" fill="var(--muted)">"luasnya berapa? tak ada rumus"</text>
+  <polygon points="222,88 234,94 222,100" fill="var(--muted)"/>
+
+  <rect x="242" y="14" width="205" height="160" rx="12" fill="var(--surface-2)" stroke="var(--border)"/>
+  <g id="heroRects"></g>
+  <polyline id="heroCurve2" fill="none" stroke="var(--text)" stroke-width="2.2" points=""/>
+  <text x="344" y="196" text-anchor="middle" font-size="14" font-weight="600" fill="var(--text)">2 · Iris tipis</text>
+  <text x="344" y="213" text-anchor="middle" font-size="11.5" fill="var(--muted)">"tiap irisan = persegi panjang"</text>
+  <polygon points="454,88 466,94 454,100" fill="var(--muted)"/>
+
+  <rect x="474" y="14" width="205" height="160" rx="12" fill="var(--accent-soft)" stroke="var(--accent)"/>
+  <text x="576" y="56" text-anchor="middle" font-size="15" fill="var(--text)">Σ tinggi × lebar</text>
+  <text x="576" y="78" text-anchor="middle" font-size="12" fill="var(--muted)">irisan makin tipis …</text>
+  <text x="576" y="122" text-anchor="middle" font-size="34" fill="var(--accent)" font-family="Cambria Math,Times New Roman,serif">∫ f(x) dx</text>
+  <text x="576" y="152" text-anchor="middle" font-size="12" fill="var(--muted)">… hasilnya tepat = luas</text>
+  <text x="576" y="196" text-anchor="middle" font-size="14" font-weight="600" fill="var(--text)">3 · Jumlahkan</text>
+  <text x="576" y="213" text-anchor="middle" font-size="11.5" fill="var(--muted)">"integral = jumlahan tak hingga"</text>
+</svg>
+</div>
+
+<div class="box note">
+  <strong>🎯 Tujuan belajar</strong>
+  Setelah modul ini kamu bisa menjelaskan integral dengan kata-katamu sendiri sebagai <b>"mengubah laju menjadi total"</b>, membaca notasi
+  <code>∫ f(x) dx</code> potong demi potong, menghitung luas dengan irisan (jumlah Riemann) memakai tangan, memahami kenapa integral adalah kebalikan turunan,
+  memakai rumus dasar dan dua teknik utama, lalu menerapkannya ke kasus nyata seperti tagihan listrik, volume tumpeng, dan data sensor dengan Python.
+  <br><span class="muted">Prasyarat: aljabar SMA dan tahu sedikit soal grafik fungsi. Turunan diulang seperlunya di Bagian 8. Kalau belum pernah belajar turunan sama sekali, tetap bisa mengikuti Bagian 1–7 dan 11–12.</span>
+</div>
+
+<!-- 1 -->
+<section id="peta">
+<h2>1. Kenapa Integral Terasa Sulit?</h2>
+<p>Banyak orang pertama kali bertemu integral dalam bentuk seperti ini, langsung di papan tulis:</p>
+<div class="formula big"><span class="ig">∫</span> <var>x<sup>n</sup></var> <var>dx</var> = <span class="frac"><span><var>x</var><sup><var>n</var>+1</sup></span><span><var>n</var> + 1</span></span> + <var>C</var></div>
+<p>Lalu disusul tabel rumus, teknik substitusi, teknik parsial, dan latihan soal yang panjang, tanpa pernah dijelaskan <i>apa yang sebenarnya sedang dihitung</i> dan <i>untuk apa</i>. Wajar kalau integral terasa seperti mantra. Padahal integral lahir dari pertanyaan yang sangat praktis dan sehari-hari:</p>
+<div class="formula">"Kalau aku tahu <b>lajunya</b> di setiap saat, berapa <b>totalnya</b>?"<small>Kecepatan → jarak, debit air → volume, daya listrik → kWh, laju penjualan → total omzet.</small></div>
+<p>Rumus di atas hanyalah <b>jalan pintas</b> untuk menjawab pertanyaan itu pada kasus-kasus tertentu. Supaya integral terasa masuk akal, kita akan membongkarnya menjadi empat ide terpisah, lalu baru merakitnya kembali:</p>
+<div class="grid2">
+  <div class="card"><b>Ide 1 · Integral = menjumlahkan potongan kecil</b><span>Bentuk yang melengkung atau laju yang berubah-ubah dipotong menjadi banyak irisan tipis yang masing-masing mudah dihitung, lalu semuanya dijumlahkan. (Bagian 3–5)</span></div>
+  <div class="card"><b>Ide 2 · Laju × waktu = total</b><span>Luas di bawah grafik laju adalah total yang terkumpul. Luas di sini bukan sekadar "luas gambar", melainkan jarak, liter, kWh, atau rupiah. (Bagian 3, 5, 6)</span></div>
+  <div class="card"><b>Ide 3 · Integral membalik turunan</b><span>Turunan mengubah total menjadi laju, integral mengubah laju menjadi total. Fakta inilah yang melahirkan rumus-rumus jalan pintas. (Bagian 7–10)</span></div>
+  <div class="card"><b>Ide 4 · Komputer tidak butuh rumus</b><span>Di dunia nyata, data biasanya berupa angka hasil sensor, bukan rumus. Komputer menghitung integral langsung dengan irisan, persis seperti Ide 1. (Bagian 11–13)</span></div>
+</div>
+<div class="box tip"><strong>💡 Cara memakai modul ini</strong>
+  Jangan buru-buru ke rumus. Mainkan setiap simulasi sampai kamu bisa <i>menebak</i> hasilnya sebelum menggeser slider. Kerjakan contoh <b>✍️ hitung manual</b> dengan kertas dan pensil, lalu cocokkan dengan angka di simulasi. Kalau sebuah bagian terasa berat, kembali ke analogi di Bagian 2.
+  Matematikawan Silvanus Thompson dalam buku klasik <i>Calculus Made Easy</i> (1910) menyarankan membaca tanda ∫ cukup sebagai <b>"jumlah dari semua potongan kecil"</b>. Pegang kalimat itu sepanjang modul.
+</div>
+</section>
+
+<!-- 2 -->
+<section id="analogi">
+<h2>2. Ide Besar lewat 6 Analogi</h2>
+<p>Satu kalimat inti yang perlu kamu pegang: <b>integral menjawab "berapa total yang terkumpul dari sesuatu yang lajunya berubah-ubah?"</b>. Kalau lajunya konstan, cukup dikali. Kalau lajunya berubah, kita butuh integral. Enam analogi berikut menyorot sisi yang berbeda dari ide itu, dan semuanya akan muncul lagi di bagian-bagian berikutnya.</p>
+<div class="grid2">
+  <div class="card"><span class="ic">🚗</span><b>Speedometer dan odometer</b><span>Speedometer menunjukkan kecepatan <i>saat ini</i> (laju). Odometer mencatat total kilometer yang sudah ditempuh. Di dalam mobil, odometer bekerja dengan terus "menjumlahkan" kecepatan sesaat. Odometer adalah mesin integral, speedometer adalah mesin turunan.</span></div>
+  <div class="card"><span class="ic">🪣</span><b>Keran dan ember</b><span>Keran bisa diputar lebih deras atau lebih pelan, jadi debitnya (liter per menit) berubah-ubah. Banyaknya air di ember setelah 10 menit adalah integral dari debit. Kalau ember bocor, debitnya bisa negatif dan air berkurang.</span></div>
+  <div class="card"><span class="ic">⚡</span><b>Meteran listrik PLN</b><span>Daya yang dipakai rumahmu naik turun: AC menyala, setrika dicolok, lampu dimatikan. Meteran tidak mencatat watt, melainkan <b>kWh</b>, yaitu integral daya terhadap waktu. Tagihan listrikmu setiap bulan adalah hasil sebuah integral.</span></div>
+  <div class="card"><span class="ic">🍞</span><b>Mengiris roti tawar</b><span>Volume roti sulit diukur langsung. Tetapi kalau diiris tipis, setiap irisan hampir seperti lembaran datar yang luasnya bisa diukur. Volume roti = jumlah (luas irisan × tebal irisan). Begitulah integral menghitung volume tumpeng di Bagian 12.</span></div>
+  <div class="card"><span class="ic">💰</span><b>Saldo tabungan</b><span>Setiap hari ada pemasukan (positif) dan pengeluaran (negatif). Saldo akhir = saldo awal + jumlah semua perubahan harian. Integral juga begitu: bagian yang negatif <i>mengurangi</i> total, bukan menambah.</span></div>
+  <div class="card"><span class="ic">🧱</span><b>Lego dan piksel</b><span>Lingkaran yang disusun dari balok Lego tampak bergerigi. Makin kecil baloknya, makin halus bentuknya. Integral adalah versi "balok yang lebarnya mendekati nol", sehingga gerigi hilang dan hasilnya tepat.</span></div>
+</div>
+<p>Analogi speedometer–odometer paling dekat dengan cara kerja integral dan akan menjadi tulang punggung modul ini. Analogi Lego menjelaskan <i>cara menghitungnya</i>, sedangkan analogi saldo menjelaskan kenapa integral bisa bernilai negatif.</p>
+<div class="box warn"><strong>⚠️ Batas analogi</strong>
+  Odometer mobil tidak pernah berkurang walaupun mobil mundur, karena ia mencatat <i>jarak total</i>. Integral kecepatan justru mencatat <i>perpindahan</i>: maju 5 km lalu mundur 5 km hasilnya 0. Bedanya akan dibahas tuntas di Bagian 6. Untuk sisi "bisa berkurang" ini, analogi saldo tabungan lebih tepat.
+</div>
+</section>
+
+<!-- 3 -->
+<section id="jarak">
+<h2>3. Dari Speedometer ke Odometer</h2>
+<p>Mulai dari yang paling sederhana. Kalau mobil melaju <b>tetap</b> 60 km/jam selama 2 jam, jaraknya 60 × 2 = 120 km. Sekarang gambar kecepatannya sebagai grafik: sumbu datar adalah waktu, sumbu tegak adalah kecepatan. Grafiknya berupa garis datar setinggi 60, dan daerah di bawahnya adalah persegi panjang berukuran 2 × 60. <b>Luas persegi panjang itu persis sama dengan jarak tempuh.</b></p>
+<p>Ini bukan kebetulan. Tinggi persegi panjang adalah kecepatan (km/jam), lebarnya adalah waktu (jam), dan tinggi × lebar = km/jam × jam = km. Jadi "luas" di bawah grafik kecepatan bukanlah luas dalam cm², melainkan jarak.</p>
+<p>Masalahnya, di jalan nyata kecepatan tidak pernah konstan. Ada macet, lampu merah, dan jalan tol. Grafiknya naik turun, dan kita tidak bisa lagi sekadar mengalikan. Triknya: dalam selang waktu yang <i>sangat singkat</i>, misalnya satu detik, kecepatan hampir tidak berubah. Jadi dalam satu detik itu jaraknya ≈ kecepatan × 1 detik, yaitu luas sebuah persegi panjang yang sangat tipis. Jumlahkan semua persegi panjang tipis itu, dan kamu mendapat total jarak. Itulah yang dikerjakan odometer, dan itulah integral.</p>
+
+<div class="demo">
+  <h4>🎛 Simulasi 1 · Speedometer menjadi odometer</h4>
+  <p>Pilih skenario perjalanan lalu tekan ▶. Perhatikan bahwa angka odometer selalu sama dengan luas daerah biru di bawah grafik kecepatan. Kamu juga bisa menggeser slider waktu secara manual.</p>
+  <div class="controls">
+    <select class="btn" id="d1P" aria-label="Skenario perjalanan">
+      <option value="konstan">Kecepatan tetap 60 km/jam</option>
+      <option value="tol" selected>Jalan tol: naik ke 80 lalu turun</option>
+      <option value="kota">Dalam kota: macet &amp; lampu merah</option>
+    </select>
+    <button class="btn primary" id="d1Play">▶ Jalan</button>
+    <label class="range" for="d1T">Waktu <input type="range" id="d1T" min="0" max="2" step="0.005" value="0"> <b id="d1Tv"></b></label>
+  </div>
+  <canvas class="plot" id="cv1" style="height:330px"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>grafik kecepatan &amp; luas terkumpul</span><span><i class="dot" style="background:var(--warn)"></i>irisan saat ini: kecepatan × selang waktu singkat</span></div>
+  <div class="kpi"><div>Speedometer (laju)<b id="d1V"></b></div><div>Odometer (total)<b id="d1D"></b></div><div>Luas biru di grafik<b id="d1A"></b></div></div>
+</div>
+
+<h3>✍️ Contoh hitung manual 1: perjalanan motor tanpa rumus integral</h3>
+<p>Sebuah motor berangkat dari diam, kecepatannya naik merata sampai 40 km/jam dalam 0,5 jam pertama, lalu stabil 40 km/jam selama 1 jam, kemudian melambat merata sampai berhenti dalam 0,25 jam. Berapa jarak totalnya? Gambar grafik kecepatannya dulu: bentuknya trapesium yang bisa dipecah menjadi segitiga, persegi panjang, dan segitiga.</p>
+<ol class="steps">
+  <li>Fase mempercepat (segitiga): ½ × alas × tinggi = ½ × 0,5 jam × 40 km/jam = <b>10 km</b></li>
+  <li>Fase stabil (persegi panjang): 1 jam × 40 km/jam = <b>40 km</b></li>
+  <li>Fase mengerem (segitiga): ½ × 0,25 jam × 40 km/jam = <b>5 km</b></li>
+  <li>Total jarak = luas seluruh bangun = 10 + 40 + 5 = <b>55 km</b></li>
+</ol>
+<p>Perhatikan: kita baru saja menghitung sebuah integral hanya dengan rumus luas bangun datar SD. Integral baru benar-benar dibutuhkan ketika grafiknya melengkung, sehingga tidak bisa dipecah menjadi segitiga dan persegi panjang. Itulah topik bagian berikutnya.</p>
+<div class="box tip"><strong>💡 Pegang gambar ini baik-baik</strong>
+  <b>Laju di sumbu tegak × waktu di sumbu datar = total.</b> Ganti "kecepatan" dengan debit, daya, atau laju penjualan, dan logikanya tetap sama. Hampir semua aplikasi integral di dunia nyata adalah variasi dari kalimat ini.
+</div>
+</section>
+
+<!-- 4 -->
+<section id="riemann">
+<h2>4. Iris Tipis, lalu Jumlahkan</h2>
+<p>Bagaimana menghitung luas di bawah kurva yang melengkung, misalnya <var>f</var>(<var>x</var>) = <var>x</var>² dari <var>x</var> = 0 sampai <var>x</var> = 2? Tidak ada rumus luas bangun datar untuk bentuk ini. Strateginya sama seperti analogi Lego:</p>
+<ol class="steps">
+  <li><b>Iris</b> rentang [0, 2] menjadi <var>n</var> potongan sama lebar. Lebar tiap potongan disebut Δ<var>x</var> (baca: "delta x") = (2 − 0)/<var>n</var>.</li>
+  <li><b>Ganti</b> setiap potongan dengan persegi panjang. Tingginya diambil dari nilai kurva di satu titik pada potongan itu: ujung kiri, ujung kanan, atau titik tengah.</li>
+  <li><b>Jumlahkan</b> luas semua persegi panjang: Σ tinggi × Δ<var>x</var>. Hasilnya disebut <b>jumlah Riemann</b>, sebuah hampiran luas.</li>
+  <li><b>Perhalus</b>: perbanyak irisan. Makin banyak irisan, makin kecil "gerigi" yang tersisa, dan hampiran makin dekat ke luas yang sebenarnya.</li>
+</ol>
+
+<div class="demo">
+  <h4>🎛 Simulasi 2 · Laboratorium jumlah Riemann</h4>
+  <p>Pilih fungsi dan cara mengambil tinggi persegi panjang, lalu tambah jumlah irisan <var>n</var>. Perhatikan seberapa cepat galat mengecil untuk tiap metode.</p>
+  <div class="controls">
+    <select class="btn" id="d2F" aria-label="Fungsi">
+      <option value="kuadrat">f(x) = x² pada [0, 2]</option>
+      <option value="sinus">f(x) = sin x pada [0, π]</option>
+      <option value="akar">f(x) = √x pada [0, 4]</option>
+      <option value="lonceng">f(x) = e^(−x²) pada [−2, 2]</option>
+    </select>
+    <select class="btn" id="d2M" aria-label="Metode">
+      <option value="kiri">Titik kiri</option>
+      <option value="kanan">Titik kanan</option>
+      <option value="tengah">Titik tengah</option>
+      <option value="trapesium">Trapesium</option>
+    </select>
+    <label class="range" for="d2N">Irisan <var>n</var> = <input type="range" id="d2N" min="1" max="100" step="1" value="4"> <b id="d2Nv"></b></label>
+    <button class="btn" id="d2Anim">▶ Perhalus otomatis</button>
+  </div>
+  <canvas class="plot" id="cv2" style="height:300px"></canvas>
+  <div class="sumline" id="d2Sum"></div>
+  <div class="kpi"><div>Lebar irisan Δ<var>x</var><b id="d2Dx"></b></div><div>Hampiran (jumlah Riemann)<b id="d2Ap"></b></div><div>Nilai eksak integral<b id="d2Ex"></b></div><div>Galat<b id="d2Er"></b></div></div>
+</div>
+
+<h3>✍️ Contoh hitung manual 2: luas di bawah <var>x</var>² dengan 4 irisan</h3>
+<p>Rentang [0, 2] dibagi 4, jadi Δ<var>x</var> = 0,5. Batas-batas irisan ada di 0; 0,5; 1; 1,5; 2. Hitung tinggi kurva <var>f</var>(<var>x</var>) = <var>x</var>² di titik-titik yang diperlukan:</p>
+<div class="tbl"><table>
+  <tr><th>Irisan</th><th>Rentang</th><th class="num">Tinggi kiri</th><th class="num">Tinggi kanan</th><th class="num">Tinggi tengah</th></tr>
+  <tr><td>1</td><td>[0; 0,5]</td><td class="num">0² = 0</td><td class="num">0,5² = 0,25</td><td class="num">0,25² = 0,0625</td></tr>
+  <tr><td>2</td><td>[0,5; 1]</td><td class="num">0,25</td><td class="num">1</td><td class="num">0,75² = 0,5625</td></tr>
+  <tr><td>3</td><td>[1; 1,5]</td><td class="num">1</td><td class="num">2,25</td><td class="num">1,25² = 1,5625</td></tr>
+  <tr><td>4</td><td>[1,5; 2]</td><td class="num">2,25</td><td class="num">4</td><td class="num">1,75² = 3,0625</td></tr>
+  <tr><th colspan="2">Jumlah tinggi</th><th class="num">3,5</th><th class="num">7,5</th><th class="num">5,25</th></tr>
+  <tr class="hit"><th colspan="2">× Δ<var>x</var> = 0,5</th><th class="num">1,75</th><th class="num">3,75</th><th class="num">2,625</th></tr>
+</table></div>
+<p>Titik kiri terlalu kecil (1,75) karena kurvanya naik, sehingga tinggi di ujung kiri selalu lebih rendah dari kurva. Titik kanan terlalu besar (3,75) karena alasan sebaliknya. Titik tengah jauh lebih akurat (2,625). Rata-rata kiri dan kanan = (1,75 + 3,75)/2 = 2,75, dan itulah metode trapesium. Nilai yang sebenarnya adalah 8/3 ≈ 2,6667, yang nanti kita buktikan di Bagian 8. Cocokkan semua angka ini dengan Simulasi 2 (pilih <var>x</var>², <var>n</var> = 4, lalu ganti metodenya).</p>
+
+<h3>Seberapa cepat hampiran mendekati jawaban?</h3>
+<p>Tabel berikut dihitung dengan Python (kodenya di Bagian 13). Galat titik kiri turun kira-kira 10 kali setiap <var>n</var> dinaikkan 10 kali, sedangkan galat titik tengah turun kira-kira <b>100 kali</b>. Memilih titik yang "pintar" ternyata jauh lebih hemat daripada sekadar menambah irisan.</p>
+<div class="tbl"><table>
+  <tr><th class="num"><var>n</var></th><th class="num">Titik kiri</th><th class="num">Galat kiri</th><th class="num">Titik tengah</th><th class="num">Galat tengah</th></tr>
+  <tr><td class="num">4</td><td class="num">1,750000</td><td class="num">0,916667</td><td class="num">2,625000</td><td class="num">0,041667</td></tr>
+  <tr><td class="num">10</td><td class="num">2,280000</td><td class="num">0,386667</td><td class="num">2,660000</td><td class="num">0,006667</td></tr>
+  <tr><td class="num">100</td><td class="num">2,626800</td><td class="num">0,039867</td><td class="num">2,666600</td><td class="num">0,000067</td></tr>
+  <tr><td class="num">1000</td><td class="num">2,662668</td><td class="num">0,003999</td><td class="num">2,666666</td><td class="num">0,0000007</td></tr>
+</table></div>
+<div class="box note"><strong>📜 Sedikit sejarah</strong>
+  Ide mengiris ini sangat tua. Sekitar 250 SM, Archimedes menghitung luas daerah di bawah parabola dengan "metode penghabisan": mengisi daerah itu dengan segitiga-segitiga yang makin kecil. Ia mendapat jawaban tepat tanpa aljabar modern. Hampir 2.000 tahun kemudian, Bernhard Riemann (1854) merumuskan definisi integral yang ketat dengan persegi panjang seperti di simulasi, sehingga jumlahan ini dinamai menurut namanya.
+</div>
+</section>
+
+<!-- 5 -->
+<section id="notasi">
+<h2>5. Membaca Notasi ∫ f(x) dx Pelan-pelan</h2>
+<p>Sekarang kita siap membaca notasi integral. Jumlah Riemann ditulis dengan simbol Σ (sigma, "jumlahkan"). Ketika irisannya dibuat makin tipis tanpa batas, Gottfried Leibniz pada tahun 1675 mengganti Σ dengan huruf S yang dipanjangkan, <b>∫</b>, dari kata Latin <i>summa</i> (jumlah). Δ<var>x</var> yang berukuran nyata diganti <var>dx</var>, yang berarti "lebar irisan yang sangat tipis".</p>
+<div class="formula big"><span class="ig h1">∫</span><span class="lim h4"><span><var>b</var></span><span><var>a</var></span></span> <span class="h2"><var>f</var>(<var>x</var>)</span> <span class="h3"><var>dx</var></span></div>
+<div class="anat">
+  <div style="--x:var(--accent)"><b>∫ · tanda jumlah</b>Huruf S panjang. Baca sebagai "jumlahkan semua potongan kecil berikut ini".</div>
+  <div style="--x:var(--violet)"><b>a, b · batas</b>Dari mana sampai mana kita menjumlahkan, misalnya dari jam 0 sampai jam 2.</div>
+  <div style="--x:var(--warn)"><b>f(x) · tinggi irisan</b>Nilai laju pada titik <var>x</var>: kecepatan, debit, daya, atau tinggi kurva.</div>
+  <div style="--x:var(--good)"><b>dx · lebar irisan</b>Potongan <var>x</var> yang sangat kecil. Bukan hiasan: ia yang membawa satuan dan arti "per".</div>
+</div>
+<p>Jadi seluruh notasi bisa dibaca sebagai kalimat: <b>"jumlahkan tinggi × lebar untuk semua irisan tipis dari <var>a</var> sampai <var>b</var>"</b>. Bandingkan dengan definisi resminya, yaitu limit dari jumlah Riemann. Setiap bagian punya pasangannya:</p>
+<div class="formula"><span class="ig h1">∫</span><span class="lim h4"><span><var>b</var></span><span><var>a</var></span></span> <span class="h2"><var>f</var>(<var>x</var>)</span> <span class="h3"><var>dx</var></span> = <span style="display:inline-flex;flex-direction:column;vertical-align:middle;line-height:1.2;text-align:center">lim<small style="margin:0;font-size:12px"><var>n</var>→∞</small></span> <span class="h1">Σ</span><span class="lim r"><span><var>n</var></span><span><var>i</var>=1</span></span> <span class="h2"><var>f</var>(<var>x<sub>i</sub></var>)</span> <span class="h3">Δ<var>x</var></span>
+  <small>Notasi Leibniz sengaja dibuat mirip jumlahannya: Σ menjadi ∫, Δ<var>x</var> menjadi <var>dx</var>. Resep menghitungnya "terlihat" di dalam simbolnya.</small></div>
+
+<h3>Satuan: alat cek paling ampuh</h3>
+<p>Karena integral adalah tinggi × lebar, satuan hasilnya selalu satuan <var>f</var> dikali satuan <var>x</var>. Kalau satuannya tidak masuk akal, hampir pasti ada yang salah dalam perhitunganmu.</p>
+<div class="tbl"><table>
+  <tr><th>Tinggi <var>f</var>(<var>x</var>)</th><th>Lebar <var>dx</var></th><th>Hasil ∫ <var>f</var>(<var>x</var>) <var>dx</var></th></tr>
+  <tr><td>Kecepatan (km/jam)</td><td>Waktu (jam)</td><td>Jarak (km)</td></tr>
+  <tr><td>Debit air (liter/menit)</td><td>Waktu (menit)</td><td>Volume (liter)</td></tr>
+  <tr><td>Daya listrik (watt)</td><td>Waktu (jam)</td><td>Energi (watt-jam, Wh)</td></tr>
+  <tr><td>Gaya (newton)</td><td>Perpindahan (meter)</td><td>Usaha (joule)</td></tr>
+  <tr><td>Luas penampang (cm²)</td><td>Tebal (cm)</td><td>Volume (cm³)</td></tr>
+  <tr><td>Kepadatan penduduk (jiwa/km)</td><td>Panjang jalan (km)</td><td>Jumlah penduduk (jiwa)</td></tr>
+  <tr><td>Kepadatan peluang (per satuan)</td><td>Nilai (satuan)</td><td>Peluang (tanpa satuan)</td></tr>
+</table></div>
+<div class="box tip"><strong>💡 Integral tentu vs tak tentu</strong>
+  Integral yang punya batas, seperti ∫<sub>0</sub><sup>2</sup> <var>x</var>² <var>dx</var>, disebut <b>integral tentu</b> dan hasilnya sebuah <b>angka</b> (luas, jarak, kWh). Integral tanpa batas, seperti ∫ <var>x</var>² <var>dx</var>, disebut <b>integral tak tentu</b> dan hasilnya sebuah <b>fungsi</b> (plus konstanta <var>C</var>). Integral tak tentu adalah "alat bantu" untuk menghitung integral tentu dengan cepat, seperti yang akan kita lihat di Bagian 8–9.
+</div>
+</section>
+
+<!-- 6 -->
+<section id="bertanda">
+<h2>6. Luas Bertanda: Saat Kurva di Bawah Nol</h2>
+<p>Apa yang terjadi kalau <var>f</var>(<var>x</var>) negatif? Setiap irisan bernilai <var>f</var>(<var>x</var>) × <var>dx</var>, dan kalau tingginya negatif, hasil kalinya juga negatif. Jadi daerah <b>di bawah sumbu <var>x</var> dihitung negatif</b>, dan ia mengurangi daerah di atas sumbu. Ini bukan kelemahan integral, justru inilah yang kita inginkan di banyak kasus nyata:</p>
+<div class="grid3">
+  <div class="card"><span class="ic">🚶</span><b>Maju dan mundur</b><span>Kecepatan positif = maju, negatif = mundur. Integral kecepatan memberi <b>perpindahan</b>: posisi akhir dibanding posisi awal.</span></div>
+  <div class="card"><span class="ic">💰</span><b>Arus kas</b><span>Pemasukan positif, pengeluaran negatif. Integral arus kas memberi perubahan saldo bersih, bukan total uang yang lewat.</span></div>
+  <div class="card"><span class="ic">🛢</span><b>Tandon air</b><span>Pompa mengisi (debit positif), keran dipakai (debit negatif). Integral debit memberi perubahan isi tandon.</span></div>
+</div>
+
+<h3>✍️ Contoh hitung manual 3: perpindahan vs jarak total</h3>
+<p>Kamu jalan kaki ke warung dengan kecepatan +6 km/jam selama 0,5 jam, lalu pulang lewat jalan yang sama dengan kecepatan −4 km/jam (tanda minus = arah sebaliknya) selama 0,75 jam.</p>
+<ol class="steps">
+  <li>Luas di atas sumbu: 6 × 0,5 = <b>+3 km</b> (berangkat)</li>
+  <li>Luas di bawah sumbu: (−4) × 0,75 = <b>−3 km</b> (pulang)</li>
+  <li>Integral kecepatan = 3 + (−3) = <b>0 km</b>. Masuk akal: kamu kembali ke titik awal, perpindahanmu nol.</li>
+  <li>Jarak yang benar-benar ditempuh (yang dicatat odometer atau aplikasi langkah) = |3| + |−3| = <b>6 km</b>. Secara notasi ini adalah ∫ |<var>v</var>(<var>t</var>)| <var>dt</var>, integral dari nilai mutlak.</li>
+</ol>
+<p>Contoh klasik di matematika: ∫<sub>0</sub><sup>π</sup> sin <var>x</var> <var>dx</var> = 2, tetapi ∫<sub>0</sub><sup>2π</sup> sin <var>x</var> <var>dx</var> = 0, karena bukit di atas sumbu dan lembah di bawah sumbu sama besarnya dan saling meniadakan. Kamu bisa melihatnya sendiri di Simulasi 3 berikut.</p>
+<div class="box warn"><strong>⚠️ Jadi integral tidak selalu sama dengan luas</strong>
+  Kalau soal meminta "luas daerah", yang dimaksud biasanya luas geometris yang selalu positif, sehingga bagian di bawah sumbu harus dibalik tandanya dulu (pakai |<var>f</var>|). Kalau soal meminta "integral", hasilnya adalah luas <i>bertanda</i>. Tanyakan selalu: yang dicari perpindahan atau jarak, perubahan saldo atau total transaksi?
+</div>
+</section>
+
+<!-- 7 -->
+<section id="akumulasi">
+<h2>7. Fungsi Akumulasi: Odometer Matematika</h2>
+<p>Sejauh ini batas atas integral selalu angka tetap. Sekarang bayangkan batas atasnya kita gerakkan, seperti melihat odometer di sepanjang perjalanan, bukan hanya di akhir. Hasilnya adalah sebuah fungsi baru yang mencatat "total terkumpul sampai titik <var>x</var>":</p>
+<div class="formula big"><var>A</var>(<var>x</var>) = <span class="ig">∫</span><span class="lim"><span><var>x</var></span><span><var>a</var></span></span> <var>f</var>(<var>t</var>) <var>dt</var>
+  <small>Huruf <var>t</var> hanyalah "variabel boneka" untuk menjelajah dari <var>a</var> sampai <var>x</var>, supaya tidak tertukar dengan batas atas <var>x</var>.</small></div>
+<p>Kalau <var>f</var> adalah speedometer, <var>A</var> adalah odometer. Kalau <var>f</var> adalah debit air, <var>A</var> adalah isi tandon. Simulasi berikut menampilkan keduanya bertumpuk. Geser <var>x</var> pelan-pelan dan perhatikan hubungan antara <b>tinggi</b> grafik atas dan <b>kemiringan</b> grafik bawah.</p>
+
+<div class="demo">
+  <h4>🎛 Simulasi 3 · Mesin akumulasi</h4>
+  <p>Atas: laju <var>f</var>(<var>t</var>). Daerah hijau menambah, daerah merah mengurangi. Bawah: total terkumpul <var>A</var>(<var>x</var>) beserta garis singgungnya di titik <var>x</var>.</p>
+  <div class="controls">
+    <select class="btn" id="d3F" aria-label="Skenario">
+      <option value="tandon">Tandon air: diisi lalu terkuras</option>
+      <option value="sinus">f(t) = sin t (bukit dan lembah)</option>
+      <option value="kuadrat">f(t) = t² (selalu naik)</option>
+    </select>
+    <label class="range" for="d3X">Batas atas <var>x</var> <input type="range" id="d3X" min="0" max="1" step="0.002" value="0.35"> <b id="d3Xv"></b></label>
+    <button class="btn" id="d3Play">▶ Putar</button>
+  </div>
+  <canvas class="plot" id="cv3" style="height:420px"></canvas>
+  <div class="kpi"><div>Tinggi laju <var>f</var>(<var>x</var>)<b id="d3f"></b></div><div>Total <var>A</var>(<var>x</var>)<b id="d3A"></b></div><div>Kemiringan grafik <var>A</var> di <var>x</var><b id="d3S"></b></div></div>
+  <p class="msg" id="d3Msg"></p>
+</div>
+<p>Tiga pengamatan yang perlu kamu temukan sendiri di simulasi:</p>
+<ol class="steps">
+  <li>Saat <var>f</var> positif, <var>A</var> naik. Saat <var>f</var> negatif, <var>A</var> turun. Saat <var>f</var> = 0, <var>A</var> berhenti naik atau turun sesaat.</li>
+  <li>Isi tandon mencapai <b>puncak tepat ketika debit bernilai nol</b>, yaitu saat debit berubah dari positif ke negatif. Ini dasar dari banyak soal optimasi: total maksimum terjadi saat laju berganti tanda.</li>
+  <li>Angka "kemiringan grafik <var>A</var>" <b>selalu sama</b> dengan "tinggi laju <var>f</var>(<var>x</var>)". Kemiringan adalah turunan. Jadi turunan dari <var>A</var> adalah <var>f</var>. Pengamatan ketiga inilah yang menjadi salah satu teorema terpenting dalam matematika.</li>
+</ol>
+</section>
+
+<!-- 8 -->
+<section id="tdk">
+<h2>8. Teorema Dasar Kalkulus</h2>
+<p>Sebelum lanjut, ulang singkat soal <b>turunan</b>. Turunan sebuah fungsi di suatu titik adalah kemiringan grafiknya di titik itu, atau laju perubahannya: "kalau <var>x</var> bertambah sedikit, <var>F</var> bertambah berapa per satuan <var>x</var>?". Ditulis <var>F</var>′(<var>x</var>) atau <var>dF</var>/<var>dx</var>. Contoh: turunan posisi adalah kecepatan, turunan isi tandon adalah debit. Beberapa turunan yang kita perlukan: turunan <var>x</var>³ adalah 3<var>x</var>², turunan <var>x</var>² adalah 2<var>x</var>, dan turunan konstanta adalah 0.</p>
+<p>Pengamatan ketiga di Simulasi 3 bisa dibuktikan dengan satu gambar. Tambahkan sedikit, misalnya <var>h</var>, ke batas atas. Luas yang bertambah, <var>A</var>(<var>x</var> + <var>h</var>) − <var>A</var>(<var>x</var>), adalah sebuah irisan tipis. Irisan itu hampir berupa persegi panjang dengan tinggi <var>f</var>(<var>x</var>) dan lebar <var>h</var>.</p>
+<div class="diagram" aria-label="Diagram: tambahan luas dari x ke x+h hampir berupa persegi panjang setinggi f(x)">
+<svg viewBox="0 0 640 250" role="img">
+  <line x1="50" y1="210" x2="610" y2="210" stroke="var(--muted)"/>
+  <line x1="50" y1="20" x2="50" y2="210" stroke="var(--muted)"/>
+  <polygon id="stArea" fill="var(--accent)" fill-opacity=".2" points=""/>
+  <polygon id="stStrip" fill="var(--warn)" fill-opacity=".55" points=""/>
+  <polyline id="stCurve" fill="none" stroke="var(--text)" stroke-width="2.2" points=""/>
+  <text x="200" y="175" text-anchor="middle" font-size="17" fill="var(--accent)" font-weight="600">A(x)</text>
+  <text x="200" y="195" text-anchor="middle" font-size="12" fill="var(--muted)">luas terkumpul sampai x</text>
+  <text id="stX" x="0" y="228" text-anchor="middle" font-size="13" fill="var(--text)">x</text>
+  <text id="stXh" x="0" y="228" text-anchor="middle" font-size="13" fill="var(--text)">x + h</text>
+  <text id="stF" x="0" y="0" text-anchor="end" font-size="13" fill="var(--warn)" font-weight="600">tinggi ≈ f(x)</text>
+  <text x="462" y="40" font-size="13" fill="var(--text)">Tambahan luas</text>
+  <text x="462" y="58" font-size="13" fill="var(--text)">A(x+h) − A(x) ≈ f(x) · h</text>
+  <text x="462" y="80" font-size="12" fill="var(--muted)">bagi kedua ruas dengan h,</text>
+  <text x="462" y="96" font-size="12" fill="var(--muted)">lalu buat h → 0:</text>
+  <text x="462" y="120" font-size="15" fill="var(--accent)" font-weight="600">A′(x) = f(x)</text>
+</svg>
+</div>
+<p>Bagi kedua ruas dengan <var>h</var>: [<var>A</var>(<var>x</var> + <var>h</var>) − <var>A</var>(<var>x</var>)] / <var>h</var> ≈ <var>f</var>(<var>x</var>). Ruas kiri adalah definisi kemiringan <var>A</var>. Makin kecil <var>h</var>, makin tipis irisannya, sehingga "hampir persegi panjang" makin tepat. Saat <var>h</var> → 0 kita mendapat:</p>
+<div class="formula big"><span class="frac"><span><var>d</var></span><span><var>dx</var></span></span> <span class="ig">∫</span><span class="lim"><span><var>x</var></span><span><var>a</var></span></span> <var>f</var>(<var>t</var>) <var>dt</var> = <var>f</var>(<var>x</var>)
+  <small>Teorema Dasar Kalkulus bagian 1: turunan dari fungsi akumulasi adalah laju aslinya. Integral dan turunan saling membalik.</small></div>
+
+<div class="diagram" aria-label="Diagram: integral mengubah laju menjadi total, turunan mengubah total menjadi laju">
+<svg viewBox="0 0 680 210" role="img">
+  <rect x="20" y="55" width="220" height="100" rx="14" fill="var(--surface)" stroke="var(--warn)" stroke-width="2"/>
+  <text x="130" y="86" text-anchor="middle" font-size="15" font-weight="700" fill="var(--warn)">LAJU · f(x)</text>
+  <text x="130" y="110" text-anchor="middle" font-size="12.5" fill="var(--text)">speedometer · debit air</text>
+  <text x="130" y="128" text-anchor="middle" font-size="12.5" fill="var(--text)">daya listrik · arus kas</text>
+  <rect x="440" y="55" width="220" height="100" rx="14" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+  <text x="550" y="86" text-anchor="middle" font-size="15" font-weight="700" fill="var(--accent)">TOTAL · F(x)</text>
+  <text x="550" y="110" text-anchor="middle" font-size="12.5" fill="var(--text)">odometer · isi tandon</text>
+  <text x="550" y="128" text-anchor="middle" font-size="12.5" fill="var(--text)">kWh di meteran · saldo</text>
+  <path d="M 200 50 C 260 0, 420 0, 480 50" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+  <polygon points="474,40 486,54 470,52" fill="var(--accent)"/>
+  <text x="340" y="22" text-anchor="middle" font-size="14" font-weight="700" fill="var(--accent)">INTEGRAL ∫ … dx</text>
+  <text x="340" y="40" text-anchor="middle" font-size="12" fill="var(--muted)">jumlahkan laju → dapat total</text>
+  <path d="M 480 160 C 420 210, 260 210, 200 160" fill="none" stroke="var(--warn)" stroke-width="2.5"/>
+  <polygon points="206,170 194,156 210,158" fill="var(--warn)"/>
+  <text x="340" y="182" text-anchor="middle" font-size="12" fill="var(--muted)">ukur kemiringan total → dapat laju</text>
+  <text x="340" y="200" text-anchor="middle" font-size="14" font-weight="700" fill="var(--warn)">TURUNAN d/dx</text>
+</svg>
+</div>
+
+<h3>Bagian 2: jalan pintas untuk menghitung integral</h3>
+<p>Akibat langsung yang paling berguna: misalkan kita punya <i>sembarang</i> fungsi <var>F</var> yang turunannya <var>f</var>. Fungsi seperti itu disebut <b>antiturunan</b> dari <var>f</var>. Maka luas dari <var>a</var> sampai <var>b</var> cukup dihitung dengan:</p>
+<div class="formula big"><span class="ig">∫</span><span class="lim"><span><var>b</var></span><span><var>a</var></span></span> <var>f</var>(<var>x</var>) <var>dx</var> = <var>F</var>(<var>b</var>) − <var>F</var>(<var>a</var>)
+  <small>Teorema Dasar Kalkulus bagian 2. Sering ditulis [<var>F</var>(<var>x</var>)]<sub><var>a</var></sub><sup><var>b</var></sup>.</small></div>
+<p>Dalam bahasa mobil: jarak yang ditempuh dari jam ke-<var>a</var> sampai jam ke-<var>b</var> = angka odometer di akhir dikurangi angka odometer di awal. Kamu tidak perlu menjumlahkan ribuan irisan kecepatan kalau kamu sudah tahu fungsi odometernya. Seluruh jumlahan "dipadatkan" menjadi dua kali membaca odometer.</p>
+
+<h3>✍️ Contoh hitung manual 4: membuktikan 8/3 dari Bagian 4</h3>
+<ol class="steps">
+  <li>Cari fungsi yang turunannya <var>x</var>². Coba <var>F</var>(<var>x</var>) = <var>x</var>³/3. Cek: turunan <var>x</var>³ adalah 3<var>x</var>², dibagi 3 menjadi <var>x</var>². Cocok.</li>
+  <li>Baca "odometer" di akhir: <var>F</var>(2) = 2³/3 = 8/3.</li>
+  <li>Baca "odometer" di awal: <var>F</var>(0) = 0³/3 = 0.</li>
+  <li>Kurangkan: ∫<sub>0</sub><sup>2</sup> <var>x</var>² <var>dx</var> = 8/3 − 0 = <b>8/3 ≈ 2,6667</b>. Bandingkan dengan tabel Bagian 4: titik tengah dengan 1000 irisan memberi 2,666666. Ribuan perkalian diganti dua kali substitusi angka.</li>
+</ol>
+<div class="box note"><strong>🤯 Kenapa teorema ini sangat penting?</strong>
+  Selama hampir 2.000 tahun, ada dua masalah yang dianggap terpisah: <b>masalah luas</b> (Archimedes, dikerjakan dengan mengiris) dan <b>masalah garis singgung</b> atau kemiringan. Sekitar tahun 1660–1680, Isaac Newton dan Gottfried Leibniz secara terpisah menyadari bahwa keduanya adalah operasi yang saling membalik. Dengan begitu, soal luas yang sulit bisa diselesaikan dengan "menebak fungsi yang turunannya diketahui". Penemuan inilah yang melahirkan kalkulus, dan kemudian fisika modern, teknik, dan ekonomi.
+</div>
+</section>
+
+<!-- 9 -->
+<section id="antiturunan">
+<h2>9. Antiturunan &amp; Misteri +C</h2>
+<p>Teorema Dasar mengubah soal integral menjadi permainan tebak-tebakan terbalik: <b>"fungsi apa yang kalau diturunkan menghasilkan <var>f</var>?"</b>. Tabel berikut adalah hasil tebakan yang paling sering dipakai. Kamu tidak perlu menghafalnya secara buta: setiap baris bisa dicek dengan menurunkan kolom tengah, dan hasilnya harus kembali ke kolom kiri.</p>
+<div class="tbl"><table>
+  <tr><th><var>f</var>(<var>x</var>)</th><th>∫ <var>f</var>(<var>x</var>) <var>dx</var></th><th>Cek dengan menurunkan</th></tr>
+  <tr><td><var>k</var> (konstanta)</td><td><var>kx</var> + <var>C</var></td><td>turunan <var>kx</var> = <var>k</var> ✓</td></tr>
+  <tr><td><var>x<sup>n</sup></var>, untuk <var>n</var> ≠ −1</td><td><var>x</var><sup><var>n</var>+1</sup>/(<var>n</var>+1) + <var>C</var></td><td>(<var>n</var>+1)<var>x<sup>n</sup></var>/(<var>n</var>+1) = <var>x<sup>n</sup></var> ✓</td></tr>
+  <tr><td>1/<var>x</var></td><td>ln |<var>x</var>| + <var>C</var></td><td>turunan ln <var>x</var> = 1/<var>x</var> ✓</td></tr>
+  <tr><td><var>e<sup>x</sup></var></td><td><var>e<sup>x</sup></var> + <var>C</var></td><td><var>e<sup>x</sup></var> adalah turunannya sendiri ✓</td></tr>
+  <tr><td><var>e<sup>kx</sup></var></td><td><var>e<sup>kx</sup></var>/<var>k</var> + <var>C</var></td><td><var>k</var>·<var>e<sup>kx</sup></var>/<var>k</var> ✓</td></tr>
+  <tr><td>sin <var>x</var></td><td>−cos <var>x</var> + <var>C</var></td><td>turunan −cos <var>x</var> = sin <var>x</var> ✓</td></tr>
+  <tr><td>cos <var>x</var></td><td>sin <var>x</var> + <var>C</var></td><td>turunan sin <var>x</var> = cos <var>x</var> ✓</td></tr>
+  <tr><td><var>a</var>·<var>f</var> + <var>b</var>·<var>g</var></td><td><var>a</var>∫<var>f</var> + <var>b</var>∫<var>g</var></td><td>integral boleh dipecah per suku (linear) ✓</td></tr>
+</table></div>
+<p>Kenapa rumus pangkat dikecualikan untuk <var>n</var> = −1? Karena <var>x</var><sup>0</sup>/0 tidak terdefinisi. Untuk kasus itu jawabannya adalah fungsi yang sama sekali berbeda, yaitu logaritma natural.</p>
+
+<h3>Lalu apa itu +C?</h3>
+<p>Turunan dari konstanta adalah nol. Akibatnya, <var>x</var>³/3, <var>x</var>³/3 + 5, dan <var>x</var>³/3 − 100 semuanya punya turunan <var>x</var>². Antiturunan bukan satu fungsi, melainkan satu <b>keluarga</b> fungsi yang hanya berbeda geseran naik turun. Huruf <var>C</var> mewakili geseran itu.</p>
+<p>Analogi odometer: dua mobil melakukan perjalanan yang persis sama. Mobil pertama odometernya mulai dari 12.000 km, mobil kedua dari 500 km. Grafik odometernya berbeda (bergeser sejauh 11.500), tetapi kecepatan mereka sama di setiap saat, dan <b>jarak yang ditempuh</b> (akhir − awal) juga sama persis. Itulah sebabnya pada integral tentu, <var>C</var> selalu hilang: (<var>F</var>(<var>b</var>) + <var>C</var>) − (<var>F</var>(<var>a</var>) + <var>C</var>) = <var>F</var>(<var>b</var>) − <var>F</var>(<var>a</var>).</p>
+
+<div class="demo">
+  <h4>🎛 Simulasi 4 · Keluarga antiturunan</h4>
+  <p>Kurva-kurva berikut adalah <var>F</var>(<var>x</var>) = <var>x</var>³/3 − <var>x</var> + <var>C</var>, antiturunan dari <var>f</var>(<var>x</var>) = <var>x</var>² − 1. Geser <var>C</var> dan titik singgung. Semua kurva punya kemiringan yang sama di setiap <var>x</var>, dan selisih <var>F</var>(2) − <var>F</var>(0) tidak pernah berubah.</p>
+  <div class="controls">
+    <label class="range" for="d4C">Konstanta <var>C</var> <input type="range" id="d4C" min="-3" max="3" step="0.1" value="1"> <b id="d4Cv"></b></label>
+    <label class="range" for="d4X">Titik singgung <var>x</var> <input type="range" id="d4X" min="-2.2" max="2.2" step="0.05" value="-1.6"> <b id="d4Xv"></b></label>
+  </div>
+  <canvas class="plot" id="cv4" style="height:300px"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--muted)"></i>anggota keluarga lain</span><span><i class="dot" style="background:var(--accent)"></i>kurva dengan <var>C</var> pilihanmu</span><span><i class="dot" style="background:var(--warn)"></i>garis singgung, semuanya sejajar</span></div>
+  <div class="kpi"><div><var>F</var>(0)<b id="d4F0"></b></div><div><var>F</var>(2)<b id="d4F2"></b></div><div><var>F</var>(2) − <var>F</var>(0) = ∫<sub>0</sub><sup>2</sup> (<var>x</var>²−1) <var>dx</var><b id="d4D"></b></div><div>Kemiringan di <var>x</var> = <var>f</var>(<var>x</var>)<b id="d4S"></b></div></div>
+</div>
+
+<h3>✍️ Contoh hitung manual 5: dua soal pemanasan</h3>
+<p><b>(a)</b> ∫ (3<var>x</var>² + 4<var>x</var> − 5) <var>dx</var>. Pecah per suku, lalu pakai rumus pangkat:</p>
+<ol class="steps">
+  <li>∫ 3<var>x</var>² <var>dx</var> = 3 · <var>x</var>³/3 = <var>x</var>³</li>
+  <li>∫ 4<var>x</var> <var>dx</var> = 4 · <var>x</var>²/2 = 2<var>x</var>²</li>
+  <li>∫ −5 <var>dx</var> = −5<var>x</var></li>
+  <li>Hasil: <b><var>x</var>³ + 2<var>x</var>² − 5<var>x</var> + <var>C</var></b>. Cek: turunannya 3<var>x</var>² + 4<var>x</var> − 5 ✓</li>
+</ol>
+<p><b>(b)</b> ∫<sub>1</sub><sup>4</sup> √<var>x</var> <var>dx</var>. Tulis √<var>x</var> = <var>x</var><sup>1/2</sup>, sehingga antiturunannya <var>x</var><sup>3/2</sup>/(3/2) = ⅔ <var>x</var><sup>3/2</sup>.</p>
+<ol class="steps">
+  <li><var>F</var>(4) = ⅔ · 4<sup>3/2</sup> = ⅔ · 8 = 16/3 (karena 4<sup>3/2</sup> = (√4)³ = 8)</li>
+  <li><var>F</var>(1) = ⅔ · 1 = 2/3</li>
+  <li>Hasil: 16/3 − 2/3 = <b>14/3 ≈ 4,667</b>. Cocokkan: di Simulasi 2, luas √<var>x</var> pada [0, 4] adalah 16/3, dan bagian [0, 1] menyumbang 2/3.</li>
+</ol>
+</section>
+
+<!-- 10 -->
+<section id="teknik">
+<h2>10. Teknik: Substitusi &amp; Parsial</h2>
+<p>Tabel rumus dasar hanya menangani fungsi sederhana. Untuk fungsi yang lebih rumit, ada dua teknik utama. Keduanya bukan trik baru, melainkan aturan turunan yang <b>dijalankan terbalik</b>.</p>
+
+<h3>Substitusi = aturan rantai yang dibalik</h3>
+<p>Aturan rantai mengatakan: turunan dari <var>g</var>(<var>u</var>(<var>x</var>)) adalah <var>g</var>′(<var>u</var>) · <var>u</var>′(<var>x</var>), yaitu "turunan luar × turunan dalam". Jadi kalau di dalam integral kamu melihat pola <b>"sesuatu × turunan dari bagian dalamnya"</b>, integralnya bisa diselesaikan dengan mengganti bagian dalam itu menjadi satu huruf baru, <var>u</var>.</p>
+<h3>✍️ Contoh hitung manual 6: ∫ 2<var>x</var>(<var>x</var>² + 1)³ <var>dx</var></h3>
+<ol class="steps">
+  <li>Bagian "dalam" yang mengganggu adalah <var>x</var>² + 1. Misalkan <var>u</var> = <var>x</var>² + 1.</li>
+  <li>Turunkan: <var>du</var>/<var>dx</var> = 2<var>x</var>, sehingga <var>du</var> = 2<var>x</var> <var>dx</var>. Perhatikan bahwa 2<var>x</var> <var>dx</var> persis ada di soal!</li>
+  <li>Ganti semuanya: ∫ (<var>x</var>² + 1)³ · 2<var>x</var> <var>dx</var> = ∫ <var>u</var>³ <var>du</var> = <var>u</var>⁴/4 + <var>C</var>.</li>
+  <li>Kembalikan ke <var>x</var>: <b>(<var>x</var>² + 1)⁴/4 + <var>C</var></b>.</li>
+  <li>Untuk integral tentu dari 0 sampai 1, ubah juga batasnya: <var>x</var> = 0 → <var>u</var> = 1 dan <var>x</var> = 1 → <var>u</var> = 2. Hasil: [<var>u</var>⁴/4] dari 1 sampai 2 = 16/4 − 1/4 = <b>15/4 = 3,75</b>.</li>
+</ol>
+<p>Secara intuitif, substitusi adalah <b>mengganti sudut pandang atau satuan</b>. Daripada melihat soal dalam "satuan <var>x</var>", kita melihatnya dalam "satuan <var>u</var>" yang membuat bentuknya sederhana. Faktor <var>du</var> = 2<var>x</var> <var>dx</var> adalah "kurs" untuk menukar lebar irisan dari satuan lama ke satuan baru.</p>
+
+<h3>Parsial = aturan perkalian yang dibalik</h3>
+<p>Aturan perkalian mengatakan: (<var>uv</var>)′ = <var>u</var>′<var>v</var> + <var>uv</var>′. Integralkan kedua ruas lalu susun ulang, maka didapat:</p>
+<div class="formula"><span class="ig">∫</span> <var>u</var> <var>dv</var> = <var>u</var><var>v</var> − <span class="ig">∫</span> <var>v</var> <var>du</var><small>Pakai ketika integrannya berupa perkalian dua jenis fungsi, misalnya <var>x</var> × <var>e<sup>x</sup></var> atau <var>x</var> × sin <var>x</var>. Idenya: tukar integral yang sulit dengan integral yang lebih mudah.</small></div>
+<h3>✍️ Contoh hitung manual 7: ∫ <var>x</var> <var>e<sup>x</sup></var> <var>dx</var></h3>
+<ol class="steps">
+  <li>Pilih <var>u</var> = <var>x</var> (makin sederhana jika diturunkan) dan <var>dv</var> = <var>e<sup>x</sup></var> <var>dx</var> (mudah diintegralkan).</li>
+  <li>Maka <var>du</var> = <var>dx</var> dan <var>v</var> = <var>e<sup>x</sup></var>.</li>
+  <li>Masukkan ke rumus: <var>x</var><var>e<sup>x</sup></var> − ∫ <var>e<sup>x</sup></var> <var>dx</var> = <var>x</var><var>e<sup>x</sup></var> − <var>e<sup>x</sup></var> + <var>C</var> = <b>(<var>x</var> − 1)<var>e<sup>x</sup></var> + <var>C</var></b>.</li>
+  <li>Cek dengan menurunkan memakai aturan perkalian: <var>e<sup>x</sup></var> + (<var>x</var> − 1)<var>e<sup>x</sup></var> = <var>x</var><var>e<sup>x</sup></var> ✓</li>
+</ol>
+<div class="box tip"><strong>💡 Memilih <var>u</var> dengan urutan LIATE</strong>
+  Pilih <var>u</var> sesuai urutan berikut, mana yang muncul lebih dulu: <b>L</b>ogaritma, <b>I</b>nvers trigonometri, <b>A</b>ljabar (<var>x</var>, <var>x</var>², …), <b>T</b>rigonometri, <b>E</b>ksponensial. Sisanya menjadi <var>dv</var>. Ini hanya panduan praktis, bukan hukum.
+</div>
+<div class="box warn"><strong>⚠️ Tidak semua integral punya rumus</strong>
+  Fungsi sesederhana <var>e</var><sup>−<var>x</var>²</sup> (bentuk kurva lonceng distribusi normal), sin <var>x</var>/<var>x</var>, atau √(1 + <var>x</var>³) <b>tidak punya antiturunan</b> yang bisa ditulis dengan fungsi-fungsi biasa. Ini sudah dibuktikan secara matematis, bukan karena belum ada yang cukup pintar. Integralnya tetap ada (luasnya jelas ada!), hanya saja harus dihitung secara numerik. Itulah topik bagian berikutnya, dan itulah yang sebenarnya dilakukan sebagian besar insinyur dan ilmuwan setiap hari.
+</div>
+</section>
+
+<!-- 11 -->
+<section id="numerik">
+<h2>11. Integral Numerik: Cara Komputer</h2>
+<p>Di dunia nyata, kita jarang punya rumus. Yang kita punya biasanya <b>data</b>: kecepatan dari GPS setiap detik, daya dari smart meter setiap 15 menit, debit sungai setiap jam. Komputer menghitung integralnya dengan cara yang sama seperti Bagian 4, hanya lebih cerdik dalam memilih bentuk irisan.</p>
+<div class="grid3">
+  <div class="card"><b>Aturan trapesium</b><span>Hubungkan titik-titik data dengan garis lurus, sehingga setiap irisan menjadi trapesium. Rumusnya: Δ<var>x</var> × [½<var>f</var><sub>0</sub> + <var>f</var><sub>1</sub> + … + <var>f</var><sub><var>n</var>−1</sub> + ½<var>f<sub>n</sub></var>]. Paling sering dipakai untuk data sensor.</span></div>
+  <div class="card"><b>Aturan Simpson</b><span>Hubungkan setiap tiga titik dengan parabola, bukan garis. Rumusnya: (Δ<var>x</var>/3) × [<var>f</var><sub>0</sub> + 4<var>f</var><sub>1</sub> + 2<var>f</var><sub>2</sub> + 4<var>f</var><sub>3</sub> + … + <var>f<sub>n</sub></var>], dengan <var>n</var> genap. Jauh lebih akurat untuk kurva mulus.</span></div>
+  <div class="card"><b>Kuadratur adaptif</b><span>Dipakai <code>scipy.integrate.quad</code>: komputer mengiris lebih rapat di bagian yang berliku dan lebih jarang di bagian yang datar, sampai galatnya di bawah batas toleransi.</span></div>
+</div>
+
+<h3>✍️ Contoh hitung manual 8: Simpson untuk <var>x</var>² dengan 4 irisan</h3>
+<p>Pakai nilai dari tabel Bagian 4: <var>f</var>(0) = 0, <var>f</var>(0,5) = 0,25, <var>f</var>(1) = 1, <var>f</var>(1,5) = 2,25, <var>f</var>(2) = 4, dengan Δ<var>x</var> = 0,5.</p>
+<ol class="steps">
+  <li>Bobot Simpson 1, 4, 2, 4, 1: 0 + 4(0,25) + 2(1) + 4(2,25) + 4 = 0 + 1 + 2 + 9 + 4 = 16</li>
+  <li>Kalikan dengan Δ<var>x</var>/3 = 0,5/3: 16 × 0,5/3 = 8/3 ≈ <b>2,6667</b></li>
+  <li>Tepat sama dengan jawaban eksak! Ini masuk akal: Simpson memakai parabola, dan <var>x</var>² memang parabola, jadi tidak ada galat sama sekali.</li>
+</ol>
+<div class="tbl"><table>
+  <tr><th>Metode (<var>n</var> = 4, untuk ∫<sub>0</sub><sup>2</sup> <var>x</var>² <var>dx</var>)</th><th class="num">Hampiran</th><th class="num">Galat</th></tr>
+  <tr><td>Titik kiri</td><td class="num">1,7500</td><td class="num">0,9167</td></tr>
+  <tr><td>Titik kanan</td><td class="num">3,7500</td><td class="num">1,0833</td></tr>
+  <tr><td>Trapesium</td><td class="num">2,7500</td><td class="num">0,0833</td></tr>
+  <tr><td>Titik tengah</td><td class="num">2,6250</td><td class="num">0,0417</td></tr>
+  <tr class="hit"><td>Simpson</td><td class="num">2,6667</td><td class="num">0</td></tr>
+</table></div>
+<p>Satu fakta menarik dari tabel: galat titik tengah kira-kira <b>setengah</b> galat trapesium dan arahnya berlawanan (satu kekecilan, satu kebesaran). Aturan Simpson pada dasarnya adalah gabungan berbobot dari keduanya, (2 × tengah + trapesium)/3, sehingga galatnya saling meniadakan: (2 × 2,625 + 2,75)/3 = 8/3.</p>
+
+<h3>Monte Carlo: menghitung luas dengan melempar dadu</h3>
+<p>Ada cara yang sama sekali berbeda dan terdengar seperti lelucon: <b>lempar titik secara acak</b>. Taruh kurva di dalam kotak yang luasnya diketahui, lempar ribuan titik acak ke kotak itu, lalu hitung berapa persen yang jatuh di bawah kurva. Luas daerah ≈ persentase itu × luas kotak. Seperti memperkirakan luas sebuah kolam dengan melempar kerikil secara acak ke seluruh taman dan menghitung berapa yang tercebur.</p>
+
+<div class="demo">
+  <h4>🎛 Simulasi 5 · Hujan titik Monte Carlo</h4>
+  <p>Titik hijau jatuh di dalam daerah, titik abu-abu di luar. Tambahkan titik dan perhatikan taksirannya mendekati nilai sebenarnya, tetapi dengan lambat dan bergoyang.</p>
+  <div class="controls">
+    <select class="btn" id="d5T" aria-label="Target">
+      <option value="kuadrat">∫ x² dx dari 0 sampai 2 (kotak 2 × 4)</option>
+      <option value="lingkaran">Seperempat lingkaran r = 2 (menaksir π)</option>
+    </select>
+    <button class="btn" id="d5A1">+100 titik</button>
+    <button class="btn" id="d5A2">+1.000 titik</button>
+    <button class="btn primary" id="d5Rain">▶ Hujan terus</button>
+    <button class="btn" id="d5R">↺ Ulang</button>
+  </div>
+  <canvas class="plot" id="cv5" style="height:320px"></canvas>
+  <div class="kpi"><div>Jumlah titik<b id="d5N"></b></div><div>Masuk daerah<b id="d5H"></b></div><div>Taksiran = persen × luas kotak<b id="d5E"></b></div><div>Nilai sebenarnya<b id="d5X"></b></div><div>Galat<b id="d5Er"></b></div></div>
+</div>
+<p>Monte Carlo terlihat boros untuk satu dimensi: galatnya hanya turun sebanding 1/√<var>N</var>, jadi untuk 10× lebih akurat kamu butuh 100× lebih banyak titik. Kehebatannya baru terasa di dimensi tinggi, di mana metode irisan menjadi mustahil (100 irisan di 10 dimensi = 10<sup>20</sup> kotak). Monte Carlo dipakai untuk menghitung harga opsi saham, simulasi fisika partikel, dan merender pencahayaan realistis di film animasi (<i>path tracing</i>), yang pada dasarnya adalah menghitung integral cahaya dari semua arah.</p>
+</section>
+
+<!-- 12 -->
+<section id="aplikasi">
+<h2>12. Integral di Dunia Nyata</h2>
+<p>Hampir setiap kali ada kalimat "<b>laju</b> sesuatu berubah-ubah, berapa <b>total</b>nya?", di situ ada integral, sering kali tersembunyi di dalam alat atau perangkat lunak. Berikut peta singkatnya:</p>
+<div class="tbl"><table>
+  <tr><th>Bidang</th><th>Laju yang diukur</th><th>Integralnya memberi</th><th>Contoh nyata</th></tr>
+  <tr><td>Listrik</td><td>Daya (watt)</td><td>Energi (kWh)</td><td>Meteran PLN, tagihan listrik, kapasitas baterai HP (mAh = integral arus)</td></tr>
+  <tr><td>Transportasi</td><td>Kecepatan</td><td>Jarak</td><td>Odometer, aplikasi ojek online menghitung jarak dari titik GPS</td></tr>
+  <tr><td>Hidrologi</td><td>Debit sungai (m³/detik)</td><td>Volume air</td><td>Menghitung volume banjir dan kapasitas waduk, curah hujan total dari intensitas mm/jam</td></tr>
+  <tr><td>Farmasi</td><td>Kadar obat dalam darah</td><td>AUC (area under the curve)</td><td>Ukuran paparan total obat di tubuh, dipakai untuk uji kesetaraan obat generik dengan obat paten</td></tr>
+  <tr><td>Navigasi</td><td>Percepatan (sensor IMU)</td><td>Kecepatan, lalu posisi</td><td>HP dan drone menaksir posisi di dalam terowongan saat GPS hilang</td></tr>
+  <tr><td>Kendali otomatis</td><td>Galat (selisih target dan kenyataan)</td><td>Suku "I" pada pengendali PID</td><td>Cruise control mobil, AC inverter, drone yang melayang stabil</td></tr>
+  <tr><td>Statistik</td><td>Kepadatan peluang</td><td>Peluang</td><td>Peluang nilai ujian di antara 70 dan 85 = luas di bawah kurva lonceng</td></tr>
+  <tr><td>Medis</td><td>Pelemahan sinar-X sepanjang garis</td><td>Integral garis</td><td>CT scan merekonstruksi gambar irisan tubuh dari ribuan integral garis</td></tr>
+  <tr><td>Ekonomi</td><td>Pendapatan marjinal, laju penjualan</td><td>Pendapatan total</td><td>Proyeksi omzet, surplus konsumen, nilai sekarang dari arus kas</td></tr>
+  <tr><td>Fisika &amp; teknik</td><td>Gaya sepanjang lintasan</td><td>Usaha (energi)</td><td>Energi untuk menarik pegas, memompa air ke tandon di atap</td></tr>
+</table></div>
+
+<h3>Studi kasus A · Membongkar tagihan listrik</h3>
+<p>Daya yang dipakai rumah berubah sepanjang hari: kulkas menyala terus, rice cooker hanya sebentar dengan daya besar, AC menyala semalaman. Meteran listrik secara harfiah menghitung integral ∫ <var>P</var>(<var>t</var>) <var>dt</var>. Simulasi berikut memodelkan satu hari. Nyalakan dan matikan alat, lalu lihat luas di bawah grafik daya berubah menjadi kWh dan rupiah.</p>
+
+<div class="demo">
+  <h4>🎛 Simulasi 6 · Laboratorium meteran listrik</h4>
+  <p>Centang alat yang dipakai. Jadwal pemakaian ada di sebelah kanan setiap alat. Garis oranye adalah fungsi akumulasi: angka kWh yang terus bertambah di meteranmu.</p>
+  <div class="alat" id="d6List"></div>
+  <div class="controls"><label class="range" for="d6Tarif">Tarif (Rp/kWh) <input type="number" id="d6Tarif" min="0" step="0.01" value="1444.70"></label></div>
+  <canvas class="plot" id="cv6" style="height:300px"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>daya total (watt), luasnya = energi</span><span><i class="dot" style="background:var(--warn)"></i>kWh kumulatif (sumbu kanan)</span></div>
+  <div class="kpi"><div>Energi per hari<b id="d6E"></b></div><div>Biaya per hari<b id="d6B"></b></div><div>Biaya per bulan (30 hari)<b id="d6M"></b></div><div>Daya puncak<b id="d6P"></b></div><div>Penyumbang terbesar<b id="d6Top"></b></div></div>
+  <p class="cap">Tarif bawaan Rp1.444,70/kWh adalah contoh tarif rumah tangga 1.300 VA ke atas. Cek tarif terbaru di PLN. Daya kulkas adalah daya rata-rata, karena kompresornya menyala dan mati bergantian.</p>
+</div>
+<h3>✍️ Contoh hitung manual 9: berapa biaya AC semalam?</h3>
+<p>AC ½ PK memakai daya sekitar 420 W dan menyala dari jam 21.00 sampai 05.00. Grafik dayanya berupa persegi panjang, jadi integralnya cukup luas persegi panjang:</p>
+<ol class="steps">
+  <li>Lama menyala: dari 21.00 sampai 05.00 = 8 jam</li>
+  <li>Energi = 420 W × 8 jam = 3.360 Wh = <b>3,36 kWh</b></li>
+  <li>Biaya per malam = 3,36 × Rp1.444,70 ≈ <b>Rp4.854</b>, dan sebulan ≈ Rp145.626</li>
+  <li>Bandingkan dengan Simulasi 6: matikan semua alat kecuali AC. Kalau kemudian kamu menyetel AC agar mati jam 02.00, luas persegi panjangnya menyusut sebanyak 3 jam × 420 W = 1,26 kWh. Penghematan selalu bisa dibaca sebagai luas yang hilang dari grafik.</li>
+</ol>
+
+<h3>Studi kasus B · Volume tumpeng dan asal-usul angka ⅓</h3>
+<p>Kenapa volume kerucut adalah ⅓ π<var>r</var>²<var>t</var>, bukan ½ atau ¼? Integral menjawabnya dengan cara analogi roti tawar: iris tumpeng secara mendatar menjadi cakram-cakram tipis. Setiap cakram adalah tabung pendek dengan volume π × (jari-jari)² × tebal. Jumlahkan semua cakram, dan itulah volumenya. Cara ini disebut <b>metode cakram</b>, dan dipakai insinyur untuk menghitung volume tangki, botol, kubah, atau bejana apa pun yang bentuknya hasil putaran.</p>
+
+<div class="demo">
+  <h4>🎛 Simulasi 7 · Volume benda putar dengan irisan cakram</h4>
+  <p>Pilih benda, lalu tambah jumlah cakram. Volume hampiran (jumlah semua cakram) akan mendekati volume eksak dari integral.</p>
+  <div class="controls">
+    <select class="btn" id="d7S" aria-label="Benda">
+      <option value="tumpeng">Tumpeng: r 15 cm, tinggi 30 cm</option>
+      <option value="bola">Bola r = 10 cm</option>
+      <option value="gelas">Gelas: diameter 6–9 cm, tinggi 12 cm</option>
+      <option value="vas">Vas melengkung, tinggi 30 cm</option>
+    </select>
+    <label class="range" for="d7N">Cakram <var>n</var> = <input type="range" id="d7N" min="1" max="60" step="1" value="6"> <b id="d7Nv"></b></label>
+  </div>
+  <canvas class="plot" id="cv7" style="height:340px"></canvas>
+  <div class="kpi"><div>Volume hampiran Σ π<var>r</var>²Δ<var>h</var><b id="d7Ap"></b></div><div>Volume eksak (integral)<b id="d7Ex"></b></div><div>Galat<b id="d7Er"></b></div></div>
+</div>
+<h3>✍️ Contoh hitung manual 10: volume tumpeng</h3>
+<p>Ukur ketinggian <var>y</var> dari <b>puncak</b> ke bawah. Tumpeng setinggi <var>t</var> = 30 cm dengan jari-jari alas <var>R</var> = 15 cm. Pada kedalaman <var>y</var> dari puncak, jari-jari irisannya membesar sebanding: <var>r</var>(<var>y</var>) = <var>R</var> · <var>y</var>/<var>t</var> = <var>y</var>/2.</p>
+<ol class="steps">
+  <li>Volume satu cakram tipis: π <var>r</var>² <var>dy</var> = π (<var>y</var>/2)² <var>dy</var> = (π/4) <var>y</var>² <var>dy</var></li>
+  <li>Jumlahkan dari puncak (<var>y</var> = 0) sampai alas (<var>y</var> = 30): <var>V</var> = ∫<sub>0</sub><sup>30</sup> (π/4) <var>y</var>² <var>dy</var> = (π/4) · [<var>y</var>³/3]<sub>0</sub><sup>30</sup></li>
+  <li>= (π/4) · 27.000/3 = (π/4) · 9.000 = 2.250π ≈ <b>7.068,6 cm³ ≈ 7,1 liter</b></li>
+  <li>Secara umum: ∫<sub>0</sub><sup><var>t</var></sup> π (<var>R</var><var>y</var>/<var>t</var>)² <var>dy</var> = π<var>R</var>²/<var>t</var>² · <var>t</var>³/3 = <b>⅓ π<var>R</var>²<var>t</var></b>. Angka ⅓ ternyata berasal dari ∫ <var>y</var>² <var>dy</var> = <var>y</var>³/3, sebab jari-jari tumbuh linear sehingga luas irisan tumbuh kuadrat.</li>
+</ol>
+
+<h3>Studi kasus C · Rata-rata yang jujur</h3>
+<p>Berapa kecepatan rata-rata mobil di skenario "jalan tol" Simulasi 1, yang kecepatannya <var>v</var>(<var>t</var>) = 60 + 20 sin(π<var>t</var>/2) km/jam selama 2 jam? Jawaban spontan "(60 + 80)/2 = 70 km/jam" ternyata salah. Rata-rata yang benar adalah total dibagi lamanya waktu:</p>
+<div class="formula">rata-rata <var>f</var> pada [<var>a</var>, <var>b</var>] = <span class="frac"><span>1</span><span><var>b</var> − <var>a</var></span></span> <span class="ig">∫</span><span class="lim"><span><var>b</var></span><span><var>a</var></span></span> <var>f</var>(<var>x</var>) <var>dx</var>
+  <small>Ratakan "bukit" grafik menjadi persegi panjang yang luasnya sama. Tinggi persegi panjang itu adalah nilai rata-ratanya.</small></div>
+<p>Jarak tempuhnya adalah 120 + 80/π ≈ 145,46 km (dihitung di Bagian 13), jadi rata-ratanya 145,46/2 ≈ <b>72,73 km/jam</b>, bukan 70. Penyebabnya: mobil menghabiskan lebih banyak waktu di dekat kecepatan tinggi daripada di dekat 60 km/jam, karena grafik sinus "melandai" di puncaknya. Rata-rata dengan integral memberi bobot sesuai <i>lamanya</i> setiap kecepatan dipakai. Konsep yang sama dipakai untuk suhu rata-rata harian, konsentrasi polutan rata-rata (indeks kualitas udara), dan nilai rata-rata sinyal listrik.</p>
+
+<div class="box note"><strong>🧭 Pelajaran dari sensor: integral juga menjumlahkan kesalahan</strong>
+  Akselerometer di HP mengukur percepatan. Integralkan sekali dapat kecepatan, integralkan lagi dapat posisi. Kedengarannya sempurna, tetapi kesalahan kecil sebesar 0,01 m/s² yang terus-menerus, setelah dua kali diintegralkan selama 1 menit, sudah menjadi kesalahan posisi ½ × 0,01 × 60² = <b>18 meter</b>, dan terus membesar sebanding kuadrat waktu. Integral setia menjumlahkan <i>semuanya</i>, termasuk noise. Karena itu navigasi di HP dan drone selalu "mengoreksi" hasil integral secara berkala dengan GPS, kamera, atau magnetometer.
+</div>
+</section>
+
+<!-- 13 -->
+<section id="kode">
+<h2>13. Praktik dengan Python</h2>
+<p>Kode berikut merangkum seluruh modul: jumlah Riemann buatan sendiri, integral dari data sensor dengan trapesium dan Simpson, integral tanpa rumus antiturunan, integral simbolik, meteran listrik, dan Monte Carlo. Butuh <code>numpy</code>, <code>scipy</code>, dan <code>sympy</code> (<code>pip install numpy scipy sympy</code>).</p>
+<pre><code class="py">import numpy as np
+from scipy import integrate
+import sympy as sp
+
+# 1) Jumlah Riemann buatan sendiri: luas di bawah x² dari 0 sampai 2
+f = lambda x: x**2
+a, b = 0, 2
+for n in [4, 10, 100, 1000]:
+    dx = (b - a) / n
+    x_kiri = a + dx * np.arange(n)          # ujung kiri tiap irisan
+    x_tengah = x_kiri + dx / 2              # titik tengah tiap irisan
+    kiri = np.sum(f(x_kiri) * dx)
+    tengah = np.sum(f(x_tengah) * dx)
+    print(f"n={n:5d}  kiri={kiri:.6f}  tengah={tengah:.6f}")
+print(f"eksak 8/3  = {8/3:.6f}")
+
+# 2) Data sensor: kecepatan mobil (km/jam) tiap 15 menit selama 2 jam
+t = np.linspace(0, 2, 9)                    # 0; 0,25; ...; 2 jam
+v = 60 + 20 * np.sin(np.pi * t / 2)
+print("\nkecepatan :", np.round(v, 1))
+print(f"trapesium : {np.trapezoid(v, t):.4f} km")
+print(f"simpson   : {integrate.simpson(v, x=t):.4f} km")
+print(f"eksak     : {120 + 80/np.pi:.4f} km")
+
+# 3) Integral yang tidak punya rumus antiturunan: kurva lonceng
+nilai, galat = integrate.quad(lambda x: np.exp(-x**2), -np.inf, np.inf)
+print(f"\n∫ e^(-x²) dx = {nilai:.10f}  (√π = {np.sqrt(np.pi):.10f})")
+
+# 4) Integral simbolik dengan SymPy
+x = sp.symbols('x')
+print("\n∫ x² dx          =", sp.integrate(x**2, x))
+print("∫ 2x(x²+1)³ dx   =", sp.integrate(2*x*(x**2 + 1)**3, x))
+print("∫ x·eˣ dx        =", sp.integrate(x * sp.exp(x), x))
+print("∫₀² x² dx        =", sp.integrate(x**2, (x, 0, 2)))
+
+# 5) Meteran listrik: daya rumah (watt) tiap jam, 00.00 sampai 24.00
+daya = np.array([150,150,150,150,150,300,900,700,300,300,300,300,
+                 450,450,300,300,300,600,1100,1200,1000,800,400,200,150])
+jam = np.arange(25)
+kwh = np.trapezoid(daya, jam) / 1000
+biaya = kwh * 1444.70                       # contoh tarif Rp/kWh
+print(f"\nenergi sehari = {kwh:.3f} kWh  →  Rp{biaya:,.0f} per hari".replace(",", "."))
+kumulatif = integrate.cumulative_trapezoid(daya, jam, initial=0) / 1000
+print("kWh kumulatif jam 6, 12, 18, 24:", np.round(kumulatif[[6, 12, 18, 24]], 3))
+
+# 6) Monte Carlo: lempar 100.000 titik acak ke kotak 2 × 4
+rng = np.random.default_rng(0)
+N = 100_000
+px, py = rng.uniform(0, 2, N), rng.uniform(0, 4, N)
+print(f"\nMonte Carlo ∫₀² x² dx ≈ {np.mean(py < px**2) * 8:.4f}")</code></pre>
+<p>Output asli (NumPy 2.5, SciPy 1.18, SymPy 1.14):</p>
+<pre><code>n=    4  kiri=1.750000  tengah=2.625000
+n=   10  kiri=2.280000  tengah=2.660000
+n=  100  kiri=2.626800  tengah=2.666600
+n= 1000  kiri=2.662668  tengah=2.666666
+eksak 8/3  = 2.666667
+
+kecepatan : [60.  67.7 74.1 78.5 80.  78.5 74.1 67.7 60. ]
+trapesium : 145.1367 km
+simpson   : 145.4682 km
+eksak     : 145.4648 km
+
+∫ e^(-x²) dx = 1.7724538509  (√π = 1.7724538509)
+
+∫ x² dx          = x**3/3
+∫ 2x(x²+1)³ dx   = x**8/4 + x**6 + 3*x**4/2 + x**2
+∫ x·eˣ dx        = (x - 1)*exp(x)
+∫₀² x² dx        = 8/3
+
+energi sehari = 10.950 kWh  →  Rp15.819 per hari
+kWh kumulatif jam 6, 12, 18, 24: [ 1.425  4.     6.725 10.95 ]
+
+Monte Carlo ∫₀² x² dx ≈ 2.6590</code></pre>
+<p>Beberapa hal yang layak diperhatikan dari output ini:</p>
+<ul>
+  <li><b>Data sensor:</b> hanya dengan 9 titik data, Simpson meleset 0,003 km dari jawaban eksak, sedangkan trapesium meleset 0,33 km. Untuk data yang mulus, Simpson jauh lebih hemat.</li>
+  <li><b>Kurva lonceng:</b> <var>e</var><sup>−<var>x</var>²</sup> tidak punya antiturunan, tetapi <code>quad</code> tetap menghitung luasnya sampai 10 digit, dan hasilnya tepat √π. Fakta inilah yang memunculkan angka √π di rumus distribusi normal.</li>
+  <li><b>SymPy dan +C:</b> untuk ∫ 2<var>x</var>(<var>x</var>² + 1)³ <var>dx</var>, SymPy memberi polinom yang terlihat beda dari jawaban substitusi (<var>x</var>² + 1)⁴/4 di Bagian 10. Coba jabarkan: (<var>x</var>² + 1)⁴/4 = <var>x</var>⁸/4 + <var>x</var>⁶ + 3<var>x</var>⁴/2 + <var>x</var>² + <b>1/4</b>. Keduanya hanya berbeda konstanta, jadi keduanya benar. Itulah arti +<var>C</var>.</li>
+  <li><b>Meteran listrik:</b> <code>cumulative_trapezoid</code> adalah fungsi akumulasi <var>A</var>(<var>x</var>) dari Bagian 7 dalam bentuk data, yaitu angka meteran di setiap jam.</li>
+</ul>
+</section>
+
+<!-- 14 -->
+<section id="jebakan">
+<h2>14. Jebakan yang Sering Terjadi</h2>
+<div class="grid2">
+  <div class="card"><b>1 · Lupa +C</b><span>Pada integral tak tentu, jawaban tanpa +<var>C</var> hanya menyebut satu anggota keluarga. Pada integral tentu, <var>C</var> boleh diabaikan karena pasti saling meniadakan.</span></div>
+  <div class="card"><b>2 · Menganggap <var>dx</var> hiasan</b><span><var>dx</var> membawa satuan dan menentukan variabel mana yang dijumlahkan. Pada substitusi, lupa mengganti <var>dx</var> menjadi <var>du</var> adalah sumber kesalahan nomor satu.</span></div>
+  <div class="card"><b>3 · Integral = luas?</b><span>Integral adalah luas <i>bertanda</i>. Untuk luas geometris atau jarak total, bagian negatif harus dibalik dulu: pakai ∫ |<var>f</var>| <var>dx</var>.</span></div>
+  <div class="card"><b>4 · ∫ 1/<var>x</var> <var>dx</var> dengan rumus pangkat</b><span>Rumus pangkat memberi <var>x</var><sup>0</sup>/0, tidak terdefinisi. Jawabannya ln |<var>x</var>| + <var>C</var>.</span></div>
+  <div class="card"><b>5 · ∫ <var>f</var>·<var>g</var> = (∫ <var>f</var>)·(∫ <var>g</var>)?</b><span>Salah. Integral bisa dipecah untuk penjumlahan, tetapi tidak untuk perkalian. Untuk perkalian, pakai substitusi atau parsial. Contoh: ∫ <var>x</var>·<var>x</var> <var>dx</var> = <var>x</var>³/3, bukan (<var>x</var>²/2)·(<var>x</var>²/2).</span></div>
+  <div class="card"><b>6 · Lupa mengganti batas saat substitusi</b><span>Setelah mengganti <var>x</var> menjadi <var>u</var>, batasnya juga harus ditulis dalam <var>u</var>, atau kembalikan dulu ke <var>x</var> sebelum memasukkan batas.</span></div>
+</div>
+<div class="box warn"><strong>⚠️ Jebakan paling licik: titik tak hingga di tengah jalan</strong>
+  Coba hitung ∫<sub>−1</sub><sup>1</sup> 1/<var>x</var>² <var>dx</var> dengan Teorema Dasar secara mentah. Antiturunan 1/<var>x</var>² adalah −1/<var>x</var>, sehingga hasilnya (−1/1) − (−1/(−1)) = −1 − 1 = <b>−2</b>. Padahal 1/<var>x</var>² selalu positif, jadi luasnya tidak mungkin negatif! Penyebabnya: di <var>x</var> = 0 fungsinya melonjak ke tak hingga, sehingga syarat Teorema Dasar (fungsi harus kontinu di seluruh rentang) dilanggar. Luas yang sebenarnya tak hingga. Pelajarannya: <b>sebelum memakai rumus, lihat dulu grafiknya</b>. Rumus adalah jalan pintas, dan jalan pintas hanya aman kalau kamu tahu medannya.
+</div>
+</section>
+
+<!-- 15 -->
+<section id="kuis">
+<h2>15. Kuis &amp; Cheat Sheet</h2>
+<p id="qScore">Jawab semua soal untuk melihat skormu.</p>
+<div id="quiz"></div>
+<h3>Cheat sheet</h3>
+<div class="tbl"><table>
+  <tr><th>Konsep</th><th>Rumus / nilai</th><th>Ingat sebagai</th></tr>
+  <tr><td>Ide inti</td><td>laju × waktu = total</td><td>Speedometer → odometer</td></tr>
+  <tr><td>Jumlah Riemann</td><td>Σ <var>f</var>(<var>x<sub>i</sub></var>) Δ<var>x</var>, Δ<var>x</var> = (<var>b</var> − <var>a</var>)/<var>n</var></td><td>Iris tipis, jumlahkan</td></tr>
+  <tr><td>Integral tentu</td><td>∫<sub><var>a</var></sub><sup><var>b</var></sup> <var>f</var>(<var>x</var>) <var>dx</var> = lim<sub><var>n</var>→∞</sub> Σ <var>f</var>(<var>x<sub>i</sub></var>) Δ<var>x</var></td><td>∫ = S panjang (summa)</td></tr>
+  <tr><td>Satuan</td><td>[<var>f</var>] × [<var>x</var>]</td><td>W × jam = Wh</td></tr>
+  <tr><td>Luas bertanda</td><td>di bawah sumbu dihitung negatif; jarak total = ∫ |<var>f</var>| <var>dx</var></td><td>Saldo tabungan</td></tr>
+  <tr><td>Fungsi akumulasi</td><td><var>A</var>(<var>x</var>) = ∫<sub><var>a</var></sub><sup><var>x</var></sup> <var>f</var>(<var>t</var>) <var>dt</var></td><td>Odometer yang dibaca kapan saja</td></tr>
+  <tr><td>Teorema Dasar 1</td><td><var>A</var>′(<var>x</var>) = <var>f</var>(<var>x</var>)</td><td>Integral dan turunan saling membalik</td></tr>
+  <tr><td>Teorema Dasar 2</td><td>∫<sub><var>a</var></sub><sup><var>b</var></sup> <var>f</var> <var>dx</var> = <var>F</var>(<var>b</var>) − <var>F</var>(<var>a</var>), dengan <var>F</var>′ = <var>f</var></td><td>Odometer akhir − awal</td></tr>
+  <tr><td>Pangkat</td><td>∫ <var>x<sup>n</sup></var> <var>dx</var> = <var>x</var><sup><var>n</var>+1</sup>/(<var>n</var>+1) + <var>C</var>, <var>n</var> ≠ −1</td><td>Naikkan pangkat, bagi pangkat baru</td></tr>
+  <tr><td>Lainnya</td><td>∫ 1/<var>x</var> = ln|<var>x</var>|, ∫ <var>e<sup>x</sup></var> = <var>e<sup>x</sup></var>, ∫ sin = −cos, ∫ cos = sin</td><td>Cek dengan menurunkan</td></tr>
+  <tr><td>Substitusi</td><td><var>u</var> = bagian dalam, <var>du</var> = <var>u</var>′ <var>dx</var></td><td>Aturan rantai dibalik</td></tr>
+  <tr><td>Parsial</td><td>∫ <var>u</var> <var>dv</var> = <var>uv</var> − ∫ <var>v</var> <var>du</var></td><td>Aturan perkalian dibalik, LIATE</td></tr>
+  <tr><td>Trapesium</td><td>Δ<var>x</var>[½<var>f</var><sub>0</sub> + <var>f</var><sub>1</sub> + … + ½<var>f<sub>n</sub></var>]</td><td><code>np.trapezoid</code></td></tr>
+  <tr><td>Simpson</td><td>(Δ<var>x</var>/3)[<var>f</var><sub>0</sub> + 4<var>f</var><sub>1</sub> + 2<var>f</var><sub>2</sub> + … + <var>f<sub>n</sub></var>]</td><td>Parabola, bobot 1-4-2-4-1</td></tr>
+  <tr><td>Monte Carlo</td><td>persen titik masuk × luas kotak</td><td>Galat ∝ 1/√<var>N</var></td></tr>
+  <tr><td>Rata-rata</td><td>(1/(<var>b</var> − <var>a</var>)) ∫<sub><var>a</var></sub><sup><var>b</var></sup> <var>f</var> <var>dx</var></td><td>Ratakan bukit jadi persegi panjang</td></tr>
+  <tr><td>Volume cakram</td><td><var>V</var> = ∫ π <var>r</var>(<var>y</var>)² <var>dy</var></td><td>Iris roti tawar; kerucut = ⅓π<var>R</var>²<var>t</var></td></tr>
+</table></div>
+<div class="box note"><strong>📚 Untuk memperdalam</strong>
+  Silvanus P. Thompson, <i>Calculus Made Easy</i> (1910, kini domain publik dan gratis) · Video 3Blue1Brown, seri <i>Essence of Calculus</i> (terutama bab "Integration and the fundamental theorem of calculus") ·
+  Gilbert Strang, <i>Calculus</i> (MIT OpenCourseWare, gratis) · Kalid Azad, <i>Calculus, Better Explained</i> · James Stewart, <i>Calculus</i> untuk latihan soal versi kuliah yang lengkap.
+</div>
+<div class="nav-mod"><a class="btn" href="../index.html">← Kembali ke beranda</a><a class="btn" href="#peta">Ulangi dari awal ↑</a></div>
+</section>
+
+<footer>Modul Kalkulus · Memahami Integral dari Nol. Referensi: Thompson, <i>Calculus Made Easy</i> (1910); Strang, <i>Calculus</i> (MIT OCW); Stewart, <i>Calculus: Early Transcendentals</i>; Riemann (1854).</footer>
+</main>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const TAU=2*Math.PI, PI=Math.PI;
+/* ---------- Sidebar, scrollspy, progress, tema ---------- */
+const sb=$('#sidebar');
+$('#menuBtn').onclick=()=>sb.classList.toggle('open');
+$$('#toc a').forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+const links=[...$$('#toc a')];
+const spy=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){links.forEach(l=>l.classList.toggle('active',l.hash==='#'+e.target.id))}
+}),{rootMargin:'-20% 0px -70% 0px'});
+$$('main section').forEach(s=>spy.observe(s));
+addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  $('#progress div').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+},{passive:true});
+$('#themeBtn').onclick=()=>{
+  const r=document.documentElement, dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme=dark?'light':'dark';
+  try{localStorage.setItem('rl-theme',r.dataset.theme)}catch(e){}
+  redrawAll();
+};
+try{const t=localStorage.getItem('rl-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+
+/* ---------- Highlight kode Python ---------- */
+$$('pre code.py').forEach(el=>{
+  el.innerHTML=el.textContent.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))
+    .replace(/(#.*$)|(f?"[^"\n]*"|'[^'\n]*')|\b(import|from|as|def|return|for|in|if|else|while|with|not|and|or|True|False|None|lambda)\b|\b(\d+\.?\d*(?:e-?\d+)?)\b/gm,
+      (m,c,s,k,n)=>c?`<span class="c">${c}</span>`:s?`<span class="s">${s}</span>`:k?`<span class="k">${k}</span>`:`<span class="n">${n}</span>`);
+});
+
+/* ---------- Util gambar (warna diambil dari token tema) ---------- */
+const C={};
+function readColors(){const cs=getComputedStyle(document.documentElement);
+  ['text','muted','border','accent','good','bad','warn','violet','surface','surface-2'].forEach(k=>C[k]=cs.getPropertyValue('--'+k).trim())}
+const fmt=(v,d=2)=>(Math.abs(v)<0.5*Math.pow(10,-d)?0:v).toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d}).replace('-','−');
+const fmtS=v=>{v=Math.abs(v)<5e-4?0:+v.toFixed(3);return String(v).replace('-','−').replace('.',',')};
+const rupiah=v=>'Rp'+Math.round(v).toLocaleString('id-ID');
+const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function prep(cv){const dpr=window.devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;
+  const W=Math.max(1,Math.round(w*dpr)),H=Math.max(1,Math.round(h*dpr));
+  if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H}
+  const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);g.lineJoin='round';g.lineCap='round';return [g,w,h]}
+function path(g,pts,color,lw=2,dash){g.beginPath();pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));
+  g.strokeStyle=color;g.lineWidth=lw;g.setLineDash(dash||[]);g.stroke();g.setLineDash([])}
+const line=(g,x1,y1,x2,y2,color,lw=1,dash)=>path(g,[[x1,y1],[x2,y2]],color,lw,dash);
+function dot(g,x,y,r,color){g.beginPath();g.arc(x,y,r,0,TAU);g.fillStyle=color;g.fill()}
+function txt(g,s,x,y,color,align='left',size=11,weight=''){g.fillStyle=color;g.font=`${weight} ${size}px system-ui,-apple-system,"Segoe UI",sans-serif`;g.textAlign=align;g.fillText(s,x,y)}
+function poly(g,pts,color,alpha){g.beginPath();pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.globalAlpha=alpha;g.fillStyle=color;g.fill();g.globalAlpha=1}
+/* langkah sumbu yang "bulat" */
+function ticks(a,b,n=5){const s0=(b-a)/n,m=Math.pow(10,Math.floor(Math.log10(s0))),r=s0/m,st=(r<1.5?1:r<3?2:r<7?5:10)*m,out=[];
+  for(let v=Math.ceil(a/st-1e-9)*st;v<=b+1e-9;v+=st)out.push(+v.toFixed(10));return out}
+/* bingkai plot: kembalikan pemetaan data → piksel dan gambar grid + sumbu */
+function frame(g,w,h,xr,yr,o={}){
+  const L=o.l??42,R=o.r??14,T=o.t??14,B=o.b??26,y0=o.y0??0,H=o.h??h;
+  const X=x=>L+(x-xr[0])/(xr[1]-xr[0])*(w-L-R), Y=y=>y0+H-B-(y-yr[0])/(yr[1]-yr[0])*(H-T-B);
+  (o.yt||ticks(yr[0],yr[1],4)).forEach(v=>{line(g,L,Y(v),w-R,Y(v),C.border,1,[2,4]);txt(g,o.yf?o.yf(v):fmtS(v),L-6,Y(v)+4,C.muted,'right')});
+  (o.xt||ticks(xr[0],xr[1],6)).forEach(v=>{line(g,X(v),Y(yr[0]),X(v),Y(yr[0])+4,C.muted);txt(g,o.xf?o.xf(v):fmtS(v),X(v),Y(yr[0])+16,C.muted,'center')});
+  line(g,L,Y(yr[0]),L,Y(yr[1]),C.muted);
+  const ax=Math.min(Math.max(0,yr[0]),yr[1]);line(g,L,Y(ax),w-R,Y(ax),C.muted,1.2);
+  if(o.xl)txt(g,o.xl,w-R,Y(yr[0])-6,C.muted,'right');
+  if(o.yl)txt(g,o.yl,L+6,y0+T+8,C.muted,'left');
+  return {X,Y,L,R,T,B};
+}
+/* isi daerah antara kurva dan sumbu x */
+function fillUnder(g,X,Y,f,a,b,color,alpha,n=240){if(b<=a)return;const pts=[[X(a),Y(0)]];
+  for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;pts.push([X(x),Y(f(x))])}pts.push([X(b),Y(0)]);poly(g,pts,color,alpha)}
+function curve(g,X,Y,f,a,b,color,lw=2.2,n=400,dash){const p=[];for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;p.push([X(x),Y(f(x))])}path(g,p,color,lw,dash)}
+const redraws=[];
+function redrawAll(){readColors();redraws.forEach(f=>f())}
+addEventListener('resize',()=>{clearTimeout(window._rt);window._rt=setTimeout(redrawAll,120)});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);
+/* animasi hanya berjalan untuk kanvas yang terlihat */
+const anims=[],visible=new Map();
+const vio=new IntersectionObserver(es=>es.forEach(e=>visible.set(e.target,e.isIntersecting)));
+function animate(el,step){anims.push({el,step});vio.observe(el)}
+let lastT=performance.now();
+function loop(now){const dt=Math.min(0.05,(now-lastT)/1000);lastT=now;anims.forEach(a=>{if(visible.get(a.el))a.step(dt)});requestAnimationFrame(loop)}
+readColors();
+
+/* ---------- Diagram pembuka & diagram irisan Teorema Dasar (SVG) ---------- */
+(()=>{const hy=u=>0.28+0.5*Math.sin(PI*(0.12+0.8*u))+0.1*Math.sin(3*PI*u);
+  const mk=x0=>u=>[x0+15+u*175,160-hy(u)*125];
+  const P1=mk(10),P2=mk(242),pts=(P,n=120)=>Array.from({length:n+1},(_,i)=>P(i/n).map(v=>v.toFixed(1)).join(',')).join(' ');
+  $('#heroCurve1').setAttribute('points',pts(P1));$('#heroCurve2').setAttribute('points',pts(P2));
+  $('#heroArea').setAttribute('points',`25,160 ${pts(P1)} 200,160`);
+  let r='';const n=8;for(let i=0;i<n;i++){const [x]=P2(i/n),[,y]=P2((i+0.5)/n),wd=175/n;
+    r+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${wd.toFixed(1)}" height="${(160-y).toFixed(1)}" fill="var(--accent)" fill-opacity=".25" stroke="var(--accent)" stroke-width="1.2"/>`}
+  $('#heroRects').innerHTML=r;
+  /* irisan A(x+h) − A(x) */
+  const sf=x=>0.9+0.6*Math.sin(x*0.9-0.6)+0.15*x, SX=x=>50+x*72, SY=y=>210-y*70, xa=0.3, xx=4.0, hh=0.42;
+  const sp=(a,b,n=80)=>Array.from({length:n+1},(_,i)=>{const x=a+(b-a)*i/n;return `${SX(x).toFixed(1)},${SY(sf(x)).toFixed(1)}`}).join(' ');
+  $('#stCurve').setAttribute('points',sp(0.1,5.6));
+  $('#stArea').setAttribute('points',`${SX(xa)},210 ${sp(xa,xx)} ${SX(xx)},210`);
+  $('#stStrip').setAttribute('points',`${SX(xx)},210 ${sp(xx,xx+hh,20)} ${SX(xx+hh)},210`);
+  $('#stX').setAttribute('x',SX(xx));$('#stXh').setAttribute('x',SX(xx+hh)+14);
+  $('#stF').setAttribute('x',SX(xx)-6);$('#stF').setAttribute('y',SY(sf(xx)/2)+4);
+})();
+
+/* ---------- Simulasi 1: speedometer → odometer ---------- */
+const KOTA=[[0,0],[0.15,40],[0.4,40],[0.5,0],[0.7,0],[0.85,55],[1.3,55],[1.4,12],[1.65,12],[1.8,45],[1.9,45],[2,0]];
+const lerpPts=(P,t)=>{for(let i=1;i<P.length;i++)if(t<=P[i][0]){const [t0,v0]=P[i-1],[t1,v1]=P[i];return v0+(v1-v0)*(t-t0)/(t1-t0)}return P[P.length-1][1]};
+const P1={konstan:t=>60,tol:t=>60+20*Math.sin(PI*t/2),kota:t=>lerpPts(KOTA,t)};
+const N1=2000;let d1Cum=[],d1On=false;
+function d1Prep(){const v=P1[$('#d1P').value];d1Cum=[0];
+  for(let i=1;i<=N1;i++){const t0=(i-1)/N1*2,t1=i/N1*2;d1Cum.push(d1Cum[i-1]+(v(t0)+v(t1))/2*(t1-t0))}}
+const d1Dist=t=>{const k=t/2*N1,i=Math.floor(k);return i>=N1?d1Cum[N1]:d1Cum[i]+(d1Cum[i+1]-d1Cum[i])*(k-i)};
+const jamMenit=t=>{const m=Math.round(t*60);return `${Math.floor(m/60)} j ${String(m%60).padStart(2,'0')} m`};
+function drawCar(g,x,y,col){g.fillStyle=col;
+  g.beginPath();g.roundRect(x-22,y-12,44,12,4);g.fill();
+  g.beginPath();g.roundRect(x-12,y-21,22,10,4);g.fill();
+  dot(g,x-12,y,5,C.text);dot(g,x+12,y,5,C.text);dot(g,x-12,y,2,C['surface-2']);dot(g,x+12,y,2,C['surface-2'])}
+function d1Draw(){const [g,w,h]=prep(cv1);const v=P1[$('#d1P').value],t=+$('#d1T').value,D=d1Dist(t);
+  /* jalan */
+  const rx0=40,rx1=w-30,RX=d=>rx0+d/160*(rx1-rx0),ry=58;
+  line(g,rx0,ry+6,rx1,ry+6,C.muted,3);
+  const kmStep=w<520?40:20;for(let d=0;d<=160;d+=kmStep){line(g,RX(d),ry+6,RX(d),ry+12,C.muted);txt(g,d+' km',RX(d),ry+26,C.muted,'center',10.5)}
+  line(g,rx0,ry+6,RX(D),ry+6,C.accent,3);
+  drawCar(g,RX(D),ry,C.accent);
+  txt(g,'jalan (skala jarak)',8,16,C.muted);
+  /* grafik kecepatan */
+  const F=frame(g,w,h,[0,2],[0,100],{y0:92,h:h-92,yt:[0,20,40,60,80,100],xt:[0,0.5,1,1.5,2],xf:v=>fmtS(v)+' j',xl:'waktu (jam)',yl:'kecepatan (km/jam)'});
+  fillUnder(g,F.X,F.Y,v,0,t,C.accent,0.25,300);
+  curve(g,F.X,F.Y,v,0,2,C.accent,2.4,500);
+  /* irisan saat ini */
+  const dt=0.05,t0=Math.max(0,t-dt);if(t>0.001){const vv=v(t);
+    poly(g,[[F.X(t0),F.Y(0)],[F.X(t0),F.Y(vv)],[F.X(t),F.Y(vv)],[F.X(t),F.Y(0)]],C.warn,0.65)}
+  line(g,F.X(t),F.Y(0),F.X(t),F.Y(100),C.warn,1.2,[4,4]);
+  dot(g,F.X(t),F.Y(v(t)),4.5,C.warn);
+  if(t>0.25)txt(g,'luas = '+fmt(D,1)+' km',F.X(t/2),F.Y(Math.min(25,v(t/2)/2))+4,C.text,'center',12,'600');
+  $('#d1Tv').textContent=jamMenit(t);$('#d1V').textContent=fmt(v(t),1)+' km/jam';
+  $('#d1D').textContent=fmt(D,2)+' km';$('#d1A').textContent=fmt(D,2)+' km'}
+const cv1=$('#cv1');
+$('#d1P').onchange=()=>{d1Prep();d1Draw()};
+$('#d1T').oninput=()=>{d1On=false;$('#d1Play').textContent='▶ Jalan';d1Draw()};
+$('#d1Play').onclick=()=>{if(+$('#d1T').value>=2)$('#d1T').value=0;d1On=!d1On;$('#d1Play').textContent=d1On?'⏸ Jeda':'▶ Jalan';d1Draw()};
+animate(cv1,dt=>{if(!d1On)return;let t=+$('#d1T').value+dt*0.22;if(t>=2){t=2;d1On=false;$('#d1Play').textContent='↺ Ulang'}$('#d1T').value=t;d1Draw()});
+d1Prep();redraws.push(d1Draw);
+
+/* ---------- Simulasi 2: jumlah Riemann ---------- */
+const F2={
+  kuadrat:{f:x=>x*x,a:0,b:2,ex:8/3,yr:[0,4.4],exS:'8/3'},
+  sinus:{f:Math.sin,a:0,b:PI,ex:2,yr:[0,1.25],exS:'2'},
+  akar:{f:Math.sqrt,a:0,b:4,ex:16/3,yr:[0,2.3],exS:'16/3'},
+  lonceng:{f:x=>Math.exp(-x*x),a:-2,b:2,ex:1.7641627815248,yr:[0,1.2],exS:'√π·erf(2)'}
+};
+const cv2=$('#cv2');let d2Anim=false,d2Acc=0;
+function d2Calc(F,n,m){const dx=(F.b-F.a)/n,hs=[];for(let i=0;i<n;i++){const x0=F.a+i*dx,x1=x0+dx;
+  hs.push(m==='kiri'?F.f(x0):m==='kanan'?F.f(x1):m==='tengah'?F.f((x0+x1)/2):(F.f(x0)+F.f(x1))/2)}
+  return {dx,hs,sum:hs.reduce((s,v)=>s+v,0)*dx}}
+function d2Draw(){const [g,w,h]=prep(cv2);const F=F2[$('#d2F').value],m=$('#d2M').value,n=+$('#d2N').value;
+  const {dx,hs,sum}=d2Calc(F,n,m);
+  const P=frame(g,w,h,[F.a,F.b],F.yr,{});
+  fillUnder(g,P.X,P.Y,F.f,F.a,F.b,C.good,0.12);
+  for(let i=0;i<n;i++){const x0=F.a+i*dx,x1=x0+dx;
+    const pts=m==='trapesium'?[[P.X(x0),P.Y(0)],[P.X(x0),P.Y(F.f(x0))],[P.X(x1),P.Y(F.f(x1))],[P.X(x1),P.Y(0)]]
+      :[[P.X(x0),P.Y(0)],[P.X(x0),P.Y(hs[i])],[P.X(x1),P.Y(hs[i])],[P.X(x1),P.Y(0)]];
+    poly(g,pts,C.accent,0.28);if(n<=60){pts.push(pts[0]);path(g,pts,C.accent,1.2)}
+    if(n<=24&&m!=='trapesium'){const xs=m==='kiri'?x0:m==='kanan'?x1:(x0+x1)/2;dot(g,P.X(xs),P.Y(hs[i]),3.2,C.warn)}}
+  curve(g,P.X,P.Y,F.f,F.a,F.b,C.text,2.2);
+  $('#d2Nv').textContent=n;$('#d2Dx').textContent=fmt(dx,4);$('#d2Ap').textContent=fmt(sum,5);
+  $('#d2Ex').textContent=fmt(F.ex,5)+(F.exS.length<6?' = '+F.exS:'');
+  $('#d2Er').textContent=fmt(Math.abs(sum-F.ex),5)+' ('+fmt(Math.abs(sum-F.ex)/F.ex*100,2)+'%)';
+  const f3=v=>fmtS(v);
+  let s;if(n<=6){
+    const inner=m==='trapesium'?(()=>{const ys=Array.from({length:n+1},(_,i)=>F.f(F.a+i*dx));return ys.map((y,i)=>(i===0||i===n)?'½·'+f3(y):f3(y)).join(' + ')})():hs.map(f3).join(' + ');
+    s=`Σ = Δx × (${inner}) = ${f3(dx)} × ${f3(sum/dx)} = ${fmt(sum,4)}`}
+  else s=`Σ = Δx × (jumlah ${n} tinggi) = ${fmt(dx,4)} × ${fmt(sum/dx,4)} = ${fmt(sum,5)}`;
+  $('#d2Sum').textContent=s}
+['#d2F','#d2M','#d2N'].forEach(id=>$(id).oninput=d2Draw);
+$('#d2Anim').onclick=()=>{d2Anim=!d2Anim;if(d2Anim&&+$('#d2N').value>=100)$('#d2N').value=1;$('#d2Anim').textContent=d2Anim?'⏸ Berhenti':'▶ Perhalus otomatis'};
+animate(cv2,dt=>{if(!d2Anim)return;d2Acc+=dt;const n=+$('#d2N').value,wait=n<10?0.45:n<30?0.12:0.04;
+  if(d2Acc<wait)return;d2Acc=0;if(n>=100){d2Anim=false;$('#d2Anim').textContent='▶ Perhalus otomatis';return}$('#d2N').value=n+1;d2Draw()});
+redraws.push(d2Draw);
+
+/* ---------- Simulasi 3: fungsi akumulasi ---------- */
+const F3={
+  tandon:{f:t=>6-1.2*t,a:0,b:10,yr:[-7,7],unit:['liter/menit','liter'],xl:'menit'},
+  sinus:{f:Math.sin,a:0,b:TAU,yr:[-1.25,1.25],unit:['',''],xl:'t'},
+  kuadrat:{f:t=>t*t,a:0,b:2,yr:[0,4.4],unit:['',''],xl:'t'}
+};
+const N3=1000;let d3Cum=[],d3On=false;
+function d3Prep(){const F=F3[$('#d3F').value];d3Cum=[0];const dx=(F.b-F.a)/N3;
+  for(let i=1;i<=N3;i++){const t0=F.a+(i-1)*dx,t1=t0+dx;d3Cum.push(d3Cum[i-1]+(F.f(t0)+F.f(t1))/2*dx)}
+  const mn=Math.min(...d3Cum),mx=Math.max(...d3Cum),pad=(mx-mn)*0.12||1;F.Ar=[Math.min(0,mn-pad),mx+pad]}
+const d3A=x=>{const F=F3[$('#d3F').value],k=(x-F.a)/(F.b-F.a)*N3,i=Math.max(0,Math.min(N3-1,Math.floor(k)));return d3Cum[i]+(d3Cum[i+1]-d3Cum[i])*(k-i)};
+const cv3=$('#cv3');
+function d3Draw(){const [g,w,h]=prep(cv3);const key=$('#d3F').value,F=F3[key],u=+$('#d3X').value,x=F.a+u*(F.b-F.a),half=h/2;
+  const T=frame(g,w,h,[F.a,F.b],F.yr,{h:half,b:22,xl:F.xl,yl:'laju f(t)'+(F.unit[0]?' · '+F.unit[0]:'')});
+  fillUnder(g,T.X,T.Y,t=>Math.max(0,F.f(t)),F.a,x,C.good,0.35);
+  fillUnder(g,T.X,T.Y,t=>Math.min(0,F.f(t)),F.a,x,C.bad,0.35);
+  curve(g,T.X,T.Y,F.f,F.a,F.b,C.text,2.2);
+  line(g,T.X(x),T.Y(F.yr[0]),T.X(x),T.Y(F.yr[1]),C.muted,1,[4,4]);dot(g,T.X(x),T.Y(F.f(x)),5,C.warn);
+  const B=frame(g,w,h,[F.a,F.b],F.Ar,{y0:half,h:half,b:22,xl:F.xl,yl:'total A(x)'+(F.unit[1]?' · '+F.unit[1]:'')});
+  const Afull=[];for(let i=0;i<=N3;i+=4){const xx=F.a+i/N3*(F.b-F.a);Afull.push([B.X(xx),B.Y(d3Cum[i])])}
+  path(g,Afull,C.muted,1.4,[4,5]);
+  const Adone=[];for(let i=0;i<=N3;i+=2){const xx=F.a+i/N3*(F.b-F.a);if(xx>x)break;Adone.push([B.X(xx),B.Y(d3Cum[i])])}
+  Adone.push([B.X(x),B.Y(d3A(x))]);path(g,Adone,C.accent,2.6);
+  const s=(F.b-F.a)*0.1,Ax=d3A(x),sl=F.f(x);
+  line(g,B.X(x-s),B.Y(Ax-sl*s),B.X(x+s),B.Y(Ax+sl*s),C.warn,2.4);
+  line(g,B.X(x),B.Y(F.Ar[0]),B.X(x),B.Y(F.Ar[1]),C.muted,1,[4,4]);dot(g,B.X(x),B.Y(Ax),5,C.accent);
+  const hN=(F.b-F.a)/N3*3,slope=(d3A(Math.min(F.b,x+hN))-d3A(Math.max(F.a,x-hN)))/(Math.min(F.b,x+hN)-Math.max(F.a,x-hN));
+  $('#d3Xv').textContent=fmt(x,2);$('#d3f').textContent=fmt(sl,3);$('#d3A').textContent=fmt(Ax,3);$('#d3S').textContent=fmt(slope,3);
+  let msg;
+  if(key==='tandon')msg=sl>0.15?`Debit masih positif (${fmt(sl,1)} liter/menit): isi tandon bertambah, grafik bawah naik.`:sl<-0.15?`Debit negatif: keran mengambil lebih banyak dari yang dipompa, isi tandon berkurang, grafik bawah turun.`:`Debit ≈ 0 → isi tandon di puncaknya (${fmt(Ax,1)} liter). Total maksimum terjadi saat laju berganti tanda.`;
+  else if(key==='sinus')msg=x>PI+0.05?`Lewat π, sin t negatif: luas merah mengurangi total. Di t = 2π, bukit dan lembah saling meniadakan sehingga A = 0.`:`Di [0, π], sin t positif sehingga A naik. Tepat di t = π, A = 2 (puncak).`;
+  else msg=`f(t) = t² selalu positif dan makin tinggi, jadi A(x) = x³/3 naik makin curam. Di x = 2, A = 8/3 ≈ 2,667.`;
+  $('#d3Msg').textContent=msg}
+$('#d3F').onchange=()=>{d3Prep();d3Draw()};
+$('#d3X').oninput=()=>{d3On=false;$('#d3Play').textContent='▶ Putar';d3Draw()};
+$('#d3Play').onclick=()=>{if(+$('#d3X').value>=1)$('#d3X').value=0;d3On=!d3On;$('#d3Play').textContent=d3On?'⏸ Jeda':'▶ Putar'};
+animate(cv3,dt=>{if(!d3On)return;let u=+$('#d3X').value+dt*0.1;if(u>=1){u=1;d3On=false;$('#d3Play').textContent='▶ Putar'}$('#d3X').value=u;d3Draw()});
+d3Prep();redraws.push(d3Draw);
+
+/* ---------- Simulasi 4: keluarga antiturunan ---------- */
+const cv4=$('#cv4'),F4=(x,c)=>x*x*x/3-x+c,f4=x=>x*x-1;
+function d4Draw(){const [g,w,h]=prep(cv4);const c=+$('#d4C').value,x0=+$('#d4X').value;
+  const P=frame(g,w,h,[-2.5,2.5],[-5,5],{yt:[-4,-2,0,2,4],xt:[-2,-1,0,1,2]});
+  for(let k=-4;k<=4;k++){if(Math.abs(k-c)<0.05)continue;curve(g,P.X,P.Y,x=>F4(x,k),-2.5,2.5,C.muted,1.1,200);
+    const y=F4(x0,k),s=0.35;line(g,P.X(x0-s),P.Y(y-f4(x0)*s),P.X(x0+s),P.Y(y+f4(x0)*s),C.warn,1.6)}
+  curve(g,P.X,P.Y,x=>F4(x,c),-2.5,2.5,C.accent,2.8,300);
+  const y=F4(x0,c),s=0.5;line(g,P.X(x0-s),P.Y(y-f4(x0)*s),P.X(x0+s),P.Y(y+f4(x0)*s),C.warn,2.6);dot(g,P.X(x0),P.Y(y),4.5,C.warn);
+  const a=F4(0,c),b=F4(2,c);dot(g,P.X(0),P.Y(a),4.5,C.accent);dot(g,P.X(2),P.Y(b),4.5,C.accent);
+  line(g,P.X(2)+10,P.Y(a),P.X(2)+10,P.Y(b),C.good,2);line(g,P.X(0),P.Y(a),P.X(2)+14,P.Y(a),C.good,1,[3,4]);
+  txt(g,'selisih 2/3',P.X(2)+14,P.Y((a+b)/2)+4,C.good,'left',11.5,'600');
+  $('#d4Cv').textContent=fmt(c,1);$('#d4Xv').textContent=fmt(x0,2);
+  $('#d4F0').textContent=fmt(a,3);$('#d4F2').textContent=fmt(b,3);$('#d4D').textContent=fmt(b-a,3)+' (selalu)';$('#d4S').textContent=fmt(f4(x0),3)}
+['#d4C','#d4X'].forEach(id=>$(id).oninput=d4Draw);redraws.push(d4Draw);
+
+/* ---------- Simulasi 5: Monte Carlo ---------- */
+const T5={
+  kuadrat:{w:2,h:4,inside:(x,y)=>y<x*x,ex:8/3,f:x=>x*x},
+  lingkaran:{w:2,h:2,inside:(x,y)=>x*x+y*y<4,ex:PI,f:x=>Math.sqrt(Math.max(0,4-x*x))}
+};
+const cv5=$('#cv5');let pts5=[],n5=0,hit5=0,rain5=false;
+function d5Add(k){const T=T5[$('#d5T').value];for(let i=0;i<k;i++){const x=Math.random()*T.w,y=Math.random()*T.h,ins=T.inside(x,y);
+  n5++;if(ins)hit5++;if(pts5.length<12000)pts5.push([x,y,ins])}d5Draw()}
+function d5Reset(){pts5=[];n5=0;hit5=0;d5Draw()}
+function d5Draw(){const [g,w,h]=prep(cv5);const T=T5[$('#d5T').value];
+  const sc=Math.min((w-70)/T.w,(h-40)/T.h),ox=46+((w-70)-T.w*sc)/2,oy=h-24;
+  const X=x=>ox+x*sc,Y=y=>oy-y*sc;
+  g.fillStyle=C.surface;g.fillRect(X(0),Y(T.h),T.w*sc,T.h*sc);
+  const ar=[[X(0),Y(0)]];for(let i=0;i<=200;i++){const x=i/200*T.w;ar.push([X(x),Y(T.f(x))])}ar.push([X(T.w),Y(0)]);poly(g,ar,C.good,0.1);
+  const r=pts5.length>4000?1.3:1.9;
+  pts5.forEach(([x,y,ins])=>{g.fillStyle=ins?C.good:C.muted;g.globalAlpha=ins?0.85:0.45;g.fillRect(X(x)-r,Y(y)-r,2*r,2*r)});g.globalAlpha=1;
+  const cp=[];for(let i=0;i<=200;i++){const x=i/200*T.w;cp.push([X(x),Y(T.f(x))])}path(g,cp,C.text,2.2);
+  path(g,[[X(0),Y(0)],[X(T.w),Y(0)],[X(T.w),Y(T.h)],[X(0),Y(T.h)],[X(0),Y(0)]],C.muted,1.4);
+  for(let v=0;v<=T.h;v++)txt(g,String(v),X(0)-6,Y(v)+4,C.muted,'right');
+  for(let v=0;v<=T.w;v++)txt(g,String(v),X(v),Y(0)+16,C.muted,'center');
+  txt(g,'kotak '+T.w+' × '+T.h+' = luas '+(T.w*T.h),X(T.w)+0,Y(T.h)-6,C.muted,'right');
+  const est=n5?hit5/n5*T.w*T.h:NaN;
+  $('#d5N').textContent=n5.toLocaleString('id-ID');$('#d5H').textContent=hit5.toLocaleString('id-ID')+(n5?' ('+fmt(hit5/n5*100,1)+'%)':'');
+  $('#d5E').textContent=n5?fmt(est,4):'—';$('#d5X').textContent=fmt(T.ex,4)+($('#d5T').value==='lingkaran'?' = π':' = 8/3');
+  $('#d5Er').textContent=n5?fmt(Math.abs(est-T.ex),4):'—'}
+$('#d5T').onchange=d5Reset;$('#d5R').onclick=()=>{rain5=false;$('#d5Rain').textContent='▶ Hujan terus';d5Reset()};
+$('#d5A1').onclick=()=>d5Add(100);$('#d5A2').onclick=()=>d5Add(1000);
+$('#d5Rain').onclick=()=>{rain5=!rain5;$('#d5Rain').textContent=rain5?'⏸ Berhenti':'▶ Hujan terus'};
+animate(cv5,()=>{if(!rain5)return;d5Add(25);if(n5>=50000){rain5=false;$('#d5Rain').textContent='▶ Hujan terus'}});
+redraws.push(d5Draw);
+
+/* ---------- Simulasi 6: meteran listrik ---------- */
+const ALAT=[
+  {n:'Kulkas',w:100,s:[[0,24]],on:1},
+  {n:'Lampu LED 5 × 10 W',w:50,s:[[4,6],[18,24]],on:1},
+  {n:'Pompa air',w:250,s:[[5,6],[16,17]],on:1},
+  {n:'Rice cooker (memasak)',w:400,s:[[5,5.5]],on:1},
+  {n:'Rice cooker (menghangatkan)',w:40,s:[[5.5,20]],on:1},
+  {n:'Setrika',w:350,s:[[8,9]],on:1},
+  {n:'Mesin cuci',w:300,s:[[9,10]],on:0},
+  {n:'TV',w:80,s:[[18,22]],on:1},
+  {n:'AC ½ PK',w:420,s:[[0,5],[21,24]],on:1}
+];
+const jamS=v=>String(Math.floor(v)).padStart(2,'0')+'.'+(v%1?'30':'00');
+$('#d6List').innerHTML=ALAT.map((a,i)=>`<label><input type="checkbox" data-a="${i}" ${a.on?'checked':''}> ${a.n} <small>${a.w} W · ${a.s.map(([p,q])=>jamS(p)+'–'+jamS(q)).join(', ')}</small></label>`).join('');
+$$('#d6List input').forEach(cb=>cb.onchange=()=>{ALAT[cb.dataset.a].on=cb.checked?1:0;d6Draw()});
+$('#d6Tarif').oninput=()=>d6Draw();
+const cv6=$('#cv6');
+const d6P=t=>ALAT.reduce((s,a)=>s+(a.on&&a.s.some(([p,q])=>t>=p&&t<q)?a.w:0),0);
+function d6Draw(){const [g,w,h]=prep(cv6);
+  const E=ALAT.map(a=>a.on?a.w*a.s.reduce((s,[p,q])=>s+q-p,0):0),Wh=E.reduce((s,v)=>s+v,0),kwh=Wh/1000;
+  const P=frame(g,w,h,[0,24],[0,1600],{r:46,yt:[0,400,800,1200,1600],xt:[0,3,6,9,12,15,18,21,24],xf:v=>String(v).padStart(2,'0'),xl:'jam',yl:'daya (watt)'});
+  const step=0.05,pts=[[P.X(0),P.Y(0)]],cum=[];let acc=0,peak=0;
+  for(let t=0;t<24-1e-9;t+=step){const p=d6P(t+step/2);peak=Math.max(peak,p);pts.push([P.X(t),P.Y(p)],[P.X(t+step),P.Y(p)]);cum.push([t,acc]);acc+=p*step/1000}
+  cum.push([24,acc]);pts.push([P.X(24),P.Y(0)]);
+  poly(g,pts,C.accent,0.28);path(g,pts.slice(1,-1),C.accent,1.8);
+  const kmax=Math.max(2,Math.ceil(kwh/2)*2),KY=k=>P.Y(k/kmax*1600);
+  [0,kmax/2,kmax].forEach(k=>txt(g,fmtS(k)+' kWh',w-4,KY(k)+4,C.warn,'right',10.5));
+  path(g,cum.map(([t,k])=>[P.X(t),KY(k)]),C.warn,2.4);
+  const tarif=+$('#d6Tarif').value||0,top=E.indexOf(Math.max(...E));
+  $('#d6E').textContent=fmt(kwh,2)+' kWh';$('#d6B').textContent=rupiah(kwh*tarif);$('#d6M').textContent=rupiah(kwh*tarif*30);
+  $('#d6P').textContent=peak.toLocaleString('id-ID')+' W';
+  $('#d6Top').textContent=Wh?ALAT[top].n+' ('+fmt(E[top]/Wh*100,0)+'%)':'—'}
+redraws.push(d6Draw);
+
+/* ---------- Simulasi 7: volume benda putar ---------- */
+const simpson=(f,a,b,n=2000)=>{const hh=(b-a)/n;let s=f(a)+f(b);for(let i=1;i<n;i++)s+=f(a+i*hh)*(i%2?4:2);return s*hh/3};
+const S7={
+  tumpeng:{H:30,r:h=>15*(1-h/30),ex:2250*PI,exS:'2.250π'},
+  bola:{H:20,r:h=>Math.sqrt(Math.max(0,100-(h-10)*(h-10))),ex:4000*PI/3,exS:'4.000π/3'},
+  gelas:{H:12,r:h=>3+1.5*h/12,ex:171*PI,exS:'171π'},
+  vas:{H:30,r:h=>7+3*Math.sin(PI*h/12),exS:'Simpson'}
+};
+S7.vas.ex=simpson(h=>PI*S7.vas.r(h)**2,0,30);
+const cv7=$('#cv7');
+function d7Draw(){const [g,w,h]=prep(cv7);const S=S7[$('#d7S').value],n=+$('#d7N').value,dh=S.H/n;
+  let maxR=0;for(let i=0;i<=200;i++)maxR=Math.max(maxR,S.r(i/200*S.H));
+  const wide=w>560,areaW=wide?w*0.58:w-20,sc=Math.min((h-50)/S.H,(areaW-30)/(2*maxR)),cx=wide?areaW/2+10:w/2,base=h-28;
+  const Yh=v=>base-v*sc;
+  let vol=0;
+  for(let i=0;i<n;i++){const h0=i*dh,h1=h0+dh,r=S.r((h0+h1)/2);vol+=PI*r*r*dh;
+    const x0=cx-r*sc,x1=cx+r*sc;
+    poly(g,[[x0,Yh(h0)],[x0,Yh(h1)],[x1,Yh(h1)],[x1,Yh(h0)]],C.accent,0.22);
+    if(n<=40)path(g,[[x0,Yh(h0)],[x0,Yh(h1)],[x1,Yh(h1)],[x1,Yh(h0)],[x0,Yh(h0)]],C.accent,1);
+    if(n<=24&&r*sc>2){g.beginPath();g.ellipse(cx,Yh(h1),r*sc,Math.max(1.5,r*sc*0.12),0,0,TAU);g.strokeStyle=C.accent;g.globalAlpha=.6;g.lineWidth=1;g.stroke();g.globalAlpha=1}}
+  const L=[],R=[];for(let i=0;i<=200;i++){const v=i/200*S.H;L.push([cx-S.r(v)*sc,Yh(v)]);R.push([cx+S.r(v)*sc,Yh(v)])}
+  path(g,L,C.text,2.2);path(g,R,C.text,2.2);
+  line(g,cx,Yh(0)+6,cx,Yh(S.H)-8,C.muted,1,[5,4]);
+  line(g,cx-maxR*sc-14,base,cx+maxR*sc+14,base,C.muted,1);
+  if(wide)txt(g,'tinggi '+S.H+' cm',cx+maxR*sc+10,Yh(S.H/2),C.muted,'left',11);else txt(g,'tinggi '+S.H+' cm',8,16,C.muted,'left',11);
+  if(wide){const bx=areaW+20,by=60,rr=Math.min(60,(w-bx-20)/2.4),dd=26,mx=bx+rr+10;
+    txt(g,'Satu cakram (tabung pendek)',bx,by-26,C.text,'left',12.5,'600');
+    g.fillStyle=C.accent;g.globalAlpha=.22;g.fillRect(mx-rr,by,2*rr,dd);g.globalAlpha=1;
+    g.beginPath();g.ellipse(mx,by+dd,rr,rr*0.28,0,0,PI);g.strokeStyle=C.accent;g.lineWidth=1.6;g.stroke();
+    g.beginPath();g.ellipse(mx,by,rr,rr*0.28,0,0,TAU);g.fillStyle=C.surface;g.fill();g.stroke();
+    line(g,mx-rr,by,mx-rr,by+dd,C.accent,1.6);line(g,mx+rr,by,mx+rr,by+dd,C.accent,1.6);
+    line(g,mx,by,mx+rr,by,C.warn,2);txt(g,'r',mx+rr/2,by-5,C.warn,'center',12,'600');
+    line(g,mx+rr+10,by,mx+rr+10,by+dd,C.good,2);txt(g,'Δh',mx+rr+14,by+dd/2+4,C.good,'left',12,'600');
+    txt(g,'volume = π · r² · Δh',bx,by+dd+44,C.text,'left',13);
+    txt(g,'jumlahkan '+n+' cakram:',bx,by+dd+70,C.muted,'left',12);
+    txt(g,'Σ π r² Δh ≈ '+fmt(vol,1)+' cm³',bx,by+dd+90,C.accent,'left',13,'600');
+    txt(g,'Δh = '+fmt(dh,2)+' cm',bx,by+dd+112,C.muted,'left',12)}
+  $('#d7Nv').textContent=n;$('#d7Ap').textContent=fmt(vol,1)+' cm³';
+  $('#d7Ex').textContent=fmt(S.ex,1)+' cm³'+(S.exS!=='Simpson'?' = '+S.exS:'')+' ≈ '+fmt(S.ex/1000,2)+' L';
+  $('#d7Er').textContent=fmt(Math.abs(vol-S.ex),1)+' cm³ ('+fmt(Math.abs(vol-S.ex)/S.ex*100,2)+'%)'}
+['#d7S','#d7N'].forEach(id=>$(id).oninput=d7Draw);redraws.push(d7Draw);
+
+/* ---------- Kuis ---------- */
+const QZ=[
+  {q:'Dalam satu kalimat, integral tentu ∫ₐᵇ f(x) dx menghitung…',o:['kemiringan grafik f di titik a dan b','jumlah dari semua potongan kecil f(x)·dx dari a sampai b, yaitu total yang terkumpul (luas bertanda)','nilai rata-rata f(a) dan f(b)','titik puncak fungsi f'],a:1,w:'Integral = jumlahan tinggi × lebar irisan tipis. Kemiringan adalah urusan turunan.'},
+  {q:'Mobil melaju 50 km/jam selama 3 jam, lalu 80 km/jam selama 1 jam. Berapa luas di bawah grafik kecepatannya?',o:['130 km','65 km/jam','230 km','260 km'],a:2,w:'Dua persegi panjang: 50 × 3 = 150 dan 80 × 1 = 80. Totalnya 230 km. Satuannya km, bukan km/jam.'},
+  {q:'Untuk fungsi yang terus naik, jumlah Riemann dengan titik kiri akan…',o:['selalu tepat','lebih kecil dari nilai sebenarnya','lebih besar dari nilai sebenarnya','bernilai negatif'],a:1,w:'Pada fungsi naik, ujung kiri setiap irisan adalah titik terendahnya, sehingga persegi panjang selalu berada di bawah kurva.'},
+  {q:'Daya listrik (watt) diintegralkan terhadap waktu (jam). Satuan hasilnya adalah…',o:['watt','watt per jam','watt-jam (Wh), satuan energi','volt'],a:2,w:'Satuan integral = satuan f × satuan x = W × jam = Wh. Meteran PLN mencatat kWh = 1.000 Wh.'},
+  {q:'Kenapa ∫₀^{2π} sin x dx = 0?',o:['Karena sin x selalu bernilai nol','Karena luas bukit di atas sumbu dan lembah di bawah sumbu sama besar sehingga saling meniadakan','Karena 2π terlalu besar','Karena integral sinus tidak terdefinisi'],a:1,w:'Integral adalah luas bertanda. Bagian di bawah sumbu dihitung negatif.'},
+  {q:'Pada simulasi tandon, A(x) = ∫₀ˣ debit dt mencapai nilai maksimum ketika…',o:['debit paling besar','debit bernilai nol dan berubah dari positif ke negatif','waktu sudah habis','debit paling negatif'],a:1,w:'Selama debit positif, isi tandon bertambah. Begitu debit menjadi negatif, isi mulai berkurang. Jadi puncaknya tepat saat debit = 0.'},
+  {q:'∫₁³ 2x dx = …',o:['4','8','9','6'],a:1,w:'Antiturunan 2x adalah x². Jadi 3² − 1² = 9 − 1 = 8. Cek dengan geometri: daerahnya trapesium dengan sisi sejajar 2 dan 6 serta lebar 2, luasnya (2 + 6)/2 × 2 = 8.'},
+  {q:'Kenapa jawaban integral tak tentu selalu diberi "+ C"?',o:['Supaya terlihat lengkap','Karena turunan konstanta adalah nol, sehingga ada tak hingga banyak antiturunan yang hanya berbeda geseran','Karena C adalah singkatan dari "cek"','Karena hasil integral selalu mendekati C'],a:1,w:'x³/3, x³/3 + 5, dan x³/3 − 100 semuanya punya turunan x². Seperti dua odometer yang mulai dari angka berbeda.'},
+  {q:'Teknik substitusi pada integral adalah kebalikan dari…',o:['aturan perkalian turunan','aturan rantai turunan','rumus pangkat','teorema Pythagoras'],a:1,w:'Substitusi mencari pola "fungsi luar × turunan fungsi dalam". Parsial adalah kebalikan aturan perkalian.'},
+  {q:'Kamu melempar 1.000 titik acak ke kotak berukuran 2 × 4, dan 250 titik jatuh di bawah kurva. Taksiran Monte Carlo untuk luas di bawah kurva adalah…',o:['250','0,25','2','4'],a:2,w:'Persentase yang masuk = 250/1000 = 25%. Luas kotak = 8. Taksiran = 0,25 × 8 = 2.'}
+];
+const answered={};
+$('#quiz').innerHTML=QZ.map((x,i)=>`<div class="q" data-i="${i}"><p>${i+1}. ${x.q}</p>${x.o.map((o,j)=>`<button data-j="${j}">${o}</button>`).join('')}<div class="why">${x.w}</div></div>`).join('');
+$$('.q button').forEach(b=>b.onclick=()=>{
+  const box=b.closest('.q'),i=box.dataset.i,x=QZ[i];
+  box.querySelectorAll('button').forEach(o=>o.classList.remove('right','wrong'));
+  b.classList.add(+b.dataset.j===x.a?'right':'wrong');
+  box.querySelector(`[data-j="${x.a}"]`).classList.add('right');
+  box.querySelector('.why').style.display='block';
+  if(!(i in answered))answered[i]=+b.dataset.j===x.a;
+  const n=Object.keys(answered).length,ok=Object.values(answered).filter(Boolean).length;
+  $('#qScore').textContent=n<QZ.length?`Terjawab ${n} dari ${QZ.length} · benar ${ok} (jawaban pertama yang dihitung)`:`Skor akhir: ${ok} dari ${QZ.length}. ${ok===QZ.length?'Sempurna! 🎉':ok>=7?'Bagus, ulangi bagian yang masih salah.':'Coba baca ulang Bagian 3–9 lalu ulangi kuisnya.'}`;
+});
+
+/* ---------- Gambar awal & mulai animasi ---------- */
+redrawAll();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
