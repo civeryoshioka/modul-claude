@@ -1,0 +1,1137 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Memahami Turunan</title>
+<style>
+:root{
+  --bg:#f7f8fa;--surface:#ffffff;--surface-2:#f0f2f6;--text:#1c2230;--muted:#5b6474;
+  --border:#e1e5ec;--accent:#3a6df0;--accent-soft:#e6edff;--good:#1f9d63;--bad:#d64545;--warn:#c98a12;--violet:#7c4dff;
+  --code-bg:#f3f5f9;--sidebar-w:270px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+    --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--violet:#a98bff;--code-bg:#1d222b;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+  --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--violet:#a98bff;--code-bg:#1d222b;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+/* Sidebar */
+#sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);
+  overflow-y:auto;padding:22px 16px;z-index:20;transition:transform .25s}
+#sidebar .brand{font-weight:700;font-size:17px;margin:0 8px 2px}
+#sidebar .level{display:inline-block;margin:0 8px 16px;font-size:12px;padding:2px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar ol{list-style:none;margin:0;padding:0;counter-reset:toc}
+#sidebar li a{display:flex;gap:10px;padding:7px 10px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:14.5px;line-height:1.4}
+#sidebar li a::before{counter-increment:toc;content:counter(toc);min-width:20px;height:20px;border-radius:50%;background:var(--surface-2);
+  font-size:11.5px;display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+#sidebar li a:hover{background:var(--surface-2);color:var(--text)}
+#sidebar li a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar li a.active::before{background:var(--accent);color:#fff}
+#progress{height:4px;background:var(--surface-2);border-radius:4px;margin:0 8px 18px;overflow:hidden}
+#progress div{height:100%;width:0;background:var(--accent);transition:width .1s}
+#menuBtn{display:none;position:fixed;top:12px;left:12px;z-index:30;border:1px solid var(--border);background:var(--surface);color:var(--text);
+  border-radius:8px;padding:6px 12px;font-size:15px;cursor:pointer}
+#themeBtn{margin:18px 8px 0;font-size:13px}
+/* Main */
+main{margin-left:var(--sidebar-w);padding:40px 48px 80px;max-width:calc(var(--sidebar-w) + 900px)}
+main>*{max-width:860px}
+header.hero{padding:8px 0 24px;border-bottom:1px solid var(--border);margin-bottom:12px}
+header.hero h1{font-size:34px;line-height:1.2;margin:0 0 8px;text-wrap:balance}
+header.hero p{color:var(--muted);margin:0}
+section{padding-top:28px}
+h2{font-size:25px;margin:16px 0 10px;padding-top:8px;text-wrap:balance}
+h3{font-size:18.5px;margin:24px 0 6px;text-wrap:balance}
+p,li{color:var(--text)}
+main p,main li,.box,.card span{text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+.muted{color:var(--muted)}
+.box{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:16px 20px;margin:16px 0}
+.box.tip{border-left:4px solid var(--good)}
+.box.note{border-left:4px solid var(--accent)}
+.box.warn{border-left:4px solid var(--warn)}
+.box>strong:first-child{display:block;margin-bottom:4px}
+.box ul,.box ol{margin:6px 0 0;padding-left:22px}
+.formula{font-family:"Cambria Math","Times New Roman",serif;font-size:19px;text-align:center;background:var(--surface-2);
+  border-radius:10px;padding:14px;margin:14px 0;overflow-x:auto;white-space:nowrap}
+.formula.big{font-size:24px;padding:20px 14px}
+.formula var{font-style:italic}
+.formula small{font-family:system-ui,sans-serif;font-size:13px;color:var(--muted);display:block;white-space:normal;margin-top:4px}
+/* notasi integral: tanda ∫ besar, batas bertumpuk, pecahan */
+.ig{font-size:1.5em;line-height:1;vertical-align:-.2em;margin-right:1px}
+.lim{display:inline-flex;flex-direction:column;vertical-align:middle;font-size:.58em;line-height:1.25;margin-right:3px;text-align:left}
+.lim.r{margin:0 3px 0 1px}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.9em;line-height:1.3;margin:0 2px}
+.frac>span:first-child{border-bottom:1.5px solid currentColor;padding:0 4px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;background:var(--code-bg);padding:1px 6px;border-radius:5px}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-size:13.5px;line-height:1.55}
+pre code{background:none;padding:0}
+.c{color:var(--muted)} .k{color:var(--accent);font-weight:600} .s{color:var(--good)} .n{color:var(--warn)}
+.tbl{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--border);padding:7px 11px;text-align:left;vertical-align:top}
+th{background:var(--surface-2)}
+td.num,th.num{text-align:right}
+tr.hit td{background:color-mix(in srgb,var(--good) 12%,transparent)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:14px 0}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:14px 0}
+.card{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 16px;min-width:0}
+.card b{display:block;margin-bottom:2px}
+.card span{color:var(--muted);font-size:14.5px}
+.card .ic{font-size:26px;line-height:1;display:block;margin-bottom:6px}
+/* warna penanda rumus */
+.h1{color:var(--accent);font-weight:600}.h2{color:var(--warn);font-weight:600}.h3{color:var(--good);font-weight:600}
+.h4{color:var(--violet);font-weight:600}.h5{color:var(--bad);font-weight:600}
+.anat{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:14px 0}
+.anat div{border:1px solid var(--border);border-top:4px solid var(--x);background:var(--surface);border-radius:10px;padding:10px 14px;font-size:14.5px;min-width:0}
+.anat b{display:block;color:var(--x);font-family:"Cambria Math","Times New Roman",serif;font-size:19px}
+/* Demo widgets */
+.demo{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:18px;margin:18px 0}
+.demo h4{margin:0 0 4px;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent)}
+.demo>p{margin:4px 0 8px;font-size:15px}
+.controls{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:10px 0}
+select.btn{max-width:100%;text-overflow:ellipsis}
+button.btn,select.btn{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:8px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer}
+button.btn:hover,select.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+label.range{display:flex;align-items:center;gap:8px;font-size:14px;flex-wrap:wrap}
+label.range b{min-width:3.6em;font-variant-numeric:tabular-nums}
+label.chk{display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer}
+input[type=range]{accent-color:var(--accent);max-width:180px}
+input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px}
+input[type=number]{font:inherit;font-size:14px;width:110px;padding:5px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--text)}
+.kpi{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.kpi div{border:1px solid var(--border);background:var(--surface-2);border-radius:8px;padding:6px 12px;font-size:13px;color:var(--muted)}
+.kpi b{display:block;font-size:17px;color:var(--text);font-variant-numeric:tabular-nums}
+canvas.plot{display:block;width:100%;border:1px solid var(--border);border-radius:10px;background:var(--surface-2)}
+.cap{font-size:12.5px;color:var(--muted);margin:4px 2px 0}
+.legend{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:6px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.sumline{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;color:var(--muted);background:var(--surface-2);border-radius:8px;padding:6px 10px;margin:8px 0 0;overflow-x:auto;white-space:nowrap}
+.msg{font-size:14px;margin:8px 0 0;padding:8px 12px;border-radius:8px;background:var(--accent-soft);color:var(--text)}
+.alat{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:6px 14px;margin:10px 0}
+.alat label{display:flex;align-items:center;gap:8px;font-size:13.5px;cursor:pointer;border:1px solid var(--border);border-radius:8px;padding:5px 10px;background:var(--surface-2)}
+.alat label small{color:var(--muted);margin-left:auto;white-space:nowrap;font-variant-numeric:tabular-nums}
+/* Diagram */
+.diagram{overflow-x:auto;margin:16px 0}
+.diagram svg{display:block;width:100%;min-width:520px;max-width:720px;margin:0 auto}
+.diagram text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+/* Steps */
+.steps{counter-reset:st;list-style:none;padding:0}
+.steps li{counter-increment:st;position:relative;padding:4px 0 10px 42px}
+.steps li::before{content:counter(st);position:absolute;left:0;top:4px;width:28px;height:28px;border-radius:50%;background:var(--accent-soft);
+  color:var(--accent);font-weight:700;display:grid;place-items:center;font-size:14px}
+/* Quiz */
+.q{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 18px;margin:12px 0}
+.q p{margin:0 0 8px;font-weight:600}
+.q button{display:block;width:100%;text-align:left;margin:6px 0;border:1px solid var(--border);background:var(--surface-2);color:var(--text);
+  border-radius:8px;padding:8px 12px;font:inherit;font-size:14.5px;cursor:pointer}
+.q button.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 15%,transparent)}
+.q button.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,transparent)}
+.q .why{font-size:14px;color:var(--muted);display:none;margin-top:6px}
+#qScore{font-size:14px;color:var(--muted)}
+.nav-mod{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px}
+.nav-mod a{text-decoration:none}
+footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:14px}
+@media (max-width:900px){
+  #sidebar{transform:translateX(-100%);box-shadow:0 0 30px rgba(0,0,0,.2)}
+  #sidebar.open{transform:none}
+  #menuBtn{display:block}
+  main{margin-left:0;padding:60px 16px 60px}
+  header.hero h1{font-size:27px}
+}
+@media (max-width:620px){
+  .formula{font-size:17px}
+  .formula.big{font-size:20px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<button id="menuBtn" aria-label="Buka daftar isi">☰ Daftar Isi</button>
+
+<nav id="sidebar" aria-label="Daftar isi">
+  <a class="home-link" href="../index.html" style="display:block;margin:0 8px 12px;font-size:13px;text-decoration:none">← Beranda semua modul</a>
+  <div class="brand">Memahami Turunan</div>
+  <span class="level">Kalkulus</span>
+  <div id="progress"><div></div></div>
+  <ol id="toc">
+    <li><a href="#peta">Kenapa Turunan Terasa Sulit?</a></li>
+    <li><a href="#analogi">Ide Besar lewat 6 Analogi</a></li>
+    <li><a href="#rata">Laju Rata-rata: Garis Potong</a></li>
+    <li><a href="#limit">Dari Rata-rata ke Sesaat</a></li>
+    <li><a href="#zoom">Zoom Terus sampai Lurus</a></li>
+    <li><a href="#notasi">Membaca Notasi f′(x) dan dy/dx</a></li>
+    <li><a href="#fungsi">Fungsi Turunan: Grafik Kemiringan</a></li>
+    <li><a href="#aturan">Aturan Dasar &amp; Asal-usulnya</a></li>
+    <li><a href="#rantai">Perkalian, Hasil Bagi &amp; Rantai</a></li>
+    <li><a href="#kedua">Turunan Kedua: Percepatan</a></li>
+    <li><a href="#optimasi">Optimasi: Puncak &amp; Lembah</a></li>
+    <li><a href="#aplikasi">Turunan di Dunia Nyata</a></li>
+    <li><a href="#kode">Praktik dengan Python</a></li>
+    <li><a href="#jebakan">Jebakan yang Sering Terjadi</a></li>
+    <li><a href="#kuis">Kuis &amp; Cheat Sheet</a></li>
+  </ol>
+  <button class="btn" id="themeBtn">🌓 Ganti tema</button>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Memahami Turunan dari Nol</h1>
+  <p>Bukan sekadar "pangkat turun, kurangi satu": dari analogi, gambar, dan simulasi dulu, lalu ke rumus, sampai pemakaiannya di dunia nyata. Estimasi waktu belajar ± 2,5 jam.</p>
+</header>
+
+<div class="diagram" aria-label="Diagram: kurva diperbesar terus sampai terlihat lurus, lalu kemiringannya diukur">
+<svg viewBox="0 0 690 232" role="img">
+  <rect x="10" y="14" width="205" height="160" rx="12" fill="var(--surface-2)" stroke="var(--border)"/>
+  <polyline id="heroCurve" fill="none" stroke="var(--text)" stroke-width="2.2" points=""/>
+  <circle id="heroPt" r="5" fill="var(--warn)"/>
+  <circle id="heroLens" r="20" fill="none" stroke="var(--accent)" stroke-width="2"/>
+  <text x="112" y="196" text-anchor="middle" font-size="14" font-weight="600" fill="var(--text)">1 · Kurva melengkung</text>
+  <text x="112" y="213" text-anchor="middle" font-size="11.5" fill="var(--muted)">"securam apa di titik ini?"</text>
+  <polygon points="222,88 234,94 222,100" fill="var(--muted)"/>
+
+  <rect x="242" y="14" width="205" height="160" rx="12" fill="var(--surface-2)" stroke="var(--border)"/>
+  <circle cx="344" cy="94" r="66" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5"/>
+  <polyline id="heroZoom" fill="none" stroke="var(--text)" stroke-width="2.4" points=""/>
+  <circle cx="344" cy="94" r="5" fill="var(--warn)"/>
+  <text x="344" y="196" text-anchor="middle" font-size="14" font-weight="600" fill="var(--text)">2 · Zoom terus</text>
+  <text x="344" y="213" text-anchor="middle" font-size="11.5" fill="var(--muted)">"dari dekat, kurva tampak lurus"</text>
+  <polygon points="454,88 466,94 454,100" fill="var(--muted)"/>
+
+  <rect x="474" y="14" width="205" height="160" rx="12" fill="var(--accent-soft)" stroke="var(--accent)"/>
+  <line x1="500" y1="140" x2="640" y2="56" stroke="var(--text)" stroke-width="2.4"/>
+  <line x1="530" y1="122" x2="610" y2="122" stroke="var(--good)" stroke-width="2.4"/>
+  <line x1="610" y1="122" x2="610" y2="74" stroke="var(--warn)" stroke-width="2.4"/>
+  <text x="570" y="140" text-anchor="middle" font-size="12" fill="var(--good)" font-weight="600">maju Δx</text>
+  <text x="616" y="102" font-size="12" fill="var(--warn)" font-weight="600">naik Δy</text>
+  <text x="530" y="46" text-anchor="middle" font-size="22" fill="var(--accent)" font-family="Cambria Math,Times New Roman,serif">dy/dx</text>
+  <text x="576" y="196" text-anchor="middle" font-size="14" font-weight="600" fill="var(--text)">3 · Ukur kemiringan</text>
+  <text x="576" y="213" text-anchor="middle" font-size="11.5" fill="var(--muted)">"naik dibagi maju = turunan"</text>
+</svg>
+</div>
+
+<div class="box note">
+  <strong>🎯 Tujuan belajar</strong>
+  Setelah modul ini kamu bisa menjelaskan turunan dengan kata-katamu sendiri sebagai <b>"laju perubahan sesaat"</b> atau <b>"kemiringan saat di-zoom"</b>, membaca notasi
+  <code>f′(x)</code> dan <code>dy/dx</code>, menurunkan rumus dasar dari definisinya, memakai aturan perkalian dan rantai,
+  memahami turunan kedua, lalu menerapkannya untuk optimasi, aproksimasi, dan <i>gradient descent</i> yang menjadi mesin pelatihan AI.
+  <br><span class="muted">Prasyarat: aljabar SMA dan membaca grafik fungsi. Setelah modul ini, lanjutkan ke <a href="01-integral.html">Memahami Integral</a>, yaitu kebalikan dari turunan.</span>
+</div>
+
+<!-- 1 -->
+<section id="peta">
+<h2>1. Kenapa Turunan Terasa Sulit?</h2>
+<p>Banyak orang pertama kali bertemu turunan sebagai aturan mekanis di papan tulis:</p>
+<div class="formula big"><span class="frac"><span><var>d</var></span><span><var>dx</var></span></span> <var>x<sup>n</sup></var> = <var>n</var> · <var>x</var><sup><var>n</var>−1</sup></div>
+<p>"Pangkatnya turun ke depan, lalu pangkatnya dikurangi satu." Mudah dihafal, dan justru karena itu banyak yang tidak pernah bertanya <i>apa yang sebenarnya sedang dihitung</i>. Padahal turunan lahir dari pertanyaan yang sangat sehari-hari:</p>
+<div class="formula">"Seberapa <b>cepat</b> sesuatu sedang berubah, <b>tepat pada saat ini</b>?"<small>Speedometer mobil, laju kenaikan suhu demam, kenaikan biaya untuk satu unit produksi tambahan, arah menurun paling curam untuk melatih AI.</small></div>
+<p>Kata kuncinya "tepat pada saat ini". Menghitung perubahan <i>rata-rata</i> itu mudah, cukup dibagi. Menghitung perubahan <i>sesaat</i> terdengar mustahil, karena dalam satu saat tidak ada waktu yang berlalu. Turunan adalah cara cerdik memecahkan teka-teki itu. Kita bongkar menjadi empat ide:</p>
+<div class="grid2">
+  <div class="card"><b>Ide 1 · Turunan = laju perubahan</b><span>Berapa banyak <var>y</var> berubah untuk setiap satu satuan perubahan <var>x</var>. Secara gambar: kemiringan grafik. (Bagian 2–3)</span></div>
+  <div class="card"><b>Ide 2 · Dari rata-rata ke sesaat</b><span>Ambil selang waktu yang makin lama makin kecil, lalu lihat ke mana laju rata-ratanya menuju. Inilah limit. (Bagian 4, 6)</span></div>
+  <div class="card"><b>Ide 3 · Zoom sampai lurus</b><span>Kurva mulus yang diperbesar terus akan tampak seperti garis lurus. Kemiringan garis itulah turunannya. (Bagian 5, 7)</span></div>
+  <div class="card"><b>Ide 4 · Aturan hanyalah jalan pintas</b><span>Semua aturan turunan bisa dibuktikan dari ide di atas, dan komputer bahkan bisa menghitung turunan tanpa aturan sama sekali. (Bagian 8–13)</span></div>
+</div>
+<div class="box tip"><strong>💡 Cara memakai modul ini</strong>
+  Jangan buru-buru ke rumus. Mainkan setiap simulasi sampai kamu bisa <i>menebak</i> hasilnya sebelum menggeser slider. Kerjakan contoh <b>✍️ hitung manual</b> dengan kertas dan pensil, lalu cocokkan dengan angka di simulasi. Kalau sebuah bagian terasa berat, kembali ke analogi di Bagian 2.
+  Modul ini berpasangan dengan modul <a href="01-integral.html">Integral</a>: turunan mengubah total menjadi laju, integral mengubah laju menjadi total.
+</div>
+</section>
+
+<!-- 2 -->
+<section id="analogi">
+<h2>2. Ide Besar lewat 6 Analogi</h2>
+<p>Satu kalimat inti yang perlu kamu pegang: <b>turunan menjawab "kalau masukan digeser sedikit, keluaran berubah berapa kali lipatnya?"</b>. Enam analogi berikut menyorot sisi yang berbeda dari ide itu, dan semuanya akan muncul lagi di bagian-bagian berikutnya.</p>
+<div class="grid2">
+  <div class="card"><span class="ic">🚗</span><b>Speedometer</b><span>Odometer mencatat jarak total. Speedometer menunjukkan seberapa cepat angka odometer bertambah <i>saat ini</i>. Speedometer adalah mesin turunan: kecepatan adalah turunan posisi terhadap waktu.</span></div>
+  <div class="card"><span class="ic">⛰️</span><b>Tanjakan jalan</b><span>Rambu "tanjakan 10%" berarti setiap maju 100 meter, jalannya naik 10 meter. Itulah kemiringan. Jalan pegunungan berkelok punya kemiringan yang berbeda-beda di setiap titik, dan turunan memberi kemiringan di titik mana pun.</span></div>
+  <div class="card"><span class="ic">🗺️</span><b>Zoom peta</b><span>Bumi itu bulat, tetapi lapangan sepak bola terlihat datar. Makin kecil daerah yang kamu lihat, makin "lurus" permukaannya. Turunan memakai trik yang sama: kurva apa pun, kalau diperbesar cukup jauh, tampak seperti garis lurus.</span></div>
+  <div class="card"><span class="ic">🎛️</span><b>Kenop sensitivitas</b><span>Memutar kenop volume sedikit membuat suara naik banyak atau sedikit, tergantung desain kenopnya. Turunan mengukur sensitivitas: seberapa besar keluaran berubah untuk setiap satuan perubahan masukan.</span></div>
+  <div class="card"><span class="ic">🌡️</span><b>Demam: nilai vs laju</b><span>"Suhunya 38 °C" dan "suhunya naik 1 °C per jam" adalah dua informasi berbeda. Yang kedua adalah turunan, dan sering lebih penting bagi dokter: 38 °C yang sedang turun jauh berbeda dari 38 °C yang sedang naik cepat.</span></div>
+  <div class="card"><span class="ic">⛷️</span><b>Bola menuruni bukit</b><span>Di tengah kabut, kamu hanya bisa merasakan kemiringan tanah di bawah kakimu. Untuk turun ke lembah, melangkahlah ke arah yang paling menurun. Itulah <i>gradient descent</i>, cara AI belajar, dan bahan bakarnya adalah turunan.</span></div>
+</div>
+<p>Analogi speedometer paling dekat dengan arti turunan, analogi zoom peta menjelaskan <i>cara menghitungnya</i>, dan analogi bola di bukit menunjukkan kenapa turunan begitu penting di zaman AI.</p>
+<div class="box warn"><strong>⚠️ Batas analogi</strong>
+  Speedometer menunjukkan kecepatan tanpa tanda (selalu positif), sedangkan turunan bisa negatif: turunan posisi bernilai negatif saat mobil mundur, dan turunan suhu negatif saat demam turun. Tanda turunan memberi tahu <b>arah</b> perubahan, besarnya memberi tahu <b>kecepatan</b> perubahan.
+</div>
+</section>
+
+<!-- 3 -->
+<section id="rata">
+<h2>3. Laju Rata-rata: Kemiringan Garis Potong</h2>
+<p>Mulai dari yang mudah. Kalau perjalanan Jakarta–Bandung sejauh 150 km ditempuh dalam 3 jam, kecepatan rata-ratanya 150/3 = 50 km/jam. Rumusnya: <b>perubahan jarak dibagi perubahan waktu</b>. Secara umum, laju perubahan rata-rata sebuah fungsi dari <var>x</var> = <var>a</var> sampai <var>x</var> = <var>b</var> adalah:</p>
+<div class="formula">laju rata-rata = <span class="frac"><span>Δ<var>y</var></span><span>Δ<var>x</var></span></span> = <span class="frac"><span><var>f</var>(<var>b</var>) − <var>f</var>(<var>a</var>)</span><span><var>b</var> − <var>a</var></span></span><small>Δ (delta) berarti "perubahan". Baca: naik dibagi maju.</small></div>
+<p>Di grafik, ini adalah kemiringan <b>garis potong</b> (<i>secant</i>): garis lurus yang menghubungkan dua titik pada kurva. Masalahnya, laju rata-rata menyembunyikan detail. Mobil yang rata-ratanya 50 km/jam mungkin berhenti di rest area lalu ngebut 100 km/jam di tol. Untuk tahu kecepatan <i>pada detik tertentu</i>, kita perlu sesuatu yang lebih tajam.</p>
+<div class="diagram" aria-label="Diagram: garis potong menghubungkan dua titik pada kurva, kemiringannya Δy/Δx">
+<svg viewBox="0 0 640 250" role="img">
+  <line x1="50" y1="215" x2="610" y2="215" stroke="var(--muted)"/>
+  <line x1="50" y1="20" x2="50" y2="215" stroke="var(--muted)"/>
+  <polyline id="secCurve" fill="none" stroke="var(--text)" stroke-width="2.2" points=""/>
+  <line id="secLine" stroke="var(--accent)" stroke-width="2.2"/>
+  <line id="secRun" stroke="var(--good)" stroke-width="2.4"/>
+  <line id="secRise" stroke="var(--warn)" stroke-width="2.4"/>
+  <circle id="secA" r="5" fill="var(--accent)"/><circle id="secB" r="5" fill="var(--accent)"/>
+  <text id="secRunT" text-anchor="middle" font-size="13" fill="var(--good)" font-weight="600">Δx = b − a</text>
+  <text id="secRiseT" font-size="13" fill="var(--warn)" font-weight="600">Δy = f(b) − f(a)</text>
+  <text id="secLbl" font-size="13" fill="var(--accent)" font-weight="600">garis potong</text>
+  <text x="440" y="232" font-size="12" fill="var(--muted)">kemiringan = Δy / Δx</text>
+</svg>
+</div>
+<h3>✍️ Contoh hitung manual 1: batu yang dijatuhkan</h3>
+<p>Sebuah batu dijatuhkan dari atas jembatan. Jarak jatuhnya (dengan gravitasi dibulatkan menjadi 10 m/s² dan hambatan udara diabaikan) adalah <var>s</var>(<var>t</var>) = 5<var>t</var>² meter setelah <var>t</var> detik. Berapa kecepatan rata-ratanya antara detik ke-1 dan detik ke-3?</p>
+<ol class="steps">
+  <li><var>s</var>(1) = 5 × 1² = 5 m dan <var>s</var>(3) = 5 × 3² = 45 m</li>
+  <li>Δ<var>s</var> = 45 − 5 = 40 m, Δ<var>t</var> = 3 − 1 = 2 s</li>
+  <li>Kecepatan rata-rata = 40/2 = <b>20 m/s</b></li>
+  <li>Tetapi batu itu terus bertambah cepat. Di detik ke-1 ia pasti lebih lambat dari 20 m/s, di detik ke-3 lebih cepat. Lalu berapa kecepatannya <b>tepat</b> di detik ke-2? Itu pertanyaan bagian berikutnya.</li>
+</ol>
+</section>
+
+<!-- 4 -->
+<section id="limit">
+<h2>4. Dari Rata-rata ke Sesaat</h2>
+<p>Idenya sederhana: kalau selang 2 detik terlalu kasar, perkecil selangnya. Hitung kecepatan rata-rata dari detik 2 sampai 2 + <var>h</var>, untuk <var>h</var> yang makin lama makin kecil: 1 detik, 0,1 detik, 0,01 detik, dan seterusnya. Garis potongnya akan berputar pelan-pelan, dan kemiringannya mendekati sebuah angka tertentu. Angka tujuan itulah <b>kecepatan sesaat</b>, dan garis tujuannya disebut <b>garis singgung</b> (<i>tangent</i>).</p>
+
+<div class="demo">
+  <h4>🎛 Simulasi 1 · Garis potong menjadi garis singgung</h4>
+  <p>Geser <var>h</var> ke kiri sampai sangat kecil, atau tekan ▶. Perhatikan titik Q mendekati P dan kemiringan garis potong mendekati kemiringan garis singgung.</p>
+  <div class="controls">
+    <select class="btn" id="d1F" aria-label="Fungsi">
+      <option value="jatuh">Batu jatuh: s(t) = 5t²</option>
+      <option value="sinus">f(x) = sin x</option>
+      <option value="kubik">f(x) = x³ − 3x</option>
+    </select>
+    <label class="range" for="d1X">Titik P <input type="range" id="d1X" min="0" max="1" step="0.002" value="0.55"> <b id="d1Xv"></b></label>
+    <label class="range" for="d1H">Jarak <var>h</var> <input type="range" id="d1H" min="0" max="1" step="0.002" value="1"> <b id="d1Hv"></b></label>
+    <button class="btn primary" id="d1Play">▶ Kecilkan h</button>
+  </div>
+  <canvas class="plot" id="cv1" style="height:320px"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>garis potong P–Q</span><span><i class="dot" style="background:var(--warn)"></i>garis singgung di P (tujuan)</span><span><i class="dot" style="background:var(--good)"></i>maju <var>h</var></span></div>
+  <div class="kpi"><div>Naik Δ<var>y</var><b id="d1Dy"></b></div><div>Maju <var>h</var><b id="d1Dx"></b></div><div>Kemiringan potong Δ<var>y</var>/<var>h</var><b id="d1Sec"></b></div><div>Kemiringan singgung (turunan)<b id="d1Tan"></b></div></div>
+</div>
+
+<h3>✍️ Contoh hitung manual 2: kecepatan batu tepat di detik ke-2</h3>
+<p>Hitung kecepatan rata-rata dari <var>t</var> = 2 sampai <var>t</var> = 2 + <var>h</var>. Ingat <var>s</var>(2) = 5 × 4 = 20 m.</p>
+<div class="tbl"><table>
+  <tr><th class="num"><var>h</var> (detik)</th><th class="num"><var>s</var>(2 + <var>h</var>)</th><th class="num">Δ<var>s</var> = <var>s</var>(2+<var>h</var>) − 20</th><th class="num">Δ<var>s</var> / <var>h</var> (m/s)</th></tr>
+  <tr><td class="num">1</td><td class="num">5 × 3² = 45</td><td class="num">25</td><td class="num">25</td></tr>
+  <tr><td class="num">0,1</td><td class="num">5 × 2,1² = 22,05</td><td class="num">2,05</td><td class="num">20,5</td></tr>
+  <tr><td class="num">0,01</td><td class="num">5 × 2,01² = 20,2005</td><td class="num">0,2005</td><td class="num">20,05</td></tr>
+  <tr><td class="num">0,001</td><td class="num">20,020005</td><td class="num">0,020005</td><td class="num">20,005</td></tr>
+</table></div>
+<p>Polanya jelas: 25, 20,5, 20,05, 20,005, … menuju <b>20 m/s</b>. Aljabar membuktikannya untuk <var>h</var> berapa pun:</p>
+<div class="formula"><span class="frac"><span>5(2 + <var>h</var>)² − 20</span><span><var>h</var></span></span> = <span class="frac"><span>20 + 20<var>h</var> + 5<var>h</var>² − 20</span><span><var>h</var></span></span> = <span class="frac"><span>20<var>h</var> + 5<var>h</var>²</span><span><var>h</var></span></span> = 20 + 5<var>h</var> &nbsp;→&nbsp; 20 saat <var>h</var> → 0</div>
+<p>Inilah trik inti turunan. Kita tidak pernah membagi dengan nol. Kita menyederhanakan dulu selagi <var>h</var> belum nol, sehingga <var>h</var> di penyebut hilang, <i>baru kemudian</i> melihat apa yang terjadi saat <var>h</var> mengecil. Sisa "+ 5<var>h</var>" adalah galat garis potong, dan galat itu lenyap saat <var>h</var> → 0. Cocokkan dengan Simulasi 1: pilih batu jatuh, letakkan P di <var>t</var> = 2, lalu kecilkan <var>h</var>.</p>
+<div class="box note"><strong>📜 Sedikit sejarah</strong>
+  Selama ratusan tahun, ide "membagi dua besaran yang sama-sama mendekati nol" dianggap mencurigakan. Uskup George Berkeley pada 1734 mengejek besaran super kecil Newton sebagai "hantu dari besaran yang sudah mati". Baru pada abad ke-19, Augustin-Louis Cauchy dan Karl Weierstrass merumuskan konsep <b>limit</b> secara ketat, sehingga turunan berdiri di atas fondasi yang kokoh.
+</div>
+</section>
+
+<!-- 5 -->
+<section id="zoom">
+<h2>5. Zoom Terus sampai Lurus</h2>
+<p>Ada cara kedua untuk memandang turunan yang lebih visual: <b>perbesar grafik di sekitar satu titik</b>. Kurva yang mulus, kalau diperbesar 10×, 100×, 1000×, makin lama makin mirip garis lurus, persis seperti permukaan bumi yang tampak datar dari lapangan sepak bola. Kemiringan "garis lurus" yang terlihat itulah turunannya. Matematikawan menyebut sifat ini <b>linear secara lokal</b>.</p>
+
+<div class="demo">
+  <h4>🎛 Simulasi 2 · Mikroskop kalkulus</h4>
+  <p>Naikkan perbesaran. Skala sumbu <var>x</var> dan <var>y</var> dibuat sama, jadi sudut garis yang kamu lihat adalah kemiringan sebenarnya. Lalu coba fungsi "sudut lancip".</p>
+  <div class="controls">
+    <select class="btn" id="d2F" aria-label="Fungsi">
+      <option value="mulus">Kurva mulus: sin x + 0,3x²</option>
+      <option value="sudut">Sudut lancip: |x − 1| + 0,5</option>
+    </select>
+    <label class="range" for="d2X">Titik <var>x</var><sub>0</sub> <input type="range" id="d2X" min="-2" max="2" step="0.05" value="0.6"> <b id="d2Xv"></b></label>
+    <label class="range" for="d2Z">Perbesaran <input type="range" id="d2Z" min="0" max="3" step="0.01" value="0"> <b id="d2Zv"></b></label>
+  </div>
+  <canvas class="plot" id="cv2" style="height:320px"></canvas>
+  <div class="kpi"><div>Lebar jendela<b id="d2W"></b></div><div>Kemiringan yang terlihat<b id="d2S"></b></div><div>Seberapa melengkung (relatif)<b id="d2C"></b></div></div>
+  <p class="msg" id="d2Msg"></p>
+</div>
+<div class="box tip"><strong>💡 Tidak semua fungsi punya turunan</strong>
+  Pada fungsi "sudut lancip", zoom sebesar apa pun tetap menampilkan huruf V. Dari kiri kemiringannya −1, dari kanan +1, jadi tidak ada satu garis lurus yang mewakili. Fungsi seperti ini <b>tidak terdiferensialkan</b> di titik sudutnya. Contoh nyata: harga saham. Grafiknya bergerigi di setiap skala waktu (per hari, per jam, per detik), sehingga model matematika harga saham memakai kalkulus khusus (kalkulus stokastik), bukan turunan biasa.
+</div>
+</section>
+
+<!-- 6 -->
+<section id="notasi">
+<h2>6. Membaca Notasi f′(x) dan dy/dx</h2>
+<p>Dua sudut pandang tadi (garis potong yang menyusut dan zoom) dirangkum dalam satu definisi resmi:</p>
+<div class="formula big"><var>f</var>′(<var>x</var>) = <span class="h1" style="display:inline-flex;flex-direction:column;vertical-align:middle;line-height:1.2;text-align:center">lim<small style="margin:0;font-size:12px"><var>h</var>→0</small></span> <span class="frac"><span class="h2"><var>f</var>(<var>x</var> + <var>h</var>) − <var>f</var>(<var>x</var>)</span><span class="h3"><var>h</var></span></span></div>
+<div class="anat">
+  <div style="--x:var(--warn)"><b>f(x+h) − f(x) · naik</b>Seberapa banyak keluaran berubah ketika masukan digeser sedikit.</div>
+  <div style="--x:var(--good)"><b>h · maju</b>Geseran kecil pada masukan. Penyebutnya: "per satu satuan <var>x</var>".</div>
+  <div style="--x:var(--accent)"><b>lim h→0 · zoom</b>Lihat ke mana hasil bagi menuju saat geserannya makin kecil, tanpa pernah benar-benar nol.</div>
+</div>
+<p>Ada beberapa cara menulis turunan, dan semuanya berarti sama:</p>
+<div class="tbl"><table>
+  <tr><th>Notasi</th><th>Penemu</th><th>Dibaca</th><th>Kelebihan</th></tr>
+  <tr><td><var>f</var>′(<var>x</var>)</td><td>Lagrange</td><td>"f aksen x"</td><td>Ringkas, menegaskan bahwa turunan adalah fungsi baru</td></tr>
+  <tr><td><var>dy</var>/<var>dx</var></td><td>Leibniz</td><td>"d y d x"</td><td>Mengingatkan bahwa turunan adalah Δ<var>y</var>/Δ<var>x</var> yang sangat kecil; aturan rantai terlihat seperti mencoret pecahan</td></tr>
+  <tr><td><var>ẏ</var> (titik di atas)</td><td>Newton</td><td>"y titik"</td><td>Dipakai di fisika untuk turunan terhadap waktu</td></tr>
+</table></div>
+<h3>Satuan: turunan selalu "per"</h3>
+<p>Karena turunan adalah naik dibagi maju, satuannya selalu satuan <var>y</var> <b>per</b> satuan <var>x</var>. Kata "per" dalam kehidupan sehari-hari hampir selalu menandakan turunan.</p>
+<div class="tbl"><table>
+  <tr><th>Fungsi <var>y</var></th><th>Terhadap <var>x</var></th><th>Turunan <var>dy</var>/<var>dx</var></th></tr>
+  <tr><td>Posisi (meter)</td><td>Waktu (detik)</td><td>Kecepatan (m/s)</td></tr>
+  <tr><td>Kecepatan (m/s)</td><td>Waktu (detik)</td><td>Percepatan (m/s²)</td></tr>
+  <tr><td>Suhu tubuh (°C)</td><td>Waktu (jam)</td><td>Laju kenaikan suhu (°C/jam)</td></tr>
+  <tr><td>Biaya produksi (Rp)</td><td>Jumlah unit</td><td>Biaya marjinal (Rp per unit)</td></tr>
+  <tr><td>Volume air tandon (liter)</td><td>Waktu (menit)</td><td>Debit (liter/menit)</td></tr>
+  <tr><td>Ketinggian jalan (m)</td><td>Jarak mendatar (m)</td><td>Kemiringan (tanpa satuan, sering ditulis %)</td></tr>
+  <tr><td>Jumlah total kasus penyakit</td><td>Waktu (hari)</td><td>Kasus baru per hari</td></tr>
+</table></div>
+</section>
+
+<!-- 7 -->
+<section id="fungsi">
+<h2>7. Fungsi Turunan: Grafik Kemiringan</h2>
+<p>Turunan bisa dihitung di setiap titik, jadi hasilnya adalah sebuah <b>fungsi baru</b>: <var>f</var>′(<var>x</var>) mencatat kemiringan <var>f</var> di setiap <var>x</var>. Kalau <var>f</var> adalah odometer, <var>f</var>′ adalah speedometer. Simulasi berikut menelusuri kurva dengan garis singgung, lalu menggambar kemiringannya di grafik bawah.</p>
+
+<div class="demo">
+  <h4>🎛 Simulasi 3 · Perekam kemiringan</h4>
+  <p>Atas: fungsi <var>f</var> dan garis singgungnya. Bawah: kemiringan garis singgung itu, dicatat sebagai titik di grafik <var>f</var>′. Geser <var>x</var> atau tekan ▶.</p>
+  <div class="controls">
+    <select class="btn" id="d3F" aria-label="Skenario">
+      <option value="rem">Mobil mengerem: s(t) = 20t − 2t²</option>
+      <option value="kubik">f(x) = x³ − 3x (bukit dan lembah)</option>
+      <option value="sinus">f(x) = sin x</option>
+    </select>
+    <label class="range" for="d3X">Posisi <var>x</var> <input type="range" id="d3X" min="0" max="1" step="0.002" value="0.3"> <b id="d3Xv"></b></label>
+    <button class="btn" id="d3Play">▶ Putar</button>
+  </div>
+  <canvas class="plot" id="cv3" style="height:420px"></canvas>
+  <div class="kpi"><div>Nilai <var>f</var>(<var>x</var>)<b id="d3f"></b></div><div>Kemiringan <var>f</var>′(<var>x</var>)<b id="d3d"></b></div></div>
+  <p class="msg" id="d3Msg"></p>
+</div>
+<p>Tiga cara membaca grafik yang perlu kamu kuasai, dan semuanya terlihat di simulasi:</p>
+<ol class="steps">
+  <li><b><var>f</var>′ positif ⇔ <var>f</var> naik</b>, <b><var>f</var>′ negatif ⇔ <var>f</var> turun</b>. Tanda turunan adalah arah.</li>
+  <li><b>Di puncak dan lembah, <var>f</var>′ = 0</b>: garis singgungnya mendatar. Mobil yang mengerem berhenti tepat ketika kecepatannya nol, yaitu saat grafik posisinya mendatar.</li>
+  <li><b>Makin curam <var>f</var>, makin jauh <var>f</var>′ dari nol</b>. Besarnya turunan adalah seberapa cepat perubahan terjadi.</li>
+</ol>
+</section>
+
+<!-- 8 -->
+<section id="aturan">
+<h2>8. Aturan Dasar &amp; Asal-usulnya</h2>
+<p>Menghitung limit setiap kali tentu melelahkan. Untungnya, untuk fungsi-fungsi umum, limit itu cukup dihitung <b>sekali</b>, lalu hasilnya disimpan sebagai aturan. Mari buktikan satu aturan dari nol supaya kamu tahu aturan bukan sulap.</p>
+<h3>✍️ Contoh hitung manual 3: turunan <var>x</var>² dari definisi</h3>
+<ol class="steps">
+  <li>Tulis definisinya: [(<var>x</var> + <var>h</var>)² − <var>x</var>²] / <var>h</var></li>
+  <li>Jabarkan: (<var>x</var> + <var>h</var>)² = <var>x</var>² + 2<var>xh</var> + <var>h</var>², jadi pembilangnya 2<var>xh</var> + <var>h</var>²</li>
+  <li>Bagi dengan <var>h</var>: 2<var>x</var> + <var>h</var></li>
+  <li>Biarkan <var>h</var> → 0: turunan <var>x</var>² adalah <b>2<var>x</var></b>. Cek: di <var>x</var> = 2, kemiringannya 4. Untuk batu jatuh 5<var>t</var>², turunannya 5 × 2<var>t</var> = 10<var>t</var>, dan di <var>t</var> = 2 hasilnya 20 m/s, cocok dengan Bagian 4.</li>
+</ol>
+<p>Ada gambar yang membuat hasil ini terasa jelas. Bayangkan persegi bersisi <var>x</var>, luasnya <var>x</var>². Kalau sisinya ditambah sedikit sebesar <var>h</var>, luasnya bertambah dua pita tipis berukuran <var>x</var> × <var>h</var> ditambah satu kotak super kecil <var>h</var> × <var>h</var>. Saat <var>h</var> sangat kecil, kotak kecil itu tidak berarti, jadi tambahan luas ≈ 2<var>x</var> · <var>h</var>. Laju pertambahan luas per tambahan sisi = 2<var>x</var>.</p>
+<div class="diagram" aria-label="Diagram: persegi bersisi x ditambah h, tambahan luas berupa dua pita x kali h dan satu kotak kecil h kali h">
+<svg viewBox="0 0 640 250" role="img">
+  <rect x="150" y="40" width="170" height="170" fill="var(--accent)" fill-opacity=".2" stroke="var(--accent)" stroke-width="2"/>
+  <rect x="320" y="40" width="26" height="170" fill="var(--warn)" fill-opacity=".55" stroke="var(--warn)"/>
+  <rect x="150" y="14" width="170" height="26" fill="var(--warn)" fill-opacity=".55" stroke="var(--warn)"/>
+  <rect x="320" y="14" width="26" height="26" fill="var(--bad)" fill-opacity=".55" stroke="var(--bad)"/>
+  <text x="235" y="130" text-anchor="middle" font-size="20" fill="var(--accent)" font-weight="600">x²</text>
+  <text x="235" y="232" text-anchor="middle" font-size="13" fill="var(--text)">x</text>
+  <text x="333" y="232" text-anchor="middle" font-size="13" fill="var(--text)">h</text>
+  <text x="136" y="130" text-anchor="end" font-size="13" fill="var(--text)">x</text>
+  <text x="333" y="130" text-anchor="middle" font-size="12" fill="var(--warn)" font-weight="600" transform="rotate(-90 333 130)">x · h</text>
+  <text x="235" y="32" text-anchor="middle" font-size="12" fill="var(--warn)" font-weight="600">x · h</text>
+  <text x="380" y="30" font-size="12" fill="var(--bad)">h² (sangat kecil, diabaikan)</text>
+  <text x="380" y="100" font-size="13" fill="var(--text)">Tambahan luas = 2·x·h + h²</text>
+  <text x="380" y="122" font-size="13" fill="var(--text)">dibagi h  →  2x + h</text>
+  <text x="380" y="150" font-size="15" fill="var(--accent)" font-weight="600">h → 0 :  d(x²)/dx = 2x</text>
+</svg>
+</div>
+<p>Dengan cara yang sama (kubus untuk <var>x</var>³, dan seterusnya) didapat pola umumnya, yaitu aturan pangkat. Berikut tabel aturan dasar beserta intuisinya:</p>
+<div class="tbl"><table>
+  <tr><th><var>f</var>(<var>x</var>)</th><th><var>f</var>′(<var>x</var>)</th><th>Intuisi</th></tr>
+  <tr><td><var>c</var> (konstanta)</td><td>0</td><td>Garis datar tidak pernah naik atau turun</td></tr>
+  <tr><td><var>x</var></td><td>1</td><td>Garis <var>y</var> = <var>x</var> naik 1 untuk setiap maju 1</td></tr>
+  <tr><td><var>x<sup>n</sup></var></td><td><var>n</var>·<var>x</var><sup><var>n</var>−1</sup></td><td>Kubus <var>x</var>³ tumbuh di tiga sisi seluas <var>x</var>², jadi 3<var>x</var>²</td></tr>
+  <tr><td>sin <var>x</var></td><td>cos <var>x</var></td><td>Titik berputar di lingkaran: laju naiknya bayangan terbesar saat melewati sumbu</td></tr>
+  <tr><td>cos <var>x</var></td><td>−sin <var>x</var></td><td>Sama, tetapi bergeser seperempat putaran</td></tr>
+  <tr><td><var>e<sup>x</sup></var></td><td><var>e<sup>x</sup></var></td><td>Tumbuh sebanding dengan dirinya sendiri, seperti bunga majemuk kontinu</td></tr>
+  <tr><td><var>a<sup>x</sup></var></td><td><var>a<sup>x</sup></var> · ln <var>a</var></td><td>Pertumbuhan eksponensial dengan basis lain</td></tr>
+  <tr><td>ln <var>x</var></td><td>1/<var>x</var></td><td>Logaritma tumbuh makin pelan: di <var>x</var> besar, kemiringannya kecil</td></tr>
+  <tr><td><var>a</var>·<var>f</var> + <var>b</var>·<var>g</var></td><td><var>a</var>·<var>f</var>′ + <var>b</var>·<var>g</var>′</td><td>Turunan boleh dipecah per suku (linear)</td></tr>
+</table></div>
+
+<div class="demo">
+  <h4>🎛 Simulasi 4 · Tebak turunannya</h4>
+  <p>Komputer mengukur kemiringan grafik <var>f</var> di banyak titik (titik-titik biru) memakai definisi dengan <var>h</var> kecil, tanpa rumus. Pilih tebakanmu, lalu lihat apakah kurvanya melewati semua titik.</p>
+  <div class="controls">
+    <select class="btn" id="d4F" aria-label="Fungsi f">
+      <option value="x2">f(x) = x²</option>
+      <option value="x3">f(x) = x³</option>
+      <option value="sin">f(x) = sin x</option>
+      <option value="cos">f(x) = cos x</option>
+      <option value="exp">f(x) = eˣ</option>
+      <option value="ln">f(x) = ln x</option>
+    </select>
+    <select class="btn" id="d4G" aria-label="Tebakan turunan">
+      <option value="none">— pilih tebakan —</option>
+      <option value="x">x</option>
+      <option value="2x">2x</option>
+      <option value="x2">x²</option>
+      <option value="3x2">3x²</option>
+      <option value="cos">cos x</option>
+      <option value="msin">−sin x</option>
+      <option value="sin">sin x</option>
+      <option value="exp">eˣ</option>
+      <option value="inv">1/x</option>
+    </select>
+  </div>
+  <canvas class="plot" id="cv4" style="height:300px"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--muted)"></i>fungsi <var>f</var></span><span><i class="dot" style="background:var(--accent)"></i>kemiringan terukur</span><span><i class="dot" style="background:var(--warn)"></i>tebakanmu</span></div>
+  <p class="msg" id="d4Msg"></p>
+</div>
+
+<h3>✍️ Contoh hitung manual 4: polinom</h3>
+<p>Turunkan <var>f</var>(<var>x</var>) = 4<var>x</var>³ − 5<var>x</var>² + 7<var>x</var> − 2, lalu hitung kemiringannya di <var>x</var> = 1.</p>
+<ol class="steps">
+  <li>Per suku dengan aturan pangkat: 4 · 3<var>x</var>² = 12<var>x</var>², −5 · 2<var>x</var> = −10<var>x</var>, 7 · 1 = 7, dan −2 → 0</li>
+  <li><var>f</var>′(<var>x</var>) = <b>12<var>x</var>² − 10<var>x</var> + 7</b></li>
+  <li><var>f</var>′(1) = 12 − 10 + 7 = <b>9</b>. Artinya di sekitar <var>x</var> = 1, menggeser <var>x</var> sebesar 0,01 menaikkan <var>f</var> kira-kira 9 × 0,01 = 0,09. Cek: <var>f</var>(1) = 4 dan <var>f</var>(1,01) ≈ 4,0907.</li>
+</ol>
+</section>
+
+<!-- 9 -->
+<section id="rantai">
+<h2>9. Perkalian, Hasil Bagi &amp; Rantai</h2>
+<h3>Aturan perkalian: persegi panjang yang tumbuh</h3>
+<p>Bayangkan persegi panjang dengan lebar <var>f</var> dan tinggi <var>g</var>, keduanya berubah. Kalau lebarnya bertambah <var>df</var> dan tingginya bertambah <var>dg</var>, luasnya bertambah pita <var>g</var>·<var>df</var> di samping, pita <var>f</var>·<var>dg</var> di atas, dan kotak super kecil <var>df</var>·<var>dg</var> yang bisa diabaikan. Itulah aturan perkalian, perluasan langsung dari gambar persegi di Bagian 8:</p>
+<div class="formula">(<var>f</var> · <var>g</var>)′ = <var>f</var>′ · <var>g</var> + <var>f</var> · <var>g</var>′<small>Bukan <var>f</var>′ · <var>g</var>′! Setiap faktor bergiliran berubah sementara yang lain ditahan.</small></div>
+<p>Aturan hasil bagi bisa diturunkan dari aturan perkalian: (<var>f</var>/<var>g</var>)′ = (<var>f</var>′<var>g</var> − <var>f</var><var>g</var>′)/<var>g</var>². Mnemonik populer: "bawah kali turunan atas, dikurangi atas kali turunan bawah, dibagi bawah kuadrat".</p>
+<h3>✍️ Contoh hitung manual 5: <var>x</var>² · sin <var>x</var></h3>
+<ol class="steps">
+  <li><var>f</var> = <var>x</var>², <var>f</var>′ = 2<var>x</var>; <var>g</var> = sin <var>x</var>, <var>g</var>′ = cos <var>x</var></li>
+  <li>(<var>x</var>² sin <var>x</var>)′ = <b>2<var>x</var> sin <var>x</var> + <var>x</var>² cos <var>x</var></b></li>
+  <li>Di <var>x</var> = π: 2π · 0 + π² · (−1) = <b>−π² ≈ −9,87</b>. Kurvanya sedang turun curam di sana.</li>
+</ol>
+
+<h3>Aturan rantai: roda gigi</h3>
+<p>Banyak fungsi adalah "fungsi di dalam fungsi", misalnya (<var>x</var>² + 1)³: hitung dulu <var>u</var> = <var>x</var>² + 1, lalu pangkatkan tiga. Bayangkan tiga roda gigi yang saling terkait. Kalau roda B berputar 3 kali setiap roda A berputar sekali, dan roda C berputar 2 kali setiap roda B berputar sekali, maka C berputar 3 × 2 = 6 kali setiap A berputar sekali. Laju-laju perubahan <b>dikalikan</b> sepanjang rantai:</p>
+<div class="formula big"><span class="frac"><span><var>dy</var></span><span><var>dx</var></span></span> = <span class="frac"><span><var>dy</var></span><span><var>du</var></span></span> · <span class="frac"><span><var>du</var></span><span><var>dx</var></span></span><small>Notasi Leibniz membuatnya tampak seperti mencoret <var>du</var>. Itu bukan bukti, tetapi jembatan keledai yang sangat berguna.</small></div>
+
+<div class="demo">
+  <h4>🎛 Simulasi 5 · Roda gigi aturan rantai</h4>
+  <p>Atur rasio putaran antar roda. Penghitung di bawah membuktikan bahwa laju C terhadap A = (laju C terhadap B) × (laju B terhadap A).</p>
+  <div class="controls">
+    <label class="range" for="d5K1">Putaran B per putaran A <input type="range" id="d5K1" min="0.5" max="3" step="0.5" value="3"> <b id="d5K1v"></b></label>
+    <label class="range" for="d5K2">Putaran C per putaran B <input type="range" id="d5K2" min="0.5" max="3" step="0.5" value="2"> <b id="d5K2v"></b></label>
+    <button class="btn" id="d5Play">⏸ Jeda</button>
+  </div>
+  <canvas class="plot" id="cv5" style="height:260px"></canvas>
+  <div class="kpi"><div>Putaran A<b id="d5A"></b></div><div>Putaran B<b id="d5B"></b></div><div>Putaran C<b id="d5C"></b></div><div><var>dC</var>/<var>dA</var> = <var>dC</var>/<var>dB</var> × <var>dB</var>/<var>dA</var><b id="d5R"></b></div></div>
+  <p class="cap">Arah putar roda yang bersinggungan selalu berlawanan. Di sini kita hanya menghitung banyaknya putaran.</p>
+</div>
+
+<h3>✍️ Contoh hitung manual 6: (<var>x</var>² + 1)³</h3>
+<ol class="steps">
+  <li>Rantai: <var>x</var> → <var>u</var> = <var>x</var>² + 1 → <var>y</var> = <var>u</var>³</li>
+  <li>Roda luar: <var>dy</var>/<var>du</var> = 3<var>u</var>² = 3(<var>x</var>² + 1)²</li>
+  <li>Roda dalam: <var>du</var>/<var>dx</var> = 2<var>x</var></li>
+  <li>Kalikan: <var>dy</var>/<var>dx</var> = <b>6<var>x</var>(<var>x</var>² + 1)²</b>. Di <var>x</var> = 1: 6 · 1 · 2² = <b>24</b>. Cek angka: (1,001² + 1)³ ≈ 8,024036, dikurangi <var>f</var>(1) = 8, dibagi 0,001 ≈ 24,04 ✓</li>
+</ol>
+<div class="box tip"><strong>💡 Aturan rantai ada di mana-mana</strong>
+  Kalau biaya bensin bergantung pada jarak (Rp per km), dan jarak bergantung pada waktu (km per jam), maka biaya per jam = (Rp per km) × (km per jam). Itu aturan rantai. Di dunia AI, algoritma <b>backpropagation</b> yang melatih jaringan saraf sebenarnya hanyalah aturan rantai yang diterapkan berulang-ulang melewati ratusan lapisan.
+</div>
+</section>
+
+<!-- 10 -->
+<section id="kedua">
+<h2>10. Turunan Kedua: Percepatan</h2>
+<p>Turunan sebuah fungsi adalah fungsi juga, jadi ia bisa diturunkan lagi. Hasilnya, <var>f</var>″(<var>x</var>) atau <var>d</var>²<var>y</var>/<var>dx</var>², disebut <b>turunan kedua</b>: laju perubahan dari laju perubahan. Contoh paling jelas: posisi → kecepatan → percepatan.</p>
+<h3>✍️ Contoh hitung manual 7: batu jatuh, sekali lagi</h3>
+<ol class="steps">
+  <li>Posisi: <var>s</var>(<var>t</var>) = 5<var>t</var>² meter</li>
+  <li>Kecepatan = turunan pertama: <var>v</var>(<var>t</var>) = <var>s</var>′(<var>t</var>) = 10<var>t</var> m/s (bertambah 10 m/s setiap detik)</li>
+  <li>Percepatan = turunan kedua: <var>a</var>(<var>t</var>) = <var>s</var>″(<var>t</var>) = <b>10 m/s²</b>, konstan. Ini adalah percepatan gravitasi yang kita masukkan di awal. Turunan "membongkar" rumus posisi kembali menjadi hukum fisikanya.</li>
+</ol>
+<p>Secara grafik, turunan kedua mengukur <b>kelengkungan</b>:</p>
+<div class="grid3">
+  <div class="card"><b><var>f</var>″ &gt; 0 · cekung ke atas ⌣</b><span>Seperti senyum atau mangkuk. Kemiringan terus bertambah. Titik dengan <var>f</var>′ = 0 di sini adalah lembah (minimum).</span></div>
+  <div class="card"><b><var>f</var>″ &lt; 0 · cekung ke bawah ⌢</b><span>Seperti cemberut atau bukit. Kemiringan terus berkurang. Titik dengan <var>f</var>′ = 0 di sini adalah puncak (maksimum).</span></div>
+  <div class="card"><b><var>f</var>″ = 0 dan berganti tanda · titik belok</b><span>Kurva berganti dari mangkuk ke bukit atau sebaliknya. Di sinilah pertumbuhan paling cepat atau paling lambat.</span></div>
+</div>
+<div class="box note"><strong>📰 Membaca berita dengan turunan kedua</strong>
+  Kalimat "<b>inflasi melambat</b>" sering disalahpahami sebagai "harga turun". Inflasi adalah laju kenaikan harga, yaitu turunan pertama dari harga. "Inflasi melambat" berarti turunan pertama masih positif (harga <i>tetap naik</i>), hanya turunan keduanya negatif (kenaikannya makin pelan). Sama halnya dengan "kurva kasus mulai melandai" saat pandemi: jumlah total kasus masih bertambah, tetapi kasus baru per hari mulai berkurang. Titik belok kurva itulah yang dinanti para ahli epidemiologi.
+</div>
+</section>
+
+<!-- 11 -->
+<section id="optimasi">
+<h2>11. Optimasi: Puncak &amp; Lembah</h2>
+<p>Salah satu kegunaan turunan yang paling berharga: <b>mencari nilai terbesar atau terkecil</b>. Di puncak bukit atau dasar lembah yang mulus, garis singgungnya mendatar, jadi kemiringannya nol. Resepnya:</p>
+<ol class="steps">
+  <li>Tulis besaran yang ingin dimaksimumkan atau diminimumkan sebagai fungsi satu variabel.</li>
+  <li>Turunkan, lalu cari <var>x</var> yang membuat <var>f</var>′(<var>x</var>) = 0. Titik-titik ini disebut titik kritis.</li>
+  <li>Cek jenisnya dengan turunan kedua (<var>f</var>″ &lt; 0 → puncak, <var>f</var>″ &gt; 0 → lembah), dan jangan lupa cek ujung-ujung rentang.</li>
+</ol>
+<p>Contoh klasik yang bisa kamu praktikkan dengan selembar karton: dari karton persegi 30 × 30 cm, potong persegi kecil bersisi <var>x</var> di keempat sudutnya, lalu lipat sisi-sisinya ke atas menjadi kotak tanpa tutup. Potongan terlalu kecil membuat kotak pendek; potongan terlalu besar membuat alasnya sempit. Berapa <var>x</var> terbaik?</p>
+
+<div class="demo">
+  <h4>🎛 Simulasi 6 · Kotak karton terbesar</h4>
+  <p>Geser ukuran potongan <var>x</var>. Kiri: pola karton. Kanan: grafik volume beserta garis singgungnya. Cari posisi ketika garis singgung mendatar.</p>
+  <div class="controls">
+    <label class="range" for="d6X">Potongan sudut <var>x</var> <input type="range" id="d6X" min="0" max="15" step="0.1" value="2"> <b id="d6Xv"></b></label>
+  </div>
+  <canvas class="plot" id="cv6" style="height:300px"></canvas>
+  <div class="kpi"><div>Ukuran kotak<b id="d6Dim"></b></div><div>Volume <var>V</var>(<var>x</var>)<b id="d6V"></b></div><div>Kemiringan <var>V</var>′(<var>x</var>)<b id="d6D"></b></div></div>
+  <p class="msg" id="d6Msg"></p>
+</div>
+<h3>✍️ Contoh hitung manual 8: ukuran potongan terbaik</h3>
+<ol class="steps">
+  <li>Alas kotak berukuran (30 − 2<var>x</var>) × (30 − 2<var>x</var>), tingginya <var>x</var>. Volume: <var>V</var>(<var>x</var>) = <var>x</var>(30 − 2<var>x</var>)², untuk 0 &lt; <var>x</var> &lt; 15.</li>
+  <li>Aturan perkalian dan rantai: <var>V</var>′ = 1 · (30 − 2<var>x</var>)² + <var>x</var> · 2(30 − 2<var>x</var>) · (−2) = (30 − 2<var>x</var>)[(30 − 2<var>x</var>) − 4<var>x</var>] = (30 − 2<var>x</var>)(30 − 6<var>x</var>)</li>
+  <li><var>V</var>′ = 0 saat <var>x</var> = 15 (kotak gepeng, volume nol) atau <var>x</var> = <b>5</b>.</li>
+  <li><var>V</var>(5) = 5 × 20² = <b>2.000 cm³</b> = 2 liter. Cek tetangganya: <var>V</var>(4) = 4 × 22² = 1.936 dan <var>V</var>(6) = 6 × 18² = 1.944. Keduanya lebih kecil, jadi <var>x</var> = 5 memang puncak. Turunan kedua juga negatif di sana: <var>V</var>″(5) = −120.</li>
+</ol>
+<p>Pola yang sama dipakai di mana-mana: produsen kaleng mencari ukuran tinggi dan jari-jari yang memakai bahan paling sedikit untuk volume tertentu, perusahaan mencari harga jual yang memaksimumkan keuntungan, dan insinyur mencari sudut panel surya yang memaksimumkan energi.</p>
+<div class="box warn"><strong>⚠️ <var>f</var>′ = 0 bukan jaminan</strong>
+  <var>f</var>(<var>x</var>) = <var>x</var>³ punya <var>f</var>′(0) = 0, tetapi <var>x</var> = 0 bukan puncak maupun lembah, melainkan tempat kurva "beristirahat sebentar" lalu naik lagi. Selain itu, puncak tertinggi bisa saja berada di ujung rentang, di mana turunannya tidak nol. Selalu cek titik kritis <i>dan</i> ujung rentang.
+</div>
+</section>
+
+<!-- 12 -->
+<section id="aplikasi">
+<h2>12. Turunan di Dunia Nyata</h2>
+<p>Setiap kali ada kata "<b>laju</b>", "<b>per</b>", "<b>sensitivitas</b>", "<b>marjinal</b>", atau "<b>paling optimal</b>", di situ ada turunan, sering tersembunyi di dalam alat atau perangkat lunak:</p>
+<div class="tbl"><table>
+  <tr><th>Bidang</th><th>Fungsi</th><th>Turunannya</th><th>Contoh nyata</th></tr>
+  <tr><td>Fisika</td><td>Posisi</td><td>Kecepatan, percepatan</td><td>Speedometer, airbag mendeteksi perlambatan mendadak saat tabrakan</td></tr>
+  <tr><td>Ekonomi</td><td>Biaya, pendapatan</td><td>Biaya &amp; pendapatan marjinal</td><td>Menentukan jumlah produksi yang paling menguntungkan</td></tr>
+  <tr><td>Kecerdasan buatan</td><td>Fungsi galat (<i>loss</i>)</td><td>Gradien</td><td>Melatih ChatGPT, pengenal wajah, rekomendasi video dengan <i>gradient descent</i></td></tr>
+  <tr><td>Pengolahan gambar</td><td>Kecerahan piksel</td><td>Perubahan kecerahan</td><td>Deteksi tepi di kamera HP, pemindai dokumen, mobil otonom</td></tr>
+  <tr><td>Kendali otomatis</td><td>Galat</td><td>Suku "D" pada pengendali PID</td><td>Drone meredam goyangan, lengan robot berhenti tanpa terpental</td></tr>
+  <tr><td>Kedokteran</td><td>Kadar obat, suhu, tekanan</td><td>Laju perubahan</td><td>Memantau apakah kondisi pasien membaik atau memburuk</td></tr>
+  <tr><td>Keuangan</td><td>Harga opsi</td><td>"Delta", "gamma"</td><td>Mengukur sensitivitas portofolio terhadap perubahan harga saham</td></tr>
+  <tr><td>Kimia &amp; biologi</td><td>Konsentrasi, populasi</td><td>Laju reaksi, laju pertumbuhan</td><td>Persamaan diferensial untuk wabah, peluruhan radioaktif, pertumbuhan bakteri</td></tr>
+  <tr><td>Grafika 3D &amp; game</td><td>Permukaan</td><td>Vektor normal</td><td>Menghitung arah pantulan cahaya agar objek terlihat realistis</td></tr>
+</table></div>
+
+<h3>Studi kasus A · Gradient descent: cara AI belajar</h3>
+<p>Melatih model AI berarti mencari nilai parameter yang membuat <b>galat</b> (<i>loss</i>) sekecil mungkin. Model modern punya miliaran parameter, jadi mencoba semua kemungkinan mustahil. Solusinya adalah analogi bola di bukit berkabut: hitung turunan galat terhadap parameter, lalu melangkah sedikit ke arah <b>berlawanan</b> dengan kemiringan, berulang-ulang.</p>
+<div class="formula big"><var>w</var><sub>baru</sub> = <var>w</var> − <span class="h1">η</span> · <span class="h2"><var>L</var>′(<var>w</var>)</span><small>η (eta) adalah <i>learning rate</i>, ukuran langkah. <var>L</var>′(<var>w</var>) adalah kemiringan galat. Kalau kemiringan positif, <var>w</var> dikurangi; kalau negatif, <var>w</var> ditambah. Selalu menuruni bukit.</small></div>
+
+<div class="demo">
+  <h4>🎛 Simulasi 7 · Bola menuruni bukit galat</h4>
+  <p>Atur titik awal dan <i>learning rate</i>, lalu jalankan. Coba η besar pada "mangkuk" (bola memantul atau bahkan terlempar), dan coba titik awal berbeda pada "bergelombang" (bola bisa terjebak di lembah kecil).</p>
+  <div class="controls">
+    <select class="btn" id="d7F" aria-label="Bentuk galat">
+      <option value="mangkuk">Mangkuk: L(w) = (w − 3)²</option>
+      <option value="gelombang">Bergelombang: banyak lembah</option>
+    </select>
+    <label class="range" for="d7W">Titik awal <var>w</var> <input type="range" id="d7W" min="-2" max="8" step="0.1" value="-1"> <b id="d7Wv"></b></label>
+    <label class="range" for="d7L">η <input type="range" id="d7L" min="0.02" max="1.1" step="0.02" value="0.1"> <b id="d7Lv"></b></label>
+    <button class="btn" id="d7Step">1 langkah</button>
+    <button class="btn primary" id="d7Run">▶ Jalankan</button>
+  </div>
+  <canvas class="plot" id="cv7" style="height:300px"></canvas>
+  <div class="kpi"><div>Langkah<b id="d7N"></b></div><div><var>w</var> sekarang<b id="d7Wn"></b></div><div>Galat <var>L</var>(<var>w</var>)<b id="d7Lw"></b></div><div>Kemiringan <var>L</var>′(<var>w</var>)<b id="d7D"></b></div></div>
+  <p class="msg" id="d7Msg"></p>
+</div>
+<h3>✍️ Contoh hitung manual 9: dua langkah gradient descent</h3>
+<p>Galat <var>L</var>(<var>w</var>) = (<var>w</var> − 3)², jadi <var>L</var>′(<var>w</var>) = 2(<var>w</var> − 3). Mulai dari <var>w</var> = 0 dengan η = 0,1.</p>
+<ol class="steps">
+  <li>Langkah 1: <var>L</var>′(0) = 2(0 − 3) = −6. <var>w</var> = 0 − 0,1 × (−6) = <b>0,6</b></li>
+  <li>Langkah 2: <var>L</var>′(0,6) = 2(0,6 − 3) = −4,8. <var>w</var> = 0,6 − 0,1 × (−4,8) = <b>1,08</b></li>
+  <li>Setiap langkah, jarak ke 3 menyusut menjadi 0,8 kalinya (3 → 2,4 → 1,92 → …). Setelah 30 langkah, <var>w</var> ≈ 2,9963 (lihat Bagian 13). Kalau η = 1,1, faktornya menjadi 1 − 2 × 1,1 = −1,2: setiap langkah melompati lembah dan menjauh. Inilah kenapa memilih <i>learning rate</i> sangat penting saat melatih AI.</li>
+</ol>
+
+<h3>Studi kasus B · Aproksimasi linear: zoom yang berguna</h3>
+<p>Karena kurva tampak lurus dari dekat, nilai fungsi di dekat titik yang diketahui bisa ditaksir dengan garis singgung:</p>
+<div class="formula"><var>f</var>(<var>a</var> + Δ<var>x</var>) ≈ <var>f</var>(<var>a</var>) + <var>f</var>′(<var>a</var>) · Δ<var>x</var><small>"Nilai sekarang + laju × geseran". Dipakai insinyur untuk perhitungan cepat, oleh GPS untuk memperbaiki posisi, dan oleh fisikawan setiap hari.</small></div>
+<h3>✍️ Contoh hitung manual 10: √4,1 tanpa kalkulator</h3>
+<ol class="steps">
+  <li><var>f</var>(<var>x</var>) = √<var>x</var>, dan kita tahu <var>f</var>(4) = 2</li>
+  <li><var>f</var>′(<var>x</var>) = 1/(2√<var>x</var>), jadi <var>f</var>′(4) = 1/4 = 0,25</li>
+  <li>√4,1 ≈ 2 + 0,25 × 0,1 = <b>2,025</b></li>
+  <li>Nilai sebenarnya 2,02485… Galatnya hanya 0,00015. Ide ini dikembangkan lebih jauh oleh <b>metode Newton</b>, yang mengulang aproksimasi garis singgung untuk mencari akar persamaan. Dari tebakan 1, metode Newton menemukan √2 sampai 12 digit hanya dalam 4 langkah (lihat Bagian 13).</li>
+</ol>
+
+<h3>Studi kasus C · Deteksi tepi pada foto</h3>
+<p>Tepi sebuah benda di foto adalah tempat kecerahan berubah drastis. Jadi kamera dan aplikasi pemindai dokumen mencari tepi dengan menghitung turunan kecerahan, yaitu selisih antara piksel bertetangga. Contoh satu baris piksel (0 = hitam, 255 = putih) yang melintasi tepi kertas putih di atas meja gelap:</p>
+<div class="tbl"><table>
+  <tr><th>Piksel ke-</th><td class="num">1</td><td class="num">2</td><td class="num">3</td><td class="num">4</td><td class="num">5</td><td class="num">6</td></tr>
+  <tr><th>Kecerahan</th><td class="num">20</td><td class="num">21</td><td class="num">23</td><td class="num">180</td><td class="num">182</td><td class="num">181</td></tr>
+  <tr class="hit"><th>Selisih (turunan)</th><td class="num">—</td><td class="num">1</td><td class="num">2</td><td class="num"><b>157</b></td><td class="num">2</td><td class="num">−1</td></tr>
+</table></div>
+<p>Turunan yang besar menandai tepi: di antara piksel 3 dan 4. Filter terkenal seperti Sobel dan Canny pada dasarnya adalah turunan dua dimensi dengan sedikit penghalusan. Penghalusan itu penting karena alasan di kotak berikut.</p>
+<div class="box note"><strong>🧭 Pelajaran dari sensor: turunan memperbesar noise</strong>
+  Integral menjumlahkan dan meratakan noise, sedangkan turunan justru <b>memperbesarnya</b>. Selisih dua angka yang sama-sama sedikit meleset, dibagi dengan <var>h</var> yang kecil, menghasilkan lonjakan besar. Di Bagian 13, posisi dengan noise hanya 1 cm (sampel 100 kali per detik) menghasilkan kecepatan dengan noise sekitar <b>0,7 m/s</b>. Karena itu suku "D" pada pengendali drone, deteksi tepi, dan perhitungan kecepatan dari GPS selalu didahului penghalusan (<i>filtering</i>).
+</div>
+</section>
+
+<!-- 13 -->
+<section id="kode">
+<h2>13. Praktik dengan Python</h2>
+<p>Kode berikut merangkum seluruh modul: garis potong yang menyusut, bahaya <var>h</var> yang terlalu kecil, turunan simbolik, turunan dari data sensor, noise, gradient descent, dan metode Newton. Butuh <code>numpy</code> dan <code>sympy</code> (<code>pip install numpy sympy</code>).</p>
+<pre><code class="py">import numpy as np
+import sympy as sp
+
+# 1) Garis potong menuju garis singgung: s(t) = 5t² di t = 2
+s = lambda t: 5 * t**2
+for h in [1, 0.1, 0.01, 0.001]:
+    print(f"h={h:<6} kemiringan potong = {(s(2 + h) - s(2)) / h:.4f}")
+
+# 2) h terlalu kecil juga berbahaya: galat pembulatan float
+f, x0, eksak = np.sin, 1.0, np.cos(1.0)
+print()
+for h in [1e-2, 1e-5, 1e-8, 1e-11, 1e-14]:
+    maju = (f(x0 + h) - f(x0)) / h
+    tengah = (f(x0 + h) - f(x0 - h)) / (2 * h)
+    print(f"h={h:.0e}  galat maju={abs(maju - eksak):.1e}  galat tengah={abs(tengah - eksak):.1e}")
+
+# 3) Turunan simbolik dengan SymPy
+x = sp.symbols('x')
+print("\nd/dx (4x³ − 5x² + 7x − 2) =", sp.diff(4*x**3 - 5*x**2 + 7*x - 2, x))
+print("d/dx (x² + 1)³           =", sp.factor(sp.diff((x**2 + 1)**3, x)))
+print("d/dx x²·sin x            =", sp.diff(x**2 * sp.sin(x), x))
+V = x * (30 - 2*x)**2                      # volume kotak karton
+dV = sp.factor(sp.diff(V, x))
+print("V'(x) =", dV, "  nol di x =", sp.solve(dV, x), "  V(5) =", V.subs(x, 5))
+
+# 4) Data sensor: posisi benda jatuh (m) tiap 0,5 detik
+t = np.arange(0, 3.01, 0.5)
+pos = 5 * t**2
+v = np.gradient(pos, t, edge_order=2)      # kecepatan = turunan posisi
+a = np.gradient(v, t, edge_order=2)        # percepatan = turunan kecepatan
+print("\nkecepatan (m/s)  :", v)
+print("percepatan (m/s²):", a)
+
+# 5) Turunan memperbesar noise: sensor 100 Hz dengan noise 1 cm
+rng = np.random.default_rng(0)
+t2 = np.arange(0, 3, 0.01)
+pos2 = 5 * t2**2 + rng.normal(0, 0.01, t2.size)
+v2 = np.gradient(pos2, t2)
+print(f"\nnoise posisi    : {np.std(pos2 - 5 * t2**2):.3f} m")
+print(f"noise kecepatan : {np.std(v2 - 10 * t2):.3f} m/s")
+
+# 6) Gradient descent: cari w yang meminimumkan L(w) = (w − 3)²
+w, lr = 0.0, 0.1
+print()
+for i in range(1, 31):
+    w = w - lr * 2 * (w - 3)               # L'(w) = 2(w − 3)
+    if i in (1, 2, 3, 10, 30):
+        print(f"langkah {i:2d}: w = {w:.4f}")
+
+# 7) Metode Newton menghitung √2 dari tebakan awal 1
+r = 1.0
+print()
+for i in range(1, 5):
+    r = r - (r * r - 2) / (2 * r)          # r − f(r)/f'(r) untuk f(r) = r² − 2
+    print(f"iterasi {i}: {r:.12f}")
+print(f"√2 asli   : {np.sqrt(2):.12f}")</code></pre>
+<p>Output asli (NumPy 2.5, SymPy 1.14):</p>
+<pre><code>h=1      kemiringan potong = 25.0000
+h=0.1    kemiringan potong = 20.5000
+h=0.01   kemiringan potong = 20.0500
+h=0.001  kemiringan potong = 20.0050
+
+h=1e-02  galat maju=4.2e-03  galat tengah=9.0e-06
+h=1e-05  galat maju=4.2e-06  galat tengah=1.1e-11
+h=1e-08  galat maju=3.0e-09  galat tengah=2.6e-09
+h=1e-11  galat maju=1.2e-06  galat tengah=1.2e-06
+h=1e-14  galat maju=3.7e-03  galat tengah=3.7e-03
+
+d/dx (4x³ − 5x² + 7x − 2) = 12*x**2 - 10*x + 7
+d/dx (x² + 1)³           = 6*x*(x**2 + 1)**2
+d/dx x²·sin x            = x**2*cos(x) + 2*x*sin(x)
+V'(x) = 12*(x - 15)*(x - 5)   nol di x = [5, 15]   V(5) = 2000
+
+kecepatan (m/s)  : [ 0.  5. 10. 15. 20. 25. 30.]
+percepatan (m/s²): [10. 10. 10. 10. 10. 10. 10.]
+
+noise posisi    : 0.010 m
+noise kecepatan : 0.722 m/s
+
+langkah  1: w = 0.6000
+langkah  2: w = 1.0800
+langkah  3: w = 1.4640
+langkah 10: w = 2.6779
+langkah 30: w = 2.9963
+
+iterasi 1: 1.500000000000
+iterasi 2: 1.416666666667
+iterasi 3: 1.414215686275
+iterasi 4: 1.414213562375
+√2 asli   : 1.414213562373</code></pre>
+<p>Beberapa hal yang layak diperhatikan dari output ini:</p>
+<ul>
+  <li><b><var>h</var> kecil, tetapi jangan terlalu kecil:</b> galat turun saat <var>h</var> mengecil, lalu <i>naik lagi</i> di bawah ± 10<sup>−8</sup>. Komputer menyimpan angka dengan ± 16 digit, dan selisih dua angka yang hampir sama kehilangan digit-digit itu. Selisih tengah [<var>f</var>(<var>x</var>+<var>h</var>) − <var>f</var>(<var>x</var>−<var>h</var>)]/2<var>h</var> jauh lebih akurat daripada selisih maju untuk <var>h</var> yang sama.</li>
+  <li><b>SymPy</b> menghasilkan rumus yang sama dengan hitungan manual: 6<var>x</var>(<var>x</var>² + 1)² dan 12(<var>x</var> − 15)(<var>x</var> − 5), yang sama dengan (30 − 2<var>x</var>)(30 − 6<var>x</var>).</li>
+  <li><b><code>np.gradient</code></b> menghitung turunan dari data tanpa rumus, dan dua kali turunan memunculkan kembali percepatan gravitasi 10 m/s².</li>
+  <li><b>Noise:</b> noise posisi 1 cm menjadi noise kecepatan 72 kali lipat dalam satuan m/s. Ini bukti nyata kotak "turunan memperbesar noise" di Bagian 12.</li>
+  <li><b>Gradient descent dan Newton</b> sama-sama memakai turunan untuk memperbaiki tebakan, tetapi Newton jauh lebih cepat: jumlah digit benar kira-kira berlipat dua setiap iterasi.</li>
+</ul>
+</section>
+
+<!-- 14 -->
+<section id="jebakan">
+<h2>14. Jebakan yang Sering Terjadi</h2>
+<div class="grid2">
+  <div class="card"><b>1 · Lupa aturan rantai</b><span>(<var>x</var>² + 1)³ diturunkan menjadi 3(<var>x</var>² + 1)² saja. Salah: roda dalamnya lupa dikalikan. Yang benar 3(<var>x</var>² + 1)² · 2<var>x</var>.</span></div>
+  <div class="card"><b>2 · (<var>f</var>·<var>g</var>)′ = <var>f</var>′·<var>g</var>′?</b><span>Salah. Contoh: <var>x</var> · <var>x</var> = <var>x</var>², turunannya 2<var>x</var>, bukan 1 · 1 = 1. Pakai aturan perkalian.</span></div>
+  <div class="card"><b>3 · Turunan konstanta yang menyamar</b><span>π², <var>e</var>³, atau ln 5 adalah angka biasa, jadi turunannya 0. Bukan 2π atau 3<var>e</var>².</span></div>
+  <div class="card"><b>4 · 2<sup><var>x</var></sup> dengan aturan pangkat</b><span>Aturan pangkat hanya berlaku kalau <i>pangkatnya</i> konstanta. Untuk 2<sup><var>x</var></sup> yang berubah adalah pangkatnya, jadi turunannya 2<sup><var>x</var></sup> · ln 2, bukan <var>x</var> · 2<sup><var>x</var>−1</sup>.</span></div>
+  <div class="card"><b>5 · <var>f</var>′ = 0 pasti puncak?</b><span>Tidak. <var>x</var>³ di <var>x</var> = 0 hanya mendatar sejenak. Cek turunan kedua atau tanda <var>f</var>′ di kiri dan kanan.</span></div>
+  <div class="card"><b>6 · Sudut lancip</b><span>|<var>x</var>| tidak punya turunan di <var>x</var> = 0. Fungsi harus mulus (bisa di-zoom sampai lurus) agar turunannya ada.</span></div>
+</div>
+<div class="box warn"><strong>⚠️ Jebakan paling licik: kontinu belum tentu mulus</strong>
+  Banyak yang mengira grafik yang tidak terputus pasti punya turunan. Fungsi |<var>x</var>| sudah menunjukkan sebaliknya di satu titik. Pada 1872, Karl Weierstrass bahkan membangun fungsi yang <b>kontinu di mana-mana tetapi tidak punya turunan di titik mana pun</b>: grafiknya bergerigi di setiap skala, seperti garis pantai atau grafik harga saham. Pelajarannya: <b>sebelum memakai aturan turunan, pastikan fungsinya mulus</b>. Dan untuk data nyata yang bergerigi karena noise, haluskan dulu sebelum menurunkan.
+</div>
+</section>
+
+<!-- 15 -->
+<section id="kuis">
+<h2>15. Kuis &amp; Cheat Sheet</h2>
+<p id="qScore">Jawab semua soal untuk melihat skormu.</p>
+<div id="quiz"></div>
+<h3>Cheat sheet</h3>
+<div class="tbl"><table>
+  <tr><th>Konsep</th><th>Rumus / nilai</th><th>Ingat sebagai</th></tr>
+  <tr><td>Ide inti</td><td>laju perubahan sesaat = kemiringan</td><td>Speedometer dari odometer</td></tr>
+  <tr><td>Laju rata-rata</td><td>Δ<var>y</var>/Δ<var>x</var> = [<var>f</var>(<var>b</var>) − <var>f</var>(<var>a</var>)]/(<var>b</var> − <var>a</var>)</td><td>Garis potong, naik dibagi maju</td></tr>
+  <tr><td>Definisi turunan</td><td><var>f</var>′(<var>x</var>) = lim<sub><var>h</var>→0</sub> [<var>f</var>(<var>x</var>+<var>h</var>) − <var>f</var>(<var>x</var>)]/<var>h</var></td><td>Garis singgung, zoom sampai lurus</td></tr>
+  <tr><td>Satuan</td><td>[<var>y</var>] per [<var>x</var>]</td><td>m per s, Rp per unit</td></tr>
+  <tr><td>Pangkat</td><td>(<var>x<sup>n</sup></var>)′ = <var>n</var><var>x</var><sup><var>n</var>−1</sup></td><td>Persegi tumbuh dua pita: 2<var>x</var></td></tr>
+  <tr><td>Konstanta, jumlah</td><td><var>c</var>′ = 0, (<var>af</var> + <var>bg</var>)′ = <var>af</var>′ + <var>bg</var>′</td><td>Pecah per suku</td></tr>
+  <tr><td>Trigonometri</td><td>(sin <var>x</var>)′ = cos <var>x</var>, (cos <var>x</var>)′ = −sin <var>x</var></td><td>Titik berputar</td></tr>
+  <tr><td>Eksponen &amp; log</td><td>(<var>e<sup>x</sup></var>)′ = <var>e<sup>x</sup></var>, (<var>a<sup>x</sup></var>)′ = <var>a<sup>x</sup></var> ln <var>a</var>, (ln <var>x</var>)′ = 1/<var>x</var></td><td>Tumbuh sebanding dirinya</td></tr>
+  <tr><td>Perkalian</td><td>(<var>fg</var>)′ = <var>f</var>′<var>g</var> + <var>fg</var>′</td><td>Persegi panjang tumbuh</td></tr>
+  <tr><td>Hasil bagi</td><td>(<var>f</var>/<var>g</var>)′ = (<var>f</var>′<var>g</var> − <var>fg</var>′)/<var>g</var>²</td><td>Bawah·turunan atas − atas·turunan bawah</td></tr>
+  <tr><td>Rantai</td><td><var>dy</var>/<var>dx</var> = (<var>dy</var>/<var>du</var>)(<var>du</var>/<var>dx</var>)</td><td>Roda gigi, backpropagation</td></tr>
+  <tr><td>Turunan kedua</td><td><var>f</var>″ &gt; 0 cekung ke atas, <var>f</var>″ &lt; 0 cekung ke bawah</td><td>Percepatan, "inflasi melambat"</td></tr>
+  <tr><td>Optimasi</td><td><var>f</var>′ = 0, cek <var>f</var>″ dan ujung rentang</td><td>Kotak karton: <var>x</var> = 5</td></tr>
+  <tr><td>Aproksimasi linear</td><td><var>f</var>(<var>a</var>+Δ<var>x</var>) ≈ <var>f</var>(<var>a</var>) + <var>f</var>′(<var>a</var>)Δ<var>x</var></td><td>√4,1 ≈ 2,025</td></tr>
+  <tr><td>Gradient descent</td><td><var>w</var> ← <var>w</var> − η<var>L</var>′(<var>w</var>)</td><td>Bola menuruni bukit</td></tr>
+  <tr><td>Turunan numerik</td><td>[<var>f</var>(<var>x</var>+<var>h</var>) − <var>f</var>(<var>x</var>−<var>h</var>)]/2<var>h</var>, <var>h</var> ± 10<sup>−5</sup></td><td><code>np.gradient</code>, awas noise</td></tr>
+  <tr><td>Kebalikannya</td><td>∫ (integral) mengubah laju menjadi total</td><td><a href="01-integral.html">Modul Integral</a></td></tr>
+</table></div>
+<div class="box note"><strong>📚 Untuk memperdalam</strong>
+  Silvanus P. Thompson, <i>Calculus Made Easy</i> (1910, kini domain publik dan gratis) · Video 3Blue1Brown, seri <i>Essence of Calculus</i> (bab 2–7 tentang turunan, aturan rantai, dan limit) ·
+  Gilbert Strang, <i>Calculus</i> (MIT OpenCourseWare, gratis) · Kalid Azad, <i>Calculus, Better Explained</i> · James Stewart, <i>Calculus</i> untuk latihan soal versi kuliah yang lengkap.
+</div>
+<div class="nav-mod"><a class="btn" href="../index.html">← Kembali ke beranda</a><a class="btn" href="#peta">Ulangi dari awal ↑</a><a class="btn" href="01-integral.html">Lanjut: Memahami Integral →</a></div>
+</section>
+
+<footer>Modul Kalkulus · Memahami Turunan dari Nol. Referensi: Thompson, <i>Calculus Made Easy</i> (1910); Strang, <i>Calculus</i> (MIT OCW); Stewart, <i>Calculus: Early Transcendentals</i>; Cauchy (1821); Weierstrass (1872).</footer>
+</main>
+<script>
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const TAU=2*Math.PI, PI=Math.PI;
+/* ---------- Sidebar, scrollspy, progress, tema ---------- */
+const sb=$('#sidebar');
+$('#menuBtn').onclick=()=>sb.classList.toggle('open');
+$$('#toc a').forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+const links=[...$$('#toc a')];
+const spy=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){links.forEach(l=>l.classList.toggle('active',l.hash==='#'+e.target.id))}
+}),{rootMargin:'-20% 0px -70% 0px'});
+$$('main section').forEach(s=>spy.observe(s));
+addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  $('#progress div').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+},{passive:true});
+$('#themeBtn').onclick=()=>{
+  const r=document.documentElement, dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme=dark?'light':'dark';
+  try{localStorage.setItem('rl-theme',r.dataset.theme)}catch(e){}
+  redrawAll();
+};
+try{const t=localStorage.getItem('rl-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+
+/* ---------- Highlight kode Python ---------- */
+$$('pre code.py').forEach(el=>{
+  el.innerHTML=el.textContent.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))
+    .replace(/(#.*$)|(f?"[^"\n]*"|'[^'\n]*')|\b(import|from|as|def|return|for|in|if|else|while|with|not|and|or|True|False|None|lambda)\b|\b(\d+\.?\d*(?:e-?\d+)?)\b/gm,
+      (m,c,s,k,n)=>c?`<span class="c">${c}</span>`:s?`<span class="s">${s}</span>`:k?`<span class="k">${k}</span>`:`<span class="n">${n}</span>`);
+});
+
+/* ---------- Util gambar (warna diambil dari token tema) ---------- */
+const C={};
+function readColors(){const cs=getComputedStyle(document.documentElement);
+  ['text','muted','border','accent','good','bad','warn','violet','surface','surface-2'].forEach(k=>C[k]=cs.getPropertyValue('--'+k).trim())}
+const fmt=(v,d=2)=>(Math.abs(v)<0.5*Math.pow(10,-d)?0:v).toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d}).replace('-','−');
+const fmtS=v=>{v=Math.abs(v)<5e-4?0:+v.toFixed(3);return String(v).replace('-','−').replace('.',',')};
+const rupiah=v=>'Rp'+Math.round(v).toLocaleString('id-ID');
+const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function prep(cv){const dpr=window.devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;
+  const W=Math.max(1,Math.round(w*dpr)),H=Math.max(1,Math.round(h*dpr));
+  if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H}
+  const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);g.lineJoin='round';g.lineCap='round';return [g,w,h]}
+function path(g,pts,color,lw=2,dash){g.beginPath();pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));
+  g.strokeStyle=color;g.lineWidth=lw;g.setLineDash(dash||[]);g.stroke();g.setLineDash([])}
+const line=(g,x1,y1,x2,y2,color,lw=1,dash)=>path(g,[[x1,y1],[x2,y2]],color,lw,dash);
+function dot(g,x,y,r,color){g.beginPath();g.arc(x,y,r,0,TAU);g.fillStyle=color;g.fill()}
+function txt(g,s,x,y,color,align='left',size=11,weight=''){g.fillStyle=color;g.font=`${weight} ${size}px system-ui,-apple-system,"Segoe UI",sans-serif`;g.textAlign=align;g.fillText(s,x,y)}
+function poly(g,pts,color,alpha){g.beginPath();pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.globalAlpha=alpha;g.fillStyle=color;g.fill();g.globalAlpha=1}
+/* langkah sumbu yang "bulat" */
+function ticks(a,b,n=5){const s0=(b-a)/n,m=Math.pow(10,Math.floor(Math.log10(s0))),r=s0/m,st=(r<1.5?1:r<3?2:r<7?5:10)*m,out=[];
+  for(let v=Math.ceil(a/st-1e-9)*st;v<=b+1e-9;v+=st)out.push(+v.toFixed(10));return out}
+/* bingkai plot: kembalikan pemetaan data → piksel dan gambar grid + sumbu */
+function frame(g,w,h,xr,yr,o={}){
+  const L=o.l??42,R=o.r??14,T=o.t??14,B=o.b??26,y0=o.y0??0,H=o.h??h;
+  const X=x=>L+(x-xr[0])/(xr[1]-xr[0])*(w-L-R), Y=y=>y0+H-B-(y-yr[0])/(yr[1]-yr[0])*(H-T-B);
+  (o.yt||ticks(yr[0],yr[1],4)).forEach(v=>{line(g,L,Y(v),w-R,Y(v),C.border,1,[2,4]);txt(g,o.yf?o.yf(v):fmtS(v),L-6,Y(v)+4,C.muted,'right')});
+  (o.xt||ticks(xr[0],xr[1],6)).forEach(v=>{line(g,X(v),Y(yr[0]),X(v),Y(yr[0])+4,C.muted);txt(g,o.xf?o.xf(v):fmtS(v),X(v),Y(yr[0])+16,C.muted,'center')});
+  line(g,L,Y(yr[0]),L,Y(yr[1]),C.muted);
+  const ax=Math.min(Math.max(0,yr[0]),yr[1]);line(g,L,Y(ax),w-R,Y(ax),C.muted,1.2);
+  if(o.xl)txt(g,o.xl,w-R,Y(yr[0])-6,C.muted,'right');
+  if(o.yl)txt(g,o.yl,L+6,y0+T+8,C.muted,'left');
+  return {X,Y,L,R,T,B};
+}
+/* isi daerah antara kurva dan sumbu x */
+function fillUnder(g,X,Y,f,a,b,color,alpha,n=240){if(b<=a)return;const pts=[[X(a),Y(0)]];
+  for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;pts.push([X(x),Y(f(x))])}pts.push([X(b),Y(0)]);poly(g,pts,color,alpha)}
+function curve(g,X,Y,f,a,b,color,lw=2.2,n=400,dash){const p=[];for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;p.push([X(x),Y(f(x))])}path(g,p,color,lw,dash)}
+const redraws=[];
+function redrawAll(){readColors();redraws.forEach(f=>f())}
+addEventListener('resize',()=>{clearTimeout(window._rt);window._rt=setTimeout(redrawAll,120)});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);
+/* animasi hanya berjalan untuk kanvas yang terlihat */
+const anims=[],visible=new Map();
+const vio=new IntersectionObserver(es=>es.forEach(e=>visible.set(e.target,e.isIntersecting)));
+function animate(el,step){anims.push({el,step});vio.observe(el)}
+let lastT=performance.now();
+function loop(now){const dt=Math.min(0.05,(now-lastT)/1000);lastT=now;anims.forEach(a=>{if(visible.get(a.el))a.step(dt)});requestAnimationFrame(loop)}
+readColors();
+
+/* ---------- Diagram pembuka & diagram garis potong (SVG) ---------- */
+(()=>{const hf=u=>0.25+0.55*u*u-0.3*Math.sin(2.2*u*PI)*0.4, P=u=>[25+u*175,160-hf(u)*125];
+  const pts=(F,a,b,n=120)=>Array.from({length:n+1},(_,i)=>F(a+(b-a)*i/n).map(v=>v.toFixed(1)).join(',')).join(' ');
+  $('#heroCurve').setAttribute('points',pts(P,0,1));
+  const u0=0.62,[px,py]=P(u0);['#heroPt','#heroLens'].forEach(id=>{$(id).setAttribute('cx',px);$(id).setAttribute('cy',py)});
+  const e=1e-4,sl=-(hf(u0+e)-hf(u0-e))/(2*e)*125/175;
+  $('#heroZoom').setAttribute('points',pts(t=>[344+t*58,94+sl*t*58+3*t*t],-1,1,40));
+  /* garis potong */
+  const sf=x=>0.4+0.08*x*x+0.25*Math.sin(x), SX=x=>50+x*80, SY=y=>215-y*45, a=2.2, b=6.0;
+  $('#secCurve').setAttribute('points',pts(x=>[SX(x),SY(sf(x))],0.2,6.8));
+  const A=[SX(a),SY(sf(a))],B=[SX(b),SY(sf(b))],m=(B[1]-A[1])/(B[0]-A[0]);
+  const set=(id,o)=>Object.entries(o).forEach(([k,v])=>$(id).setAttribute(k,typeof v==='number'?v.toFixed(1):v));
+  set('#secLine',{x1:A[0]-60,y1:A[1]-60*m,x2:B[0]+50,y2:B[1]+50*m});
+  set('#secRun',{x1:A[0],y1:A[1],x2:B[0],y2:A[1]});set('#secRise',{x1:B[0],y1:A[1],x2:B[0],y2:B[1]});
+  set('#secA',{cx:A[0],cy:A[1]});set('#secB',{cx:B[0],cy:B[1]});
+  set('#secRunT',{x:(A[0]+B[0])/2,y:A[1]+18});set('#secRiseT',{x:B[0]+8,y:(A[1]+B[1])/2+4});set('#secLbl',{x:B[0]-24,y:B[1]-8,'text-anchor':'end'});
+})();
+function clipTo(g,F,w,h,o={}){g.save();g.beginPath();g.rect(F.L,(o.y0??0)+F.T,w-F.L-F.R,(o.h??h)-F.T-F.B);g.clip()}
+
+/* ---------- Simulasi 1: garis potong → garis singgung ---------- */
+const F1={
+  jatuh:{f:t=>5*t*t,d:t=>10*t,a:0,b:4,pa:0,pb:2.5,p0:2,yr:[-5,85],xl:'t (detik)',yl:'s (meter)'},
+  sinus:{f:Math.sin,d:Math.cos,a:0,b:6.3,pa:0,pb:4.7,p0:1,yr:[-1.4,1.4],xl:'x',yl:'f(x)'},
+  kubik:{f:x=>x*x*x-3*x,d:x=>3*x*x-3,a:-2.3,b:2.3,pa:-2.2,pb:0.8,p0:-1.5,yr:[-3,5.5],xl:'x',yl:'f(x)'}
+};
+const cv1=$('#cv1'),hOf=u=>0.005*Math.pow(300,u);let d1On=false;
+function d1Set(){const F=F1[$('#d1F').value];$('#d1X').value=(F.p0-F.pa)/(F.pb-F.pa);$('#d1H').value=Math.log(200)/Math.log(300)}
+function d1Draw(){const [g,w,h]=prep(cv1);const F=F1[$('#d1F').value],x=F.pa+(+$('#d1X').value)*(F.pb-F.pa),hh=hOf(+$('#d1H').value);
+  const P=frame(g,w,h,[F.a,F.b],F.yr,{xl:F.xl,yl:F.yl});
+  curve(g,P.X,P.Y,F.f,F.a,F.b,C.text,2.2);
+  const y=F.f(x),y2=F.f(x+hh),m=(y2-y)/hh,t=F.d(x);
+  clipTo(g,P,w,h);
+  line(g,P.X(F.a),P.Y(y+t*(F.a-x)),P.X(F.b),P.Y(y+t*(F.b-x)),C.warn,2,[6,5]);
+  line(g,P.X(F.a),P.Y(y+m*(F.a-x)),P.X(F.b),P.Y(y+m*(F.b-x)),C.accent,2.4);
+  line(g,P.X(x),P.Y(y),P.X(x+hh),P.Y(y),C.good,2.6);line(g,P.X(x+hh),P.Y(y),P.X(x+hh),P.Y(y2),C.accent,1.6,[3,3]);
+  g.restore();
+  dot(g,P.X(x),P.Y(y),5.5,C.warn);dot(g,P.X(x+hh),P.Y(y2),5,C.accent);
+  txt(g,'P',P.X(x)-10,P.Y(y)-8,C.warn,'center',13,'600');txt(g,'Q',P.X(x+hh)+10,P.Y(y2)-8,C.accent,'center',13,'600');
+  $('#d1Xv').textContent=fmt(x,2);$('#d1Hv').textContent=fmt(hh,hh<0.1?3:2);
+  $('#d1Dy').textContent=fmt(y2-y,4);$('#d1Dx').textContent=fmt(hh,4);$('#d1Sec').textContent=fmt(m,4);$('#d1Tan').textContent=fmt(t,4)}
+$('#d1F').onchange=()=>{d1Set();d1Draw()};
+['#d1X','#d1H'].forEach(id=>$(id).oninput=()=>{d1On=false;$('#d1Play').textContent='▶ Kecilkan h';d1Draw()});
+$('#d1Play').onclick=()=>{if(+$('#d1H').value<=0.001)$('#d1H').value=Math.log(200)/Math.log(300);d1On=!d1On;$('#d1Play').textContent=d1On?'⏸ Jeda':'▶ Kecilkan h'};
+animate(cv1,dt=>{if(!d1On)return;let u=+$('#d1H').value-dt*0.22;if(u<=0){u=0;d1On=false;$('#d1Play').textContent='▶ Kecilkan h'}$('#d1H').value=u;d1Draw()});
+d1Set();redraws.push(d1Draw);
+
+/* ---------- Simulasi 2: mikroskop kalkulus ---------- */
+const F2={mulus:{f:x=>Math.sin(x)+0.3*x*x,d:x=>Math.cos(x)+0.6*x},sudut:{f:x=>Math.abs(x-1)+0.5}};
+const cv2=$('#cv2');
+function d2Draw(){const [g,w,h]=prep(cv2);const key=$('#d2F').value,F=F2[key],z=Math.pow(10,+$('#d2Z').value);
+  const x0=key==='sudut'?1:+$('#d2X').value;$('#d2X').disabled=key==='sudut';
+  const L=46,Rp=14,T=14,B=26,pw=w-L-Rp,ph=h-T-B,R=2/z,yh=R*ph/pw,y0=F.f(x0);
+  const st=ticks(-R,R,4)[1]-ticks(-R,R,4)[0],dg=Math.max(0,Math.ceil(-Math.log10(st))),lf=v=>v.toFixed(dg).replace('-','−').replace('.',',');
+  const xr=[x0-R,x0+R],yr=[y0-yh,y0+yh];
+  const P=frame(g,w,h,xr,yr,{l:L,r:Rp,xt:ticks(xr[0],xr[1],4),yt:ticks(yr[0],yr[1],4),xf:lf,yf:lf});
+  clipTo(g,P,w,h);
+  if(F.d){const t=F.d(x0);line(g,P.X(xr[0]),P.Y(y0+t*(xr[0]-x0)),P.X(xr[1]),P.Y(y0+t*(xr[1]-x0)),C.warn,1.4,[6,5])}
+  curve(g,P.X,P.Y,F.f,xr[0],xr[1],C.text,2.6,600);g.restore();
+  dot(g,P.X(x0),P.Y(y0),5,C.warn);
+  const sl=(F.f(x0+R)-F.f(x0-R))/(2*R);let dev=0;
+  for(let i=0;i<=200;i++){const x=xr[0]+2*R*i/200,lin=F.f(x0-R)+sl*(x-xr[0]);dev=Math.max(dev,Math.abs(F.f(x)-lin))}
+  const pct=dev/(2*yh)*100;
+  $('#d2Xv').textContent=fmt(x0,2);$('#d2Zv').textContent=Math.round(z).toLocaleString('id-ID')+'×';
+  $('#d2W').textContent=lf(2*R);
+  $('#d2S').textContent=key==='sudut'?'kiri −1 · kanan +1':fmt(sl,4)+' (turunan '+fmt(F.d(x0),4)+')';
+  $('#d2C').textContent=fmt(pct,2)+'%';
+  $('#d2Msg').textContent=key==='sudut'?'Seberapa pun diperbesar, bentuknya tetap huruf V dengan lengkungan yang sama. Tidak ada satu garis lurus yang cocok, jadi turunannya tidak ada di titik ini.'
+    :pct>3?'Masih tampak melengkung. Naikkan perbesaran.':'Sudah tampak lurus! Garis yang terlihat praktis berimpit dengan garis singgung (putus-putus), dan kemiringannya adalah turunan di titik itu.'}
+['#d2F','#d2X','#d2Z'].forEach(id=>$(id).oninput=d2Draw);redraws.push(d2Draw);
+
+/* ---------- Simulasi 3: perekam kemiringan ---------- */
+const F3={
+  rem:{f:t=>20*t-2*t*t,d:t=>20-4*t,a:0,b:5,yr:[-3,55],dr:[-3,23],xl:'t (detik)',yl:'posisi s(t) · meter',dl:'kecepatan s′(t) · m/s'},
+  kubik:{f:x=>x*x*x-3*x,d:x=>3*x*x-3,a:-2.2,b:2.2,yr:[-4.8,4.8],dr:[-4,12],xl:'x',yl:'f(x)',dl:'kemiringan f′(x)'},
+  sinus:{f:Math.sin,d:Math.cos,a:0,b:TAU,yr:[-1.3,1.3],dr:[-1.3,1.3],xl:'x',yl:'f(x) = sin x',dl:'kemiringan f′(x)'}
+};
+const cv3=$('#cv3');let d3On=false;
+function d3Draw(){const [g,w,h]=prep(cv3);const key=$('#d3F').value,F=F3[key],x=F.a+(+$('#d3X').value)*(F.b-F.a),half=h/2;
+  const T=frame(g,w,h,[F.a,F.b],F.yr,{h:half,b:22,xl:F.xl,yl:F.yl});
+  curve(g,T.X,T.Y,F.f,F.a,F.b,C.text,2.2);
+  const y=F.f(x),s=F.d(x),sp=(F.b-F.a)*0.12;
+  clipTo(g,T,w,h,{h:half});line(g,T.X(x-sp),T.Y(y-s*sp),T.X(x+sp),T.Y(y+s*sp),C.warn,2.6);g.restore();
+  dot(g,T.X(x),T.Y(y),5,C.warn);
+  const D=frame(g,w,h,[F.a,F.b],F.dr,{y0:half,h:half,b:22,xl:F.xl,yl:F.dl});
+  curve(g,D.X,D.Y,F.d,F.a,F.b,C.muted,1.3,300,[4,5]);
+  if(x>F.a)curve(g,D.X,D.Y,F.d,F.a,x,C.accent,2.6,300);
+  line(g,T.X(x),T.Y(y),D.X(x),D.Y(s),C.muted,1,[3,4]);dot(g,D.X(x),D.Y(s),5,C.accent);
+  $('#d3Xv').textContent=fmt(x,2);$('#d3f').textContent=fmt(y,3);$('#d3d').textContent=fmt(s,3);
+  let msg;
+  if(key==='rem')msg=s>0.3?`Mobil masih melaju maju dengan kecepatan ${fmt(s,1)} m/s. Grafik posisi naik, tetapi makin landai karena mobil mengerem.`:`Mobil berhenti: kecepatan 0, grafik posisi mendatar di ${fmt(y,1)} m. Itulah jarak pengereman.`;
+  else msg=s>0.05?'Kemiringan positif: fungsi sedang naik, titik di grafik bawah berada di atas nol.':s<-0.05?'Kemiringan negatif: fungsi sedang turun, titik di grafik bawah berada di bawah nol.':'Kemiringan ≈ 0: garis singgung mendatar. Ini puncak atau lembah, dan grafik bawah memotong nol.';
+  $('#d3Msg').textContent=msg}
+$('#d3F').onchange=d3Draw;
+$('#d3X').oninput=()=>{d3On=false;$('#d3Play').textContent='▶ Putar';d3Draw()};
+$('#d3Play').onclick=()=>{if(+$('#d3X').value>=1)$('#d3X').value=0;d3On=!d3On;$('#d3Play').textContent=d3On?'⏸ Jeda':'▶ Putar'};
+animate(cv3,dt=>{if(!d3On)return;let u=+$('#d3X').value+dt*0.1;if(u>=1){u=1;d3On=false;$('#d3Play').textContent='▶ Putar'}$('#d3X').value=u;d3Draw()});
+redraws.push(d3Draw);
+
+/* ---------- Simulasi 4: tebak turunannya ---------- */
+const F4={x2:{f:x=>x*x,a:-2,b:2,ans:'2x',lbl:'x²'},x3:{f:x=>x*x*x,a:-1.6,b:1.6,ans:'3x2',lbl:'x³'},
+  sin:{f:Math.sin,a:-3.5,b:3.5,ans:'cos',lbl:'sin x'},cos:{f:Math.cos,a:-3.5,b:3.5,ans:'msin',lbl:'cos x'},
+  exp:{f:Math.exp,a:-2,b:1.6,ans:'exp',lbl:'eˣ'},ln:{f:Math.log,a:0.2,b:4,ans:'inv',lbl:'ln x'}};
+const G4={x:x=>x,'2x':x=>2*x,x2:x=>x*x,'3x2':x=>3*x*x,cos:Math.cos,msin:x=>-Math.sin(x),sin:Math.sin,exp:Math.exp,inv:x=>1/x};
+const cv4=$('#cv4');
+function d4Draw(){const [g,w,h]=prep(cv4);const F=F4[$('#d4F').value],gk=$('#d4G').value,G=G4[gk];
+  const N=25,hh=1e-4,S=[];for(let i=0;i<=N;i++){const x=F.a+(F.b-F.a)*i/N;S.push([x,(F.f(x+hh)-F.f(x-hh))/(2*hh)])}
+  let lo=Infinity,hi=-Infinity;for(let i=0;i<=100;i++){const x=F.a+(F.b-F.a)*i/100;[F.f(x),(F.f(x+hh)-F.f(x-hh))/(2*hh)].forEach(v=>{lo=Math.min(lo,v);hi=Math.max(hi,v)})}
+  const pad=(hi-lo)*0.08;const P=frame(g,w,h,[F.a,F.b],[Math.min(0,lo-pad),hi+pad],{});
+  clipTo(g,P,w,h);
+  curve(g,P.X,P.Y,F.f,F.a,F.b,C.muted,2.2);
+  if(G)curve(g,P.X,P.Y,G,F.a,F.b,C.warn,2.6);
+  g.restore();
+  S.forEach(([x,v])=>dot(g,P.X(x),P.Y(v),3.6,C.accent));
+  let msg='Pilih tebakan turunan dari menu kedua. Petunjuk: lihat di mana titik biru bernilai nol (grafik abu-abu mendatar) dan di mana nilainya besar (grafik curam).';
+  if(G){const err=Math.max(...S.map(([x,v])=>Math.abs(G(x)-v)));
+    msg=err<1e-3*(1+Math.max(...S.map(s=>Math.abs(s[1]))))?`✓ Cocok! Turunan ${F.lbl} adalah ${$('#d4G').selectedOptions[0].text}. Kurva tebakan melewati semua titik kemiringan yang diukur.`
+      :`✗ Belum cocok: selisih terbesar ${fmt(err,2)}. Coba tebakan lain.`}
+  $('#d4Msg').textContent=msg}
+$('#d4F').onchange=()=>{$('#d4G').value='none';d4Draw()};$('#d4G').onchange=d4Draw;redraws.push(d4Draw);
+
+/* ---------- Simulasi 5: roda gigi aturan rantai ---------- */
+const cv5=$('#cv5');let d5Th=0,d5On=!reduceMotion;
+function gear(g,cx,cy,r,th,col,lbl){const n=Math.max(6,Math.round(TAU*r/13)),pts=[];
+  for(let i=0;i<n*4;i++){const a=th+i/(n*4)*TAU,rr=(i%4<2)?r+4:r-4;pts.push([cx+rr*Math.cos(a),cy+rr*Math.sin(a)])}
+  poly(g,pts,col,0.22);pts.push(pts[0]);path(g,pts,col,1.6);
+  dot(g,cx,cy,Math.max(3,r*0.12),col);line(g,cx,cy,cx+(r-6)*Math.cos(th),cy+(r-6)*Math.sin(th),col,3);
+  txt(g,lbl,cx,cy+r+22,C.text,'center',13,'600')}
+function d5Draw(){const [g,w,h]=prep(cv5);const k1=+$('#d5K1').value,k2=+$('#d5K2').value;
+  let rA=95,rB=rA/k1,rC=rB/k2;const tot=2*(rA+rB+rC)+16,s=Math.min(1,(w-30)/tot,(h-60)/(2*Math.max(rA,rB,rC)+8));
+  rA*=s;rB*=s;rC*=s;const span=2*(rA+rB+rC),x0=(w-span)/2,cy=(h-24)/2;
+  const xA=x0+rA,xB=xA+rA+rB,xC=xB+rB+rC;
+  gear(g,xA,cy,rA,d5Th,C.accent,'A');gear(g,xB,cy,rB,-k1*d5Th,C.warn,'B');gear(g,xC,cy,rC,k1*k2*d5Th,C.good,'C');
+  const nA=d5Th/TAU;$('#d5K1v').textContent=fmt(k1,1)+'×';$('#d5K2v').textContent=fmt(k2,1)+'×';
+  $('#d5A').textContent=fmt(nA,2);$('#d5B').textContent=fmt(nA*k1,2);$('#d5C').textContent=fmt(nA*k1*k2,2);
+  $('#d5R').textContent=fmt(k2,1)+' × '+fmt(k1,1)+' = '+fmt(k1*k2,2)}
+['#d5K1','#d5K2'].forEach(id=>$(id).oninput=()=>{d5Th=0;d5Draw()});
+$('#d5Play').onclick=()=>{d5On=!d5On;$('#d5Play').textContent=d5On?'⏸ Jeda':'▶ Putar'};$('#d5Play').textContent=d5On?'⏸ Jeda':'▶ Putar';
+animate(cv5,dt=>{if(!d5On)return;d5Th+=dt*TAU*0.2;d5Draw()});redraws.push(d5Draw);
+
+/* ---------- Simulasi 6: kotak karton ---------- */
+const cv6=$('#cv6'),V6=x=>x*(30-2*x)**2,dV6=x=>(30-2*x)*(30-6*x);
+function d6Draw(){const [g,w,h]=prep(cv6);const x=+$('#d6X').value,wide=w>560;
+  const sz=wide?Math.min(h-40,w*0.36):Math.min(110,w-40),nx=wide?20:(w-sz)/2,ny=wide?(h-sz)/2:10,k=sz/30;
+  g.fillStyle=C.surface;g.fillRect(nx,ny,sz,sz);
+  [[0,0],[30-x,0],[0,30-x],[30-x,30-x]].forEach(([a,b])=>{g.fillStyle=C.bad;g.globalAlpha=.3;g.fillRect(nx+a*k,ny+b*k,x*k,x*k);g.globalAlpha=1});
+  path(g,[[nx,ny],[nx+sz,ny],[nx+sz,ny+sz],[nx,ny+sz],[nx,ny]],C.text,1.6);
+  [x,30-x].forEach(v=>{line(g,nx+v*k,ny,nx+v*k,ny+sz,C.muted,1,[4,4]);line(g,nx,ny+v*k,nx+sz,ny+v*k,C.muted,1,[4,4])});
+  if(x>1.5)txt(g,'x',nx+x*k/2,ny+x*k/2+4,C.bad,'center',12,'600');
+  txt(g,'alas',nx+sz/2,ny+sz/2+4,C.muted,'center',12);
+  txt(g,'karton 30 × 30 cm',nx+sz/2,ny+sz+(wide?16:14),C.muted,'center',11);
+  const o=wide?{l:nx+sz+70,y0:0,h}:{l:52,y0:sz+30,h:h-sz-30};
+  const P=frame(g,w,h,[0,15],[0,2300],{...o,yt:[0,500,1000,1500,2000],xl:'x (cm)',yl:'volume (cm³)'});
+  line(g,P.X(5),P.Y(0),P.X(5),P.Y(2000),C.good,1,[2,4]);
+  curve(g,P.X,P.Y,V6,0,15,C.text,2.2);
+  const v=V6(x),s=dV6(x),sp=1.6;clipTo(g,P,w,h,o);line(g,P.X(x-sp),P.Y(v-s*sp),P.X(x+sp),P.Y(v+s*sp),C.warn,2.6);g.restore();
+  dot(g,P.X(x),P.Y(v),5.5,C.accent);
+  $('#d6Xv').textContent=fmt(x,1)+' cm';$('#d6Dim').textContent=`alas ${fmt(30-2*x,1)} × ${fmt(30-2*x,1)}, tinggi ${fmt(x,1)} cm`;
+  $('#d6V').textContent=Math.round(v).toLocaleString('id-ID')+' cm³';$('#d6D').textContent=fmt(s,1)+' cm³ per cm';
+  $('#d6Msg').textContent=x>14.6?'Kotak hampir gepeng. V′ mendekati 0 lagi, tetapi ini lembah (volume ≈ 0), bukan puncak. Inilah kenapa titik kritis harus dicek jenisnya.'
+    :Math.abs(x-5)<0.15?'Puncak! Garis singgung mendatar (V′ ≈ 0) dan volume mencapai maksimum 2.000 cm³.'
+    :s>0?'V′ positif: memperbesar potongan masih menambah volume. Geser ke kanan.':'V′ negatif: potongan sudah kebesaran, volume malah berkurang. Geser ke kiri.'}
+$('#d6X').oninput=d6Draw;redraws.push(d6Draw);
+
+/* ---------- Simulasi 7: gradient descent ---------- */
+const F7={mangkuk:{L:w=>(w-3)**2,d:w=>2*(w-3)},gelombang:{L:w=>0.15*(w-3)**2+Math.sin(2*w),d:w=>0.3*(w-3)+2*Math.cos(2*w)}};
+const cv7=$('#cv7');let d7w=0,d7n=0,d7H=[],d7On=false,d7Acc=0,d7Stop='';
+function d7Reset(){d7w=+$('#d7W').value;d7n=0;d7H=[d7w];d7On=false;d7Stop='';$('#d7Run').textContent='▶ Jalankan';d7Draw()}
+function d7Step(){const F=F7[$('#d7F').value],gr=F.d(d7w);if(d7Stop)return;
+  d7w-=(+$('#d7L').value)*gr;d7n++;d7H.push(d7w);
+  if(!isFinite(d7w)||Math.abs(d7w)>60)d7Stop='div';else if(Math.abs(F.d(d7w))<1e-3)d7Stop='ok';else if(d7n>=300)d7Stop='max';
+  if(d7Stop){d7On=false;$('#d7Run').textContent='▶ Jalankan'}d7Draw()}
+function d7Draw(){const [g,w,h]=prep(cv7);const key=$('#d7F').value,F=F7[key];
+  let lo=Infinity,hi=-Infinity;for(let i=0;i<=200;i++){const v=F.L(-2+10*i/200);lo=Math.min(lo,v);hi=Math.max(hi,v)}
+  const pad=(hi-lo)*0.1,P=frame(g,w,h,[-2,8],[lo-pad,hi+pad],{xl:'parameter w',yl:'galat L(w)'});
+  curve(g,P.X,P.Y,F.L,-2,8,C.text,2.2);
+  clipTo(g,P,w,h);
+  const hp=d7H.map(v=>[P.X(v),P.Y(F.L(v))]);path(g,hp,C.accent,1.2,[3,3]);hp.forEach(([a,b])=>dot(g,a,b,2.6,C.accent));
+  const wl=d7w,Lw=F.L(wl),s=F.d(wl);if(isFinite(Lw)){line(g,P.X(wl-0.8),P.Y(Lw-0.8*s),P.X(wl+0.8),P.Y(Lw+0.8*s),C.warn,2.2);dot(g,P.X(wl),P.Y(Lw),7,C.warn)}
+  g.restore();
+  $('#d7Wv').textContent=fmt(+$('#d7W').value,1);$('#d7Lv').textContent=fmt(+$('#d7L').value,2);
+  $('#d7N').textContent=d7n;$('#d7Wn').textContent=isFinite(wl)?fmt(wl,4):'∞';$('#d7Lw').textContent=isFinite(Lw)?fmt(Lw,4):'∞';$('#d7D').textContent=isFinite(s)?fmt(s,4):'∞';
+  let gmin=-2,gv=Infinity;for(let i=0;i<=2000;i++){const v=-2+10*i/2000;if(F.L(v)<gv){gv=F.L(v);gmin=v}}
+  let msg='Tekan "1 langkah" untuk melihat satu pembaruan w ← w − η·L′(w), atau "Jalankan".';
+  if(d7Stop==='div')msg='Bola terlempar keluar! η terlalu besar: setiap langkah melompati lembah dan mendarat makin jauh. Kecilkan η lalu ulangi.';
+  else if(d7Stop==='ok')msg=Math.abs(d7w-gmin)>0.2?`Berhenti di w ≈ ${fmt(d7w,2)} karena kemiringan ≈ 0, tetapi ini lembah lokal. Lembah terdalam ada di w ≈ ${fmt(gmin,2)}. Coba titik awal lain.`:`Sampai di dasar lembah: w ≈ ${fmt(d7w,3)}, kemiringan ≈ 0 setelah ${d7n} langkah.`;
+  else if(d7Stop==='max')msg='Sudah 300 langkah tanpa benar-benar berhenti. Bola berosilasi; coba η yang lebih kecil.';
+  else if(d7n>0)msg=s<0?'Kemiringan negatif → w ditambah (bergerak ke kanan, menuruni bukit).':'Kemiringan positif → w dikurangi (bergerak ke kiri, menuruni bukit).';
+  $('#d7Msg').textContent=msg}
+['#d7F','#d7W','#d7L'].forEach(id=>$(id).oninput=d7Reset);
+$('#d7Step').onclick=()=>{if(d7Stop)d7Reset();d7Step()};
+$('#d7Run').onclick=()=>{if(d7Stop)d7Reset();d7On=!d7On;$('#d7Run').textContent=d7On?'⏸ Jeda':'▶ Jalankan'};
+animate(cv7,dt=>{if(!d7On)return;d7Acc+=dt;if(d7Acc<0.22)return;d7Acc=0;d7Step()});
+d7Reset();redraws.push(d7Draw);
+
+/* ---------- Kuis ---------- */
+const QZ=[
+  {q:'Secara gambar, turunan f′(a) adalah…',o:['luas di bawah kurva sampai a','kemiringan garis singgung kurva di titik x = a','tinggi kurva di x = a','jarak titik a ke sumbu y'],a:1,w:'Turunan = kemiringan garis singgung = laju perubahan sesaat. Luas di bawah kurva adalah urusan integral.'},
+  {q:'Batu jatuh dengan s(t) = 5t² meter. Kecepatan rata-ratanya antara t = 0 dan t = 2 detik adalah…',o:['20 m/s','10 m/s','5 m/s','40 m/s'],a:1,w:'Δs/Δt = (20 − 0)/(2 − 0) = 10 m/s. Kecepatan sesaat di t = 2 adalah 20 m/s, dua hal yang berbeda.'},
+  {q:'Turunan dari x⁴ adalah…',o:['x³','4x³','4x⁵','x⁵/5'],a:1,w:'Aturan pangkat: pangkat turun menjadi pengali, lalu pangkatnya dikurangi satu. (x⁵/5 adalah antiturunannya.)'},
+  {q:'Jika f′(x) < 0 di sepanjang sebuah interval, maka pada interval itu f…',o:['naik','turun','konstan','bernilai negatif'],a:1,w:'Tanda turunan adalah arah. f sendiri bisa positif sambil terus turun.'},
+  {q:'Turunan dari (3x + 1)⁵ adalah…',o:['5(3x + 1)⁴','15(3x + 1)⁴','5(3x)⁴','15x⁴'],a:1,w:'Aturan rantai: roda luar 5(3x + 1)⁴ dikali roda dalam 3.'},
+  {q:'Biaya produksi C(q) dalam rupiah, dengan C′(100) = 2.500. Artinya…',o:['Total biaya 100 unit adalah Rp2.500','Membuat unit ke-101 kira-kira menambah biaya Rp2.500','Biaya rata-rata per unit Rp2.500','Keuntungan maksimum di 100 unit'],a:1,w:'Turunan = laju perubahan biaya per unit tambahan, yaitu biaya marjinal.'},
+  {q:'Berita: "inflasi melambat". Jika H(t) adalah tingkat harga, kondisi ini berarti…',o:['H′ < 0','H′ > 0 dan H″ < 0','H′ = 0','H″ > 0'],a:1,w:'Harga masih naik (H′ > 0), tetapi kenaikannya makin pelan (H″ < 0).'},
+  {q:'Jika f′(c) = 0 dan f″(c) > 0, maka di x = c terdapat…',o:['puncak (maksimum lokal)','lembah (minimum lokal)','titik belok','tidak bisa disimpulkan apa pun'],a:1,w:'Kemiringan nol dan kurva cekung ke atas seperti mangkuk: lembah.'},
+  {q:'Pada gradient descent, parameter w diperbarui dengan…',o:['w + η·L′(w)','w − η·L′(w)','w · L′(w)','w − L(w)'],a:1,w:'Melangkah berlawanan arah kemiringan supaya galat menurun. η adalah ukuran langkah (learning rate).'},
+  {q:'Fungsi |x| tidak punya turunan di x = 0 karena…',o:['nilainya nol di sana','grafiknya terputus','ada sudut lancip: kemiringan dari kiri −1, dari kanan +1','fungsinya tidak terdefinisi di 0'],a:2,w:'|x| kontinu di 0, tetapi zoom sebesar apa pun tetap menampilkan huruf V. Tidak ada satu garis singgung.'}
+];
+const answered={};
+$('#quiz').innerHTML=QZ.map((x,i)=>`<div class="q" data-i="${i}"><p>${i+1}. ${x.q}</p>${x.o.map((o,j)=>`<button data-j="${j}">${o}</button>`).join('')}<div class="why">${x.w}</div></div>`).join('');
+$$('.q button').forEach(b=>b.onclick=()=>{
+  const box=b.closest('.q'),i=box.dataset.i,x=QZ[i];
+  box.querySelectorAll('button').forEach(o=>o.classList.remove('right','wrong'));
+  b.classList.add(+b.dataset.j===x.a?'right':'wrong');
+  box.querySelector(`[data-j="${x.a}"]`).classList.add('right');
+  box.querySelector('.why').style.display='block';
+  if(!(i in answered))answered[i]=+b.dataset.j===x.a;
+  const n=Object.keys(answered).length,ok=Object.values(answered).filter(Boolean).length;
+  $('#qScore').textContent=n<QZ.length?`Terjawab ${n} dari ${QZ.length} · benar ${ok} (jawaban pertama yang dihitung)`:`Skor akhir: ${ok} dari ${QZ.length}. ${ok===QZ.length?'Sempurna! 🎉':ok>=7?'Bagus, ulangi bagian yang masih salah.':'Coba baca ulang Bagian 3–9 lalu ulangi kuisnya.'}`;
+});
+
+/* ---------- Gambar awal & mulai animasi ---------- */
+redrawAll();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

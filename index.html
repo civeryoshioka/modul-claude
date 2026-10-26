@@ -84,11 +84,11 @@ footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--border);color
 </header>
 
 <div class="stats">
-  <div><b>7</b>modul</div>
-  <div><b>29</b>demo interaktif</div>
-  <div><b>60</b>contoh hitung manual</div>
-  <div><b>48</b>soal kuis</div>
-  <div><b>± 19,5 jam</b>total belajar</div>
+  <div><b>8</b>modul</div>
+  <div><b>36</b>demo interaktif</div>
+  <div><b>70</b>contoh hitung manual</div>
+  <div><b>58</b>soal kuis</div>
+  <div><b>± 22 jam</b>total belajar</div>
 </div>
 
 <h2>🧭 Jalur belajar yang disarankan</h2>
@@ -108,7 +108,7 @@ footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--border);color
 <p class="sub">Matematika di balik audio, gambar, dan sensor. Modul mandiri, tidak bergantung pada jalur RL di atas.</p>
 <div class="cards" id="spCards"></div>
 <h2>📐 Kalkulus</h2>
-<p class="sub">Fondasi matematika yang muncul di mana-mana, dari fisika sampai machine learning. Modul mandiri, dibangun dari intuisi dan simulasi sebelum rumus.</p>
+<p class="sub">Fondasi matematika yang muncul di mana-mana, dari fisika sampai machine learning. Dibangun dari intuisi dan simulasi sebelum rumus. Urutan yang disarankan: Turunan dulu, lalu Integral, tetapi keduanya bisa dibaca terpisah.</p>
 <div class="cards" id="caCards"></div>
 
 <div class="box">
@@ -144,7 +144,10 @@ const M=[
   {id:'fourier',grp:'sp',c:'--accent',tag:'Mandiri',title:'Memahami Transformasi Fourier',href:'fourier/01-transformasi-fourier.html',time:'± 2,5 jam',demo:7,calc:7,quiz:8,
    desc:'Intuisi dulu, rumus belakangan: analogi smoothie dan radio, epicycle, mesin pelilit, DFT dan FFT yang dihitung tangan, aliasing, sampai lab filter noise dan np.fft.',
    topics:['Sinus & fase','Deret Fourier','Rumus Euler','Mesin pelilit','DFT & FFT','Aliasing','Filter']},
-  {id:'integral',grp:'ca',c:'--good',tag:'Mandiri',title:'Memahami Integral dari Nol',href:'kalkulus/01-integral.html',time:'± 2,5 jam',demo:7,calc:10,quiz:10,
+  {id:'turunan',grp:'ca',c:'--accent',tag:'Kalkulus · 1',title:'Memahami Turunan dari Nol',href:'kalkulus/02-turunan.html',time:'± 2,5 jam',demo:7,calc:10,quiz:10,
+   desc:'Turunan sebagai "laju perubahan sesaat": speedometer, garis potong yang menyusut, zoom sampai lurus, aturan rantai dengan roda gigi, optimasi kotak karton, sampai gradient descent yang melatih AI.',
+   topics:['Laju & limit','Zoom lokal','Aturan dasar','Rantai','Turunan kedua','Optimasi','Gradient descent']},
+  {id:'integral',grp:'ca',c:'--good',tag:'Kalkulus · 2',title:'Memahami Integral dari Nol',href:'kalkulus/01-integral.html',time:'± 2,5 jam',demo:7,calc:10,quiz:10,
    desc:'Integral sebagai "laju menjadi total": speedometer dan odometer, jumlah Riemann, Teorema Dasar Kalkulus, substitusi dan parsial, metode numerik, sampai tagihan listrik dan volume tumpeng.',
    topics:['Jumlah Riemann','Luas bertanda','Akumulasi','Teorema Dasar','Antiturunan','Numerik & Monte Carlo','Aplikasi']}
 ];
