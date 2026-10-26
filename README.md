@@ -29,5 +29,6 @@ Kumpulan modul belajar interaktif berbentuk HTML (cukup buka file di browser, ta
 
 | Modul | File | Status |
 |---|---|---|
+| Memahami Limit dari Nol (limit kiri/kanan, 0/0, teorema apit, bilangan e, deret, ε–δ) | [`kalkulus/00-limit.html`](kalkulus/00-limit.html) | ✅ Selesai |
 | Memahami Turunan dari Nol (laju sesaat, limit, aturan rantai, optimasi, gradient descent) | [`kalkulus/02-turunan.html`](kalkulus/02-turunan.html) | ✅ Selesai |
 | Memahami Integral dari Nol (intuisi, jumlah Riemann, Teorema Dasar, teknik, numerik, aplikasi) | [`kalkulus/01-integral.html`](kalkulus/01-integral.html) | ✅ Selesai |
