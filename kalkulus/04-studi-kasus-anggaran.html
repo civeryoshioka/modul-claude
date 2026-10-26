@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Studi Kasus Anggaran</title>
+<style>
+:root{
+  --bg:#f7f8fa;--surface:#ffffff;--surface-2:#f0f2f6;--text:#1c2230;--muted:#5b6474;
+  --border:#e1e5ec;--accent:#3a6df0;--accent-soft:#e6edff;--good:#1f9d63;--bad:#d64545;--warn:#c98a12;--violet:#7c4dff;
+  --code-bg:#f3f5f9;--sidebar-w:270px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+    --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--violet:#a98bff;--code-bg:#1d222b;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+  --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--violet:#a98bff;--code-bg:#1d222b;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+/* Sidebar */
+#sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);
+  overflow-y:auto;padding:22px 16px;z-index:20;transition:transform .25s}
+#sidebar .brand{font-weight:700;font-size:17px;margin:0 8px 2px}
+#sidebar .level{display:inline-block;margin:0 8px 16px;font-size:12px;padding:2px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar ol{list-style:none;margin:0;padding:0;counter-reset:toc}
+#sidebar li a{display:flex;gap:10px;padding:7px 10px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:14.5px;line-height:1.4}
+#sidebar li a::before{counter-increment:toc;content:counter(toc);min-width:20px;height:20px;border-radius:50%;background:var(--surface-2);
+  font-size:11.5px;display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+#sidebar li a:hover{background:var(--surface-2);color:var(--text)}
+#sidebar li a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar li a.active::before{background:var(--accent);color:#fff}
+#progress{height:4px;background:var(--surface-2);border-radius:4px;margin:0 8px 18px;overflow:hidden}
+#progress div{height:100%;width:0;background:var(--accent);transition:width .1s}
+#menuBtn{display:none;position:fixed;top:12px;left:12px;z-index:30;border:1px solid var(--border);background:var(--surface);color:var(--text);
+  border-radius:8px;padding:6px 12px;font-size:15px;cursor:pointer}
+#themeBtn{margin:18px 8px 0;font-size:13px}
+/* Main */
+main{margin-left:var(--sidebar-w);padding:40px 48px 80px;max-width:calc(var(--sidebar-w) + 900px)}
+main>*{max-width:860px}
+header.hero{padding:8px 0 24px;border-bottom:1px solid var(--border);margin-bottom:12px}
+header.hero h1{font-size:34px;line-height:1.2;margin:0 0 8px;text-wrap:balance}
+header.hero p{color:var(--muted);margin:0}
+section{padding-top:28px}
+h2{font-size:25px;margin:16px 0 10px;padding-top:8px;text-wrap:balance}
+h3{font-size:18.5px;margin:24px 0 6px;text-wrap:balance}
+p,li{color:var(--text)}
+main p,main li,.box,.card span{text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+.muted{color:var(--muted)}
+.box{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:16px 20px;margin:16px 0}
+.box.tip{border-left:4px solid var(--good)}
+.box.note{border-left:4px solid var(--accent)}
+.box.warn{border-left:4px solid var(--warn)}
+.box>strong:first-child{display:block;margin-bottom:4px}
+.box ul,.box ol{margin:6px 0 0;padding-left:22px}
+.formula{font-family:"Cambria Math","Times New Roman",serif;font-size:19px;text-align:center;background:var(--surface-2);
+  border-radius:10px;padding:14px;margin:14px 0;overflow-x:auto;white-space:nowrap}
+.formula.big{font-size:24px;padding:20px 14px}
+.formula var{font-style:italic}
+.formula small{font-family:system-ui,sans-serif;font-size:13px;color:var(--muted);display:block;white-space:normal;margin-top:4px}
+/* notasi integral: tanda ∫ besar, batas bertumpuk, pecahan */
+.ig{font-size:1.5em;line-height:1;vertical-align:-.2em;margin-right:1px}
+.lim{display:inline-flex;flex-direction:column;vertical-align:middle;font-size:.58em;line-height:1.25;margin-right:3px;text-align:left}
+.lim.r{margin:0 3px 0 1px}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.9em;line-height:1.3;margin:0 2px}
+.frac>span:first-child{border-bottom:1.5px solid currentColor;padding:0 4px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;background:var(--code-bg);padding:1px 6px;border-radius:5px}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-size:13.5px;line-height:1.55}
+pre code{background:none;padding:0}
+.c{color:var(--muted)} .k{color:var(--accent);font-weight:600} .s{color:var(--good)} .n{color:var(--warn)}
+.tbl{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--border);padding:7px 11px;text-align:left;vertical-align:top}
+th{background:var(--surface-2)}
+td.num,th.num{text-align:right}
+tr.hit td{background:color-mix(in srgb,var(--good) 12%,transparent)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:14px 0}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:14px 0}
+.card{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 16px;min-width:0}
+.card b{display:block;margin-bottom:2px}
+.card span{color:var(--muted);font-size:14.5px}
+.card .ic{font-size:26px;line-height:1;display:block;margin-bottom:6px}
+/* warna penanda rumus */
+.h1{color:var(--accent);font-weight:600}.h2{color:var(--warn);font-weight:600}.h3{color:var(--good);font-weight:600}
+.h4{color:var(--violet);font-weight:600}.h5{color:var(--bad);font-weight:600}
+.anat{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:14px 0}
+.anat div{border:1px solid var(--border);border-top:4px solid var(--x);background:var(--surface);border-radius:10px;padding:10px 14px;font-size:14.5px;min-width:0}
+.anat b{display:block;color:var(--x);font-family:"Cambria Math","Times New Roman",serif;font-size:19px}
+/* Demo widgets */
+.demo{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:18px;margin:18px 0}
+.demo h4{margin:0 0 4px;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent)}
+.demo>p{margin:4px 0 8px;font-size:15px}
+.controls{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:10px 0}
+select.btn{max-width:100%;text-overflow:ellipsis}
+button.btn,select.btn{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:8px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer}
+button.btn:hover,select.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+label.range{display:flex;align-items:center;gap:8px;font-size:14px;flex-wrap:wrap}
+label.range b{min-width:3.6em;font-variant-numeric:tabular-nums}
+label.chk{display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer}
+input[type=range]{accent-color:var(--accent);max-width:180px}
+input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px}
+input[type=number]{font:inherit;font-size:14px;width:110px;padding:5px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--text)}
+.kpi{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.kpi div{border:1px solid var(--border);background:var(--surface-2);border-radius:8px;padding:6px 12px;font-size:13px;color:var(--muted)}
+.kpi b{display:block;font-size:17px;color:var(--text);font-variant-numeric:tabular-nums}
+canvas.plot{display:block;width:100%;border:1px solid var(--border);border-radius:10px;background:var(--surface-2)}
+.cap{font-size:12.5px;color:var(--muted);margin:4px 2px 0}
+.legend{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:6px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.sumline{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;color:var(--muted);background:var(--surface-2);border-radius:8px;padding:6px 10px;margin:8px 0 0;overflow-x:auto;white-space:nowrap}
+.msg{font-size:14px;margin:8px 0 0;padding:8px 12px;border-radius:8px;background:var(--accent-soft);color:var(--text)}
+.alat{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:6px 14px;margin:10px 0}
+.alat label{display:flex;align-items:center;gap:8px;font-size:13.5px;cursor:pointer;border:1px solid var(--border);border-radius:8px;padding:5px 10px;background:var(--surface-2)}
+.alat label small{color:var(--muted);margin-left:auto;white-space:nowrap;font-variant-numeric:tabular-nums}
+/* Diagram */
+.diagram{overflow-x:auto;margin:16px 0}
+.diagram svg{display:block;width:100%;min-width:520px;max-width:720px;margin:0 auto}
+.diagram text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+/* Steps */
+.steps{counter-reset:st;list-style:none;padding:0}
+.steps li{counter-increment:st;position:relative;padding:4px 0 10px 42px}
+.steps li::before{content:counter(st);position:absolute;left:0;top:4px;width:28px;height:28px;border-radius:50%;background:var(--accent-soft);
+  color:var(--accent);font-weight:700;display:grid;place-items:center;font-size:14px}
+/* Quiz */
+.q{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 18px;margin:12px 0}
+.q p{margin:0 0 8px;font-weight:600}
+.q button{display:block;width:100%;text-align:left;margin:6px 0;border:1px solid var(--border);background:var(--surface-2);color:var(--text);
+  border-radius:8px;padding:8px 12px;font:inherit;font-size:14.5px;cursor:pointer}
+.q button.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 15%,transparent)}
+.q button.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,transparent)}
+.q .why{font-size:14px;color:var(--muted);display:none;margin-top:6px}
+#qScore{font-size:14px;color:var(--muted)}
+.nav-mod{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px}
+.nav-mod a{text-decoration:none}
+footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:14px}
+@media (max-width:900px){
+  #sidebar{transform:translateX(-100%);box-shadow:0 0 30px rgba(0,0,0,.2)}
+  #sidebar.open{transform:none}
+  #menuBtn{display:block}
+  main{margin-left:0;padding:60px 16px 60px}
+  header.hero h1{font-size:27px}
+}
+@media (max-width:620px){
+  .formula{font-size:17px}
+  .formula.big{font-size:20px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<button id="menuBtn" aria-label="Buka daftar isi">☰ Daftar Isi</button>
+
+<nav id="sidebar" aria-label="Daftar isi">
+  <a class="home-link" href="../index.html" style="display:block;margin:0 8px 12px;font-size:13px;text-decoration:none">← Beranda semua modul</a>
+  <div class="brand">Studi Kasus Anggaran</div>
+  <span class="level">Kalkulus · Modul 4 dari 4</span>
+  <div id="progress"><div></div></div>
+  <ol id="toc">
+    <li><a href="#peta">Tiga Alat, Satu Anggaran</a></li>
+    <li><a href="#profil">Kenalan dengan Kopi Senja</a></li>
+    <li><a href="#impas">Limit · Harga Pokok &amp; Titik Impas</a></li>
+    <li><a href="#pajak">Limit · Pajak Bertingkat vs Tebing</a></li>
+    <li><a href="#bunga">Limit · Pinjol &amp; Sewa Selamanya</a></li>
+    <li><a href="#harga">Turunan · Harga Jual Terbaik</a></li>
+    <li><a href="#kurs">Turunan · Sensitivitas Kurs</a></li>
+    <li><a href="#stok">Turunan · Ukuran Pesanan Optimal</a></li>
+    <li><a href="#serapan">Integral · Kurva Serapan Anggaran</a></li>
+    <li><a href="#saldo">Integral · Saldo Rata-rata Harian</a></li>
+    <li><a href="#nilai">Integral · Nilai Sekarang Arus Kas</a></li>
+    <li><a href="#terpadu">Studi Kasus Terpadu: Kas Setahun</a></li>
+    <li><a href="#kode">Praktik dengan Python</a></li>
+    <li><a href="#batas">Batas Model &amp; Catatan</a></li>
+    <li><a href="#kuis">Kuis &amp; Ringkasan Rumus</a></li>
+  </ol>
+  <button class="btn" id="themeBtn">🌓 Ganti tema</button>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Studi Kasus Anggaran dengan Limit, Turunan &amp; Integral</h1>
+  <p>Satu usaha kopi, satu tahun anggaran, tiga alat kalkulus. Setiap rumus dipakai untuk menjawab pertanyaan uang yang nyata. Estimasi waktu belajar ± 2 jam.</p>
+</header>
+
+<div class="diagram" aria-label="Diagram: limit, turunan, dan integral masing-masing menjawab jenis pertanyaan anggaran yang berbeda, lalu digabung menjadi keputusan">
+<svg viewBox="0 0 690 250" role="img">
+  <rect x="10" y="14" width="210" height="118" rx="12" fill="var(--surface)" stroke="var(--violet)" stroke-width="2"/>
+  <text x="115" y="42" text-anchor="middle" font-size="15" font-weight="700" fill="var(--violet)">LIMIT</text>
+  <text x="115" y="66" text-anchor="middle" font-size="12.5" fill="var(--text)">"ke mana menuju?"</text>
+  <text x="115" y="90" text-anchor="middle" font-size="11.5" fill="var(--muted)">harga pokok minimum,</text>
+  <text x="115" y="106" text-anchor="middle" font-size="11.5" fill="var(--muted)">batas pajak, bunga jangka</text>
+  <text x="115" y="122" text-anchor="middle" font-size="11.5" fill="var(--muted)">panjang</text>
+  <rect x="240" y="14" width="210" height="118" rx="12" fill="var(--surface)" stroke="var(--warn)" stroke-width="2"/>
+  <text x="345" y="42" text-anchor="middle" font-size="15" font-weight="700" fill="var(--warn)">TURUNAN</text>
+  <text x="345" y="66" text-anchor="middle" font-size="12.5" fill="var(--text)">"berubah secepat apa?"</text>
+  <text x="345" y="90" text-anchor="middle" font-size="11.5" fill="var(--muted)">harga optimal, sensitivitas</text>
+  <text x="345" y="106" text-anchor="middle" font-size="11.5" fill="var(--muted)">kurs, ukuran pesanan</text>
+  <text x="345" y="122" text-anchor="middle" font-size="11.5" fill="var(--muted)">terbaik</text>
+  <rect x="470" y="14" width="210" height="118" rx="12" fill="var(--surface)" stroke="var(--good)" stroke-width="2"/>
+  <text x="575" y="42" text-anchor="middle" font-size="15" font-weight="700" fill="var(--good)">INTEGRAL</text>
+  <text x="575" y="66" text-anchor="middle" font-size="12.5" fill="var(--text)">"totalnya berapa?"</text>
+  <text x="575" y="90" text-anchor="middle" font-size="11.5" fill="var(--muted)">serapan anggaran, saldo</text>
+  <text x="575" y="106" text-anchor="middle" font-size="11.5" fill="var(--muted)">rata-rata, nilai sekarang</text>
+  <text x="575" y="122" text-anchor="middle" font-size="11.5" fill="var(--muted)">arus kas</text>
+  <path d="M115 132 L115 160 L345 160 M345 132 L345 178 M575 132 L575 160 L345 160" fill="none" stroke="var(--muted)" stroke-width="2"/>
+  <polygon points="338,176 352,176 345,188" fill="var(--muted)"/>
+  <rect x="215" y="190" width="260" height="50" rx="12" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
+  <text x="345" y="213" text-anchor="middle" font-size="14" font-weight="700" fill="var(--accent)">KEPUTUSAN ANGGARAN</text>
+  <text x="345" y="231" text-anchor="middle" font-size="11.5" fill="var(--text)">harga, stok, cadangan kas, pinjaman</text>
+</svg>
+</div>
+
+<div class="box note">
+  <strong>🎯 Tujuan belajar</strong>
+  Setelah modul ini kamu bisa menerjemahkan pertanyaan anggaran sehari-hari menjadi pertanyaan kalkulus, lalu menjawabnya:
+  menentukan harga pokok minimum dan titik impas, membaca kenapa pajak bertingkat tidak punya "tebing", menghitung bunga pinjaman yang sebenarnya,
+  mencari harga jual dan ukuran pesanan yang optimal, mengukur sensitivitas anggaran terhadap kurs, memantau serapan anggaran, dan menentukan cadangan kas yang dibutuhkan.
+  <br><span class="muted">Prasyarat: sebaiknya sudah membaca <a href="01-limit.html">Limit</a>, <a href="02-turunan.html">Turunan</a>, dan <a href="03-integral.html">Integral</a>. Setiap bagian menyebut konsep yang dipakai, jadi kamu bisa kembali ke modulnya kapan saja.</span>
+</div>
+
+<!-- 1 -->
+<section id="peta">
+<h2>1. Tiga Alat, Satu Anggaran</h2>
+<p>Anggaran bukan sekadar daftar angka. Di balik setiap baris anggaran ada pertanyaan tentang <b>batas</b>, <b>perubahan</b>, dan <b>jumlah</b>. Ketiganya tepat berpasangan dengan tiga alat kalkulus yang sudah kamu pelajari:</p>
+<div class="tbl"><table>
+  <tr><th>Kalau pertanyaannya…</th><th>Alatnya</th><th>Contoh di modul ini</th></tr>
+  <tr><td>"Dalam jangka panjang menuju ke mana?" "Ada lompatan atau tidak?"</td><td><b>Limit</b></td><td>Harga pokok minimum, batas lapisan pajak, bunga pinjol, nilai sewa selamanya</td></tr>
+  <tr><td>"Kalau X digeser sedikit, Y berubah berapa?" "Di mana titik terbaiknya?"</td><td><b>Turunan</b></td><td>Harga jual terbaik, dampak kenaikan kurs, ukuran pesanan bahan baku</td></tr>
+  <tr><td>"Kalau lajunya berubah-ubah, totalnya berapa?"</td><td><b>Integral</b></td><td>Realisasi anggaran, saldo rata-rata untuk bunga, nilai sekarang arus kas</td></tr>
+  <tr><td>"Kapan kas paling tipis, dan berapa cadangan yang perlu disiapkan?"</td><td><b>Ketiganya</b></td><td>Studi kasus terpadu di Bagian 12</td></tr>
+</table></div>
+<div class="box tip"><strong>💡 Cara memakai modul ini</strong>
+  Setiap bagian dimulai dari pertanyaan bisnis, baru kemudian kalkulusnya. Kerjakan contoh <b>✍️ hitung manual</b> dengan kalkulator, lalu cocokkan dengan simulasi. Semua angka di modul ini juga dihitung ulang dengan Python di Bagian 13, jadi kamu bisa mengubah asumsinya sesuai usahamu sendiri.
+</div>
+</section>
+
+<!-- 2 -->
+<section id="profil">
+<h2>2. Kenalan dengan Kopi Senja</h2>
+<p><b>Kopi Senja</b> adalah kedai kopi kecil fiktif di sebuah kota di Indonesia. Kamu baru diangkat menjadi pengelola keuangannya dan diminta menyusun anggaran untuk satu tahun ke depan. Berikut data yang kamu punya:</p>
+<div class="tbl"><table>
+  <tr><th>Komponen</th><th class="num">Nilai</th><th>Keterangan</th></tr>
+  <tr><td>Sewa tempat</td><td class="num">Rp5.000.000 / bulan</td><td rowspan="3">Biaya tetap <b>Rp15.000.000 / bulan</b>: dibayar berapa pun cup yang terjual</td></tr>
+  <tr><td>Gaji 2 barista</td><td class="num">Rp8.000.000 / bulan</td></tr>
+  <tr><td>Listrik, air, internet</td><td class="num">Rp2.000.000 / bulan</td></tr>
+  <tr><td>Bahan per cup (kopi, susu, gelas)</td><td class="num">Rp8.000 / cup</td><td>Biaya variabel: naik sebanding jumlah cup</td></tr>
+  <tr><td>Harga jual sekarang</td><td class="num">Rp22.000 / cup</td><td>Margin kontribusi Rp14.000 per cup</td></tr>
+  <tr><td>Permintaan bulanan</td><td class="num"><var>q</var>(<var>p</var>) = 3.000 − 60<var>p</var></td><td><var>p</var> dalam ribu rupiah, hasil uji coba harga beberapa bulan</td></tr>
+</table></div>
+<p>Dengan harga Rp22.000, permintaannya 3.000 − 60 × 22 = <b>1.680 cup per bulan</b> (± 56 cup per hari). Laba bulanannya = (22.000 − 8.000) × 1.680 − 15.000.000 = 23.520.000 − 15.000.000 = <b>Rp8.520.000</b>. Pertanyaan-pertanyaan di bagian berikutnya akan menguji apakah angka ini sudah yang terbaik, dan apa saja risikonya.</p>
+<div class="box warn"><strong>⚠️ Tentang angka-angka di modul ini</strong>
+  Kopi Senja dan datanya adalah contoh rekaan yang dibuat masuk akal untuk usaha kecil di Indonesia, bukan data usaha nyata. Tarif pajak di Bagian 4 memakai tarif PPh orang pribadi dari UU HPP; aturan bantuan di bagian yang sama adalah rekaan. Gunakan angka usahamu sendiri saat menerapkan metode di sini.
+</div>
+</section>
+
+<!-- 3 -->
+<section id="impas">
+<h2>3. Limit · Harga Pokok &amp; Titik Impas</h2>
+<p><b>Pertanyaan bisnis:</b> "Berapa sebenarnya biaya membuat satu cup? Dan kalau penjualan terus naik, bisakah biaya per cup turun tanpa batas?"</p>
+<p>Biaya rata-rata per cup adalah biaya tetap yang dibagi rata ke semua cup, ditambah biaya bahan:</p>
+<div class="formula"><var>R</var>(<var>q</var>) = <span class="frac"><span>15.000.000</span><span><var>q</var></span></span> + 8.000 &nbsp;&nbsp;→&nbsp;&nbsp; <span style="display:inline-flex;flex-direction:column;vertical-align:middle;line-height:1.2;text-align:center">lim<small style="margin:0;font-size:12px"><var>q</var>→∞</small></span> <var>R</var>(<var>q</var>) = 8.000<small>Konsep: limit di tak hingga (modul Limit, Bagian 7). Biaya tetap "diencerkan" ke makin banyak cup, tetapi biaya bahan tidak pernah hilang.</small></div>
+
+<div class="demo">
+  <h4>🎛 Simulasi 1 · Harga pokok dan titik impas</h4>
+  <p>Geser jumlah cup terjual dan harga jual. Di kiri titik impas, harga jual berada di bawah biaya rata-rata (rugi). Di kanannya, setiap cup menyumbang laba.</p>
+  <div class="controls">
+    <label class="range" for="d1Q">Cup per bulan <input type="range" id="d1Q" min="100" max="4000" step="10" value="1680"> <b id="d1Qv"></b></label>
+    <label class="range" for="d1P">Harga jual <input type="range" id="d1P" min="10" max="40" step="0.5" value="22"> <b id="d1Pv"></b></label>
+  </div>
+  <canvas class="plot" id="cv1" style="height:300px"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>biaya rata-rata per cup</span><span><i class="dot" style="background:var(--warn)"></i>harga jual</span><span><i class="dot" style="background:var(--good)"></i>batas bawah: biaya bahan Rp8.000</span></div>
+  <div class="kpi"><div>Biaya rata-rata per cup<b id="d1R"></b></div><div>Laba per cup<b id="d1M"></b></div><div>Laba per bulan<b id="d1L"></b></div><div>Titik impas<b id="d1B"></b></div></div>
+</div>
+<h3>✍️ Contoh hitung manual 1: harga pokok dan titik impas</h3>
+<ol class="steps">
+  <li>Jual 100 cup: 15.000.000/100 + 8.000 = <b>Rp158.000</b> per cup. Jual 1.000 cup: Rp23.000. Jual 10.000 cup: Rp9.500. Jual 100.000 cup: Rp8.150.</li>
+  <li>Limitnya Rp8.000. Artinya: <b>berapa pun skala usahanya, harga jual di bawah Rp8.000 pasti rugi</b>. Untuk menurunkan batas itu, yang harus dinegosiasikan adalah harga bahan, bukan jumlah penjualan.</li>
+  <li>Titik impas: laba = 0 saat (22.000 − 8.000) × <var>q</var> = 15.000.000, jadi <var>q</var> = 15.000.000/14.000 ≈ 1.071,4. Dibulatkan ke atas: <b>1.072 cup per bulan</b> (± 36 cup per hari).</li>
+  <li>Penjualan sekarang 1.680 cup, jadi ada "bantalan" 1.680 − 1.072 = 608 cup per bulan sebelum usaha merugi. Itulah <i>margin of safety</i>: penjualan boleh turun ± 36% sebelum rugi.</li>
+</ol>
+</section>
+
+<!-- 4 -->
+<section id="pajak">
+<h2>4. Limit · Pajak Bertingkat vs Tebing</h2>
+<p><b>Pertanyaan bisnis:</b> "Penghasilan pemilik Kopi Senja hampir menyentuh lapisan pajak berikutnya. Apakah lebih baik menahan penghasilan supaya tidak 'naik kelas' tarif?"</p>
+<p>Tarif PPh orang pribadi di Indonesia (UU HPP) bersifat <b>progresif bertingkat</b>: 5% untuk Penghasilan Kena Pajak (PKP) sampai Rp60 juta, 15% untuk bagian Rp60–250 juta, 25% untuk bagian Rp250–500 juta, 30% untuk bagian Rp500 juta–5 miliar, dan 35% di atasnya. Tarifnya melompat di setiap batas, tetapi yang dikenai tarif lebih tinggi <b>hanya bagian di atas batas</b>. Dalam bahasa limit:</p>
+<div class="grid2">
+  <div class="card"><b>Tarif marjinal: limit tidak ada</b><span>Di PKP = Rp250 juta, tarif dari kiri 15% dan dari kanan 25%. Kiri ≠ kanan, persis seperti tarif parkir di modul Limit.</span></div>
+  <div class="card"><b>Total pajak: kontinu</b><span>Total pajak dari kiri dan dari kanan sama-sama menuju Rp31,5 juta. Tidak ada tebing: penghasilan tambahan Rp1 hanya menambah pajak 25 sen.</span></div>
+</div>
+
+<div class="demo">
+  <h4>🎛 Simulasi 2 · Bertingkat, tebing, dan bertahap</h4>
+  <p>Bandingkan tiga aturan. Atas: total yang diterima atau dibayar. Bawah: "tarif" yang berlaku di setiap titik. Perhatikan apakah grafik atas punya lompatan.</p>
+  <div class="controls">
+    <select class="btn" id="d2M" aria-label="Aturan">
+      <option value="pph">PPh bertingkat (UU HPP)</option>
+      <option value="tebing">Bantuan dengan "tebing" (rekaan)</option>
+      <option value="bertahap">Bantuan dikurangi bertahap (rekaan)</option>
+    </select>
+    <label class="range" for="d2X">Penghasilan <input type="range" id="d2X" min="0" max="1" step="0.002" value="0.5"> <b id="d2Xv"></b></label>
+  </div>
+  <canvas class="plot" id="cv2" style="height:400px"></canvas>
+  <div class="kpi"><div id="d2K1l">Total pajak<b id="d2K1"></b></div><div id="d2K2l">Tarif marjinal di titik ini<b id="d2K2"></b></div><div id="d2K3l">Limit kiri vs kanan di batas<b id="d2K3"></b></div></div>
+  <p class="msg" id="d2Msg"></p>
+</div>
+<h3>✍️ Contoh hitung manual 2: PPh untuk PKP Rp300 juta</h3>
+<ol class="steps">
+  <li>Lapisan 1: 5% × Rp60 juta = Rp3 juta</li>
+  <li>Lapisan 2: 15% × (250 − 60) juta = 15% × Rp190 juta = Rp28,5 juta</li>
+  <li>Lapisan 3: 25% × (300 − 250) juta = 25% × Rp50 juta = Rp12,5 juta</li>
+  <li>Total: 3 + 28,5 + 12,5 = <b>Rp44 juta</b>. Tepat di batas Rp250 juta, totalnya 3 + 28,5 = Rp31,5 juta, baik didekati dari kiri maupun kanan. Jadi menahan penghasilan supaya "tidak naik lapisan" <b>tidak pernah menguntungkan</b>: yang naik hanya pajak atas tambahan penghasilannya.</li>
+</ol>
+<div class="box warn"><strong>⚠️ Tebing yang sungguhan</strong>
+  Bandingkan dengan aturan rekaan "bantuan Rp600.000 per bulan untuk penghasilan sampai Rp4 juta". Penghasilan Rp4.000.000 menerima total Rp4.600.000, tetapi penghasilan Rp4.000.001 hanya menerima Rp4.000.001. Limit kiri ≠ limit kanan, dan naik gaji Rp1 justru membuat pendapatan turun Rp599.999. Aturan seperti ini membuat orang enggan naik gaji atau menambah jam kerja. Perancang kebijakan menghindarinya dengan pengurangan <b>bertahap</b> (pilihan ketiga di simulasi): fungsinya dibuat kontinu, sehingga tidak ada titik di mana tambahan penghasilan malah merugikan.
+</div>
+</section>
+
+<!-- 5 -->
+<section id="bunga">
+<h2>5. Limit · Pinjol &amp; Sewa Selamanya</h2>
+<p><b>Pertanyaan bisnis:</b> "Mesin espresso rusak. Ada tawaran pinjaman online dengan bunga 'hanya' 0,3% per hari. Murah atau mahal?" dan "Pemilik ruko menawarkan ruko dijual Rp1 miliar. Lebih baik beli atau terus menyewa Rp5 juta per bulan?"</p>
+<h3>✍️ Contoh hitung manual 3: bunga 0,3% per hari selama setahun</h3>
+<ol class="steps">
+  <li>Kalau bunganya sederhana (tidak berbunga lagi): 0,3% × 365 = <b>109,5%</b> per tahun.</li>
+  <li>Kalau bunganya majemuk harian (bunga yang belum dibayar ikut berbunga): (1 + 0,003)<sup>365</sup> − 1 ≈ <b>198,4%</b> per tahun. Pinjaman Rp10 juta yang dibiarkan setahun menjadi ± Rp29,8 juta.</li>
+  <li>Limitnya, kalau bunga dihitung makin sering sampai kontinu: <var>e</var><sup>0,003 × 365</sup> − 1 = <var>e</var><sup>1,095</sup> − 1 ≈ <b>198,9%</b>. Konsep: (1 + <var>r</var>/<var>k</var>)<sup><var>k</var></sup> → <var>e<sup>r</sup></var> (modul Limit, Bagian 8).</li>
+  <li>Bandingkan dengan kredit usaha dari bank yang bunganya umumnya satu digit hingga belasan persen per tahun. "0,3% per hari" terdengar kecil karena satuannya per hari. Selalu ubah ke bunga efektif tahunan sebelum membandingkan.</li>
+</ol>
+<h3>✍️ Contoh hitung manual 4: berapa nilai "sewa selamanya"?</h3>
+<p>Kalau uang Rp1 miliar disimpan atau diputar, misalkan menghasilkan 0,75% per bulan. Sewa Rp5 juta yang dibayar bulan depan nilainya hari ini 5/(1,0075) juta, sewa bulan berikutnya 5/(1,0075)² juta, dan seterusnya. Jumlah tak hingganya adalah deret geometri (modul Limit, Bagian 9):</p>
+<div class="formula"><span class="frac"><span>5 jt</span><span>1,0075</span></span> + <span class="frac"><span>5 jt</span><span>1,0075²</span></span> + <span class="frac"><span>5 jt</span><span>1,0075³</span></span> + … = <span class="frac"><span>5 jt</span><span>0,0075</span></span> ≈ <b>Rp666,7 juta</b><small>Rumus perpetuitas: arus kas tetap <var>C</var> per periode, selamanya, bernilai <var>C</var>/<var>r</var> hari ini.</small></div>
+<p>Jadi membayar sewa selamanya "setara" dengan membayar Rp666,7 juta hari ini, jauh di bawah harga ruko Rp1 miliar. Dengan asumsi ini, menyewa lebih masuk akal, <i>kecuali</i> kamu yakin harga ruko akan naik cukup tinggi. Perhatikan bagaimana limit mengubah "selamanya" yang tak terbatas menjadi angka yang bisa dibandingkan.</p>
+</section>
+
+<!-- 6 -->
+<section id="harga">
+<h2>6. Turunan · Harga Jual Terbaik</h2>
+<p><b>Pertanyaan bisnis:</b> "Kalau harga dinaikkan, setiap cup lebih untung, tetapi pembeli berkurang. Berapa harga yang memberi laba terbesar?"</p>
+<p>Laba bulanan sebagai fungsi harga (dalam ribu rupiah):</p>
+<div class="formula"><var>L</var>(<var>p</var>) = (<var>p</var> − 8)(3.000 − 60<var>p</var>) − 15.000 = −60<var>p</var>² + 3.480<var>p</var> − 39.000<small>Margin per cup × jumlah cup − biaya tetap. Konsep: optimasi dengan <var>L</var>′(<var>p</var>) = 0 (modul Turunan, Bagian 11).</small></div>
+
+<div class="demo">
+  <h4>🎛 Simulasi 3 · Mencari harga terbaik</h4>
+  <p>Atas: laba bulanan beserta garis singgungnya. Bawah: turunan laba, yaitu tambahan laba jika harga dinaikkan Rp1.000. Cari harga ketika turunannya nol.</p>
+  <div class="controls">
+    <label class="range" for="d3P">Harga jual <input type="range" id="d3P" min="8" max="50" step="0.1" value="22"> <b id="d3Pv"></b></label>
+  </div>
+  <canvas class="plot" id="cv3" style="height:400px"></canvas>
+  <div class="kpi"><div>Cup terjual per bulan<b id="d3Q"></b></div><div>Pendapatan per bulan<b id="d3R"></b></div><div>Laba per bulan<b id="d3L"></b></div><div>Turunan <var>L</var>′(<var>p</var>)<b id="d3D"></b></div></div>
+  <p class="msg" id="d3Msg"></p>
+</div>
+<h3>✍️ Contoh hitung manual 5: harga optimal</h3>
+<ol class="steps">
+  <li>Turunkan: <var>L</var>′(<var>p</var>) = −120<var>p</var> + 3.480 (ribu rupiah laba per kenaikan harga Rp1.000).</li>
+  <li>Di harga sekarang: <var>L</var>′(22) = −2.640 + 3.480 = <b>840</b>. Artinya menaikkan harga Rp1.000 kira-kira <b>menambah laba Rp840.000 per bulan</b>. Harga sekarang terlalu murah.</li>
+  <li>Laba maksimum saat <var>L</var>′(<var>p</var>) = 0: 120<var>p</var> = 3.480, jadi <var>p</var> = <b>29</b> → harga <b>Rp29.000</b>. Cek turunan kedua: <var>L</var>″ = −120 &lt; 0, jadi benar puncak.</li>
+  <li>Di harga Rp29.000: cup terjual 3.000 − 1.740 = 1.260 per bulan, laba (29 − 8) × 1.260 − 15.000 = 26.460 − 15.000 = <b>Rp11.460.000</b>, naik Rp2,94 juta per bulan atau Rp35,3 juta per tahun.</li>
+</ol>
+<div class="box tip"><strong>💡 Elastisitas: turunan dalam persen</strong>
+  Ekonom sering memakai <b>elastisitas harga</b>, yaitu "kalau harga naik 1%, jumlah pembeli turun berapa persen?". Rumusnya −<var>q</var>′(<var>p</var>) · <var>p</var>/<var>q</var>. Di harga Rp22.000: 60 × 22/1.680 ≈ <b>0,79</b>. Karena kurang dari 1 (permintaan inelastis), kenaikan harga 1% hanya mengurangi pembeli 0,79%, sehingga <i>pendapatan</i> pun naik. Pendapatan maksimum di harga Rp25.000 (elastisitas = 1), sedangkan <i>laba</i> maksimum di Rp29.000, lebih tinggi lagi, karena setiap cup yang tidak terjual juga menghemat biaya bahan Rp8.000.
+</div>
+</section>
+
+<!-- 7 -->
+<section id="kurs">
+<h2>7. Turunan · Sensitivitas Kurs</h2>
+<p><b>Pertanyaan bisnis:</b> "Kopi Senja memakai biji kopi spesialti impor 25 kg per bulan seharga USD 18 per kg. Kalau rupiah melemah, anggaran bahan naik berapa?"</p>
+<p>Biaya biji per bulan sebagai fungsi kurs <var>k</var> (rupiah per dolar): <var>B</var>(<var>k</var>) = 25 × 18 × <var>k</var> = 450<var>k</var>. Turunannya, <var>dB</var>/<var>dk</var> = 450, adalah <b>sensitivitas</b>: setiap rupiah pelemahan kurs menambah anggaran Rp450 per bulan.</p>
+<h3>✍️ Contoh hitung manual 6: dari kurs ke anggaran per minggu</h3>
+<ol class="steps">
+  <li>Kurs Rp16.000: biaya biji 450 × 16.000 = <b>Rp7.200.000</b> per bulan.</li>
+  <li>Kurs melemah Rp400 menjadi Rp16.400: tambahan biaya ≈ 450 × 400 = <b>Rp180.000 per bulan</b>, atau ± Rp107 per cup kalau dibagi 1.680 cup.</li>
+  <li>Aturan rantai: kalau kurs sedang naik dengan laju Rp50 per minggu, maka laju kenaikan anggaran = <var>dB</var>/<var>dk</var> × <var>dk</var>/<var>dt</var> = 450 × 50 = <b>Rp22.500 per minggu</b> (modul Turunan, Bagian 9).</li>
+  <li>Dalam setahun, kalau tren itu bertahan, kurs naik ± Rp2.600 dan anggaran biji naik ± Rp1,17 juta per bulan pada akhir tahun. Angka ini membantu memutuskan apakah perlu kontrak harga tetap dengan pemasok, menyimpan stok lebih banyak saat kurs murah, atau beralih sebagian ke biji lokal.</li>
+</ol>
+<div class="box note"><strong>🧭 Analisis "bagaimana jika" adalah turunan</strong>
+  Tabel sensitivitas di laporan keuangan ("kalau harga BBM naik 10%, laba turun X") pada dasarnya adalah turunan yang dikalikan perubahan kecil: Δ<var>laba</var> ≈ <var>laba</var>′ × Δ<var>x</var>. Ini adalah aproksimasi linear dari modul Turunan, dan akurat selama perubahannya kecil. Untuk perubahan besar, hitung ulang modelnya secara utuh.
+</div>
+</section>
+
+<!-- 8 -->
+<section id="stok">
+<h2>8. Turunan · Ukuran Pesanan Optimal</h2>
+<p><b>Pertanyaan bisnis:</b> "Biji kopi dibutuhkan 300 kg per tahun. Setiap kali memesan ada ongkos kirim dan administrasi Rp375.000. Menyimpan stok juga ada biayanya: modal tertahan, ruang, dan kesegaran yang menurun, ditaksir Rp40.000 per kg per tahun. Sekali pesan sebaiknya berapa kg?"</p>
+<p>Pesan sedikit-sedikit berarti sering membayar ongkos kirim. Pesan banyak sekaligus berarti stok menumpuk. Total biaya per tahun untuk ukuran pesanan <var>Q</var> kg:</p>
+<div class="formula"><var>TC</var>(<var>Q</var>) = <span class="frac"><span>300</span><span><var>Q</var></span></span> × 375.000 + <span class="frac"><span><var>Q</var></span><span>2</span></span> × 40.000<small>Suku pertama: banyaknya pesanan per tahun × ongkos per pesanan. Suku kedua: rata-rata stok (setengah dari <var>Q</var>, karena stok turun dari <var>Q</var> ke 0) × biaya simpan. Ini model klasik <i>Economic Order Quantity</i> (EOQ).</small></div>
+
+<div class="demo">
+  <h4>🎛 Simulasi 4 · Ukuran pesanan biji kopi</h4>
+  <p>Geser ukuran pesanan. Kurva oranye (ongkos pesan) turun, kurva hijau (biaya simpan) naik, dan totalnya (biru) punya lembah. Coba juga ubah biaya simpan.</p>
+  <div class="controls">
+    <label class="range" for="d4Q">Sekali pesan <input type="range" id="d4Q" min="10" max="200" step="1" value="25"> <b id="d4Qv"></b></label>
+    <label class="range" for="d4H">Biaya simpan per kg/tahun <input type="range" id="d4H" min="10" max="100" step="5" value="40"> <b id="d4Hv"></b></label>
+  </div>
+  <canvas class="plot" id="cv4" style="height:300px"></canvas>
+  <div class="legend"><span><i class="dot" style="background:var(--warn)"></i>ongkos pesan</span><span><i class="dot" style="background:var(--good)"></i>biaya simpan</span><span><i class="dot" style="background:var(--accent)"></i>total</span></div>
+  <div class="kpi"><div>Pesanan per tahun<b id="d4N"></b></div><div>Total biaya per tahun<b id="d4T"></b></div><div>Turunan <var>TC</var>′(<var>Q</var>)<b id="d4D"></b></div><div>Ukuran optimal<b id="d4O"></b></div></div>
+</div>
+<h3>✍️ Contoh hitung manual 7: EOQ</h3>
+<ol class="steps">
+  <li>Turunkan: <var>TC</var>′(<var>Q</var>) = −300 × 375.000/<var>Q</var>² + 20.000</li>
+  <li>Samakan dengan nol: <var>Q</var>² = 300 × 375.000/20.000 = 5.625, jadi <var>Q</var> = <b>75 kg</b>. Rumus umumnya <var>Q</var>* = √(2<var>DS</var>/<var>H</var>).</li>
+  <li>Pesan 75 kg sebanyak 300/75 = 4 kali per tahun (tiap 3 bulan). Total biaya: 4 × 375.000 + 37,5 × 40.000 = 1,5 juta + 1,5 juta = <b>Rp3 juta per tahun</b>.</li>
+  <li>Bandingkan dengan kebiasaan sekarang, pesan 25 kg setiap bulan: 12 × 375.000 + 12,5 × 40.000 = 4,5 juta + 0,5 juta = Rp5 juta. Hemat <b>Rp2 juta per tahun</b> hanya dengan mengubah jadwal pesan. Perhatikan juga bahwa di titik optimal, ongkos pesan <i>sama dengan</i> biaya simpan. Itu bukan kebetulan, melainkan ciri khas titik di mana turunannya nol untuk model ini.</li>
+</ol>
+</section>
+
+<!-- 9 -->
+<section id="serapan">
+<h2>9. Integral · Kurva Serapan Anggaran</h2>
+<p><b>Pertanyaan bisnis:</b> "Kopi Senja ikut program kemitraan dengan anggaran Rp1,2 miliar per tahun untuk membuka gerai baru. Sudah setengah tahun berjalan. Apakah serapannya sesuai rencana?"</p>
+<p>Uang anggaran keluar dengan <b>laju</b> yang berubah-ubah (juta rupiah per bulan). Realisasi sampai bulan <var>t</var> adalah integral laju itu, persis seperti odometer di modul Integral:</p>
+<div class="formula">realisasi(<var>t</var>) = <span class="ig">∫</span><span class="lim"><span><var>t</var></span><span>0</span></span> <var>r</var>(<var>s</var>) <var>ds</var><small>Grafik realisasi kumulatif ini dikenal sebagai <b>kurva S</b> dan dipakai luas untuk memantau proyek konstruksi dan serapan anggaran instansi.</small></div>
+
+<div class="demo">
+  <h4>🎛 Simulasi 5 · Pemantau serapan anggaran</h4>
+  <p>Pilih pola belanja, lalu geser waktu. Atas: laju belanja per bulan. Bawah: realisasi kumulatif (biru) dibandingkan rencana merata (putus-putus).</p>
+  <div class="controls">
+    <select class="btn" id="d5F" aria-label="Pola serapan">
+      <option value="merata">Merata: Rp100 juta per bulan</option>
+      <option value="linear">Lambat di awal, naik terus</option>
+      <option value="proyek">Kurva S proyek: puncak di tengah</option>
+      <option value="akhir">Menumpuk di akhir tahun</option>
+    </select>
+    <label class="range" for="d5T">Akhir bulan ke- <input type="range" id="d5T" min="0" max="12" step="0.05" value="6"> <b id="d5Tv"></b></label>
+  </div>
+  <canvas class="plot" id="cv5" style="height:400px"></canvas>
+  <div class="kpi"><div>Realisasi<b id="d5R"></b></div><div>Persentase serapan<b id="d5P"></b></div><div>Rencana merata<b id="d5Pl"></b></div><div>Selisih<b id="d5D"></b></div></div>
+  <p class="msg" id="d5Msg"></p>
+</div>
+<h3>✍️ Contoh hitung manual 8: "setengah tahun, seperempat anggaran"</h3>
+<ol class="steps">
+  <li>Pola "lambat di awal": lajunya naik lurus, <var>r</var>(<var>t</var>) = <var>kt</var> juta per bulan.</li>
+  <li>Total setahun harus 1.200 juta: ∫<sub>0</sub><sup>12</sup> <var>kt</var> <var>dt</var> = <var>k</var> × 12²/2 = 72<var>k</var> = 1.200, jadi <var>k</var> ≈ 16,67.</li>
+  <li>Realisasi sampai bulan 6: ∫<sub>0</sub><sup>6</sup> <var>kt</var> <var>dt</var> = <var>k</var> × 6²/2 = 18<var>k</var> = <b>Rp300 juta</b>, hanya 25% padahal waktu sudah 50%.</li>
+  <li>Bulan 9: Rp675 juta (56%). Sisa Rp525 juta harus dibelanjakan dalam 3 bulan terakhir. Pola seperti ini sering membuat belanja akhir tahun terburu-buru dan kurang terencana. Integral membantu mendeteksinya sejak awal: kalau pada pertengahan tahun realisasi jauh di bawah garis rencana, jadwal kegiatan perlu ditinjau.</li>
+</ol>
+</section>
+
+<!-- 10 -->
+<section id="saldo">
+<h2>10. Integral · Saldo Rata-rata Harian</h2>
+<p><b>Pertanyaan bisnis:</b> "Bank memberi bunga 2% per tahun untuk rekening operasional, dihitung dari saldo harian. Saldonya naik turun sepanjang bulan. Bunganya berapa?"</p>
+<p>Bank tidak memakai saldo akhir bulan, melainkan <b>saldo rata-rata harian</b>, yaitu integral saldo dibagi lamanya waktu (modul Integral, Bagian 12):</p>
+<div class="formula">saldo rata-rata = <span class="frac"><span>1</span><span><var>T</var></span></span> <span class="ig">∫</span><span class="lim"><span><var>T</var></span><span>0</span></span> <var>S</var>(<var>t</var>) <var>dt</var></div>
+<h3>✍️ Contoh hitung manual 9: bunga rekening sebulan</h3>
+<ol class="steps">
+  <li>Hari 1–10: saldo Rp20 juta. Hari 11–25 (setelah setoran penjualan): Rp50 juta. Hari 26–30 (setelah membayar gaji dan sewa): Rp5 juta.</li>
+  <li>Grafik saldo berupa tangga, jadi integralnya adalah jumlah luas persegi panjang: 20 × 10 + 50 × 15 + 5 × 5 = 200 + 750 + 25 = 975 (juta·hari).</li>
+  <li>Rata-rata: 975/30 = <b>Rp32,5 juta</b>, jauh dari saldo akhir bulan yang hanya Rp5 juta.</li>
+  <li>Bunga sebulan ≈ 32.500.000 × 2% × 30/365 ≈ <b>Rp53.425</b> (sebelum pajak bunga). Pelajaran praktis: menunda pembayaran besar beberapa hari (selama tidak terlambat) memperbesar luas di bawah grafik saldo. Sebaliknya, kartu kredit yang menghitung bunga dari saldo harian rata-rata akan "menghukum" tagihan yang dibiarkan lama.</li>
+</ol>
+</section>
+
+<!-- 11 -->
+<section id="nilai">
+<h2>11. Integral · Nilai Sekarang Arus Kas</h2>
+<p><b>Pertanyaan bisnis:</b> "Ada tawaran membeli sebuah gerai kopi lain yang menghasilkan laba bersih stabil Rp24 juta per tahun. Berapa harga yang wajar untuk membelinya?"</p>
+<p>Uang yang diterima di masa depan bernilai lebih kecil daripada uang hari ini, karena uang hari ini bisa diputar. Kalau tingkat pengembalian alternatifnya 8% per tahun (dihitung kontinu), laba Rp24 juta yang diterima pada tahun ke-<var>t</var> nilainya hari ini 24<var>e</var><sup>−0,08<var>t</var></sup> juta. Karena laba mengalir sepanjang waktu, nilainya dijumlahkan dengan integral:</p>
+<div class="formula"><var>PV</var>(<var>T</var>) = <span class="ig">∫</span><span class="lim"><span><var>T</var></span><span>0</span></span> 24 <var>e</var><sup>−0,08<var>t</var></sup> <var>dt</var> = <span class="frac"><span>24</span><span>0,08</span></span> (1 − <var>e</var><sup>−0,08<var>T</var></sup>) juta</div>
+<h3>✍️ Contoh hitung manual 10: integral bertemu limit</h3>
+<ol class="steps">
+  <li>Usaha bertahan 10 tahun: 300 × (1 − <var>e</var><sup>−0,8</sup>) = 300 × (1 − 0,4493) ≈ <b>Rp165,2 juta</b></li>
+  <li>Usaha bertahan 30 tahun: 300 × (1 − <var>e</var><sup>−2,4</sup>) ≈ <b>Rp272,8 juta</b></li>
+  <li>Usaha bertahan "selamanya": lim<sub><var>T</var>→∞</sub> 300(1 − <var>e</var><sup>−0,08<var>T</var></sup>) = <b>Rp300 juta</b>. Tahun-tahun yang sangat jauh menyumbang makin sedikit, sehingga jumlahnya berhingga. Ini versi kontinu dari perpetuitas di Bagian 5.</li>
+  <li>Kesimpulan: kalau penjual meminta lebih dari Rp300 juta, kamu membayar lebih mahal daripada nilai laba selamanya. Kalau gerai itu realistisnya bertahan sekitar 10 tahun, harga wajarnya lebih dekat ke Rp165 juta.</li>
+</ol>
+</section>
+
+<!-- 12 -->
+<section id="terpadu">
+<h2>12. Studi Kasus Terpadu: Kas Setahun</h2>
+<p><b>Pertanyaan bisnis:</b> "Laba setahun memang positif, tetapi kas usaha naik turun mengikuti musim: renovasi kecil di awal Februari, penjualan siang hari turun saat bulan puasa, THR barista sebelum Lebaran, kota sepi saat mudik, lalu ramai lagi saat libur akhir tahun. Kapan kas paling tipis, dan berapa cadangan yang harus disiapkan di awal tahun supaya tidak pernah minus?"</p>
+<p>Ketiga alat bekerja bersama di sini:</p>
+<div class="grid3">
+  <div class="card"><b>Integral</b><span>Saldo kas = saldo awal + ∫ laju arus kas bersih. Total laba setahun adalah luas bertanda di bawah grafik laju.</span></div>
+  <div class="card"><b>Turunan</b><span>Laju arus kas bersih adalah turunan saldo. Saldo paling rendah tepat ketika laju itu nol dan berganti dari negatif ke positif.</span></div>
+  <div class="card"><b>Limit &amp; optimasi</b><span>Harga jual dari Bagian 6 mengubah tinggi laju. Cadangan minimum adalah "batas" saldo awal yang membuat titik terendah tepat menyentuh nol.</span></div>
+</div>
+
+<div class="demo">
+  <h4>🎛 Simulasi 6 · Simulator kas Kopi Senja</h4>
+  <p>Atas: laju arus kas bersih (juta rupiah per bulan), hijau masuk, merah keluar. Bawah: saldo kas sepanjang tahun. Ubah harga, saldo awal, dan seberapa dalam penjualan turun saat puasa.</p>
+  <div class="controls">
+    <label class="range" for="d6P">Harga jual <input type="range" id="d6P" min="15" max="38" step="0.5" value="22"> <b id="d6Pv"></b></label>
+    <label class="range" for="d6S">Saldo awal Januari <input type="range" id="d6S" min="0" max="60" step="1" value="10"> <b id="d6Sv"></b></label>
+    <label class="range" for="d6D">Penurunan saat puasa <input type="range" id="d6D" min="0" max="0.8" step="0.05" value="0.5"> <b id="d6Dv"></b></label>
+    <label class="chk"><input type="checkbox" id="d6R" checked> Renovasi Rp30 juta (1–15 Feb)</label>
+  </div>
+  <canvas class="plot" id="cv6" style="height:440px"></canvas>
+  <div class="kpi"><div>Laba setahun (∫ laju)<b id="d6L"></b></div><div>Saldo terendah<b id="d6M"></b></div><div>Laju bersih di titik itu<b id="d6N"></b></div><div>Cadangan minimum di awal tahun<b id="d6C"></b></div><div>Saldo akhir Desember<b id="d6E"></b></div></div>
+  <p class="msg" id="d6Msg"></p>
+</div>
+<p>Dengan pengaturan awal (harga Rp22.000, penurunan 50% saat puasa, renovasi berjalan), laba setahun ± Rp58,7 juta, tetapi kas turun paling dalam ± Rp28 juta di bawah saldo awal sekitar <b>awal April</b>, tepat ketika laju arus kas bersih kembali menyentuh nol setelah mudik. Jadi kas awal tahun minimal ± Rp28 juta agar tidak pernah minus. Dengan saldo awal Rp10 juta, kas akan minus; pilihannya adalah menambah cadangan, menunda renovasi ke pertengahan tahun, atau menaikkan harga.</p>
+<h3>Rekomendasi anggaran Kopi Senja</h3>
+<div class="tbl"><table>
+  <tr><th>Keputusan</th><th>Rekomendasi</th><th>Alat kalkulus</th></tr>
+  <tr><td>Harga jual</td><td>Naikkan bertahap ke ± Rp29.000 sambil memantau penjualan (laba +Rp2,9 juta per bulan menurut model)</td><td>Turunan: <var>L</var>′(<var>p</var>) = 0</td></tr>
+  <tr><td>Batas harga promo</td><td>Jangan pernah di bawah Rp8.000 per cup; promo di bawah Rp22.000 hanya jika penjualan jauh di atas 1.072 cup</td><td>Limit di tak hingga, titik impas</td></tr>
+  <tr><td>Pembelian biji kopi</td><td>75 kg sekali pesan, 4 kali setahun; pertimbangkan kontrak harga untuk meredam risiko kurs</td><td>Turunan: EOQ dan sensitivitas</td></tr>
+  <tr><td>Cadangan kas</td><td>Siapkan ± Rp28 juta sebelum Februari, atau pindahkan renovasi ke Juli</td><td>Integral + turunan (saldo minimum)</td></tr>
+  <tr><td>Pembiayaan darurat</td><td>Hindari pinjaman berbunga harian; bandingkan selalu dalam bunga efektif tahunan</td><td>Limit: bunga majemuk</td></tr>
+  <tr><td>Ekspansi</td><td>Tawar gerai baru di bawah Rp165–300 juta tergantung umur usaha yang realistis; pantau serapan dana dengan kurva S</td><td>Integral: nilai sekarang, kurva S</td></tr>
+</table></div>
+</section>
+
+<!-- 13 -->
+<section id="kode">
+<h2>13. Praktik dengan Python</h2>
+<p>Semua angka di modul ini dihitung ulang dengan kode berikut. Ganti asumsinya (biaya tetap, harga, permintaan, tarif, bunga) dengan data usahamu sendiri. Butuh <code>numpy</code> dan <code>scipy</code> (<code>pip install numpy scipy</code>).</p>
+<pre><code class="py">import numpy as np
+from scipy import integrate, optimize
+
+rp = lambda v: f"Rp{v:,.0f}".replace(",", ".")
+
+# ===== LIMIT =====
+# 1) Harga pokok rata-rata menuju biaya variabel; titik impas
+FC, c, p = 15_000_000, 8_000, 22_000
+for q in [100, 1_000, 10_000, 100_000]:
+    print(f"q={q:&gt;7,} cup  biaya rata-rata = {rp(FC / q + c)}".replace(",", "."))
+print("titik impas:", FC / (p - c), "cup per bulan")
+
+# 2) PPh orang pribadi (tarif progresif UU HPP) di sekitar batas lapisan
+lapisan = [(60e6, .05), (250e6, .15), (500e6, .25), (5e9, .30), (np.inf, .35)]
+def pph(pkp):
+    pajak, bawah = 0.0, 0.0
+    for atas, tarif in lapisan:
+        if pkp &gt; bawah:
+            pajak += (min(pkp, atas) - bawah) * tarif
+        bawah = atas
+    return pajak
+for pkp in [249_999_999, 250_000_000, 250_000_001, 300_000_000]:
+    print(f"PKP {rp(pkp):&gt;16}  PPh = {rp(pph(pkp))}")
+
+# 3) Pinjaman 0,3% per hari selama setahun, dan limit bunga kontinu
+r = 0.003
+print(f"\nbunga sederhana : {r * 365:.1%}")
+print(f"majemuk harian  : {(1 + r)**365 - 1:.1%}")
+print(f"kontinu (limit) : {np.exp(r * 365) - 1:.1%}")
+print("perpetuitas sewa 5 jt/bln, 0,75%/bln:", rp(5e6 / 0.0075))
+
+# ===== TURUNAN =====
+q = lambda p: 3000 - 60 * p                      # permintaan cup/bulan, p dalam ribu Rp
+laba = lambda p: ((p - 8) * q(p) - 15_000) * 1000  # laba bulanan (Rp)
+res = optimize.minimize_scalar(lambda p: -laba(p), bounds=(8, 50), method="bounded")
+print(f"\nharga optimal ≈ {res.x:.3f} ribu, cup = {q(res.x):.0f}, laba = {rp(laba(res.x))}")
+print("laba di harga 22 ribu:", rp(laba(22)), " turunan di 22:", rp((laba(22.001) - laba(21.999)) / 0.002), "per Rp1.000")
+print(f"elastisitas di p=22: {60 * 22 / q(22):.3f}")
+
+# 4) EOQ biji kopi: permintaan 300 kg/thn, biaya pesan 375 rb, biaya simpan 40 rb/kg/thn
+D, S, H = 300, 375_000, 40_000
+TC = lambda Q: D / Q * S + Q / 2 * H
+Qs = np.sqrt(2 * D * S / H)
+print(f"\nEOQ = {Qs:.1f} kg, biaya total = {rp(TC(Qs))}, pesan bulanan (25 kg) = {rp(TC(25))}")
+
+# ===== INTEGRAL =====
+# 5) Kurva serapan anggaran 1,2 M dengan laju naik linear r(t) = k t
+k = 1200 / integrate.quad(lambda t: t, 0, 12)[0]
+for bulan in [3, 6, 9, 12]:
+    print(f"serapan s.d. bulan {bulan:2d}: {integrate.quad(lambda t: k * t, 0, bulan)[0]:7.1f} jt")
+
+# 6) Saldo rata-rata harian dan bunga
+saldo = np.array([20] * 10 + [50] * 15 + [5] * 5) * 1e6
+print("\nsaldo rata-rata:", rp(saldo.mean()), " bunga 2%/thn sebulan:", rp(saldo.mean() * 0.02 * 30 / 365))
+
+# 7) Nilai sekarang arus kas 24 jt/thn, diskonto kontinu 8%
+for T in [10, 30, 100]:
+    pv = integrate.quad(lambda t: 24e6 * np.exp(-0.08 * t), 0, T)[0]
+    print(f"PV {T:3d} tahun = {rp(pv)}")
+print("limit T→∞ =", rp(24e6 / 0.08))
+
+# ===== STUDI KASUS TERPADU: kas musiman setahun (satuan juta Rp, t dalam bulan) =====
+bump = lambda t, c, w: np.exp(-((t - c) / w)**2)
+def laju_bersih(t, p=22, d=0.5, renov=True):
+    musim = (1 + 0.10 * np.sin(2 * np.pi * (t - 4) / 12) - d * bump(t, 2.2, 0.4)
+             - 0.35 * bump(t, 3.0, 0.15) + 0.35 * bump(t, 11.5, 0.35))
+    kontribusi = (p - 8) * (3000 - 60 * p) / 1000         # juta Rp per bulan
+    thr = 8 * bump(t, 2.75, 0.12) / (0.12 * np.sqrt(np.pi))  # THR 8 juta, terpusat sebelum Lebaran
+    renovasi = 60.0 * ((t &gt;= 1) &amp; (t &lt; 1.5)) if renov else 0.0   # renovasi 30 juta selama setengah bulan
+    return kontribusi * musim - 15 - thr - renovasi
+
+t = np.linspace(0, 12, 12001)
+for p in [22, 29]:
+    N = laju_bersih(t, p=p)
+    kas = integrate.cumulative_trapezoid(N, t, initial=0)   # perubahan saldo sejak 1 Januari
+    i = np.argmin(kas)
+    print(f"\nharga {p} rb: laba setahun = {kas[-1]:.2f} jt, titik terendah = {kas[i]:.2f} jt "
+          f"pada t = {t[i]:.2f} bulan (laju bersih di sana = {N[i]:.3f})")
+    print(f"  cadangan kas minimum agar tidak minus = {max(0, -kas.min()):.2f} jt")</code></pre>
+<p>Output asli (NumPy 2.5, SciPy 1.18):</p>
+<pre><code>q=    100 cup  biaya rata-rata = Rp158.000
+q=  1.000 cup  biaya rata-rata = Rp23.000
+q= 10.000 cup  biaya rata-rata = Rp9.500
+q=100.000 cup  biaya rata-rata = Rp8.150
+titik impas: 1071.4285714285713 cup per bulan
+PKP    Rp249.999.999  PPh = Rp31.500.000
+PKP    Rp250.000.000  PPh = Rp31.500.000
+PKP    Rp250.000.001  PPh = Rp31.500.000
+PKP    Rp300.000.000  PPh = Rp44.000.000
+
+bunga sederhana : 109.5%
+majemuk harian  : 198.4%
+kontinu (limit) : 198.9%
+perpetuitas sewa 5 jt/bln, 0,75%/bln: Rp666.666.667
+
+harga optimal ≈ 29.000 ribu, cup = 1260, laba = Rp11.460.000
+laba di harga 22 ribu: Rp8.520.000  turunan di 22: Rp840.000 per Rp1.000
+elastisitas di p=22: 0.786
+
+EOQ = 75.0 kg, biaya total = Rp3.000.000, pesan bulanan (25 kg) = Rp5.000.000
+serapan s.d. bulan  3:    75.0 jt
+serapan s.d. bulan  6:   300.0 jt
+serapan s.d. bulan  9:   675.0 jt
+serapan s.d. bulan 12:  1200.0 jt
+
+saldo rata-rata: Rp32.500.000  bunga 2%/thn sebulan: Rp53.425
+PV  10 tahun = Rp165.201.311
+PV  30 tahun = Rp272.784.614
+PV 100 tahun = Rp299.899.361
+limit T→∞ = Rp300.000.000
+
+harga 22 rb: laba setahun = 58.71 jt, titik terendah = -28.02 jt pada t = 3.05 bulan (laju bersih di sana = -0.014)
+  cadangan kas minimum agar tidak minus = 28.02 jt
+
+harga 29 rb: laba setahun = 93.30 jt, titik terendah = -21.10 jt pada t = 2.99 bulan (laju bersih di sana = 0.005)
+  cadangan kas minimum agar tidak minus = 21.10 jt</code></pre>
+<ul>
+  <li><b><code>optimize.minimize_scalar</code></b> mencari harga terbaik secara numerik dan menemukan Rp29.000, sama dengan hasil turunan. Cara numerik berguna saat model permintaannya rumit dan turunannya sulit dicari dengan tangan.</li>
+  <li><b><code>cumulative_trapezoid</code></b> adalah fungsi akumulasi (integral) dari laju arus kas. Titik terendahnya jatuh di bulan ke-3,05 (awal April), dan laju bersih di sana ≈ 0. Itulah teorema "puncak dan lembah terjadi saat turunan nol", ditemukan langsung dari data.</li>
+  <li>Dengan harga Rp29.000, laba setahun naik menjadi Rp93,3 juta dan cadangan minimum turun menjadi Rp21,1 juta: satu keputusan harga memperbaiki dua masalah sekaligus.</li>
+</ul>
+</section>
+
+<!-- 14 -->
+<section id="batas">
+<h2>14. Batas Model &amp; Catatan</h2>
+<p>Model yang baik membantu berpikir, tetapi selalu menyederhanakan kenyataan. Sebelum memakai angka-angka ini untuk keputusan sungguhan, perhatikan hal-hal berikut:</p>
+<div class="grid2">
+  <div class="card"><b>1 · Permintaan tidak selalu lurus</b><span>Rumus <var>q</var> = 3.000 − 60<var>p</var> hanya berlaku di sekitar harga yang pernah diuji. Menaikkan harga jauh di luar rentang itu bisa membuat pelanggan pindah ke pesaing lebih cepat dari perkiraan. Naikkan bertahap dan ukur ulang.</span></div>
+  <div class="card"><b>2 · Biaya "tetap" tidak selamanya tetap</b><span>Kalau penjualan naik dua kali lipat, kamu butuh barista tambahan. Limit Rp8.000 di Bagian 3 berlaku selama biaya tetapnya benar-benar tetap.</span></div>
+  <div class="card"><b>3 · Turunan hanya berlaku lokal</b><span>"Naik Rp1.000, laba +Rp840.000" akurat untuk perubahan kecil. Untuk lompatan besar, hitung ulang modelnya.</span></div>
+  <div class="card"><b>4 · Kalender musiman bergeser</b><span>Bulan puasa dan Lebaran maju ± 11 hari setiap tahun dalam kalender Masehi. Geser pola musiman di model kas setiap tahun.</span></div>
+  <div class="card"><b>5 · Pajak dan regulasi berubah</b><span>Tarif PPh, PTKP, dan aturan pinjaman dapat berubah. Cek aturan terbaru atau konsultasikan dengan konsultan pajak sebelum mengambil keputusan.</span></div>
+  <div class="card"><b>6 · Ketidakpastian</b><span>Semua angka di sini adalah perkiraan titik. Dalam praktik, buat beberapa skenario (pesimis, dasar, optimis) dan siapkan cadangan untuk skenario pesimis.</span></div>
+</div>
+<div class="box tip"><strong>💡 Pola pikir yang dibawa pulang</strong>
+  Setiap kali menyusun anggaran, tanyakan tiga hal: <b>(1) ke mana angka ini menuju dalam jangka panjang atau di batas-batasnya?</b> (limit) <b>(2) kalau satu asumsi digeser sedikit, hasilnya berubah berapa, dan di mana titik terbaiknya?</b> (turunan) <b>(3) kalau lajunya berubah-ubah sepanjang tahun, berapa totalnya dan kapan titik kritisnya?</b> (integral).
+</div>
+</section>
+
+<!-- 15 -->
+<section id="kuis">
+<h2>15. Kuis &amp; Ringkasan Rumus</h2>
+<p id="qScore">Jawab semua soal untuk melihat skormu.</p>
+<div id="quiz"></div>
+<h3>Ringkasan rumus anggaran</h3>
+<div class="tbl"><table>
+  <tr><th>Kebutuhan</th><th>Rumus</th><th>Alat</th></tr>
+  <tr><td>Biaya rata-rata &amp; batas bawahnya</td><td><var>FC</var>/<var>q</var> + <var>c</var> → <var>c</var> saat <var>q</var> → ∞</td><td>Limit</td></tr>
+  <tr><td>Titik impas</td><td><var>q</var> = <var>FC</var>/(<var>p</var> − <var>c</var>)</td><td>Aljabar</td></tr>
+  <tr><td>Pajak bertingkat</td><td>tarif marjinal melompat, total pajak kontinu</td><td>Limit kiri/kanan</td></tr>
+  <tr><td>Bunga efektif</td><td>(1 + <var>r</var>)<sup><var>n</var></sup> − 1 → <var>e</var><sup><var>rn</var></sup> − 1</td><td>Limit (<var>e</var>)</td></tr>
+  <tr><td>Perpetuitas</td><td><var>C</var>/<var>r</var></td><td>Limit deret geometri</td></tr>
+  <tr><td>Harga optimal</td><td><var>L</var>′(<var>p</var>) = 0, <var>L</var>″(<var>p</var>) &lt; 0</td><td>Turunan</td></tr>
+  <tr><td>Elastisitas</td><td>−<var>q</var>′(<var>p</var>) · <var>p</var>/<var>q</var></td><td>Turunan</td></tr>
+  <tr><td>Sensitivitas berantai</td><td><var>dB</var>/<var>dt</var> = (<var>dB</var>/<var>dk</var>)(<var>dk</var>/<var>dt</var>)</td><td>Aturan rantai</td></tr>
+  <tr><td>Ukuran pesanan optimal</td><td><var>Q</var>* = √(2<var>DS</var>/<var>H</var>)</td><td>Turunan</td></tr>
+  <tr><td>Realisasi anggaran</td><td>∫<sub>0</sub><sup><var>t</var></sup> <var>r</var>(<var>s</var>) <var>ds</var></td><td>Integral</td></tr>
+  <tr><td>Saldo rata-rata</td><td>(1/<var>T</var>) ∫ <var>S</var>(<var>t</var>) <var>dt</var></td><td>Integral</td></tr>
+  <tr><td>Nilai sekarang</td><td>∫<sub>0</sub><sup><var>T</var></sup> <var>C</var> <var>e</var><sup>−<var>rt</var></sup> <var>dt</var> → <var>C</var>/<var>r</var></td><td>Integral + limit</td></tr>
+  <tr><td>Cadangan kas minimum</td><td>−min<sub><var>t</var></sub> ∫<sub>0</sub><sup><var>t</var></sup> <var>N</var>(<var>s</var>) <var>ds</var>, terjadi saat <var>N</var>(<var>t</var>) = 0</td><td>Integral + turunan</td></tr>
+</table></div>
+<div class="box note"><strong>📚 Untuk memperdalam</strong>
+  Modul seri ini: <a href="01-limit.html">Limit</a> · <a href="02-turunan.html">Turunan</a> · <a href="03-integral.html">Integral</a>. Bacaan lanjutan: buku teks <i>Calculus for Business, Economics, and the Social Sciences</i> (berbagai penulis), materi manajemen keuangan tentang <i>time value of money</i> dan EOQ, serta informasi resmi Direktorat Jenderal Pajak untuk tarif PPh terbaru.
+</div>
+<div class="nav-mod"><a class="btn" href="03-integral.html">← Sebelumnya: Memahami Integral</a><a class="btn" href="#peta">Ulangi dari awal ↑</a><a class="btn" href="../index.html">Kembali ke beranda →</a></div>
+</section>
+
+<footer>Modul Kalkulus · Studi Kasus Anggaran. Kopi Senja dan datanya adalah contoh rekaan untuk pembelajaran. Tarif PPh mengacu pada UU No. 7 Tahun 2021 tentang Harmonisasi Peraturan Perpajakan.</footer>
+</main>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const TAU=2*Math.PI, PI=Math.PI;
+/* ---------- Sidebar, scrollspy, progress, tema ---------- */
+const sb=$('#sidebar');
+$('#menuBtn').onclick=()=>sb.classList.toggle('open');
+$$('#toc a').forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+const links=[...$$('#toc a')];
+const spy=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){links.forEach(l=>l.classList.toggle('active',l.hash==='#'+e.target.id))}
+}),{rootMargin:'-20% 0px -70% 0px'});
+$$('main section').forEach(s=>spy.observe(s));
+addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  $('#progress div').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+},{passive:true});
+$('#themeBtn').onclick=()=>{
+  const r=document.documentElement, dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme=dark?'light':'dark';
+  try{localStorage.setItem('rl-theme',r.dataset.theme)}catch(e){}
+  redrawAll();
+};
+try{const t=localStorage.getItem('rl-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+
+/* ---------- Highlight kode Python ---------- */
+$$('pre code.py').forEach(el=>{
+  el.innerHTML=el.textContent.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))
+    .replace(/(#.*$)|(f?"[^"\n]*"|'[^'\n]*')|\b(import|from|as|def|return|for|in|if|else|while|with|not|and|or|True|False|None|lambda)\b|\b(\d+\.?\d*(?:e-?\d+)?)\b/gm,
+      (m,c,s,k,n)=>c?`<span class="c">${c}</span>`:s?`<span class="s">${s}</span>`:k?`<span class="k">${k}</span>`:`<span class="n">${n}</span>`);
+});
+
+/* ---------- Util gambar (warna diambil dari token tema) ---------- */
+const C={};
+function readColors(){const cs=getComputedStyle(document.documentElement);
+  ['text','muted','border','accent','good','bad','warn','violet','surface','surface-2'].forEach(k=>C[k]=cs.getPropertyValue('--'+k).trim())}
+const fmt=(v,d=2)=>(Math.abs(v)<0.5*Math.pow(10,-d)?0:v).toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d}).replace('-','−');
+const fmtS=v=>{v=Math.abs(v)<5e-4?0:+v.toFixed(3);return String(v).replace('-','−').replace('.',',')};
+const rupiah=v=>'Rp'+Math.round(v).toLocaleString('id-ID');
+const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function prep(cv){const dpr=window.devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;
+  const W=Math.max(1,Math.round(w*dpr)),H=Math.max(1,Math.round(h*dpr));
+  if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H}
+  const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);g.lineJoin='round';g.lineCap='round';return [g,w,h]}
+function path(g,pts,color,lw=2,dash){g.beginPath();pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));
+  g.strokeStyle=color;g.lineWidth=lw;g.setLineDash(dash||[]);g.stroke();g.setLineDash([])}
+const line=(g,x1,y1,x2,y2,color,lw=1,dash)=>path(g,[[x1,y1],[x2,y2]],color,lw,dash);
+function dot(g,x,y,r,color){g.beginPath();g.arc(x,y,r,0,TAU);g.fillStyle=color;g.fill()}
+function txt(g,s,x,y,color,align='left',size=11,weight=''){g.fillStyle=color;g.font=`${weight} ${size}px system-ui,-apple-system,"Segoe UI",sans-serif`;g.textAlign=align;g.fillText(s,x,y)}
+function poly(g,pts,color,alpha){g.beginPath();pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.globalAlpha=alpha;g.fillStyle=color;g.fill();g.globalAlpha=1}
+/* langkah sumbu yang "bulat" */
+function ticks(a,b,n=5){const s0=(b-a)/n,m=Math.pow(10,Math.floor(Math.log10(s0))),r=s0/m,st=(r<1.5?1:r<3?2:r<7?5:10)*m,out=[];
+  for(let v=Math.ceil(a/st-1e-9)*st;v<=b+1e-9;v+=st)out.push(+v.toFixed(10));return out}
+/* bingkai plot: kembalikan pemetaan data → piksel dan gambar grid + sumbu */
+function frame(g,w,h,xr,yr,o={}){
+  const L=o.l??42,R=o.r??14,T=o.t??14,B=o.b??26,y0=o.y0??0,H=o.h??h;
+  const X=x=>L+(x-xr[0])/(xr[1]-xr[0])*(w-L-R), Y=y=>y0+H-B-(y-yr[0])/(yr[1]-yr[0])*(H-T-B);
+  (o.yt||ticks(yr[0],yr[1],4)).forEach(v=>{line(g,L,Y(v),w-R,Y(v),C.border,1,[2,4]);txt(g,o.yf?o.yf(v):fmtS(v),L-6,Y(v)+4,C.muted,'right')});
+  (o.xt||ticks(xr[0],xr[1],6)).forEach(v=>{line(g,X(v),Y(yr[0]),X(v),Y(yr[0])+4,C.muted);txt(g,o.xf?o.xf(v):fmtS(v),X(v),Y(yr[0])+16,C.muted,'center')});
+  line(g,L,Y(yr[0]),L,Y(yr[1]),C.muted);
+  const ax=Math.min(Math.max(0,yr[0]),yr[1]);line(g,L,Y(ax),w-R,Y(ax),C.muted,1.2);
+  if(o.xl)txt(g,o.xl,w-R,Y(yr[0])-6,C.muted,'right');
+  if(o.yl)txt(g,o.yl,L+6,y0+T+8,C.muted,'left');
+  return {X,Y,L,R,T,B};
+}
+/* isi daerah antara kurva dan sumbu x */
+function fillUnder(g,X,Y,f,a,b,color,alpha,n=240){if(b<=a)return;const pts=[[X(a),Y(0)]];
+  for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;pts.push([X(x),Y(f(x))])}pts.push([X(b),Y(0)]);poly(g,pts,color,alpha)}
+function curve(g,X,Y,f,a,b,color,lw=2.2,n=400,dash){const p=[];for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;p.push([X(x),Y(f(x))])}path(g,p,color,lw,dash)}
+const redraws=[];
+function redrawAll(){readColors();redraws.forEach(f=>f())}
+addEventListener('resize',()=>{clearTimeout(window._rt);window._rt=setTimeout(redrawAll,120)});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);
+/* animasi hanya berjalan untuk kanvas yang terlihat */
+const anims=[],visible=new Map();
+const vio=new IntersectionObserver(es=>es.forEach(e=>visible.set(e.target,e.isIntersecting)));
+function animate(el,step){anims.push({el,step});vio.observe(el)}
+let lastT=performance.now();
+function loop(now){const dt=Math.min(0.05,(now-lastT)/1000);lastT=now;anims.forEach(a=>{if(visible.get(a.el))a.step(dt)});requestAnimationFrame(loop)}
+readColors();
+
+/* ---------- Util tambahan ---------- */
+function clipTo(g,F,w,h,o={}){g.save();g.beginPath();g.rect(F.L,(o.y0??0)+F.T,w-F.L-F.R,(o.h??h)-F.T-F.B);g.clip()}
+function ring(g,x,y,r,color){g.beginPath();g.arc(x,y,r,0,TAU);g.fillStyle=C['surface-2'];g.fill();g.strokeStyle=color;g.lineWidth=2.2;g.stroke()}
+const rpS=v=>(v<0?'−':'')+'Rp'+Math.round(Math.abs(v)).toLocaleString('id-ID');
+const jt=v=>(v<0?'−':'')+'Rp'+fmt(Math.abs(v),2)+' jt';
+const BLN=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const tgl=t=>{const m=Math.min(11,Math.floor(t));return '± '+Math.min(30,Math.floor((t-m)*30)+1)+' '+BLN[m]};
+/* isi daerah di antara dua kurva, hijau bila a > b, merah bila a < b */
+function fillBetween(g,X,Y,fa,fb,x0,x1,n=300){for(let i=0;i<n;i++){const u=x0+(x1-x0)*i/n,v=u+(x1-x0)/n,ok=fa((u+v)/2)>=fb((u+v)/2);
+  poly(g,[[X(u),Y(fa(u))],[X(v),Y(fa(v))],[X(v),Y(fb(v))],[X(u),Y(fb(u))]],ok?C.good:C.bad,0.16)}}
+
+/* ---------- Simulasi 1: harga pokok & titik impas ---------- */
+const FC=15e6,VC=8000,cv1=$('#cv1');
+function d1Draw(){const [g,w,h]=prep(cv1);const q=+$('#d1Q').value,p=+$('#d1P').value*1000,AC=x=>FC/x+VC;
+  const P=frame(g,w,h,[0,4000],[0,60000],{l:56,yt:[0,10000,20000,30000,40000,50000,60000],yf:v=>v?(v/1000)+'rb':'0',xl:'cup per bulan',yl:'rupiah per cup'});
+  clipTo(g,P,w,h);
+  fillBetween(g,P.X,P.Y,()=>p,AC,260,4000);
+  line(g,P.X(0),P.Y(VC),P.X(4000),P.Y(VC),C.good,1.6,[6,5]);
+  line(g,P.X(0),P.Y(p),P.X(4000),P.Y(p),C.warn,2.2);
+  curve(g,P.X,P.Y,AC,250,4000,C.accent,2.6,400);
+  const bep=p>VC?FC/(p-VC):Infinity;
+  if(bep<4000){line(g,P.X(bep),P.Y(0),P.X(bep),P.Y(p),C.muted,1,[3,4]);dot(g,P.X(bep),P.Y(p),5,C.text);txt(g,'impas '+Math.ceil(bep).toLocaleString('id-ID')+' cup',P.X(bep)+6,P.Y(p)-8,C.text,'left',11.5,'600')}
+  g.restore();
+  dot(g,P.X(q),P.Y(Math.min(60000,AC(q))),6,C.accent);line(g,P.X(q),P.Y(0),P.X(q),P.Y(Math.min(60000,AC(q))),C.accent,1,[3,4]);
+  txt(g,'batas bawah Rp8.000',w-P.R-4,P.Y(VC)+16,C.good,'right',11.5,'600');
+  const lab=(p-VC)*q-FC;
+  $('#d1Qv').textContent=q.toLocaleString('id-ID');$('#d1Pv').textContent=rpS(p);
+  $('#d1R').textContent=rpS(AC(q));$('#d1M').textContent=rpS(p-AC(q));$('#d1L').textContent=rpS(lab);
+  $('#d1B').textContent=isFinite(bep)?Math.ceil(bep).toLocaleString('id-ID')+' cup/bulan':'tidak pernah (harga ≤ biaya bahan)'}
+['#d1Q','#d1P'].forEach(id=>$(id).oninput=d1Draw);redraws.push(d1Draw);
+
+/* ---------- Simulasi 2: pajak bertingkat, tebing, bertahap ---------- */
+const LAP=[[60,.05],[250,.15],[500,.25],[5000,.30],[Infinity,.35]];
+const pph=x=>{let s=0,b=0;for(const [a,r] of LAP){if(x>b)s+=(Math.min(x,a)-b)*r;b=a}return s};
+const rate=x=>{for(const [a,r] of LAP)if(x<a)return r;return .35};
+const bantuan={tebing:x=>x<=4?0.6:0,bertahap:x=>x<=4?0.6:x<5?0.6*(5-x):0};
+const cv2=$('#cv2');
+function setK(id,label,val){const el=$('#'+id+'l');el.firstChild.nodeValue=label;$('#'+id).textContent=val}
+function d2Draw(){const [g,w,h]=prep(cv2);const m=$('#d2M').value,u=+$('#d2X').value,half=h/2;
+  if(m==='pph'){const x=u*600;
+    const T=frame(g,w,h,[0,600],[0,130],{h:half,b:22,l:50,xf:v=>fmtS(v)+' jt',yl:'total PPh (juta Rp)'});
+    [60,250,500].forEach(b=>line(g,T.X(b),T.Y(0),T.X(b),T.Y(130),C.muted,1,[3,4]));
+    curve(g,T.X,T.Y,pph,0,600,C.accent,2.6,600);dot(g,T.X(x),T.Y(pph(x)),5.5,C.accent);
+    const B=frame(g,w,h,[0,600],[0,40],{y0:half,h:half,b:22,l:50,xf:v=>fmtS(v)+' jt',yf:v=>v+'%',yl:'tarif marjinal',xl:'PKP per tahun'});
+    let b0=0;LAP.slice(0,3).concat([[600,.30]]).forEach(([a,r])=>{line(g,B.X(b0),B.Y(r*100),B.X(Math.min(a,600)),B.Y(r*100),C.warn,2.6);b0=a});
+    [60,250,500].forEach(b=>{ring(g,B.X(b),B.Y(rate(b-1)*100),4,C.warn);dot(g,B.X(b),B.Y(rate(b)*100),4,C.warn)});
+    dot(g,B.X(x),B.Y(rate(x)*100),5.5,C.warn);
+    const nb=[60,250,500].reduce((a,b)=>Math.abs(b-x)<Math.abs(a-x)?b:a);
+    $('#d2Xv').textContent='PKP Rp'+fmt(x,0)+' jt';
+    setK('d2K1','Total PPh setahun',jt(pph(x)));setK('d2K2','Tarif marjinal di titik ini',fmt(rate(x)*100,0)+'%');
+    setK('d2K3',`Di batas Rp${nb} jt: total pajak`,`kiri ${fmt(pph(nb-1e-9),1)} = kanan ${fmt(pph(nb+1e-9),1)} jt`);
+    $('#d2Msg').textContent=`Tarif melompat dari ${rate(nb-1)*100}% ke ${rate(nb)*100}% di Rp${nb} juta (limit tarif tidak ada), tetapi total pajaknya kontinu: tidak ada tebing, jadi tambahan penghasilan tidak pernah membuat penghasilan bersih turun.`;
+  }else{const x=2+u*4,bf=bantuan[m],net=v=>v+bf(v);
+    const T=frame(g,w,h,[2,6],[2,6.8],{h:half,b:22,l:50,xf:v=>fmtS(v)+' jt',yl:'penghasilan + bantuan (juta Rp/bulan)'});
+    line(g,T.X(4),T.Y(2),T.X(4),T.Y(6.8),C.muted,1,[3,4]);
+    if(m==='tebing'){curve(g,T.X,T.Y,net,2,4,C.accent,2.6,200);curve(g,T.X,T.Y,net,4.0001,6,C.accent,2.6,200);dot(g,T.X(4),T.Y(4.6),5,C.accent);ring(g,T.X(4),T.Y(4.0001),5,C.accent)}
+    else curve(g,T.X,T.Y,net,2,6,C.accent,2.6,400);
+    dot(g,T.X(x),T.Y(net(x)),6,C.accent);
+    const B=frame(g,w,h,[2,6],[0,0.8],{y0:half,h:half,b:22,l:50,xf:v=>fmtS(v)+' jt',yf:v=>fmtS(v),yl:'bantuan (juta Rp/bulan)',xl:'penghasilan per bulan'});
+    if(m==='tebing'){line(g,B.X(2),B.Y(0.6),B.X(4),B.Y(0.6),C.warn,2.6);line(g,B.X(4),B.Y(0),B.X(6),B.Y(0),C.warn,2.6);dot(g,B.X(4),B.Y(0.6),4,C.warn);ring(g,B.X(4),B.Y(0),4,C.warn)}
+    else curve(g,B.X,B.Y,bf,2,6,C.warn,2.6,400);
+    dot(g,B.X(x),B.Y(bf(x)),5.5,C.warn);
+    const kr=net(4+1e-9);
+    $('#d2Xv').textContent=rpS(x*1e6)+'/bln';
+    setK('d2K1','Penghasilan + bantuan',jt(net(x)));setK('d2K2','Bantuan diterima',jt(bf(x)));
+    setK('d2K3','Di batas Rp4 jt',`kiri 4,60 ${Math.abs(kr-4.6)<1e-6?'=':'≠'} kanan ${fmt(kr,2)} jt`);
+    $('#d2Msg').textContent=m==='tebing'?'Tebing: dari kiri menuju Rp4,6 juta, dari kanan hanya Rp4,0 juta. Limit kiri ≠ kanan, sehingga naik gaji sedikit di sekitar Rp4 juta justru menurunkan pendapatan. Geser slider melewati Rp4 juta untuk merasakannya.'
+      :'Bertahap: bantuan dikurangi 60 sen untuk setiap tambahan Rp1 penghasilan antara Rp4–5 juta. Fungsi pendapatan kontinu dan terus naik, sehingga bekerja lebih banyak selalu menguntungkan.'}}
+['#d2M','#d2X'].forEach(id=>$(id).oninput=d2Draw);redraws.push(d2Draw);
+
+/* ---------- Simulasi 3: harga jual terbaik ---------- */
+const qD=p=>Math.max(0,3000-60*p),Lp=p=>((p-8)*qD(p)-15000)/1000,dLp=p=>(3480-120*p)/1000;
+const cv3=$('#cv3');
+function d3Draw(){const [g,w,h]=prep(cv3);const p=+$('#d3P').value,half=h/2;
+  const T=frame(g,w,h,[8,50],[-17,14],{h:half,b:22,l:48,xf:v=>v+'rb',yl:'laba per bulan (juta Rp)'});
+  line(g,T.X(29),T.Y(-17),T.X(29),T.Y(14),C.good,1,[3,4]);
+  curve(g,T.X,T.Y,Lp,8,50,C.text,2.4,400);
+  clipTo(g,T,w,h,{h:half});const s=dLp(p),sp=4;line(g,T.X(p-sp),T.Y(Lp(p)-s*sp),T.X(p+sp),T.Y(Lp(p)+s*sp),C.warn,2.6);g.restore();
+  dot(g,T.X(p),T.Y(Lp(p)),6,C.accent);
+  const B=frame(g,w,h,[8,50],[-2.8,2.8],{y0:half,h:half,b:22,l:48,xf:v=>v+'rb',yl:'L′(p): juta Rp per kenaikan Rp1.000',xl:'harga jual'});
+  curve(g,B.X,B.Y,dLp,8,50,C.accent,2.4,100);dot(g,B.X(p),B.Y(dLp(p)),6,C.warn);
+  line(g,T.X(p),T.Y(Lp(p)),B.X(p),B.Y(dLp(p)),C.muted,1,[3,4]);
+  $('#d3Pv').textContent=rpS(p*1000);$('#d3Q').textContent=Math.round(qD(p)).toLocaleString('id-ID')+' cup';
+  $('#d3R').textContent=rpS(p*1000*qD(p));$('#d3L').textContent=rpS(Lp(p)*1e6);$('#d3D').textContent=rpS(s*1e6)+' per Rp1.000';
+  $('#d3Msg').textContent=Math.abs(p-29)<0.15?'Puncak! L′(p) ≈ 0: menaikkan atau menurunkan harga sedikit sama-sama tidak menambah laba. Harga terbaik Rp29.000 dengan laba ± Rp11,46 juta per bulan.'
+    :s>0?`L′(p) positif: menaikkan harga Rp1.000 menambah laba ± ${rpS(s*1e6)} per bulan. Harga masih terlalu murah.`
+    :`L′(p) negatif: harga sudah kemahalan. Menurunkan harga Rp1.000 menambah laba ± ${rpS(-s*1e6)} per bulan.`}
+$('#d3P').oninput=d3Draw;redraws.push(d3Draw);
+
+/* ---------- Simulasi 4: EOQ ---------- */
+const D4=300,S4=375000,cv4=$('#cv4');
+function d4Draw(){const [g,w,h]=prep(cv4);const Q=+$('#d4Q').value,H=+$('#d4H').value*1000;
+  const ord=x=>D4/x*S4/1e6,hold=x=>x/2*H/1e6,tot=x=>ord(x)+hold(x),Qs=Math.sqrt(2*D4*S4/H);
+  const P=frame(g,w,h,[0,200],[0,12],{l:44,xf:v=>v+' kg',yf:v=>v+' jt',yl:'biaya per tahun',xl:'ukuran sekali pesan'});
+  clipTo(g,P,w,h);
+  curve(g,P.X,P.Y,ord,8,200,C.warn,2.2,300);curve(g,P.X,P.Y,hold,0,200,C.good,2.2,50);curve(g,P.X,P.Y,tot,8,200,C.accent,2.8,300);
+  line(g,P.X(Qs),P.Y(0),P.X(Qs),P.Y(tot(Qs)),C.muted,1,[3,4]);
+  const sl=(-D4*S4/(Q*Q)+H/2)/1e6,sp=18;line(g,P.X(Q-sp),P.Y(tot(Q)-sl*sp),P.X(Q+sp),P.Y(tot(Q)+sl*sp),C.text,1.8);
+  g.restore();
+  dot(g,P.X(Qs),P.Y(tot(Qs)),4.5,C.muted);dot(g,P.X(Q),P.Y(tot(Q)),6,C.accent);
+  txt(g,'optimal '+fmt(Qs,1)+' kg',P.X(Qs)+6,P.Y(tot(Qs))+18,C.muted,'left',11.5,'600');
+  $('#d4Qv').textContent=Q+' kg';$('#d4Hv').textContent=rpS(H);
+  $('#d4N').textContent=fmt(D4/Q,1)+' kali';$('#d4T').textContent=rpS(tot(Q)*1e6);
+  $('#d4D').textContent=rpS(sl*1e6)+' per kg';$('#d4O').textContent=fmt(Qs,1)+' kg → '+rpS(tot(Qs)*1e6)}
+['#d4Q','#d4H'].forEach(id=>$(id).oninput=d4Draw);redraws.push(d4Draw);
+
+/* ---------- Simulasi 5: kurva serapan anggaran ---------- */
+const N5=1200,cv5=$('#cv5');
+const R5={merata:t=>1,linear:t=>t,proyek:t=>Math.exp(-(((t-6)/2.6)**2)),akhir:t=>(t/12)**3};
+let r5=null,c5=[];
+function d5Prep(){const f=R5[$('#d5F').value];let s=0;const vals=[];for(let i=0;i<=N5;i++)vals.push(f(12*i/N5));
+  for(let i=1;i<=N5;i++)s+=(vals[i-1]+vals[i])/2*(12/N5);const k=1200/s;r5=t=>k*f(t);c5=[0];
+  for(let i=1;i<=N5;i++)c5.push(c5[i-1]+(vals[i-1]+vals[i])/2*k*(12/N5))}
+const c5At=t=>{const x=t/12*N5,i=Math.min(N5-1,Math.floor(x));return c5[i]+(c5[i+1]-c5[i])*(x-i)};
+function d5Draw(){const [g,w,h]=prep(cv5);const t=+$('#d5T').value,half=h/2;
+  let mx=0;for(let i=0;i<=120;i++)mx=Math.max(mx,r5(12*i/120));
+  const T=frame(g,w,h,[0,12],[0,Math.ceil(mx*1.15/50)*50],{h:half,b:22,l:50,xt:[0,3,6,9,12],xf:v=>'bln '+v,yl:'laju belanja (juta Rp/bulan)'});
+  fillUnder(g,T.X,T.Y,r5,0,t,C.accent,0.3);curve(g,T.X,T.Y,r5,0,12,C.text,2.2,300);
+  const B=frame(g,w,h,[0,12],[0,1300],{y0:half,h:half,b:22,l:50,xt:[0,3,6,9,12],xf:v=>'bln '+v,yt:[0,300,600,900,1200],yl:'realisasi kumulatif (juta Rp)'});
+  line(g,B.X(0),B.Y(0),B.X(12),B.Y(1200),C.muted,1.6,[6,5]);
+  const pts=[];for(let i=0;i<=N5;i+=4){const tt=12*i/N5;if(tt>t)break;pts.push([B.X(tt),B.Y(c5[i])])}pts.push([B.X(t),B.Y(c5At(t))]);path(g,pts,C.accent,2.8);
+  const R=c5At(t),pl=100*t;dot(g,B.X(t),B.Y(R),6,C.accent);dot(g,B.X(t),B.Y(pl),4.5,C.muted);
+  line(g,T.X(t),T.Y(0),T.X(t),T.Y(r5(t)),C.muted,1,[3,4]);
+  $('#d5Tv').textContent=fmt(t,1).replace(',0','');$('#d5R').textContent='Rp'+fmt(R,0)+' jt';$('#d5P').textContent=fmt(R/12,1)+'%';
+  $('#d5Pl').textContent='Rp'+fmt(pl,0)+' jt';$('#d5D').textContent=(R-pl>=0?'+':'−')+'Rp'+fmt(Math.abs(R-pl),0)+' jt';
+  const gap=t>0.5?(R-pl)/pl:0;
+  $('#d5Msg').textContent=t<0.5?'Geser waktu untuk melihat realisasi berjalan.':gap<-0.15?`Tertinggal ${fmt(-gap*100,0)}% dari rencana merata. Sisa ${fmt((1200-R),0)} juta harus dibelanjakan dalam ${fmt(12-t,1)} bulan, yaitu rata-rata ${fmt((1200-R)/Math.max(0.1,12-t),0)} juta per bulan.`
+    :gap>0.15?`Lebih cepat ${fmt(gap*100,0)}% dari rencana merata. Pastikan sisa anggaran cukup untuk kegiatan di bulan-bulan berikutnya.`:'Realisasi masih dekat dengan rencana merata.'}
+$('#d5F').onchange=()=>{d5Prep();d5Draw()};$('#d5T').oninput=d5Draw;d5Prep();redraws.push(d5Draw);
+
+/* ---------- Simulasi 6: kas Kopi Senja setahun ---------- */
+const bump=(t,c,w)=>Math.exp(-(((t-c)/w)**2)),N6=2400,cv6=$('#cv6');
+function N6f(t,p,d,ren){const mus=1+0.10*Math.sin(TAU*(t-4)/12)-d*bump(t,2.2,0.4)-0.35*bump(t,3.0,0.15)+0.35*bump(t,11.5,0.35);
+  const kon=(p-8)*(3000-60*p)/1000,thr=8*bump(t,2.75,0.12)/(0.12*Math.sqrt(PI)),renov=ren&&t>=1&&t<1.5?60:0;
+  return kon*mus-15-thr-renov}
+function d6Draw(){const [g,w,h]=prep(cv6);const p=+$('#d6P').value,S0=+$('#d6S').value,d=+$('#d6D').value,ren=$('#d6R').checked,half=h/2;
+  const ts=[],Ns=[],cum=[0];for(let i=0;i<=N6;i++){const t=12*i/N6;ts.push(t);Ns.push(N6f(t,p,d,ren))}
+  for(let i=1;i<=N6;i++)cum.push(cum[i-1]+(Ns[i-1]+Ns[i])/2*(12/N6));
+  let im=0;for(let i=1;i<=N6;i++)if(cum[i]<cum[im])im=i;
+  const nmin=Math.min(...Ns),nmax=Math.max(...Ns),xt=[...Array(12).keys()],xf=v=>BLN[v];
+  const T=frame(g,w,h,[0,12],[Math.floor(nmin/10)*10-5,Math.ceil(nmax/10)*10+5],{h:half,b:22,l:46,xt,xf,yl:'laju arus kas bersih (juta Rp/bulan)'});
+  const Nf=t=>N6f(t,p,d,ren);
+  fillUnder(g,T.X,T.Y,t=>Math.max(0,Nf(t)),0,12,C.good,0.35,1200);fillUnder(g,T.X,T.Y,t=>Math.min(0,Nf(t)),0,12,C.bad,0.35,1200);
+  curve(g,T.X,T.Y,Nf,0,12,C.text,1.8,1200);
+  const S=cum.map(v=>S0+v),smin=Math.min(...S),smax=Math.max(...S);
+  const B=frame(g,w,h,[0,12],[Math.min(0,Math.floor(smin/10)*10-5),Math.ceil(smax/10)*10+5],{y0:half,h:half,b:22,l:46,xt,xf,yl:'saldo kas (juta Rp)'});
+  const pts=ts.map((t,i)=>[B.X(t),B.Y(S[i])]);
+  clipTo(g,B,w,h,{y0:half,h:half});
+  for(let i=0;i<N6;i+=2)if(S[i]<0)poly(g,[[B.X(ts[i]),B.Y(0)],[B.X(ts[i]),B.Y(S[i])],[B.X(ts[Math.min(N6,i+2)]),B.Y(S[Math.min(N6,i+2)])],[B.X(ts[Math.min(N6,i+2)]),B.Y(0)]],C.bad,0.3);
+  path(g,pts,C.accent,2.6);
+  const tm=ts[im];if(im>0&&im<N6)line(g,B.X(tm-1),B.Y(S[im]),B.X(tm+1),B.Y(S[im]),C.warn,2.4);
+  g.restore();
+  dot(g,B.X(tm),B.Y(S[im]),6,C.warn);line(g,T.X(tm),T.Y(Nf(tm)),B.X(tm),B.Y(S[im]),C.muted,1,[3,4]);
+  if(ren)txt(g,'renovasi',T.X(1.25),T.Y(Nf(1.25))+14,C.bad,'center',11);
+  txt(g,'THR',T.X(2.75),T.Y(Nf(2.75))+14,C.bad,'center',11);
+  const res=Math.max(0,-cum[im]);
+  $('#d6Pv').textContent=rpS(p*1000);$('#d6Sv').textContent='Rp'+S0+' jt';$('#d6Dv').textContent=fmt(d*100,0)+'%';
+  $('#d6L').textContent=jt(cum[N6]);$('#d6M').textContent=jt(S[im])+(im>0?' ('+tgl(tm)+')':'');
+  $('#d6N').textContent=im>0&&im<N6?fmt(Ns[im],3)+' jt/bln ≈ 0':'—';$('#d6C').textContent=jt(res);$('#d6E').textContent=jt(S[N6]);
+  $('#d6Msg').textContent=im===0?'Kas tidak pernah turun di bawah saldo awal: tidak perlu cadangan tambahan.'
+    :S[im]<0?`Kas minus sekitar ${tgl(tm)}. Siapkan saldo awal minimal ${jt(res)} (kurang ${jt(-S[im])} lagi), tunda renovasi, atau naikkan harga. Perhatikan: titik terendah ada tepat saat laju bersih di grafik atas kembali menyentuh nol.`
+    :`Aman: saldo terendah ${jt(S[im])} pada ${tgl(tm)}, tepat saat laju bersih kembali menyentuh nol. Kamu masih punya bantalan ${jt(S[im])} di atas nol.`}
+['#d6P','#d6S','#d6D','#d6R'].forEach(id=>$(id).oninput=d6Draw);redraws.push(d6Draw);
+
+/* ---------- Kuis ---------- */
+const QZ=[
+  {q:'Biaya tetap Kopi Senja Rp15 juta per bulan dan bahan Rp8.000 per cup. Saat penjualan sangat besar, biaya rata-rata per cup mendekati…',o:['Rp0','Rp8.000','Rp15.000','Rp23.000'],a:1,w:'lim q→∞ (15.000.000/q + 8.000) = 8.000. Biaya tetap terencerkan, biaya bahan tidak.'},
+  {q:'Dengan harga Rp22.000, berapa cup per bulan agar Kopi Senja tidak rugi?',o:['± 682 cup','± 1.072 cup','± 1.680 cup','± 1.875 cup'],a:1,w:'Titik impas = 15.000.000/(22.000 − 8.000) ≈ 1.071,4, dibulatkan ke atas menjadi 1.072 cup.'},
+  {q:'Dalam PPh bertingkat, saat PKP melewati Rp250 juta, apa yang terjadi?',o:['Seluruh penghasilan dikenai 25%','Total pajak melompat naik','Tarif marjinal melompat dari 15% ke 25%, tetapi total pajak tetap kontinu','Pajak menjadi nol'],a:2,w:'Hanya bagian di atas Rp250 juta yang dikenai 25%. Limit kiri dan kanan total pajak sama-sama Rp31,5 juta.'},
+  {q:'Pinjaman dengan bunga majemuk 0,3% per hari, dibiarkan setahun, bunganya kira-kira…',o:['0,3%','36%','109,5%','198%'],a:3,w:'(1,003)^365 − 1 ≈ 198,4%. Angka 109,5% hanya berlaku untuk bunga sederhana.'},
+  {q:'L′(22) = Rp840.000 per Rp1.000. Artinya…',o:['Laba di harga Rp22.000 adalah Rp840.000','Menaikkan harga Rp1.000 kira-kira menambah laba Rp840.000 per bulan','Harga harus turun Rp840','Harga optimal Rp840.000'],a:1,w:'Turunan adalah tambahan laba per kenaikan kecil harga. Positif berarti harga masih bisa dinaikkan.'},
+  {q:'Harga yang memaksimumkan laba ditemukan ketika…',o:['pendapatan maksimum','L′(p) = 0 dan L″(p) < 0','jumlah cup maksimum','biaya rata-rata minimum'],a:1,w:'Puncak kurva laba: kemiringan nol, kurva cekung ke bawah. Untuk Kopi Senja, p = 29 ribu.'},
+  {q:'Biaya biji kopi B = 450 × kurs. Jika kurs naik Rp50 per minggu, anggaran biji naik…',o:['Rp450 per minggu','Rp50 per minggu','Rp22.500 per minggu','Rp9 per minggu'],a:2,w:'Aturan rantai: dB/dt = (dB/dkurs)(dkurs/dt) = 450 × 50.'},
+  {q:'Pada ukuran pesanan optimal (EOQ), hubungan ongkos pesan dan biaya simpan per tahun adalah…',o:['ongkos pesan nol','keduanya sama besar','biaya simpan dua kali ongkos pesan','tidak ada hubungannya'],a:1,w:'Di Q* = 75 kg, keduanya sama-sama Rp1,5 juta. Ini ciri titik di mana turunan total biaya bernilai nol.'},
+  {q:'Realisasi anggaran sampai bulan ke-t sama dengan…',o:['laju belanja di bulan t','integral laju belanja dari 0 sampai t','turunan laju belanja','laju belanja dikali 12'],a:1,w:'Total = integral laju. Grafik kumulatifnya adalah kurva S.'},
+  {q:'Saldo kas mencapai titik terendah ketika…',o:['laju arus kas bersih paling negatif','laju arus kas bersih berubah dari negatif menjadi nol lalu positif','pendapatan paling kecil','akhir tahun'],a:1,w:'Saldo adalah integral laju, dan laju adalah turunan saldo. Lembah saldo terjadi saat turunannya nol dan berganti tanda dari − ke +.'}
+];
+const answered={};
+$('#quiz').innerHTML=QZ.map((x,i)=>`<div class="q" data-i="${i}"><p>${i+1}. ${x.q}</p>${x.o.map((o,j)=>`<button data-j="${j}">${o}</button>`).join('')}<div class="why">${x.w}</div></div>`).join('');
+$$('.q button').forEach(b=>b.onclick=()=>{
+  const box=b.closest('.q'),i=box.dataset.i,x=QZ[i];
+  box.querySelectorAll('button').forEach(o=>o.classList.remove('right','wrong'));
+  b.classList.add(+b.dataset.j===x.a?'right':'wrong');
+  box.querySelector(`[data-j="${x.a}"]`).classList.add('right');
+  box.querySelector('.why').style.display='block';
+  if(!(i in answered))answered[i]=+b.dataset.j===x.a;
+  const n=Object.keys(answered).length,ok=Object.values(answered).filter(Boolean).length;
+  $('#qScore').textContent=n<QZ.length?`Terjawab ${n} dari ${QZ.length} · benar ${ok} (jawaban pertama yang dihitung)`:`Skor akhir: ${ok} dari ${QZ.length}. ${ok===QZ.length?'Sempurna! 🎉':ok>=7?'Bagus, ulangi bagian yang masih salah.':'Coba baca ulang bagian yang terkait lalu ulangi kuisnya.'}`;
+});
+
+/* ---------- Gambar awal & mulai animasi ---------- */
+redrawAll();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

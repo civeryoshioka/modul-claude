@@ -27,8 +27,11 @@ Kumpulan modul belajar interaktif berbentuk HTML (cukup buka file di browser, ta
 
 ## Kalkulus
 
+Ikuti urutan bernomor: **1 Limit → 2 Turunan → 3 Integral → 4 Studi Kasus Anggaran**.
+
 | Modul | File | Status |
 |---|---|---|
-| Memahami Limit dari Nol (limit kiri/kanan, 0/0, teorema apit, bilangan e, deret, ε–δ) | [`kalkulus/00-limit.html`](kalkulus/00-limit.html) | ✅ Selesai |
-| Memahami Turunan dari Nol (laju sesaat, limit, aturan rantai, optimasi, gradient descent) | [`kalkulus/02-turunan.html`](kalkulus/02-turunan.html) | ✅ Selesai |
-| Memahami Integral dari Nol (intuisi, jumlah Riemann, Teorema Dasar, teknik, numerik, aplikasi) | [`kalkulus/01-integral.html`](kalkulus/01-integral.html) | ✅ Selesai |
+| 1 · Memahami Limit dari Nol (limit kiri/kanan, 0/0, teorema apit, bilangan e, deret, ε–δ) | [`kalkulus/01-limit.html`](kalkulus/01-limit.html) | ✅ Selesai |
+| 2 · Memahami Turunan dari Nol (laju sesaat, limit, aturan rantai, optimasi, gradient descent) | [`kalkulus/02-turunan.html`](kalkulus/02-turunan.html) | ✅ Selesai |
+| 3 · Memahami Integral dari Nol (intuisi, jumlah Riemann, Teorema Dasar, teknik, numerik, aplikasi) | [`kalkulus/03-integral.html`](kalkulus/03-integral.html) | ✅ Selesai |
+| 4 · Studi Kasus Anggaran (titik impas, pajak, bunga, harga optimal, EOQ, kurva S, arus kas) | [`kalkulus/04-studi-kasus-anggaran.html`](kalkulus/04-studi-kasus-anggaran.html) | ✅ Selesai |

@@ -163,7 +163,7 @@ footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color
 <nav id="sidebar" aria-label="Daftar isi">
   <a class="home-link" href="../index.html" style="display:block;margin:0 8px 12px;font-size:13px;text-decoration:none">← Beranda semua modul</a>
   <div class="brand">Memahami Turunan</div>
-  <span class="level">Kalkulus</span>
+  <span class="level">Kalkulus · Modul 2 dari 4</span>
   <div id="progress"><div></div></div>
   <ol id="toc">
     <li><a href="#peta">Kenapa Turunan Terasa Sulit?</a></li>
@@ -226,7 +226,7 @@ footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color
   Setelah modul ini kamu bisa menjelaskan turunan dengan kata-katamu sendiri sebagai <b>"laju perubahan sesaat"</b> atau <b>"kemiringan saat di-zoom"</b>, membaca notasi
   <code>f′(x)</code> dan <code>dy/dx</code>, menurunkan rumus dasar dari definisinya, memakai aturan perkalian dan rantai,
   memahami turunan kedua, lalu menerapkannya untuk optimasi, aproksimasi, dan <i>gradient descent</i> yang menjadi mesin pelatihan AI.
-  <br><span class="muted">Prasyarat: aljabar SMA dan membaca grafik fungsi. Konsep limit yang dipakai di sini dibahas tuntas di modul <a href="00-limit.html">Memahami Limit</a>. Setelah modul ini, lanjutkan ke <a href="01-integral.html">Memahami Integral</a>, yaitu kebalikan dari turunan.</span>
+  <br><span class="muted">Prasyarat: aljabar SMA dan membaca grafik fungsi. Konsep limit yang dipakai di sini dibahas tuntas di modul <a href="01-limit.html">Memahami Limit</a>. Setelah modul ini, lanjutkan ke <a href="03-integral.html">Memahami Integral</a>, yaitu kebalikan dari turunan.</span>
 </div>
 
 <!-- 1 -->
@@ -245,7 +245,7 @@ footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color
 </div>
 <div class="box tip"><strong>💡 Cara memakai modul ini</strong>
   Jangan buru-buru ke rumus. Mainkan setiap simulasi sampai kamu bisa <i>menebak</i> hasilnya sebelum menggeser slider. Kerjakan contoh <b>✍️ hitung manual</b> dengan kertas dan pensil, lalu cocokkan dengan angka di simulasi. Kalau sebuah bagian terasa berat, kembali ke analogi di Bagian 2.
-  Modul ini berpasangan dengan modul <a href="01-integral.html">Integral</a>: turunan mengubah total menjadi laju, integral mengubah laju menjadi total.
+  Modul ini berpasangan dengan modul <a href="03-integral.html">Integral</a>: turunan mengubah total menjadi laju, integral mengubah laju menjadi total.
 </div>
 </section>
 
@@ -818,13 +818,13 @@ iterasi 4: 1.414213562375
   <tr><td>Aproksimasi linear</td><td><var>f</var>(<var>a</var>+Δ<var>x</var>) ≈ <var>f</var>(<var>a</var>) + <var>f</var>′(<var>a</var>)Δ<var>x</var></td><td>√4,1 ≈ 2,025</td></tr>
   <tr><td>Gradient descent</td><td><var>w</var> ← <var>w</var> − η<var>L</var>′(<var>w</var>)</td><td>Bola menuruni bukit</td></tr>
   <tr><td>Turunan numerik</td><td>[<var>f</var>(<var>x</var>+<var>h</var>) − <var>f</var>(<var>x</var>−<var>h</var>)]/2<var>h</var>, <var>h</var> ± 10<sup>−5</sup></td><td><code>np.gradient</code>, awas noise</td></tr>
-  <tr><td>Kebalikannya</td><td>∫ (integral) mengubah laju menjadi total</td><td><a href="01-integral.html">Modul Integral</a></td></tr>
+  <tr><td>Kebalikannya</td><td>∫ (integral) mengubah laju menjadi total</td><td><a href="03-integral.html">Modul Integral</a></td></tr>
 </table></div>
 <div class="box note"><strong>📚 Untuk memperdalam</strong>
   Silvanus P. Thompson, <i>Calculus Made Easy</i> (1910, kini domain publik dan gratis) · Video 3Blue1Brown, seri <i>Essence of Calculus</i> (bab 2–7 tentang turunan, aturan rantai, dan limit) ·
   Gilbert Strang, <i>Calculus</i> (MIT OpenCourseWare, gratis) · Kalid Azad, <i>Calculus, Better Explained</i> · James Stewart, <i>Calculus</i> untuk latihan soal versi kuliah yang lengkap.
 </div>
-<div class="nav-mod"><a class="btn" href="00-limit.html">← Sebelumnya: Memahami Limit</a><a class="btn" href="#peta">Ulangi dari awal ↑</a><a class="btn" href="01-integral.html">Lanjut: Memahami Integral →</a></div>
+<div class="nav-mod"><a class="btn" href="01-limit.html">← Sebelumnya: Memahami Limit</a><a class="btn" href="#peta">Ulangi dari awal ↑</a><a class="btn" href="03-integral.html">Lanjut: Memahami Integral →</a></div>
 </section>
 
 <footer>Modul Kalkulus · Memahami Turunan dari Nol. Referensi: Thompson, <i>Calculus Made Easy</i> (1910); Strang, <i>Calculus</i> (MIT OCW); Stewart, <i>Calculus: Early Transcendentals</i>; Cauchy (1821); Weierstrass (1872).</footer>
