@@ -204,7 +204,7 @@ footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color
   <div id="progress"><div></div></div>
   <ol id="toc">
     <li><a href="#peta">Kenapa SOLID Membingungkan?</a></li>
-    <li><a href="#gejala">Bau Kode: Penyakit yang Diobati</a></li>
+    <li><a href="#gejala">Code Smell: Penyakit yang Diobati</a></li>
     <li><a href="#bekal">Bekal OOP Sebelum Mulai</a></li>
     <li><a href="#analogi">Peta SOLID dalam Satu Dapur</a></li>
     <li><a href="#srp">S · Single Responsibility</a></li>
@@ -214,7 +214,7 @@ footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color
     <li><a href="#dip">D · Dependency Inversion</a></li>
     <li><a href="#bersama">Kelimanya Bekerja Bersama</a></li>
     <li><a href="#kasus">Studi Kasus: Refactor Toko Online</a></li>
-    <li><a href="#pola">SOLID, Pola Desain &amp; Pengujian</a></li>
+    <li><a href="#pola">SOLID, Design Pattern &amp; Testing</a></li>
     <li><a href="#jebakan">Jebakan &amp; Over-engineering</a></li>
     <li><a href="#latihan">Latihan Mandiri</a></li>
     <li><a href="#kuis">Kuis &amp; Cheat Sheet</a></li>
@@ -240,9 +240,9 @@ footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color
 <div class="box note">
   <strong>🎯 Tujuan belajar</strong>
   Setelah modul ini kamu bisa menjelaskan <b>masalah apa yang diselesaikan</b> oleh masing-masing prinsip SOLID (bukan sekadar menyebut kepanjangannya),
-  mengenali <b>bau kode</b> yang menandakan sebuah prinsip dilanggar, memperbaikinya dengan Java, menjelaskan kenapa kelimanya saling melengkapi,
+  mengenali <b>code smell</b> yang menandakan sebuah prinsip dilanggar, memperbaikinya dengan Java, menjelaskan kenapa kelimanya saling melengkapi,
   dan yang tidak kalah penting, tahu <b>kapan tidak perlu</b> menerapkannya.
-  <br><span class="muted">Prasyarat: paham dasar Java (kelas, objek, method, <code>interface</code>, <code>extends</code>/<code>implements</code>). Semua kode memakai Java 17 atau lebih baru; kalau kamu memakai Java 8/11, ganti <code>record</code> dengan kelas biasa.</span>
+  <br><span class="muted">Precondition: paham dasar Java (kelas, objek, method, <code>interface</code>, <code>extends</code>/<code>implements</code>). Semua kode memakai Java 17 atau lebih baru; kalau kamu memakai Java 8/11, ganti <code>record</code> dengan kelas biasa.</span>
 </div>
 
 <!-- 1 -->
@@ -264,7 +264,7 @@ footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color
   <li><b>Kapan jangan memakainya.</b> Setiap prinsip punya sisi gelap bila dipakai berlebihan, dan kita bahas itu dengan jujur.</li>
 </ol>
 <div class="box note"><strong>📜 Sedikit sejarah</strong>
-  Gagasan-gagasannya lebih tua daripada namanya. <b>Bertrand Meyer</b> merumuskan <i>Open/Closed Principle</i> pada 1988, <b>Barbara Liskov</b> memperkenalkan konsep substitusi subtipe pada 1987 (dibuat formal bersama Jeannette Wing pada 1994),
+  Gagasan-gagasannya lebih tua daripada namanya. <b>Bertrand Meyer</b> merumuskan <i>Open/Closed Principle</i> pada 1988, <b>Barbara Liskov</b> memperkenalkan konsep substitusi subtype pada 1987 (dibuat formal bersama Jeannette Wing pada 1994),
   lalu <b>Robert C. Martin</b> ("Uncle Bob") merangkum prinsip-prinsip desain pada awal 2000-an. Singkatan <b>SOLID</b> sendiri dikaitkan dengan <b>Michael Feathers</b>.
   Jadi SOLID bukan hukum alam, melainkan pengalaman puluhan tahun programmer yang sudah merasakan sakitnya proyek yang membusuk.
 </div>
@@ -280,8 +280,8 @@ footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color
 
 <!-- 2 -->
 <section id="gejala">
-<h2>2. Bau Kode: Penyakit yang Diobati SOLID</h2>
-<p>Perangkat lunak jarang rusak dalam semalam. Ia <i>membusuk</i> pelan-pelan: tiap permintaan fitur ditambal dengan cara tercepat, hingga suatu hari menambah satu tombol kecil memakan waktu seminggu. Robert C. Martin menggambarkan pembusukan desain lewat empat gejala. Kenali keempatnya, karena setiap prinsip SOLID adalah obat untuk satu atau lebih dari mereka.</p>
+<h2>2. Code Smell: Penyakit yang Diobati SOLID</h2>
+<p>Perangkat lunak jarang rusak dalam semalam. Ia <i>membusuk</i> pelan-pelan: tiap permintaan fitur ditambal dengan cara tercepat, hingga suatu hari menambah satu tombol kecil memakan waktu seminggu. Robert C. Martin menggambarkan design rot lewat empat gejala. Kenali keempatnya, karena setiap prinsip SOLID adalah obat untuk satu atau lebih dari mereka.</p>
 <div class="grid2">
   <div class="card"><span class="ic">🧱</span><b>Rigidity (kaku)</b><span>Satu perubahan kecil memaksa banyak bagian lain ikut diubah. Seperti memindahkan stopkontak di rumah yang dindingnya beton: bobol dulu temboknya. Estimasi "cuma 1 jam" selalu meleset.</span></div>
   <div class="card"><span class="ic">🃏</span><b>Fragility (rapuh)</b><span>Mengubah bagian A merusak bagian B yang tampak tak berhubungan. Seperti menara kartu: mengganti satu kartu di bawah meruntuhkan lantai atas. Programmer jadi takut menyentuh kode.</span></div>
@@ -292,29 +292,29 @@ footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color
 <h3>Dua ukuran: coupling dan cohesion</h3>
 <p>Kalau keempat gejala itu adalah demamnya, maka dua istilah berikut adalah suhu badan yang bisa kamu ukur. Hampir seluruh SOLID dapat dibaca sebagai usaha <b>menurunkan coupling</b> dan <b>menaikkan cohesion</b>.</p>
 <div class="grid2">
-  <div class="card"><b>Coupling (keterikatan antar kelas)</b><span>Seberapa banyak sebuah kelas "tahu" dan "bergantung" pada kelas lain. Makin ketat, makin besar efek riaknya saat ada yang berubah. <b>Targetnya rendah.</b> Bayangkan kabel antar-perangkat: semakin sedikit yang tersambung permanen, semakin mudah mencabut dan mengganti.</span></div>
+  <div class="card"><b>Coupling (keterikatan antar kelas)</b><span>Seberapa banyak sebuah kelas "tahu" dan "bergantung" pada kelas lain. Makin ketat, makin besar ripple effectnya saat ada yang berubah. <b>Targetnya rendah.</b> Bayangkan kabel antar-perangkat: semakin sedikit yang tersambung permanen, semakin mudah mencabut dan mengganti.</span></div>
   <div class="card"><b>Cohesion (kekompakan isi kelas)</b><span>Seberapa erat anggota di dalam satu kelas mengerjakan satu tujuan yang sama. <b>Targetnya tinggi.</b> Bayangkan laci peralatan: laci "sendok-garpu" kompak, laci "serba ada" berisi baterai bekas, kunci, dan sendok.</span></div>
 </div>
 
-<h3>Simulasi 1 · Efek Riak: kalau satu kelas berubah, siapa yang ikut kena?</h3>
+<h3>Simulasi 1 · Ripple Effect: kalau satu kelas berubah, siapa yang ikut kena?</h3>
 <div class="demo" id="demo1">
-  <h4>Simulasi 1 · Efek riak perubahan</h4>
+  <h4>Simulasi 1 · Ripple effect perubahan</h4>
   <p>Dua desain untuk toko online yang sama. Klik sebuah kelas (atau pilih skenario di bawah) untuk menyatakan "<b>kelas ini diubah</b>". Kelas oranye adalah yang <b>berpotensi rusak</b> dan harus diuji ulang. Panah solid = "memakai", panah putus-putus berujung segitiga = "mengimplementasikan interface".</p>
   <div class="controls" id="d1Presets"></div>
   <div class="grid2" style="gap:14px;grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">
-    <div><b style="font-size:14px">A · Desain terjalin (tanpa SOLID)</b><div class="diagram fit" style="margin:6px 0 0"><svg id="g1A" viewBox="0 0 380 300" role="img" aria-label="Diagram ketergantungan desain A"></svg></div></div>
-    <div><b style="font-size:14px">B · Desain SOLID</b><div class="diagram fit" style="margin:6px 0 0"><svg id="g1B" viewBox="0 0 380 420" role="img" aria-label="Diagram ketergantungan desain B"></svg></div></div>
+    <div><b style="font-size:14px">A · Desain terjalin (tanpa SOLID)</b><div class="diagram fit" style="margin:6px 0 0"><svg id="g1A" viewBox="0 0 380 300" role="img" aria-label="Diagram dependency desain A"></svg></div></div>
+    <div><b style="font-size:14px">B · Desain SOLID</b><div class="diagram fit" style="margin:6px 0 0"><svg id="g1B" viewBox="0 0 380 420" role="img" aria-label="Diagram dependency desain B"></svg></div></div>
   </div>
   <div class="kpi"><div id="d1KA">Desain A<b>–</b></div><div id="d1KB">Desain B<b>–</b></div></div>
   <div class="legend"><span><i class="dot" style="background:var(--bad)"></i>kelas yang diubah</span><span><i class="dot" style="background:var(--warn)"></i>berpotensi terdampak</span><span><i class="dot" style="background:var(--surface-2);border:1px solid var(--border)"></i>aman</span></div>
   <div class="msg" id="d1Msg">Pilih skenario atau klik sebuah kelas.</div>
 </div>
-<p><b>Cara membaca hasilnya.</b> Di desain A, perubahan pada <code>MySqlDb</code> merambat ke lebih dari separuh sistem, karena banyak kelas menunjuk langsung ke detailnya. Di desain B, kelas konkret seperti <code>MySqlRepo</code> hanya diketahui oleh tempat perakitan (<code>AppConfig</code>); semua kelas lain hanya mengenal <i>interface</i>-nya. Coba juga klik sebuah <b>interface</b> di desain B: riaknya justru besar. Itu pelajaran penting: <b>interface adalah janji, jadi ia harus kecil dan stabil.</b> Itulah tugas ISP dan LSP nanti.</p>
+<p><b>Cara membaca hasilnya.</b> Di desain A, perubahan pada <code>MySqlDb</code> merambat ke lebih dari separuh sistem, karena banyak kelas menunjuk langsung ke detailnya. Di desain B, concrete class seperti <code>MySqlRepo</code> hanya diketahui oleh composition root (<code>AppConfig</code>); semua kelas lain hanya mengenal <i>interface</i>-nya. Coba juga klik sebuah <b>interface</b> di desain B: riaknya justru besar. Itu pelajaran penting: <b>interface adalah janji, jadi ia harus kecil dan stabil.</b> Itulah tugas ISP dan LSP nanti.</p>
 <div class="tbl"><table>
   <tr><th>Gejala</th><th>Penyebab umum</th><th>Obat utama</th></tr>
   <tr><td>Kaku &amp; kental</td><td>Satu kelas menangani banyak hal; <code>if/else</code> per tipe tersebar</td><td><span class="pill s">S</span><span class="pill o">O</span></td></tr>
-  <tr><td>Rapuh</td><td>Subkelas mengubah perilaku induk; logika bersama dua kepentingan</td><td><span class="pill l">L</span><span class="pill s">S</span></td></tr>
-  <tr><td>Tak bisa dipindah &amp; sulit diuji</td><td><code>new</code> detail di tengah logika bisnis; interface gemuk</td><td><span class="pill d">D</span><span class="pill i">I</span></td></tr>
+  <tr><td>Rapuh</td><td>Subclass mengubah perilaku induk; logika bersama dua kepentingan</td><td><span class="pill l">L</span><span class="pill s">S</span></td></tr>
+  <tr><td>Tak bisa dipindah &amp; sulit diuji</td><td><code>new</code> detail di tengah business logic; interface gemuk</td><td><span class="pill d">D</span><span class="pill i">I</span></td></tr>
 </table></div>
 </section>
 
@@ -323,12 +323,12 @@ footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color
 <h2>3. Bekal OOP Sebelum Mulai</h2>
 <p>SOLID memakai empat konsep OOP sebagai bahan bakunya. Kalau salah satunya masih goyah, SOLID akan terasa seperti teka-teki. Mari kita rapikan dulu, sambil membaca contoh kecil yang akan terus muncul.</p>
 <div class="grid2">
-  <div class="card"><b>Abstraksi (<code>interface</code>)</b><span>Kontrak yang menyatakan <i>apa</i> yang bisa dilakukan tanpa menyebut <i>bagaimana</i>. Seperti tombol "kirim" pada aplikasi pesan: kamu tak peduli lewat jalur apa pesan terkirim.</span></div>
-  <div class="card"><b>Polimorfisme</b><span>Kode yang sama bisa bekerja dengan banyak jenis objek, selama semuanya memenuhi kontrak. Yang dijalankan adalah versi milik objek aslinya saat program berjalan.</span></div>
-  <div class="card"><b>Enkapsulasi</b><span>Data dan perilaku disatukan, dan isi dalam disembunyikan di balik method. Orang luar cukup tahu tombolnya, bukan kabelnya.</span></div>
-  <div class="card"><b>Komposisi ("has-a")</b><span>Sebuah objek <i>memiliki</i> objek lain sebagai bagiannya, alih-alih <i>menjadi</i> turunannya (<i>is-a</i>). Komposisi lebih lentur karena bagian bisa diganti saat program berjalan.</span></div>
+  <div class="card"><b>Abstraction (<code>interface</code>)</b><span>Contract yang menyatakan <i>apa</i> yang bisa dilakukan tanpa menyebut <i>bagaimana</i>. Seperti tombol "kirim" pada aplikasi pesan: kamu tak peduli lewat jalur apa pesan terkirim.</span></div>
+  <div class="card"><b>Polymorphism</b><span>Kode yang sama bisa bekerja dengan banyak jenis objek, selama semuanya memenuhi contract. Yang dijalankan adalah versi milik objek aslinya saat program berjalan.</span></div>
+  <div class="card"><b>Encapsulation</b><span>Data dan perilaku disatukan, dan isi dalam disembunyikan di balik method. Orang luar cukup tahu tombolnya, bukan kabelnya.</span></div>
+  <div class="card"><b>Composition ("has-a")</b><span>Sebuah objek <i>memiliki</i> objek lain sebagai bagiannya, alih-alih <i>menjadi</i> turunannya (<i>is-a</i>). Composition lebih lentur karena bagian bisa diganti saat program berjalan.</span></div>
 </div>
-<div class="codewrap"><div class="codecap "><span>Main.java · abstraksi, polimorfisme, komposisi</span><span>Java 17+</span></div><pre><code class="java">// Kontrak (abstraksi): APA yang bisa dilakukan
+<div class="codewrap"><div class="codecap "><span>Main.java · abstraction, polymorphism, composition</span><span>Java 17+</span></div><pre><code class="java">// Contract (abstraction): APA yang bisa dilakukan
 interface Notifier {
     void send(String message);
 }
@@ -342,7 +342,7 @@ class SmsNotifier implements Notifier {
     public void send(String message) { System.out.println("SMS   -&gt; " + message); }
 }
 
-// Komposisi ("has-a"): AlertService PUNYA sebuah Notifier, tanpa tahu jenisnya
+// Composition ("has-a"): AlertService PUNYA sebuah Notifier, tanpa tahu jenisnya
 class AlertService {
     private final Notifier notifier;
 
@@ -351,7 +351,7 @@ class AlertService {
     }
 
     void alert(String message) {
-        notifier.send("[ALERT] " + message);   // polimorfisme: yang dipanggil versi milik objek aslinya
+        notifier.send("[ALERT] " + message);   // polymorphism: yang dipanggil versi milik objek aslinya
     }
 }
 
@@ -375,8 +375,8 @@ SMS   -&gt; [ALERT] Server mati</pre></div>
 
   <rect x="14" y="68" width="110" height="38" rx="6" fill="var(--surface)" stroke="var(--violet)" stroke-width="1.5" stroke-dasharray="5 3"/>
   <text x="69" y="84" text-anchor="middle" font-size="10.5" fill="var(--violet)">«interface»</text>
-  <text x="69" y="99" text-anchor="middle" font-size="13" font-weight="600" fill="var(--text)" font-style="italic">Abstraksi</text>
-  <text x="140" y="92" font-size="12.5" fill="var(--muted)">interface: hanya kontrak</text>
+  <text x="69" y="99" text-anchor="middle" font-size="13" font-weight="600" fill="var(--text)" font-style="italic">Abstraction</text>
+  <text x="140" y="92" font-size="12.5" fill="var(--muted)">interface: hanya contract</text>
 
   <line x1="14" y1="146" x2="118" y2="146" stroke="var(--text)" stroke-width="1.6"/>
   <polygon points="124,146 114,141 114,151" fill="var(--text)"/>
@@ -393,8 +393,8 @@ SMS   -&gt; [ALERT] Server mati</pre></div>
 </div>
 <div class="box note"><strong>🧭 Dua pedoman lama yang menjadi akar SOLID</strong>
   <ul>
-    <li><b>"Program to an interface, not an implementation"</b> (Gang of Four, 1994): tulis kode yang memakai kontraknya, bukan kelas konkretnya.</li>
-    <li><b>"Favor composition over inheritance"</b>: gunakan pewarisan hanya jika benar-benar <i>is-a</i> dalam arti perilaku, bukan sekadar ingin memakai ulang kode.</li>
+    <li><b>"Program to an interface, not an implementation"</b> (Gang of Four, 1994): tulis kode yang memakai contract-nya, bukan concrete classnya.</li>
+    <li><b>"Favor composition over inheritance"</b>: gunakan inheritance hanya jika benar-benar <i>is-a</i> dalam arti perilaku, bukan sekadar ingin memakai ulang kode.</li>
   </ul>
 </div>
 </section>
@@ -405,21 +405,21 @@ SMS   -&gt; [ALERT] Server mati</pre></div>
 <p>Sebelum menyelam ke kode, kita pakai <b>satu analogi yang sama</b> untuk kelima prinsip: sebuah warung makan, "Warung Bu Siti". Kodemu ibarat cara warung itu diorganisasi, dan permintaan fitur baru ibarat perubahan di warung (menu baru, mesin kasir baru, supplier baru).</p>
 <div class="grid3">
   <div class="card s"><b><span class="pill s">S</span>Satu orang, satu peran</b><span>Awalnya Bu Siti sendirian merangkap koki, kasir, pelayan, dan tukang cuci. Setiap perubahan (resep baru, mesin kasir baru, aturan kebersihan baru) mengganggu orang yang sama dan pekerjaannya saling mengacau. Solusi: pisahkan peran, dan setiap peran punya <i>satu</i> pihak yang berhak meminta perubahannya.</span></div>
-  <div class="card o"><b><span class="pill o">O</span>Menu baru = kartu baru</b><span>Menu ditulis di kartu resep terpisah dalam sebuah rak. Menu baru berarti menaruh kartu baru; dapur tidak dibongkar dan resep lama tidak disentuh (jadi tidak mungkin ikut rusak). Dapurnya <i>terbuka untuk perluasan, tertutup untuk pembongkaran</i>.</span></div>
+  <div class="card o"><b><span class="pill o">O</span>Menu baru = kartu baru</b><span>Menu ditulis di kartu resep terpisah dalam sebuah rak. Menu baru berarti menaruh kartu baru; dapur tidak dibongkar dan resep lama tidak disentuh (jadi tidak mungkin ikut rusak). Dapurnya <i>open for extension, closed for modification</i> (terbuka untuk perluasan, tertutup untuk pembongkaran).</span></div>
   <div class="card l"><b><span class="pill l">L</span>Koki pengganti</b><span>Saat koki utama libur, koki pengganti harus mampu mengerjakan <i>semua</i> yang dijanjikan koki utama. Pelayan tak perlu tahu siapa yang masak. Kalau pengganti ternyata "tidak bisa menggoreng", pelayan yang sudah menerima pesanan goreng akan celaka.</span></div>
   <div class="card i"><b><span class="pill i">I</span>Kartu tugas per peran</b><span>Bukan satu buku panduan 300 halaman untuk semua orang. Tukang cuci menerima kartu "cuci piring", kasir menerima kartu "cara memakai mesin". Tak ada yang dipaksa menandatangani tugas yang tak ia kerjakan.</span></div>
-  <div class="card d"><b><span class="pill d">D</span>Tiket pesanan standar</b><span>Pelayan menempel <i>tiket</i> di rel, bukan berteriak "Pak Joko di kompor kiri!". Koki mana pun bisa membaca tiket yang sama. Pelayan (pembuat kebijakan) dan koki (pelaksana) sama-sama bergantung pada format tiket, bukan satu sama lain.</span></div>
+  <div class="card d"><b><span class="pill d">D</span>Tiket pesanan standar</b><span>Pelayan menempel <i>tiket</i> di rel, bukan berteriak "Pak Joko di kompor kiri!". Koki mana pun bisa membaca tiket yang sama. Pelayan (pembuat kebijakan) dan koki (implementor) sama-sama bergantung pada format tiket, bukan satu sama lain.</span></div>
   <div class="card"><b>🎯 Benang merahnya</b><span>Kelima prinsip bertanya hal yang sama dari sudut berbeda: <b>"Kalau sesuatu berubah, seberapa kecil area yang harus kusentuh, dan seberapa yakin aku bahwa yang lain tidak rusak?"</b></span></div>
 </div>
 
 <h3>Kelima prinsip dalam satu tabel</h3>
 <div class="tbl"><table>
-  <tr><th>Prinsip</th><th>Pertanyaan pemandu saat membaca kode</th><th>Bau kode khas</th><th>Alat yang dipakai</th></tr>
-  <tr><td><span class="pill s">S</span>Single Responsibility</td><td>Siapa saja yang bisa memintaku mengubah kelas ini? Kalau lebih dari satu pihak, itu pertanda.</td><td>Kelas "Manager/Util/Helper", import dari banyak lapisan</td><td>Pecah per aktor, ekstrak kelas</td></tr>
-  <tr><td><span class="pill o">O</span>Open/Closed</td><td>Untuk menambah varian baru, aku menambah kode baru atau mengedit kode lama yang sudah teruji?</td><td><code>if/else</code> atau <code>switch</code> per tipe, <code>instanceof</code> berderet</td><td>Polimorfisme, Strategy, Decorator</td></tr>
-  <tr><td><span class="pill l">L</span>Liskov Substitution</td><td>Kalau objek induk kuganti dengan anaknya, apakah program masih benar?</td><td>Method yang <code>throw UnsupportedOperationException</code>, <code>instanceof</code> sebelum memanggil</td><td>Kontrak (pra/pasca-syarat), komposisi</td></tr>
+  <tr><th>Prinsip</th><th>Pertanyaan pemandu saat membaca kode</th><th>Code smell khas</th><th>Alat yang dipakai</th></tr>
+  <tr><td><span class="pill s">S</span>Single Responsibility</td><td>Siapa saja yang bisa memintaku mengubah kelas ini? Kalau lebih dari satu pihak, itu pertanda.</td><td>Kelas "Manager/Util/Helper", import dari banyak layer</td><td>Pecah per actor, ekstrak kelas</td></tr>
+  <tr><td><span class="pill o">O</span>Open/Closed</td><td>Untuk menambah varian baru, aku menambah kode baru atau mengedit kode lama yang sudah teruji?</td><td><code>if/else</code> atau <code>switch</code> per tipe, <code>instanceof</code> berderet</td><td>Polymorphism, Strategy, Decorator</td></tr>
+  <tr><td><span class="pill l">L</span>Liskov Substitution</td><td>Kalau objek induk kuganti dengan anaknya, apakah program masih benar?</td><td>Method yang <code>throw UnsupportedOperationException</code>, <code>instanceof</code> sebelum memanggil</td><td>Contract (pra/postcondition), composition</td></tr>
   <tr><td><span class="pill i">I</span>Interface Segregation</td><td>Adakah method di interface yang kuimplementasikan "asal ada" atau dibiarkan kosong?</td><td>Interface gemuk, method kosong atau melempar exception</td><td>Pecah jadi role interface kecil</td></tr>
-  <tr><td><span class="pill d">D</span>Dependency Inversion</td><td>Apakah logika bisnisku memanggil <code>new</code> pada detail teknis (database, jaringan, email)?</td><td><code>new MySqlXxx()</code> di dalam layanan, sulit diuji</td><td>Interface milik sisi bisnis, injeksi dependensi</td></tr>
+  <tr><td><span class="pill d">D</span>Dependency Inversion</td><td>Apakah business logicku memanggil <code>new</code> pada detail teknis (database, jaringan, email)?</td><td><code>new MySqlXxx()</code> di dalam layanan, sulit diuji</td><td>Interface milik sisi bisnis, dependency injection</td></tr>
 </table></div>
 <p>Setelah ini, tiap prinsip mendapat satu bagian penuh dengan pola yang sama: <b>analogi → kode menyakitkan → simulasi → kode yang sudah diobati → jebakan</b>. Kita mulai dari yang pertama.</p>
 </section>
@@ -428,7 +428,7 @@ SMS   -&gt; [ALERT] Server mati</pre></div>
 <section id="srp">
 <h2><span class="pill s">S</span>5. Single Responsibility Principle (SRP)</h2>
 <div class="box note"><strong>📌 Definisi</strong>
-  Sebuah kelas (atau modul) harus punya <b>satu, dan hanya satu, alasan untuk berubah</b>. Robert C. Martin kemudian mempertajamnya: kelas itu hanya bertanggung jawab kepada <b>satu aktor</b>, yaitu satu kelompok orang atau bagian organisasi yang berhak meminta perubahan.
+  Sebuah kelas (atau modul) harus punya <b>satu, dan hanya satu, alasan untuk berubah</b>. Robert C. Martin kemudian mempertajamnya: kelas itu hanya bertanggung jawab kepada <b>satu actor</b>, yaitu satu kelompok orang atau bagian organisasi yang berhak meminta perubahan.
 </div>
 <p><b>Analogi.</b> Kembali ke Warung Bu Siti. Kalau Bu Siti sendirian merangkap koki, kasir, dan tukang cuci, maka resep baru dari pelanggan, mesin kasir baru dari bank, dan aturan kebersihan dari dinas kesehatan, semuanya jatuh ke orang yang sama. Akibatnya bukan hanya capek: saat ia sibuk mengganti struk kasir, ia lupa mematikan kompor. Perubahan di satu peran <i>menyenggol</i> peran lain karena mereka berbagi tangan, alat, dan kepala yang sama. Solusinya bukan "setiap orang mengerjakan satu gerakan", melainkan "setiap peran punya satu atasan yang berhak mengubahnya".</p>
 <div class="box warn"><strong>⚠️ Salah kaprah paling umum</strong>
@@ -436,8 +436,8 @@ SMS   -&gt; [ALERT] Server mati</pre></div>
 </div>
 
 <h3>Kode yang menyakitkan</h3>
-<p>Ini contoh klasik dari Uncle Bob: kelas <code>Employee</code> yang melayani tiga aktor sekaligus. Keuangan menghitung gaji, HR membuat laporan jam kerja resmi, dan tim IT mengurus penyimpanan. Kodenya tampak rapi dan <i>berjalan benar hari ini</i>.</p>
-<div class="codewrap"><div class="codecap bad"><span>Main.java · Employee melayani tiga aktor</span><span>Java 17+</span></div><pre><code class="java">class Employee {
+<p>Ini contoh klasik dari Uncle Bob: kelas <code>Employee</code> yang melayani tiga actor sekaligus. Keuangan menghitung gaji, HR membuat laporan jam kerja resmi, dan tim IT mengurus penyimpanan. Kodenya tampak rapi dan <i>berjalan benar hari ini</i>.</p>
+<div class="codewrap"><div class="codecap bad"><span>Main.java · Employee melayani tiga actor</span><span>Java 17+</span></div><pre><code class="java">class Employee {
     private final String name;
     private final int hoursWorked;
     private final double hourlyRate;
@@ -453,19 +453,19 @@ SMS   -&gt; [ALERT] Server mati</pre></div>
         return Math.min(hoursWorked, 40);
     }
 
-    // Aktor 1: bagian Keuangan (kebijakan gaji &amp; lembur)
+    // Actor 1: bagian Keuangan (kebijakan gaji &amp; lembur)
     double calculatePay() {
         int overtime = hoursWorked - regularHours();
         return regularHours() * hourlyRate + overtime * hourlyRate * 1.5;
     }
 
-    // Aktor 2: bagian Kepegawaian/HR (laporan jam kerja resmi)
+    // Actor 2: bagian Kepegawaian/HR (laporan jam kerja resmi)
     String reportHours() {
         return name + ": " + regularHours() + " jam reguler, "
                 + (hoursWorked - regularHours()) + " jam lembur";
     }
 
-    // Aktor 3: tim IT/DBA (cara data disimpan)
+    // Actor 3: tim IT/DBA (cara data disimpan)
     void save() {
         System.out.println("INSERT INTO employee VALUES ('" + name + "', ...)");
     }
@@ -482,8 +482,8 @@ public class Main {
 <div class="outwrap"><div class="codecap"><span>Keluaran (dijalankan dengan JDK 21)</span><span></span></div><pre class="out">Gaji   : Rp2375000
 Laporan: Budi: 40 jam reguler, 5 jam lembur
 INSERT INTO employee VALUES ('Budi', ...)</pre></div>
-<p>Masalahnya tersembunyi di method <code>regularHours()</code> yang <b>dipakai bersama</b> oleh <code>calculatePay()</code> (milik Keuangan) dan <code>reportHours()</code> (milik HR). Dua aktor yang tak saling kenal tanpa sadar berbagi satu potong logika.</p>
-<div class="diagram" aria-label="Diagram: tiga aktor menunjuk ke satu kelas Employee, versus tiga aktor menunjuk ke tiga kelas terpisah">
+<p>Masalahnya tersembunyi di method <code>regularHours()</code> yang <b>dipakai bersama</b> oleh <code>calculatePay()</code> (milik Keuangan) dan <code>reportHours()</code> (milik HR). Dua actor yang tak saling kenal tanpa sadar berbagi satu potong logika.</p>
+<div class="diagram" aria-label="Diagram: tiga actor menunjuk ke satu kelas Employee, versus tiga actor menunjuk ke tiga kelas terpisah">
 <svg viewBox="0 0 700 250" role="img">
   <text x="170" y="22" text-anchor="middle" font-size="14" font-weight="700" fill="var(--bad)">❌ Satu kelas, tiga majikan</text>
   <text x="530" y="22" text-anchor="middle" font-size="14" font-weight="700" fill="var(--good)">✅ Satu kelas, satu majikan</text>
@@ -514,7 +514,7 @@ INSERT INTO employee VALUES ('Budi', ...)</pre></div>
 </svg>
 </div>
 
-<h3>Simulasi 2 · Dua aktor, satu fungsi bersama</h3>
+<h3>Simulasi 2 · Dua actor, satu fungsi bersama</h3>
 <div class="demo" id="demo2">
   <h4>Simulasi 2 · Keuangan mengubah aturan lembur</h4>
   <p>Hukum tenaga kerja (urusan HR) menetapkan <b>40 jam</b> sebagai jam reguler. Keuangan memutuskan secara internal bahwa upah lembur dibayar mulai jam ke-36. Pilih desain, geser jam kerja Budi di atas 40, lalu tekan tombol perubahan.</p>
@@ -534,10 +534,10 @@ INSERT INTO employee VALUES ('Budi', ...)</pre></div>
   <div class="kpi"><div id="d2Edit">Kelas yang diedit<b>–</b></div><div id="d2Test">Pihak yang harus menguji ulang<b>–</b></div></div>
   <div class="msg" id="d2Msg"></div>
 </div>
-<p>Di desain satu kelas, developer cukup mengganti angka di satu tempat dan gaji pun benar. Tapi laporan HR ikut menyimpulkan bahwa Budi hanya punya 35 jam reguler, padahal secara hukum 40. <b>Tidak ada satu pun compiler atau tes milik Keuangan yang akan menangkap ini</b>, karena yang rusak adalah milik pihak lain. Inilah wajah asli pelanggaran SRP: bukan kode yang jelek dibaca, melainkan <i>kerusakan lintas-aktor</i> yang baru ketahuan di produksi.</p>
+<p>Di desain satu kelas, developer cukup mengganti angka di satu tempat dan gaji pun benar. Tapi laporan HR ikut menyimpulkan bahwa Budi hanya punya 35 jam reguler, padahal secara hukum 40. <b>Tidak ada satu pun compiler atau tes milik Keuangan yang akan menangkap ini</b>, karena yang rusak adalah milik pihak lain. Inilah wajah asli pelanggaran SRP: bukan kode yang jelek dibaca, melainkan <i>kerusakan lintas-actor</i> yang baru ketahuan di produksi.</p>
 
 <h3>Kode yang sudah diobati</h3>
-<p>Kita pecah menurut <b>aktor</b>, bukan menurut jumlah method. Data (<code>Employee</code>) dipisah dari tiga kebijakan, masing-masing hanya punya satu pihak yang berhak mengubahnya.</p>
+<p>Kita pecah menurut <b>actor</b>, bukan menurut jumlah method. Data (<code>Employee</code>) dipisah dari tiga kebijakan, masing-masing hanya punya satu pihak yang berhak mengubahnya.</p>
 <div class="codewrap"><div class="codecap good"><span>Main.java · satu kelas, satu majikan</span><span>Java 17+</span></div><pre><code class="java">// 1) Hanya data
 record Employee(String name, int hoursWorked, double hourlyRate) { }
 
@@ -578,23 +578,23 @@ public class Main {
 Laporan: Budi: 40 jam reguler, 5 jam lembur
 INSERT INTO employee VALUES ('Budi', ...)</pre></div>
 <div class="box tip"><strong>💡 "Tapi angka 40 sekarang muncul dua kali. Bukankah itu melanggar DRY?"</strong>
-  Tidak. <i>Don't Repeat Yourself</i> berlaku untuk <b>pengetahuan yang sama</b>, bukan untuk teks yang kebetulan mirip. "Batas lembur gaji" dan "batas jam reguler menurut hukum" saat ini bernilai sama, tetapi keduanya adalah dua pengetahuan berbeda yang bisa berpisah kapan saja, dan hari itu sudah kita saksikan di simulasi. Menyatukannya demi menghindari duplikasi justru membuat kopling tersembunyi antar aktor.
+  Tidak. <i>Don't Repeat Yourself</i> berlaku untuk <b>pengetahuan yang sama</b>, bukan untuk teks yang kebetulan mirip. "Batas lembur gaji" dan "batas jam reguler menurut hukum" saat ini bernilai sama, tetapi keduanya adalah dua pengetahuan berbeda yang bisa berpisah kapan saja, dan hari itu sudah kita saksikan di simulasi. Menyatukannya demi menghindari duplikasi justru membuat coupling tersembunyi antar actor.
 </div>
 
 <h3>Cara mendeteksi pelanggaran SRP</h3>
 <ul>
   <li><b>Nama kabur:</b> <code>Manager</code>, <code>Helper</code>, <code>Util</code>, <code>Processor</code>, atau nama yang memakai kata "dan" (<code>UserValidatorAndSaver</code>).</li>
-  <li><b>Import dari banyak lapisan:</b> satu file mengimpor kelas UI, JDBC, HTTP, dan format PDF sekaligus.</li>
-  <li><b>Kohesi rendah:</b> kelompok method yang memakai field berbeda; kamu bisa "memotong" kelas menjadi dua tanpa ada garis yang putus.</li>
+  <li><b>Import dari banyak layer:</b> satu file mengimpor kelas UI, JDBC, HTTP, dan format PDF sekaligus.</li>
+  <li><b>Cohesion rendah:</b> kelompok method yang memakai field berbeda; kamu bisa "memotong" kelas menjadi dua tanpa ada garis yang putus.</li>
   <li><b>Konflik merge berulang:</b> dua orang dari tim berbeda sering mengedit file yang sama untuk alasan yang tidak berhubungan.</li>
   <li><b>Tes sulit disiapkan:</b> untuk menguji perhitungan gaji kamu harus menyiapkan database dan printer.</li>
 </ul>
 
 <h3>Jebakan</h3>
 <ul>
-  <li><b>Memecah berlebihan.</b> Kelas dengan satu method bernama <code>execute()</code> untuk setiap langkah kecil membuat pembaca melompat-lompat di 30 file. Pecah hanya sepanjang ada <i>aktor yang berbeda</i> atau <i>laju perubahan yang berbeda</i>.</li>
-  <li><b>Memecah sebelum ada aktor kedua.</b> Jika hanya ada satu pihak yang pernah meminta perubahan, belum ada alasan memisah. Pisahkan ketika perubahan kedua yang berbeda sumbernya benar-benar muncul.</li>
-  <li><b>Lupa pengkoordinasi.</b> Setelah dipecah, harus ada kelas tipis yang merangkai alur (seperti <code>CheckoutService</code> di Bagian 11). Itu tidak melanggar SRP: tugasnya satu, yaitu mengatur urutan.</li>
+  <li><b>Memecah berlebihan.</b> Kelas dengan satu method bernama <code>execute()</code> untuk setiap langkah kecil membuat pembaca melompat-lompat di 30 file. Pecah hanya sepanjang ada <i>actor yang berbeda</i> atau <i>laju perubahan yang berbeda</i>.</li>
+  <li><b>Memecah sebelum ada actor kedua.</b> Jika hanya ada satu pihak yang pernah meminta perubahan, belum ada alasan memisah. Pisahkan ketika perubahan kedua yang berbeda sumbernya benar-benar muncul.</li>
+  <li><b>Lupa orchestrator.</b> Setelah dipecah, harus ada kelas tipis yang merangkai alur (seperti <code>CheckoutService</code> di Bagian 11). Itu tidak melanggar SRP: tugasnya satu, yaitu mengatur urutan.</li>
 </ul>
 <div class="box tip"><strong>✅ Intisari S</strong> Kelompokkan hal-hal yang berubah <i>karena alasan yang sama</i>, dan pisahkan hal-hal yang berubah <i>karena alasan berbeda</i>. Ukurannya bukan jumlah method, melainkan jumlah majikan.</div>
 </section>
@@ -603,10 +603,10 @@ INSERT INTO employee VALUES ('Budi', ...)</pre></div>
 <section id="ocp">
 <h2><span class="pill o">O</span>6. Open/Closed Principle (OCP)</h2>
 <div class="box note"><strong>📌 Definisi</strong>
-  Entitas perangkat lunak (kelas, modul, fungsi) harus <b>terbuka untuk perluasan, tetapi tertutup untuk modifikasi</b> (Bertrand Meyer, 1988). Dalam bahasa praktis: <b>perilaku baru ditambahkan dengan menulis kode baru</b>, bukan dengan membongkar kode lama yang sudah berjalan dan teruji.
+  Entitas perangkat lunak (kelas, modul, fungsi) harus <b>open for extension, but closed for modification</b>, yaitu terbuka untuk perluasan tetapi tertutup untuk modifikasi (Bertrand Meyer, 1988). Dalam bahasa praktis: <b>perilaku baru ditambahkan dengan menulis kode baru</b>, bukan dengan membongkar kode lama yang sudah berjalan dan teruji.
 </div>
 <p><b>Analogi.</b> Ponselmu bisa memasang aplikasi baru kapan saja tanpa pabrik harus membongkar sistem operasinya. Sistem operasi "tertutup" (tak diubah saat kamu memasang aplikasi) tetapi "terbuka" (menerima aplikasi apa saja yang mengikuti aturan mainnya). Di Warung Bu Siti, menu baru adalah kartu resep baru di rak, bukan merombak seluruh dapur.</p>
-<p>Kuncinya ada pada kata <i>aturan main</i>: sebuah <b>abstraksi</b> (interface) yang menentukan titik tempat variasi boleh masuk. Tanpa titik itu, satu-satunya cara menambah perilaku adalah mengedit kode lama.</p>
+<p>Kuncinya ada pada kata <i>aturan main</i>: sebuah <b>abstraction</b> (interface) yang menentukan titik tempat variasi boleh masuk. Tanpa titik itu, satu-satunya cara menambah perilaku adalah mengedit kode lama.</p>
 
 <h3>Kode yang menyakitkan</h3>
 <div class="codewrap"><div class="codecap bad"><span>Main.java · setiap jenis pelanggan baru = membongkar method</span><span>Java 17+</span></div><pre><code class="java">class DiscountCalculator {
@@ -659,10 +659,10 @@ STUDENT : 20000.0</pre></div>
 </div>
 
 <h3>Kode yang sudah diobati: Strategy</h3>
-<p>Kita memperkenalkan sebuah <b>titik variasi</b>: interface <code>DiscountPolicy</code>. Setiap aturan diskon menjadi kelas kecil. Kelas <code>Checkout</code> hanya bicara dengan interface itu, jadi ia <i>tertutup</i> terhadap jenis diskon baru. Perhatikan <code>VipDiscount</code>: seluruh fitur baru berupa satu kelas tambahan.</p>
-<div class="codewrap"><div class="codecap good"><span>Main.java · diskon sebagai strategi</span><span>Java 17+</span></div><pre><code class="java">import java.util.List;
+<p>Kita memperkenalkan sebuah <b>variation point</b>: interface <code>DiscountPolicy</code>. Setiap aturan diskon menjadi kelas kecil. Kelas <code>Checkout</code> hanya bicara dengan interface itu, jadi ia <i>tertutup</i> terhadap jenis diskon baru. Perhatikan <code>VipDiscount</code>: seluruh fitur baru berupa satu kelas tambahan.</p>
+<div class="codewrap"><div class="codecap good"><span>Main.java · diskon sebagai strategy</span><span>Java 17+</span></div><pre><code class="java">import java.util.List;
 
-// Abstraksi yang stabil
+// Abstraction yang stabil
 interface DiscountPolicy {
     double discount(double total);
 }
@@ -711,30 +711,30 @@ MemberDiscount -&gt; 190000
 StudentDiscount -&gt; 180000
 VipDiscount -&gt; 170000</pre></div>
 <div class="box warn"><strong>🔍 Jujur soal "tertutup"</strong>
-  Pada akhirnya <i>ada satu tempat</i> yang harus tahu kelas mana yang dipakai untuk pelanggan tertentu (daftar pemetaan, konfigurasi, atau <code>main</code>). Tempat itu memang bertambah satu baris, dan itu wajar. Intinya adalah <b>logika bisnis yang sudah teruji tidak disentuh</b>, dan pengetahuan tentang "yang mana" dikurung di satu titik perakitan, bukan tersebar di mana-mana.
+  Pada akhirnya <i>ada satu tempat</i> yang harus tahu kelas mana yang dipakai untuk pelanggan tertentu (daftar pemetaan, konfigurasi, atau <code>main</code>). Tempat itu memang bertambah satu baris, dan itu wajar. Intinya adalah <b>business logic yang sudah teruji tidak disentuh</b>, dan pengetahuan tentang "yang mana" dikurung di satu composition root, bukan tersebar di mana-mana.
 </div>
 
 <h3>Mekanisme dan jebakan</h3>
 <ul>
-  <li><b>Alat utama:</b> polimorfisme lewat <code>interface</code>/kelas abstrak. Pola yang sering membantu: <i>Strategy</i> (ganti algoritma), <i>Decorator</i> (tumpuk perilaku), <i>Template Method</i> (kerangka tetap, langkah bervariasi), <i>Observer</i> (reaksi tambahan tanpa mengubah pemicu).</li>
-  <li><b>Tidak ada kode yang tertutup terhadap segalanya.</b> Kamu hanya bisa menutup terhadap jenis perubahan yang <i>kamu perkirakan</i>. Menebak keliru berarti abstraksi yang salah dan rumit.</li>
-  <li><b>Jangan abstraksi dulu.</b> Pegangan praktis: tulis dengan cara sederhana. Setelah perubahan <i>pertama</i> dari jenis itu muncul, barulah ciptakan titik variasinya ("digigit sekali, waspada selanjutnya"). Banyak tim memakai aturan tiga: duplikasi sampai tiga kali baru diabstraksi.</li>
+  <li><b>Alat utama:</b> polymorphism lewat <code>interface</code>/abstract class. Pola yang sering membantu: <i>Strategy</i> (ganti algoritma), <i>Decorator</i> (tumpuk perilaku), <i>Template Method</i> (kerangka tetap, langkah bervariasi), <i>Observer</i> (reaksi tambahan tanpa mengubah pemicu).</li>
+  <li><b>Tidak ada kode yang tertutup terhadap segalanya.</b> Kamu hanya bisa menutup terhadap jenis perubahan yang <i>kamu perkirakan</i>. Menebak keliru berarti abstraction yang salah dan rumit.</li>
+  <li><b>Jangan abstraction dulu.</b> Pegangan praktis: tulis dengan cara sederhana. Setelah perubahan <i>pertama</i> dari jenis itu muncul, barulah ciptakan variation pointnya ("digigit sekali, waspada selanjutnya"). Banyak tim memakai aturan tiga: duplikasi sampai tiga kali baru diabstraction.</li>
   <li><b>Bau lain yang menandakan OCP dilanggar:</b> <code>switch</code> pada tipe/enum yang muncul di banyak tempat, rantai <code>instanceof</code>, flag <code>boolean</code> yang mengubah perilaku method.</li>
-  <li><b><code>switch</code> yang sehat:</b> satu <code>switch</code> di titik perakitan (factory) yang memilih implementasi masih wajar. Yang bermasalah adalah <code>switch</code> yang sama diulang di mana-mana.</li>
+  <li><b><code>switch</code> yang sehat:</b> satu <code>switch</code> di composition root atau factory yang memilih implementasi masih wajar. Yang bermasalah adalah <code>switch</code> yang sama diulang di mana-mana.</li>
 </ul>
-<div class="box tip"><strong>✅ Intisari O</strong> Sediakan satu "soket" (abstraksi) di tempat kamu <i>tahu</i> akan ada variasi, lalu tambah fitur dengan "mencolokkan" kelas baru, bukan membongkar dinding.</div>
+<div class="box tip"><strong>✅ Intisari O</strong> Sediakan satu "soket" (abstraction) di tempat kamu <i>tahu</i> akan ada variasi, lalu tambah fitur dengan "mencolokkan" kelas baru, bukan membongkar dinding.</div>
 </section>
 
 <!-- 7 -->
 <section id="lsp">
 <h2><span class="pill l">L</span>7. Liskov Substitution Principle (LSP)</h2>
 <div class="box note"><strong>📌 Definisi</strong>
-  Objek dari subtipe harus bisa <b>menggantikan</b> objek dari supertipenya <b>tanpa membuat program menjadi salah</b> (Barbara Liskov, 1987/1994). Perhatikan kata kuncinya: bukan "tanpa error kompilasi", melainkan <i>tanpa mengubah kebenaran perilaku</i> yang diharapkan klien.
+  Objek dari subtype harus bisa <b>menggantikan</b> objek dari supertype-nya <b>tanpa membuat program menjadi salah</b> (Barbara Liskov, 1987/1994). Perhatikan kata kuncinya: bukan "tanpa error kompilasi", melainkan <i>tanpa mengubah kebenaran perilaku</i> yang diharapkan client.
 </div>
-<p><b>Analogi.</b> Kiper cadangan masuk menggantikan kiper utama. Wasit, rekan satu tim, dan strategi pelatih tetap berjalan karena si pengganti bisa menangkap bola, menendang bola, dan memimpin barisan belakang, <i>semua yang dijanjikan seorang kiper</i>. Sekarang bayangkan "kiper" pengganti yang ternyata hanya boleh menangkap dengan satu tangan: bentuknya kiper, namanya kiper, tetapi tim tidak bisa mengandalkannya. Dalam dunia mainan ada versi lucunya: bebek karet yang bertenaga baterai. <i>Kalau terlihat seperti bebek, bersuara seperti bebek, tetapi butuh baterai, kamu mungkin memakai abstraksi yang salah.</i></p>
+<p><b>Analogi.</b> Kiper cadangan masuk menggantikan kiper utama. Wasit, rekan satu tim, dan strategi pelatih tetap berjalan karena si pengganti bisa menangkap bola, menendang bola, dan memimpin barisan belakang, <i>semua yang dijanjikan seorang kiper</i>. Sekarang bayangkan "kiper" pengganti yang ternyata hanya boleh menangkap dengan satu tangan: bentuknya kiper, namanya kiper, tetapi tim tidak bisa mengandalkannya. Dalam dunia mainan ada versi lucunya: bebek karet yang bertenaga baterai. <i>Kalau terlihat seperti bebek, bersuara seperti bebek, tetapi butuh baterai, kamu mungkin memakai abstraction yang salah.</i></p>
 
 <h3>Mengapa "is-a" saja tidak cukup</h3>
-<p>Di kelas matematika, persegi adalah persegi panjang. Maka di kelas pemrograman banyak orang refleks menulis <code>Square extends Rectangle</code>. Pewarisan di OOP bukan soal definisi di kamus, melainkan soal <b>perilaku yang bisa diandalkan</b>. Mari kita lihat apa yang terjadi.</p>
+<p>Di kelas matematika, persegi adalah persegi panjang. Maka di kelas pemrograman banyak orang refleks menulis <code>Square extends Rectangle</code>. Inheritance di OOP bukan soal definisi di kamus, melainkan soal <b>perilaku yang bisa diandalkan</b>. Mari kita lihat apa yang terjadi.</p>
 <div class="codewrap"><div class="codecap bad"><span>Main.java · persegi "adalah" persegi panjang?</span><span>Java 17+</span></div><pre><code class="java">class Rectangle {
     protected int width;
     protected int height;
@@ -751,7 +751,7 @@ class Square extends Rectangle {
 }
 
 public class Main {
-    // Kode klien yang wajar: lebar 5, tinggi 4, luas pasti 20
+    // Client code yang wajar: lebar 5, tinggi 4, luas pasti 20
     static void resizeAndPrint(Rectangle r) {
         r.setWidth(5);
         r.setHeight(4);
@@ -766,39 +766,39 @@ public class Main {
 }</code></pre></div>
 <div class="outwrap"><div class="codecap"><span>Keluaran (dijalankan dengan JDK 21)</span><span></span></div><pre class="out">Rectangle -&gt; luas = 20  (OK)
 Square -&gt; luas = 16  (SALAH! harusnya 20)</pre></div>
-<p>Kode klien <code>resizeAndPrint</code> sangat wajar: "atur lebar 5, tinggi 4, luas pasti 20". Untuk <code>Rectangle</code> itu benar. Untuk <code>Square</code> salah, karena setiap setter diam-diam mengubah sisi lainnya. Persegi <b>mewarisi bentuk tetapi melanggar janji</b>: induknya menjanjikan lebar dan tinggi bisa diatur <i>bebas satu sama lain</i>.</p>
+<p>Client code <code>resizeAndPrint</code> sangat wajar: "atur lebar 5, tinggi 4, luas pasti 20". Untuk <code>Rectangle</code> itu benar. Untuk <code>Square</code> salah, karena setiap setter diam-diam mengubah sisi lainnya. Persegi <b>mewarisi bentuk tetapi melanggar janji</b>: induknya menjanjikan lebar dan tinggi bisa diatur <i>bebas satu sama lain</i>.</p>
 
 <h3>Simulasi 4 · Uji substitusi langkah demi langkah</h3>
 <div class="demo" id="demo4">
-  <h4>Simulasi 4 · Ganti objek, lihat apakah janji klien masih terpenuhi</h4>
-  <p>Klien tidak peduli bentuk apa yang ia terima. Pilih objek pengganti lalu jalankan klien baris demi baris.</p>
+  <h4>Simulasi 4 · Ganti objek, lihat apakah janji client masih terpenuhi</h4>
+  <p>Client tidak peduli bentuk apa yang ia terima. Pilih objek pengganti lalu jalankan client baris demi baris.</p>
   <div class="controls">
     <span class="seg" id="d4Pick" role="group" aria-label="Pilih objek"><button data-v="rect" class="on">Rectangle</button><button data-v="sq">Square extends Rectangle</button><button data-v="shape">Square implements Shape</button></span>
     <button class="btn primary" id="d4Step">▶ Langkah berikutnya</button><button class="btn" id="d4Reset">↺ Ulang</button>
   </div>
   <div class="vs">
-    <div class="codewrap"><div class="codecap"><span>Kode klien</span><span id="d4Cap"></span></div><pre id="d4Code"></pre></div>
+    <div class="codewrap"><div class="codecap"><span>Client code</span><span id="d4Cap"></span></div><pre id="d4Code"></pre></div>
     <div><div class="diagram fit" style="margin:0"><svg id="d4Svg" viewBox="0 0 320 230" role="img" aria-label="Bentuk yang digambar sesuai nilai lebar dan tinggi"></svg></div>
-      <div class="kpi"><div>lebar<b id="d4W">0</b></div><div>tinggi<b id="d4H">0</b></div><div id="d4AreaBox">luas<b id="d4A">0</b></div><div>harapan klien<b id="d4E">20</b></div></div></div>
+      <div class="kpi"><div>lebar<b id="d4W">0</b></div><div>tinggi<b id="d4H">0</b></div><div id="d4AreaBox">luas<b id="d4A">0</b></div><div>harapan client<b id="d4E">20</b></div></div></div>
   </div>
   <div class="msg" id="d4Msg"></div>
 </div>
 
-<h3>Kontrak: aturan main yang tak tertulis</h3>
-<p>Setiap method punya <b>kontrak</b>, meskipun tidak ditulis: apa yang harus benar sebelum dipanggil (<i>prasyarat</i>), apa yang dijanjikan setelahnya (<i>pascasyarat</i>), dan apa yang selalu benar tentang objeknya (<i>invarian</i>). Subtipe boleh <b>lebih longgar menerima</b> dan <b>lebih kuat menjanjikan</b>, tidak sebaliknya.</p>
+<h3>Contract: aturan main yang tak tertulis</h3>
+<p>Setiap method punya <b>contract</b>, meskipun tidak ditulis: apa yang harus benar sebelum dipanggil (<i>precondition</i>), apa yang dijanjikan setelahnya (<i>postcondition</i>), dan apa yang selalu benar tentang objeknya (<i>invariant</i>). Subtype boleh <b>lebih longgar menerima</b> dan <b>lebih kuat menjanjikan</b>, tidak sebaliknya.</p>
 <div class="tbl"><table>
   <tr><th>Aturan LSP</th><th>Artinya</th><th>Contoh pelanggaran</th></tr>
-  <tr><td>Prasyarat tidak boleh diperketat</td><td>Subtipe tidak boleh menuntut lebih banyak dari input</td><td><code>PremiumAccount</code> menolak penarikan di bawah Rp100.000</td></tr>
-  <tr><td>Pascasyarat tidak boleh dilonggarkan</td><td>Subtipe harus menjanjikan sekurang-kurangnya sebanyak induk</td><td><code>Square</code>: setelah <code>setWidth(5)</code> tinggi ikut berubah, padahal induk menjanjikan tidak</td></tr>
-  <tr><td>Invarian harus dijaga</td><td>Hal yang selalu benar pada induk harus tetap benar</td><td><code>List.add</code> menambah di akhir; subkelas yang menyisipkan terurut mematahkan ini</td></tr>
-  <tr><td>Tidak melempar exception baru yang tak terduga</td><td>Klien hanya siap menangani exception yang dijanjikan induk</td><td><code>Penguin.fly()</code> melempar <code>UnsupportedOperationException</code></td></tr>
-  <tr><td>Kendala sejarah</td><td>Subtipe tidak mengubah keadaan yang induk anggap tetap</td><td>Subkelas yang <i>mutable</i> dari kelas yang dirancang <i>immutable</i></td></tr>
+  <tr><td>Precondition tidak boleh diperketat</td><td>Subtype tidak boleh menuntut lebih banyak dari input</td><td><code>PremiumAccount</code> menolak penarikan di bawah Rp100.000</td></tr>
+  <tr><td>Postcondition tidak boleh dilonggarkan</td><td>Subtype harus menjanjikan sekurang-kurangnya sebanyak induk</td><td><code>Square</code>: setelah <code>setWidth(5)</code> tinggi ikut berubah, padahal induk menjanjikan tidak</td></tr>
+  <tr><td>Invariant harus dijaga</td><td>Hal yang selalu benar pada induk harus tetap benar</td><td><code>List.add</code> menambah di akhir; subclass yang menyisipkan terurut mematahkan ini</td></tr>
+  <tr><td>Tidak melempar exception baru yang tak terduga</td><td>Client hanya siap menangani exception yang dijanjikan induk</td><td><code>Penguin.fly()</code> melempar <code>UnsupportedOperationException</code></td></tr>
+  <tr><td>Kendala sejarah</td><td>Subtype tidak mengubah keadaan yang induk anggap tetap</td><td>Subclass yang <i>mutable</i> dari kelas yang dirancang <i>immutable</i></td></tr>
 </table></div>
-<p>Contoh pelanggaran prasyarat dalam Java, lengkap dengan klien yang tak bersalah tetapi tiba-tiba meledak:</p>
-<div class="codewrap"><div class="codecap bad"><span>Main.java · prasyarat diperketat oleh subkelas</span><span>Java 17+</span></div><pre><code class="java">class Account {
+<p>Contoh pelanggaran precondition dalam Java, lengkap dengan client yang tak bersalah tetapi tiba-tiba meledak:</p>
+<div class="codewrap"><div class="codecap bad"><span>Main.java · precondition diperketat oleh subclass</span><span>Java 17+</span></div><pre><code class="java">class Account {
     protected double balance = 500_000;
 
-    // Kontrak: prasyarat 0 &lt; amount &lt;= saldo. Pasca-syarat: saldo berkurang sebesar amount.
+    // Contract: precondition 0 &lt; amount &lt;= saldo. Postcondition: saldo berkurang sebesar amount.
     void withdraw(double amount) {
         if (amount &lt;= 0 || amount &gt; balance) throw new IllegalArgumentException("Jumlah tidak valid");
         balance -= amount;
@@ -814,7 +814,7 @@ class PremiumAccount extends Account {
 }
 
 public class Main {
-    // Klien yang wajar: ambil uang jajan Rp20.000 dari rekening APA PUN
+    // Client yang wajar: ambil uang jajan Rp20.000 dari rekening APA PUN
     static void takePocketMoney(Account account) {
         account.withdraw(20_000);
         System.out.println("  berhasil, sisa saldo Rp" + (long) account.balance);
@@ -835,13 +835,13 @@ public class Main {
   berhasil, sisa saldo Rp480000
 PremiumAccount:
   GAGAL -&gt; Minimal tarik Rp100.000</pre></div>
-<p>Pelanggaran ini bahkan ada di pustaka standar Java, dan kamu hampir pasti pernah bertemu dengannya:</p>
+<p>Pelanggaran ini bahkan ada di standard library Java, dan kamu hampir pasti pernah bertemu dengannya:</p>
 <div class="codewrap"><div class="codecap bad"><span>Main.java · List yang tidak benar-benar List</span><span>Java 17+</span></div><pre><code class="java">import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class Main {
-    // Klien wajar: "tambahkan satu nama ke daftar apa pun"
+    // Client wajar: "tambahkan satu nama ke daftar apa pun"
     static void addGuest(List&lt;String&gt; guests) {
         guests.add("Siti");  //!
     }
@@ -861,19 +861,19 @@ public class Main {
 }</code></pre></div>
 <div class="outwrap"><div class="codecap"><span>Keluaran (dijalankan dengan JDK 21)</span><span></span></div><pre class="out">ArrayList  : [Budi, Siti]
 unmodifiableList: BOOM -&gt; java.lang.UnsupportedOperationException</pre></div>
-<p><code>Collections.unmodifiableList</code> mengembalikan sebuah <code>List</code> yang menolak <code>add</code>. Dokumentasi Java memang menyebut operasi ini <i>"optional"</i>, tetapi bagi klien yang menerima <code>List</code> itu tetap berarti "setiap pemanggilan <code>add</code> berpotensi meledak". Inilah harga membengkokkan kontrak; para pendesain Java menerimanya dengan sadar demi kepraktisan. Di kode milikmu sendiri, hindari membuat jebakan yang sama.</p>
+<p><code>Collections.unmodifiableList</code> mengembalikan sebuah <code>List</code> yang menolak <code>add</code>. Dokumentasi Java memang menyebut operasi ini <i>"optional"</i>, tetapi bagi client yang menerima <code>List</code> itu tetap berarti "setiap pemanggilan <code>add</code> berpotensi meledak". Inilah harga membengkokkan contract; para pendesain Java menerimanya dengan sadar demi kepraktisan. Di kode milikmu sendiri, hindari membuat jebakan yang sama.</p>
 
 <h3>Mini-tantangan: aman atau melanggar?</h3>
 <div class="demo" id="demo4b">
   <h4>Tantangan · Detektif LSP</h4>
-  <p>Untuk tiap kasus, putuskan apakah subtipenya <b>aman</b> atau <b>melanggar LSP</b>.</p>
+  <p>Untuk tiap kasus, putuskan apakah subtype-nya <b>aman</b> atau <b>melanggar LSP</b>.</p>
   <div id="lspCases"></div>
   <p class="score" id="lspScore"></p>
 </div>
 
 <h3>Kode yang sudah diobati</h3>
-<p>Perbaikannya hampir selalu satu dari dua: <b>(a)</b> jangan paksakan hubungan pewarisan, cukup bagi <i>kontrak yang jujur</i> lewat interface kecil; atau <b>(b)</b> pisahkan kemampuan opsional ke interface sendiri. Persegi dan persegi panjang sama-sama "punya luas"; tidak ada yang menjanjikan setter yang tak bisa dipenuhi. Burung yang tidak terbang tidak dipaksa menjanjikan <code>fly()</code>.</p>
-<div class="codewrap"><div class="codecap good"><span>Main.java · kontrak yang jujur</span><span>Java 17+</span></div><pre><code class="java">// Kontrak yang jujur: "bisa dihitung luasnya", titik.
+<p>Perbaikannya hampir selalu satu dari dua: <b>(a)</b> jangan paksakan hubungan inheritance, cukup bagi <i>contract yang jujur</i> lewat interface kecil; atau <b>(b)</b> pisahkan kemampuan opsional ke interface sendiri. Persegi dan persegi panjang sama-sama "punya luas"; tidak ada yang menjanjikan setter yang tak bisa dipenuhi. Burung yang tidak terbang tidak dipaksa menjanjikan <code>fly()</code>.</p>
+<div class="codewrap"><div class="codecap good"><span>Main.java · contract yang jujur</span><span>Java 17+</span></div><pre><code class="java">// Contract yang jujur: "bisa dihitung luasnya", titik.
 interface Shape {
     double area();
 }
@@ -924,23 +924,23 @@ Pinguin makan ikan</pre></div>
 
 <h3>Cara mendeteksi &amp; jebakan</h3>
 <ul>
-  <li><b>Method yang melempar <code>UnsupportedOperationException</code></b> atau dibiarkan kosong di subkelas hampir selalu tanda LSP dilanggar (dan sering juga ISP).</li>
-  <li><b><code>instanceof</code> atau pengecekan tipe</b> sebelum memanggil method di kode klien: "kalau ini Penguin, jangan panggil fly". Klien jadi tahu subkelas, dan OCP ikut rusak.</li>
-  <li>Subkelas yang <b>mengosongkan</b> (<i>override</i> tanpa isi) perilaku induk.</li>
-  <li><b>Menulis tes kontrak:</b> satu set tes untuk interface (misalnya "<code>add</code> lalu <code>get</code> mengembalikan elemen yang sama") yang dijalankan terhadap <i>semua</i> implementasi.</li>
-  <li><b>Jebakan:</b> mewarisi hanya demi memakai ulang kode. Kalau kamu ingin memakai kode kelas lain tetapi tidak benar-benar sejenis, pakai <b>komposisi</b> (simpan sebagai field, delegasikan).</li>
+  <li><b>Method yang melempar <code>UnsupportedOperationException</code></b> atau dibiarkan kosong di subclass hampir selalu tanda LSP dilanggar (dan sering juga ISP).</li>
+  <li><b><code>instanceof</code> atau pengecekan tipe</b> sebelum memanggil method di client code: "kalau ini Penguin, jangan panggil fly". Client jadi tahu subclass, dan OCP ikut rusak.</li>
+  <li>Subclass yang <b>mengosongkan</b> (<i>override</i> tanpa isi) perilaku induk.</li>
+  <li><b>Menulis contract test:</b> satu set tes untuk interface (misalnya "<code>add</code> lalu <code>get</code> mengembalikan elemen yang sama") yang dijalankan terhadap <i>semua</i> implementasi.</li>
+  <li><b>Jebakan:</b> mewarisi hanya demi memakai ulang kode. Kalau kamu ingin memakai kode kelas lain tetapi tidak benar-benar sejenis, pakai <b>composition</b> (simpan sebagai field, delegasikan).</li>
 </ul>
-<div class="box tip"><strong>✅ Intisari L</strong> Subkelas boleh menambah, tidak boleh membatalkan. Sebelum menulis <code>extends</code>, tanyakan: <i>"Apakah semua kode yang bekerja dengan induk tetap benar jika menerima kelas ini?"</i> Kalau ragu, pakai interface atau komposisi.</div>
+<div class="box tip"><strong>✅ Intisari L</strong> Subclass boleh menambah, tidak boleh membatalkan. Sebelum menulis <code>extends</code>, tanyakan: <i>"Apakah semua kode yang bekerja dengan induk tetap benar jika menerima kelas ini?"</i> Kalau ragu, pakai interface atau composition.</div>
 </section>
 
 <!-- 8 -->
 <section id="isp">
 <h2><span class="pill i">I</span>8. Interface Segregation Principle (ISP)</h2>
 <div class="box note"><strong>📌 Definisi</strong>
-  <b>Klien tidak boleh dipaksa bergantung pada method yang tidak ia gunakan.</b> Lebih baik banyak interface kecil yang spesifik per kebutuhan daripada satu interface besar serba ada.
+  <b>Client tidak boleh dipaksa bergantung pada method yang tidak ia gunakan.</b> Lebih baik banyak interface kecil yang spesifik per kebutuhan daripada satu interface besar serba ada.
 </div>
 <p><b>Analogi.</b> Di Indonesia ada SIM A, B, dan C. Pengendara motor cukup memegang SIM C; ia tidak diwajibkan lulus ujian mengemudikan truk hanya karena "ada satu kartu SIM raksasa untuk semua kendaraan". Pengemudi yang mahir boleh memegang beberapa SIM sekaligus. Begitu pula kelas: ia hanya menandatangani peran yang sanggup ia penuhi, dan boleh mengambil beberapa peran.</p>
-<p>ISP mengatasi dua rasa sakit yang berbeda. <b>Sakit pelaksana:</b> kelas dipaksa mengimplementasikan method yang tidak masuk akal baginya. <b>Sakit pemanggil:</b> kelas klien bergantung pada interface yang berisi hal yang tidak ia pakai, sehingga ikut terdampak (dikompilasi ulang, diuji ulang, di-<i>deploy</i> ulang) tiap kali bagian yang tidak relevan berubah.</p>
+<p>ISP mengatasi dua rasa sakit yang berbeda. <b>Sakit implementor:</b> kelas dipaksa mengimplementasikan method yang tidak masuk akal baginya. <b>Sakit caller:</b> client class bergantung pada interface yang berisi hal yang tidak ia pakai, sehingga ikut terdampak (dikompilasi ulang, diuji ulang, di-<i>deploy</i> ulang) tiap kali bagian yang tidak relevan berubah.</p>
 
 <h3>Kode yang menyakitkan</h3>
 <div class="codewrap"><div class="codecap bad"><span>Main.java · interface gemuk memaksa printer sederhana berbohong</span><span>Java 17+</span></div><pre><code class="java">// Interface "gemuk": memaksa semua pengimplementasi memikul semua fitur
@@ -976,12 +976,12 @@ public class Main {
 }</code></pre></div>
 <div class="outwrap"><div class="codecap"><span>Keluaran (dijalankan dengan JDK 21)</span><span></span></div><pre class="out">Cetak: laporan.pdf
 Gagal: Tidak punya modem fax</pre></div>
-<p><code>SimplePrinter</code> hanya bisa mencetak, tetapi untuk "ikut serta" ia harus menandatangani <code>scan</code> dan <code>fax</code>. Pilihannya hanya dua, dan keduanya buruk: mengosongkan method (diam-diam tidak melakukan apa-apa) atau melempar exception (mengejutkan klien). Ini sekaligus pelanggaran LSP: <code>SimplePrinter</code> tidak benar-benar bisa menggantikan <code>MultiFunctionDevice</code>.</p>
+<p><code>SimplePrinter</code> hanya bisa mencetak, tetapi untuk "ikut serta" ia harus menandatangani <code>scan</code> dan <code>fax</code>. Pilihannya hanya dua, dan keduanya buruk: mengosongkan method (diam-diam tidak melakukan apa-apa) atau melempar exception (mengejutkan client). Ini sekaligus pelanggaran LSP: <code>SimplePrinter</code> tidak benar-benar bisa menggantikan <code>MultiFunctionDevice</code>.</p>
 
 <h3>Simulasi 5 · Biaya interface gemuk</h3>
 <div class="demo" id="demo5">
   <h4>Simulasi 5 · Siapa yang terpaksa ikut berubah?</h4>
-  <p>Tiga perangkat dan tiga klien. Ganti desain, lalu tekan tombol "ubah <code>fax()</code>" (misalnya penambahan parameter nomor tujuan) dan lihat siapa yang harus dikompilasi ulang dan diuji ulang.</p>
+  <p>Tiga perangkat dan tiga client. Ganti desain, lalu tekan tombol "ubah <code>fax()</code>" (misalnya penambahan parameter nomor tujuan) dan lihat siapa yang harus dikompilasi ulang dan diuji ulang.</p>
   <div class="controls">
     <span class="seg" id="d5Design" role="group" aria-label="Pilih desain"><button data-v="fat">Satu interface gemuk</button><button data-v="seg" class="on">Interface kecil</button></span>
     <button class="btn" id="d5Change">✏️ Ubah signature fax()</button><button class="btn" id="d5Reset">↺ Reset</button>
@@ -993,7 +993,7 @@ Gagal: Tidak punya modem fax</pre></div>
 </div>
 
 <h3>Kode yang sudah diobati: role interface</h3>
-<p>Kita potong interface menurut <b>peran yang dibutuhkan klien</b> (bukan menurut apa yang bisa dilakukan perangkat). Perangkat canggih mengambil beberapa peran sekaligus; perangkat sederhana hanya satu. Klien meminta <i>peran persis yang ia butuhkan</i>.</p>
+<p>Kita potong interface menurut <b>peran yang dibutuhkan client</b> (bukan menurut apa yang bisa dilakukan perangkat). Perangkat canggih mengambil beberapa peran sekaligus; perangkat sederhana hanya satu. Client meminta <i>peran persis yang ia butuhkan</i>.</p>
 <div class="codewrap"><div class="codecap good"><span>Main.java · tiga peran kecil</span><span>Java 17+</span></div><pre><code class="java">// Interface kecil, satu peran masing-masing
 interface Printer    { void print(String doc); }
 interface DocScanner { void scan(String doc);  }
@@ -1011,7 +1011,7 @@ class AllInOnePrinter implements Printer, DocScanner, Fax {
     public void fax(String doc)   { System.out.println("Fax: " + doc); }
 }
 
-// Klien hanya bergantung pada peran yang ia butuhkan
+// Client hanya bergantung pada peran yang ia butuhkan
 class ReportService {
     void publish(Printer printer) { printer.print("laporan.pdf"); }
 }
@@ -1028,9 +1028,9 @@ Cetak: laporan.pdf</pre></div>
 <h3>Mekanisme dan contoh di Java</h3>
 <ul>
   <li><b>Interface standar Java umumnya kecil:</b> <code>Runnable</code> (satu method), <code>Comparable</code>, <code>AutoCloseable</code>. Kamu bisa membuat kelas yang <i>hanya</i> bisa ditutup, atau hanya bisa dibandingkan, atau keduanya.</li>
-  <li><b>Interface milik klien:</b> pecah menurut kebutuhan pemanggil. Tanyakan, "peran apa yang <i>dibutuhkan</i> <code>ReportService</code>?", bukan "apa saja yang bisa dilakukan perangkat?".</li>
-  <li><b>Penyederhanaan di Java:</b> interface boleh <code>extends</code> beberapa interface, jadi peran gabungan (misalnya <code>interface OfficeDevice extends Printer, DocScanner</code>) tersedia untuk klien yang memang butuh keduanya.</li>
-  <li><b>Jebakan:</b> memecah sampai satu method per interface secara membabi buta. Kalau dua method <i>selalu dipakai bersama</i> oleh semua klien (misalnya <code>open</code> dan <code>close</code>), memisahkannya hanya menambah kerumitan.</li>
+  <li><b>Interface milik client:</b> pecah menurut kebutuhan caller. Tanyakan, "peran apa yang <i>dibutuhkan</i> <code>ReportService</code>?", bukan "apa saja yang bisa dilakukan perangkat?".</li>
+  <li><b>Penyederhanaan di Java:</b> interface boleh <code>extends</code> beberapa interface, jadi peran gabungan (misalnya <code>interface OfficeDevice extends Printer, DocScanner</code>) tersedia untuk client yang memang butuh keduanya.</li>
+  <li><b>Jebakan:</b> memecah sampai satu method per interface secara membabi buta. Kalau dua method <i>selalu dipakai bersama</i> oleh semua client (misalnya <code>open</code> dan <code>close</code>), memisahkannya hanya menambah kerumitan.</li>
 </ul>
 <div class="box tip"><strong>✅ Intisari I</strong> Rancang interface dari sudut pandang <i>pemakainya</i>. Jika sebuah kelas mengimplementasikan method "asal ada" atau melemparkan exception, interface-nya terlalu gemuk.</div>
 </section>
@@ -1040,23 +1040,23 @@ Cetak: laporan.pdf</pre></div>
 <h2><span class="pill d">D</span>9. Dependency Inversion Principle (DIP)</h2>
 <div class="box note"><strong>📌 Definisi</strong>
   <ol style="margin:4px 0 0">
-    <li>Modul tingkat tinggi (kebijakan bisnis) <b>tidak boleh bergantung</b> pada modul tingkat rendah (detail teknis). <b>Keduanya</b> harus bergantung pada <b>abstraksi</b>.</li>
-    <li>Abstraksi tidak boleh bergantung pada detail. <b>Detail yang bergantung pada abstraksi.</b></li>
+    <li>Modul high-level (business logic) <b>tidak boleh bergantung</b> pada modul low-level (detail teknis). <b>Keduanya</b> harus bergantung pada <b>abstraction</b>.</li>
+    <li>Abstraction tidak boleh bergantung pada detail. <b>Detail yang bergantung pada abstraction.</b></li>
   </ol>
 </div>
 <p><b>Analogi.</b> Fitting lampu standar E27: pabrik lampu dan pabrik soket sama-sama mengikuti standar ulirnya. Kamu bebas memasang lampu pijar, LED, atau neon tanpa mengubah soket, dan produsen lampu bebas berinovasi tanpa minta izin ke produsen soket. Bayangkan kalau lampu <i>disolder permanen</i> ke kabel PLN: mengganti lampu berarti memanggil tukang listrik. Di Warung Bu Siti, pelayan menempel <b>tiket pesanan</b> di rel; koki mana pun bisa membacanya.</p>
-<p>Kata <b>"inversion"</b> merujuk pada arah panah. Secara alami, kebijakan bisnis memanggil detail (<code>OrderService</code> → <code>MySqlRepository</code>), sehingga panah ketergantungan menuju ke bawah. DIP <i>membalik</i> arah panah di sisi detail: detail ikut menyesuaikan kontrak yang <b>dimiliki oleh sisi bisnis</b>.</p>
+<p>Kata <b>"inversion"</b> merujuk pada arah panah. Secara alami, business logic memanggil detail (<code>OrderService</code> → <code>MySqlRepository</code>), sehingga panah dependency menuju ke bawah. DIP <i>membalik</i> arah panah di sisi detail: detail ikut menyesuaikan contract yang <b>dimiliki oleh sisi bisnis</b>.</p>
 
-<div class="diagram" aria-label="Diagram sebelum dan sesudah inversi ketergantungan">
+<div class="diagram" aria-label="Diagram sebelum dan sesudah inversi dependency">
 <svg viewBox="0 0 700 270" role="img">
   <text x="170" y="20" text-anchor="middle" font-size="14" font-weight="700" fill="var(--bad)">❌ Sebelum: bisnis → detail</text>
-  <text x="530" y="20" text-anchor="middle" font-size="14" font-weight="700" fill="var(--good)">✅ Sesudah: keduanya → abstraksi</text>
+  <text x="530" y="20" text-anchor="middle" font-size="14" font-weight="700" fill="var(--good)">✅ Sesudah: keduanya → abstraction</text>
   <rect x="85" y="40" width="170" height="38" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.8"/>
   <text x="170" y="64" text-anchor="middle" font-size="13.5" font-weight="600" fill="var(--text)">OrderService</text>
-  <text x="170" y="96" text-anchor="middle" font-size="11.5" fill="var(--muted)">kebijakan bisnis (tingkat tinggi)</text>
+  <text x="170" y="96" text-anchor="middle" font-size="11.5" fill="var(--muted)">business logic (high-level)</text>
   <rect x="85" y="190" width="170" height="38" rx="8" fill="var(--surface-2)" stroke="var(--text)" stroke-width="1.5"/>
   <text x="170" y="214" text-anchor="middle" font-size="13.5" font-weight="600" fill="var(--text)">MySqlOrderRepository</text>
-  <text x="170" y="246" text-anchor="middle" font-size="11.5" fill="var(--muted)">detail teknis (tingkat rendah)</text>
+  <text x="170" y="246" text-anchor="middle" font-size="11.5" fill="var(--muted)">detail teknis (low-level)</text>
   <line x1="170" y1="78" x2="170" y2="182" stroke="var(--bad)" stroke-width="2.2"/><polygon points="170,190 163,177 177,177" fill="var(--bad)"/>
   <text x="182" y="140" font-size="11.5" fill="var(--bad)">new MySql…()</text>
 
@@ -1073,7 +1073,7 @@ Cetak: laporan.pdf</pre></div>
   <text x="610" y="221" text-anchor="middle" font-size="12.5" font-weight="600" fill="var(--text)">InMemoryRepository</text>
   <line x1="455" y1="198" x2="505" y2="160" stroke="var(--violet)" stroke-width="1.8" stroke-dasharray="5 3"/><polygon points="515,152 497,155 505,166" fill="var(--surface)" stroke="var(--violet)" stroke-width="1.6"/>
   <line x1="610" y1="198" x2="560" y2="160" stroke="var(--violet)" stroke-width="1.8" stroke-dasharray="5 3"/><polygon points="548,152 565,166 573,155" fill="var(--surface)" stroke="var(--violet)" stroke-width="1.6"/>
-  <text x="530" y="262" text-anchor="middle" font-size="11.5" fill="var(--muted)">panah detail → abstraksi "terbalik" dibanding alur pemanggilan</text>
+  <text x="530" y="262" text-anchor="middle" font-size="11.5" fill="var(--muted)">panah detail → abstraction "terbalik" dibanding alur pemanggilan</text>
 </svg>
 </div>
 
@@ -1100,7 +1100,7 @@ public class Main {
     }
 }</code></pre></div>
 <div class="outwrap"><div class="codecap"><span>Keluaran (dijalankan dengan JDK 21)</span><span></span></div><pre class="out">MySQL: INSERT Order#1</pre></div>
-<p>Ada tiga ongkos tersembunyi. <b>(1)</b> Mengganti database berarti membongkar <code>OrderService</code>, padahal aturan bisnisnya tidak berubah. <b>(2)</b> Menguji <code>OrderService</code> menuntut database MySQL sungguhan menyala. <b>(3)</b> Aturan bisnis yang paling berharga ikut "tertular" perubahan pada lapisan teknis yang paling sering berganti.</p>
+<p>Ada tiga ongkos tersembunyi. <b>(1)</b> Mengganti database berarti membongkar <code>OrderService</code>, padahal business rulenya tidak berubah. <b>(2)</b> Menguji <code>OrderService</code> menuntut database MySQL sungguhan menyala. <b>(3)</b> Business rule yang paling berharga ikut "tertular" perubahan pada layer teknis yang paling sering berganti.</p>
 
 <h3>Simulasi 6 · Saklar database</h3>
 <div class="demo" id="demo6">
@@ -1113,7 +1113,7 @@ public class Main {
     <button class="btn primary" id="d6Order">🛒 Pesan</button><button class="btn" id="d6Test">🧪 Jalankan unit test</button><button class="btn" id="d6Clear">Bersihkan</button>
   </div>
   <div class="vs">
-    <div class="diagram fit" style="margin:0"><svg id="d6Svg" viewBox="0 0 400 285" role="img" aria-label="Diagram ketergantungan OrderService"></svg></div>
+    <div class="diagram fit" style="margin:0"><svg id="d6Svg" viewBox="0 0 400 285" role="img" aria-label="Diagram dependency OrderService"></svg></div>
     <div class="codewrap"><div class="codecap"><span>OrderService</span><span id="d6Cap"></span></div><pre id="d6Code"></pre></div>
   </div>
   <div class="console" id="d6Con" aria-live="polite"></div>
@@ -1121,16 +1121,16 @@ public class Main {
 </div>
 
 <h3>Kode yang sudah diobati</h3>
-<p>Kita buat <code>OrderRepository</code> sebagai abstraksi yang <b>dimiliki sisi bisnis</b> (dirumuskan dari apa yang <code>OrderService</code> butuhkan, bukan dari fitur MySQL). Detail bergantung padanya. <code>OrderService</code> tidak memanggil <code>new</code> untuk detail; ia <b>menerimanya dari luar</b> lewat konstruktor.</p>
-<div class="codewrap"><div class="codecap good"><span>Main.java · injeksi lewat konstruktor</span><span>Java 17+</span></div><pre><code class="java">import java.util.ArrayList;
+<p>Kita buat <code>OrderRepository</code> sebagai abstraction yang <b>dimiliki sisi bisnis</b> (dirumuskan dari apa yang <code>OrderService</code> butuhkan, bukan dari fitur MySQL). Detail bergantung padanya. <code>OrderService</code> tidak memanggil <code>new</code> untuk detail; ia <b>menerimanya dari luar</b> lewat constructor.</p>
+<div class="codewrap"><div class="codecap good"><span>Main.java · injection lewat constructor</span><span>Java 17+</span></div><pre><code class="java">import java.util.ArrayList;
 import java.util.List;
 
-// Abstraksi dimiliki oleh sisi bisnis (high-level)
+// Abstraction dimiliki oleh sisi bisnis (high-level)
 interface OrderRepository {
     void save(String order);
 }
 
-// Detail bergantung pada abstraksi (panahnya terbalik!)
+// Detail bergantung pada abstraction (panahnya terbalik!)
 class MySqlOrderRepository implements OrderRepository {
     public void save(String order) { System.out.println("MySQL: INSERT " + order); }
 }
@@ -1139,14 +1139,14 @@ class PostgresOrderRepository implements OrderRepository {
     public void save(String order) { System.out.println("PostgreSQL: INSERT " + order); }
 }
 
-// Pengganti untuk pengujian: tanpa database sungguhan
+// Pengganti untuk testing: tanpa database sungguhan
 class InMemoryOrderRepository implements OrderRepository {
     final List&lt;String&gt; saved = new ArrayList&lt;&gt;();
     public void save(String order) { saved.add(order); }
 }
 
 class OrderService {
-    private final OrderRepository repository;           // bergantung pada abstraksi  //+
+    private final OrderRepository repository;           // bergantung pada abstraction  //+
 
     OrderService(OrderRepository repository) {          // constructor injection  //+
         this.repository = repository;
@@ -1173,18 +1173,18 @@ public class Main {
 <div class="outwrap"><div class="codecap"><span>Keluaran (dijalankan dengan JDK 21)</span><span></span></div><pre class="out">MySQL: INSERT Order#1
 PostgreSQL: INSERT Order#2
 Test lulus? true</pre></div>
-<p>Baris <code>new OrderService(new MySqlOrderRepository())</code> di <code>main</code> disebut <b>composition root</b>: satu-satunya tempat yang boleh tahu detail mana yang dipakai. Seluruh bagian lain program hanya mengenal abstraksi. Dan lihat bonus besarnya: unit test berjalan tanpa database.</p>
+<p>Baris <code>new OrderService(new MySqlOrderRepository())</code> di <code>main</code> disebut <b>composition root</b>: satu-satunya tempat yang boleh tahu detail mana yang dipakai. Seluruh bagian lain program hanya mengenal abstraction. Dan lihat bonus besarnya: unit test berjalan tanpa database.</p>
 
 <h3>Empat istilah yang sering tertukar</h3>
 <div class="tbl"><table>
   <tr><th>Istilah</th><th>Jenisnya</th><th>Artinya</th></tr>
-  <tr><td><b>Dependency Inversion Principle</b> (DIP)</td><td>Prinsip desain</td><td>Arah ketergantungan kode sumber menuju abstraksi; bisnis tidak bergantung pada detail.</td></tr>
-  <tr><td><b>Dependency Injection</b> (DI)</td><td>Teknik</td><td>Objek <i>menerima</i> dependensinya dari luar (konstruktor, setter, atau parameter method), tidak membuatnya sendiri.</td></tr>
-  <tr><td><b>Inversion of Control</b> (IoC)</td><td>Gagasan umum</td><td>Kerangka kerja yang memanggil kodemu, bukan kamu yang memanggil kerangka kerja ("jangan telepon kami, kami yang akan telepon").</td></tr>
-  <tr><td><b>IoC Container</b></td><td>Alat</td><td>Perangkat yang merakit objek dan menyuntikkan dependensi otomatis (misalnya Spring, Guice, CDI).</td></tr>
+  <tr><td><b>Dependency Inversion Principle</b> (DIP)</td><td>Prinsip desain</td><td>Arah dependency kode sumber menuju abstraction; bisnis tidak bergantung pada detail.</td></tr>
+  <tr><td><b>Dependency Injection</b> (DI)</td><td>Teknik</td><td>Objek <i>menerima</i> dependency-nya dari luar (constructor, setter, atau parameter method), tidak membuatnya sendiri.</td></tr>
+  <tr><td><b>Inversion of Control</b> (IoC)</td><td>Gagasan umum</td><td>Kerangka kerja yang memanggil kodemu, bukan kamu yang memanggil framework ("jangan telepon kami, kami yang akan telepon").</td></tr>
+  <tr><td><b>IoC Container</b></td><td>Alat</td><td>Perangkat yang merakit objek dan menyuntikkan dependency otomatis (misalnya Spring, Guice, CDI).</td></tr>
 </table></div>
-<p>DI adalah <i>cara</i> paling umum untuk mencapai DIP, tetapi keduanya tidak identik. Kamu bisa memakai kontainer DI tetapi tetap bergantung pada kelas konkret (DI tanpa DIP), dan kamu bisa menerapkan DIP murni tanpa kerangka kerja apa pun, seperti kode di atas. Tiga bentuk injeksi di Java:</p>
-<div class="codewrap"><div class="codecap good"><span>Main.java · konstruktor, setter, dan parameter method</span><span>Java 17+</span></div><pre><code class="java">interface Clock { long now(); }
+<p>DI adalah <i>cara</i> paling umum untuk mencapai DIP, tetapi keduanya tidak identik. Kamu bisa memakai container DI tetapi tetap bergantung pada concrete class (DI tanpa DIP), dan kamu bisa menerapkan DIP murni tanpa framework apa pun, seperti kode di atas. Tiga bentuk injection di Java:</p>
+<div class="codewrap"><div class="codecap good"><span>Main.java · constructor, setter, dan parameter method</span><span>Java 17+</span></div><pre><code class="java">interface Clock { long now(); }
 class SystemClock implements Clock { public long now() { return System.currentTimeMillis(); } }
 class FixedClock implements Clock {
     private final long fixed;
@@ -1195,13 +1195,13 @@ class FixedClock implements Clock {
 class ReceiptService {
     private Clock clock;
 
-    // 1) Constructor injection: ketergantungan WAJIB, objek selalu siap dipakai (paling disarankan)
+    // 1) Constructor injection: dependency WAJIB, objek selalu siap dipakai (paling disarankan)
     ReceiptService(Clock clock) { this.clock = clock; }       //+
 
-    // 2) Setter injection: ketergantungan OPSIONAL / bisa diganti saat berjalan
+    // 2) Setter injection: dependency OPSIONAL / bisa diganti saat berjalan
     void setClock(Clock clock) { this.clock = clock; }
 
-    // 3) Method injection: ketergantungan hanya dibutuhkan untuk satu pemanggilan
+    // 3) Method injection: dependency hanya dibutuhkan untuk satu pemanggilan
     String stamp(String text, Clock override) { return text + " @" + override.now(); }
 
     String stamp(String text) { return text + " @" + clock.now(); }
@@ -1222,11 +1222,11 @@ Struk#3 @42</pre></div>
 <h3>Contoh nyata &amp; jebakan</h3>
 <ul>
   <li><b>JDBC adalah DIP yang sudah kamu pakai.</b> Kodemu bergantung pada interface <code>java.sql.Connection</code>; driver MySQL atau PostgreSQL menyediakan implementasinya. Mengganti database tidak mengubah kode aplikasi.</li>
-  <li><b>Batas yang tepat untuk abstraksi:</b> hal yang berubah-ubah atau sulit diuji, seperti database, jaringan, sistem berkas, jam (<code>Clock</code>), nomor acak, email. Tidak perlu interface untuk <code>String</code>, <code>List</code>, atau kelas nilai.</li>
+  <li><b>Batas yang tepat untuk abstraction:</b> hal yang berubah-ubah atau sulit diuji, seperti database, jaringan, sistem berkas, jam (<code>Clock</code>), nomor acak, email. Tidak perlu interface untuk <code>String</code>, <code>List</code>, atau kelas nilai.</li>
   <li><b>Jangan buat interface untuk setiap kelas.</b> Interface dengan satu implementasi yang tak mungkin berganti hanyalah dokumen tambahan yang harus dirawat. Mulailah dari batas arsitektur: bisnis ↔ infrastruktur.</li>
   <li><b>Tanda DIP dilanggar:</b> import <code>com.mysql…</code> di kelas bisnis, <code>new</code> pada kelas infrastruktur di dalam layanan, tes yang tak bisa jalan tanpa database/jaringan.</li>
 </ul>
-<div class="box tip"><strong>✅ Intisari D</strong> Biarkan kebijakan bisnis mendefinisikan kontrak yang ia butuhkan, dan biarkan detail teknis menyesuaikan diri. Rakit semuanya di satu tempat di tepi aplikasi.</div>
+<div class="box tip"><strong>✅ Intisari D</strong> Biarkan business logic mendefinisikan contract yang ia butuhkan, dan biarkan detail teknis menyesuaikan diri. Rakit semuanya di satu tempat di tepi aplikasi.</div>
 </section>
 
 <!-- 10 -->
@@ -1238,24 +1238,24 @@ Struk#3 @42</pre></div>
 </div>
 <div class="tbl"><table>
   <tr><th>#</th><th>Pasangan</th><th>Hubungannya</th></tr>
-  <tr><td>1</td><td><span class="pill s">S</span><span class="pill o">O</span></td><td>Kelas yang dipecah per aktor lebih mudah "ditutup": perubahan satu aktor hanya menyentuh satu kelas.</td></tr>
-  <tr><td>2</td><td><span class="pill o">O</span><span class="pill l">L</span></td><td>OCP mengandalkan polimorfisme; LSP menjamin objek pengganti tidak merusak klien. Tanpa LSP, "perluasan" berubah menjadi bug.</td></tr>
+  <tr><td>1</td><td><span class="pill s">S</span><span class="pill o">O</span></td><td>Kelas yang dipecah per actor lebih mudah "ditutup": perubahan satu actor hanya menyentuh satu kelas.</td></tr>
+  <tr><td>2</td><td><span class="pill o">O</span><span class="pill l">L</span></td><td>OCP mengandalkan polymorphism; LSP menjamin objek pengganti tidak merusak client. Tanpa LSP, "perluasan" berubah menjadi bug.</td></tr>
   <tr><td>3</td><td><span class="pill l">L</span><span class="pill i">I</span></td><td>Interface gemuk memaksa implementasi palsu (method kosong atau melempar exception), yang berarti pelanggaran L. Interface kecil menghindarinya.</td></tr>
-  <tr><td>4</td><td><span class="pill i">I</span><span class="pill d">D</span></td><td>DIP meminta kita bergantung pada abstraksi; ISP memastikan abstraksi itu ramping sehingga layak dijadikan tumpuan.</td></tr>
-  <tr><td>5</td><td><span class="pill d">D</span><span class="pill s">S</span></td><td>Setelah kelas dipecah (S), banyak bagian kecil perlu dirangkai. DIP dan injeksi merakitnya tanpa mengikat satu sama lain.</td></tr>
-  <tr><td>6</td><td><span class="pill o">O</span><span class="pill d">D</span></td><td>Titik variasi OCP adalah sebuah abstraksi; DIP menentukan siapa pemiliknya dan ke mana arah panahnya.</td></tr>
-  <tr><td>7</td><td><span class="pill s">S</span><span class="pill i">I</span></td><td>Keduanya memotong berdasarkan "siapa yang berkepentingan": S untuk kelas (menurut aktor), I untuk interface (menurut klien).</td></tr>
+  <tr><td>4</td><td><span class="pill i">I</span><span class="pill d">D</span></td><td>DIP meminta kita bergantung pada abstraction; ISP memastikan abstraction itu ramping sehingga layak dijadikan tumpuan.</td></tr>
+  <tr><td>5</td><td><span class="pill d">D</span><span class="pill s">S</span></td><td>Setelah kelas dipecah (S), banyak bagian kecil perlu dirangkai. DIP dan injection merakitnya tanpa mengikat satu sama lain.</td></tr>
+  <tr><td>6</td><td><span class="pill o">O</span><span class="pill d">D</span></td><td>Variation point OCP adalah sebuah abstraction; DIP menentukan siapa pemiliknya dan ke mana arah panahnya.</td></tr>
+  <tr><td>7</td><td><span class="pill s">S</span><span class="pill i">I</span></td><td>Keduanya memotong berdasarkan "siapa yang berkepentingan": S untuk kelas (menurut actor), I untuk interface (menurut client).</td></tr>
 </table></div>
 <div class="box note"><strong>🔗 Efek domino dalam kode buruk</strong>
-  Satu keputusan buruk jarang berhenti sendiri: <i>interface gemuk</i> (ISP) → <i>method palsu</i> yang melempar exception (LSP) → klien menambahkan <code>instanceof</code> untuk menghindarinya (OCP) → logika bisnis mengenal kelas konkret (DIP) → kelas pengatur membengkak (SRP). Itulah mengapa memperbaiki satu mata rantai sering membuat yang lain ikut membaik.
+  Satu keputusan buruk jarang berhenti sendiri: <i>interface gemuk</i> (ISP) → <i>method palsu</i> yang melempar exception (LSP) → client menambahkan <code>instanceof</code> untuk menghindarinya (OCP) → business logic mengenal concrete class (DIP) → orchestrator membengkak (SRP). Itulah mengapa memperbaiki satu mata rantai sering membuat yang lain ikut membaik.
 </div>
-<p>Cara berpikir ringkas yang bisa kamu pakai saat code review: <b>S</b> memotong, <b>I</b> merampingkan, <b>D</b> mengarahkan panah, <b>O</b> menyediakan titik variasi, dan <b>L</b> menjaga agar semua titik variasi itu dapat dipercaya.</p>
+<p>Cara berpikir ringkas yang bisa kamu pakai saat code review: <b>S</b> memotong, <b>I</b> merampingkan, <b>D</b> mengarahkan panah, <b>O</b> menyediakan variation point, dan <b>L</b> menjaga agar semua variation point itu dapat dipercaya.</p>
 </section>
 
 <!-- 11 -->
 <section id="kasus">
 <h2>11. Studi Kasus: Refactor Toko Online Langkah demi Langkah</h2>
-<p>Kini kita satukan semuanya pada satu kasus. Kita mulai dari <code>CheckoutService</code> yang mengerjakan segalanya (menghitung diskon, menagih pembayaran, menyimpan pesanan, mengirim email), lalu memperbaikinya bertahap. Pada setiap langkah <b>program tetap berjalan dan memberi tiga baris keluaran yang sama persis</b> (Langkah 3 hanya menambah demonstrasi pengujian). Itulah arti <i>refactoring</i>: mengubah struktur tanpa mengubah perilaku.</p>
+<p>Kini kita satukan semuanya pada satu kasus. Kita mulai dari <code>CheckoutService</code> yang mengerjakan segalanya (menghitung diskon, menagih pembayaran, menyimpan pesanan, mengirim email), lalu memperbaikinya bertahap. Pada setiap langkah <b>program tetap berjalan dan memberi tiga baris keluaran yang sama persis</b> (Langkah 3 hanya menambah demonstrasi testing). Itulah arti <i>refactoring</i>: mengubah struktur tanpa mengubah perilaku.</p>
 <div class="demo" id="demo7">
   <h4>Simulasi 7 · Refactoring bertahap</h4>
   <p>Klik langkah 0 sampai 3 (atau tombol Berikutnya) dan perhatikan dua hal: kode di bawahnya, dan <b>indikator kesehatan desain</b> yang berubah.</p>
@@ -1267,12 +1267,12 @@ Struk#3 @42</pre></div>
   <p id="d7Text"></p>
   <div class="mtr"><span>Alasan berubah di CheckoutService</span><div class="bar"><i id="d7B1"></i></div><span id="d7V1"></span></div>
   <div class="mtr"><span>Cabang <code>if/else</code> per tipe</span><div class="bar"><i id="d7B2"></i></div><span id="d7V2"></span></div>
-  <div class="mtr"><span>Dependensi ke kelas konkret</span><div class="bar"><i id="d7B3"></i></div><span id="d7V3"></span></div>
+  <div class="mtr"><span>Dependency ke concrete class</span><div class="bar"><i id="d7B3"></i></div><span id="d7V3"></span></div>
   <div class="mtr"><span>Bisa diuji tanpa DB &amp; email</span><div class="bar"><i id="d7B4"></i></div><span id="d7V4"></span></div>
   <div class="codewrap"><div class="codecap" id="d7Cap"><span></span><span></span></div><pre id="d7Code" style="max-height:420px;overflow:auto"></pre></div>
   <div class="outwrap"><div class="codecap"><span>Keluaran</span><span></span></div><pre class="out" id="d7Out"></pre></div>
 </div>
-<p>Ada hal yang mudah terlewat: pada <b>Langkah 1</b>, jumlah dependensi konkret justru <i>naik</i> (dari 2 menjadi 4). Memecah tanggung jawab belum otomatis menurunkan kopling, hanya membuat sambungannya terlihat. Barulah Langkah 2 dan 3 yang memutus sambungan itu lewat abstraksi. Itulah alasan prinsip-prinsip ini bekerja berpasangan, bukan sendiri-sendiri.</p>
+<p>Ada hal yang mudah terlewat: pada <b>Langkah 1</b>, jumlah dependency concrete justru <i>naik</i> (dari 2 menjadi 4). Memecah tanggung jawab belum otomatis menurunkan coupling, hanya membuat sambungannya terlihat. Barulah Langkah 2 dan 3 yang memutus sambungan itu lewat abstraction. Itulah alasan prinsip-prinsip ini bekerja berpasangan, bukan sendiri-sendiri.</p>
 <div class="box tip"><strong>🧪 Hasil akhir yang bisa diuji</strong>
   Perhatikan bagian akhir <code>main</code> pada Langkah 3: <code>CheckoutService</code> diuji hanya dengan <code>FakeRepository</code> dan <code>FakeNotifier</code>. Tidak ada database dan tidak ada email sungguhan, tetapi seluruh logika checkout (diskon + pembayaran + penyimpanan + notifikasi) terbukti berjalan. Inilah imbalan paling nyata dari SOLID.
 </div>
@@ -1366,7 +1366,7 @@ public class Main {
 <script type="text/x-java" id="src-case_s2">
 record Order(String id, double total) { }
 
-// OCP: variasi dipindah ke strategi. Menambah aturan/metode baru = menambah kelas.
+// OCP: variasi dipindah ke strategy. Menambah aturan/metode baru = menambah kelas.
 interface DiscountPolicy { double discount(double total); }
 class NoDiscount      implements DiscountPolicy { public double discount(double t) { return 0; } }
 class MemberDiscount  implements DiscountPolicy { public double discount(double t) { return t * 0.05; } }
@@ -1510,18 +1510,18 @@ Tes: amount=95000, tersimpan=1, notif=[pesanan T-1 berhasil]
 
 <!-- 12 -->
 <section id="pola">
-<h2>12. SOLID, Pola Desain &amp; Pengujian</h2>
+<h2>12. SOLID, Design Pattern &amp; Testing</h2>
 <p><b>Pola desain</b> (<i>design patterns</i>) adalah resep siap pakai yang hampir selalu merupakan penerapan SOLID dalam bentuk tertentu. Kalau SOLID adalah <i>aturan tata letak dapur</i>, maka pola adalah <i>denah dapur untuk masakan tertentu</i>.</p>
 <div class="tbl"><table>
   <tr><th>Prinsip</th><th>Pola yang sering membantu</th><th>Contoh di dunia Java</th></tr>
   <tr><td><span class="pill s">S</span></td><td>Facade, Repository, Service layer</td><td>Memisahkan <i>controller</i>, <i>service</i>, dan <i>repository</i> pada aplikasi web</td></tr>
   <tr><td><span class="pill o">O</span></td><td>Strategy, Decorator, Template Method, Observer</td><td><code>Comparator</code> pada <code>List.sort</code>; <code>BufferedReader</code> yang membungkus <code>FileReader</code></td></tr>
-  <tr><td><span class="pill l">L</span></td><td>Design by Contract, Composition over Inheritance</td><td>Kontrak <code>List</code>, <code>equals</code>/<code>hashCode</code>; contoh pelanggaran: <code>unmodifiableList</code></td></tr>
+  <tr><td><span class="pill l">L</span></td><td>Design by Contract, Composition over Inheritance</td><td>Contract <code>List</code>, <code>equals</code>/<code>hashCode</code>; contoh pelanggaran: <code>unmodifiableList</code></td></tr>
   <tr><td><span class="pill i">I</span></td><td>Role interface, Adapter</td><td><code>Runnable</code>, <code>Comparable</code>, <code>AutoCloseable</code></td></tr>
-  <tr><td><span class="pill d">D</span></td><td>Dependency Injection, Factory, Repository</td><td>JDBC (<code>Connection</code>), fasad log seperti SLF4J, kontainer seperti Spring</td></tr>
+  <tr><td><span class="pill d">D</span></td><td>Dependency Injection, Factory, Repository</td><td>JDBC (<code>Connection</code>), fasad log seperti SLF4J, container seperti Spring</td></tr>
 </table></div>
 <p>Contoh paling dekat yang sudah kamu pakai tanpa sadar adalah <code>List.sort</code>. Ia tidak pernah dimodifikasi sejak ditulis, tetapi perilakunya terus diperluas oleh siapa pun yang menyerahkan sebuah <code>Comparator</code>:</p>
-<div class="codewrap"><div class="codecap good"><span>Main.java · OCP di pustaka standar</span><span>Java 17+</span></div><pre><code class="java">import java.util.ArrayList;
+<div class="codewrap"><div class="codecap good"><span>Main.java · OCP di standard library</span><span>Java 17+</span></div><pre><code class="java">import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -1542,15 +1542,15 @@ public class Main {
 }</code></pre></div>
 <div class="outwrap"><div class="codecap"><span>Keluaran (dijalankan dengan JDK 21)</span><span></span></div><pre class="out">Termurah dulu : [Product[name=Teh, price=8000.0], Product[name=Susu, price=15000.0], Product[name=Kopi, price=25000.0]]
 Urut abjad    : [Product[name=Kopi, price=25000.0], Product[name=Susu, price=15000.0], Product[name=Teh, price=8000.0]]</pre></div>
-<h3>SOLID dan pengujian</h3>
-<p>Pengujian adalah <b>alat ukur</b> yang jujur untuk kualitas desain: kode yang sulit diuji hampir selalu melanggar salah satu prinsip. Gunakan sebagai uji cepat:</p>
+<h3>SOLID dan testing</h3>
+<p>Testing adalah <b>alat ukur</b> yang jujur untuk kualitas desain: kode yang sulit diuji hampir selalu melanggar salah satu prinsip. Gunakan sebagai uji cepat:</p>
 <div class="grid2">
-  <div class="card"><b>"Aku harus menyalakan database untuk menguji perhitungan"</b><span>→ DIP dilanggar. Bisnis menggenggam detail. Ekstrak interface, injeksikan <i>fake</i>.</span></div>
+  <div class="card"><b>"Aku harus menyalakan database untuk menguji perhitungan"</b><span>→ DIP dilanggar. Bisnis menggenggam detail. Ekstrak interface, lalu inject <i>fake</i>.</span></div>
   <div class="card"><b>"Tesku punya 40 baris persiapan"</b><span>→ SRP dilanggar. Kelas terlalu banyak tanggung jawab sehingga butuh terlalu banyak "dunia" agar bisa hidup.</span></div>
   <div class="card"><b>"Aku harus mengubah tes lama tiap menambah fitur"</b><span>→ OCP dilanggar. Perilaku baru tidak datang sebagai kode baru yang bisa diuji sendiri.</span></div>
-  <div class="card"><b>"Satu set tes sama harus lolos untuk semua implementasi"</b><span>→ Itulah <i>tes kontrak</i> untuk LSP. Jalankan satu suite terhadap semua implementasi sebuah interface.</span></div>
+  <div class="card"><b>"Satu set tes sama harus lolos untuk semua implementasi"</b><span>→ Itulah <i>contract test</i> untuk LSP. Jalankan satu suite terhadap semua implementasi sebuah interface.</span></div>
 </div>
-<div class="box note"><strong>🧰 Istilah singkat</strong> <i>Stub</i>: objek palsu yang mengembalikan jawaban tetap. <i>Fake</i>: implementasi sederhana yang sungguhan bekerja (misalnya database di memori). <i>Mock</i>: objek palsu yang juga memeriksa bagaimana ia dipanggil. Pustaka seperti Mockito membantu membuat mock, tetapi tanpa DIP pun mereka tidak punya titik untuk menyelipkan mock tersebut.</div>
+<div class="box note"><strong>🧰 Istilah singkat</strong> <i>Stub</i>: objek palsu yang mengembalikan jawaban tetap. <i>Fake</i>: implementasi sederhana yang sungguhan bekerja (misalnya database di memori). <i>Mock</i>: objek palsu yang juga memeriksa bagaimana ia dipanggil. Library seperti Mockito membantu membuat mock, tetapi tanpa DIP pun mereka tidak punya titik untuk menyelipkan mock tersebut.</div>
 </section>
 
 <!-- 13 -->
@@ -1559,11 +1559,11 @@ Urut abjad    : [Product[name=Kopi, price=25000.0], Product[name=Susu, price=150
 <p>Orang yang baru paham SOLID sering melewati fase berbahaya: <i>semua kode tiba-tiba harus punya interface</i>. SOLID adalah <b>alat untuk membuat perubahan murah</b>, bukan tujuan hidup. Kode yang dipecah menjadi 40 kelas untuk fitur yang tak pernah berubah justru lebih mahal dirawat daripada satu kelas besar yang jelas.</p>
 <div class="grid3">
   <div class="card"><span class="ic">🧩</span><b>Interface untuk segalanya</b><span><code>UserService</code> + <code>UserServiceImpl</code> hanya karena "kata buku begitu". Jika hanya ada satu implementasi dan tak ada alasan ia berganti, interface itu beban. Mulailah dari batas arsitektur (bisnis ↔ infrastruktur).</span></div>
-  <div class="card"><span class="ic">💥</span><b>Ledakan kelas</b><span>Satu fitur kecil menyebar di 12 file kecil sehingga pembaca kehilangan alur. Kelas kecil itu bagus hanya jika namanya jelas dan hubungannya mudah ditelusuri.</span></div>
-  <div class="card"><span class="ic">🔮</span><b>Abstraksi prematur</b><span>Menebak variasi yang belum ada (YAGNI: <i>You Aren't Gonna Need It</i>). Abstraksi yang salah lebih mahal daripada duplikasi sementara. Tunggu sampai perubahan nyata pertama.</span></div>
+  <div class="card"><span class="ic">💥</span><b>Class explosion</b><span>Satu fitur kecil menyebar di 12 file kecil sehingga pembaca kehilangan alur. Kelas kecil itu bagus hanya jika namanya jelas dan hubungannya mudah ditelusuri.</span></div>
+  <div class="card"><span class="ic">🔮</span><b>Premature abstraction</b><span>Menebak variasi yang belum ada (YAGNI: <i>You Aren't Gonna Need It</i>). Abstraction yang salah lebih mahal daripada duplikasi sementara. Tunggu sampai perubahan nyata pertama.</span></div>
   <div class="card"><span class="ic">🙏</span><b>Menyembah prinsip</b><span>Mendebat "ini melanggar S atau I?" selama sejam sementara fiturnya terlambat. Ukuran akhirnya satu: <i>apakah perubahan berikutnya jadi lebih murah dan lebih aman?</i></span></div>
-  <div class="card"><span class="ic">🌳</span><b>Pewarisan berlapis</b><span>Hirarki lima tingkat yang membuat orang harus membuka lima file untuk memahami satu method. Pilih komposisi dan interface kecil.</span></div>
-  <div class="card"><span class="ic">🎣</span><b>Konstruktor dengan 11 parameter</b><span>Pada kode yang memakai DI, ini tanda kelas tersebut memiliki terlalu banyak tanggung jawab (S). Jangan lawan dengan "objek parameter" saja; pecahkan kelasnya.</span></div>
+  <div class="card"><span class="ic">🌳</span><b>Inheritance berlapis</b><span>Hirarki lima tingkat yang membuat orang harus membuka lima file untuk memahami satu method. Pilih composition dan interface kecil.</span></div>
+  <div class="card"><span class="ic">🎣</span><b>Constructor dengan 11 parameter</b><span>Pada kode yang memakai DI, ini tanda kelas tersebut memiliki terlalu banyak tanggung jawab (S). Jangan lawan dengan "objek parameter" saja; pecahkan kelasnya.</span></div>
 </div>
 
 <h3>Simulasi 8 · Perlukah aku menerapkan SOLID penuh sekarang?</h3>
@@ -1599,7 +1599,7 @@ Urut abjad    : [Product[name=Kopi, price=25000.0], Product[name=Susu, price=150
 <p>Lima latihan, satu untuk setiap prinsip. Salin kode awal ke <code>Main.java</code>, kerjakan sendiri dulu, baru buka petunjuk dan jawaban. Semua kunci jawaban sudah dikompilasi dan dijalankan. Ingat: ada lebih dari satu jawaban yang benar; yang penting alasannya.</p>
 
 <h3>Latihan 1 · <span class="pill s">S</span>Invoice yang kerepotan</h3>
-<p><b>Tugas:</b> Siapa saja aktor di balik kelas ini? Pecah menjadi kelas-kelas yang masing-masing hanya punya satu majikan.</p>
+<p><b>Tugas:</b> Siapa saja actor di balik kelas ini? Pecah menjadi kelas-kelas yang masing-masing hanya punya satu majikan.</p>
 <div class="codewrap"><div class="codecap bad"><span>Main.java · kode awal</span><span>Java 17+</span></div><pre><code class="java">import java.util.ArrayList;
 import java.util.List;
 
@@ -1701,7 +1701,7 @@ public class Main {
         System.out.printf("Persegi panjang: %.2f%n", calc.area(new Rectangle()));
     }
 }</code></pre></div>
-<details class="sol"><summary>💡 Petunjuk</summary><div>Jadikan "bisa dihitung luasnya" sebuah kontrak. Siapa yang paling tahu cara menghitung luas lingkaran: kalkulator atau lingkaran itu sendiri?</div></details>
+<details class="sol"><summary>💡 Petunjuk</summary><div>Jadikan "bisa dihitung luasnya" sebuah contract. Siapa yang paling tahu cara menghitung luas lingkaran: kalkulator atau lingkaran itu sendiri?</div></details>
 <details class="sol"><summary>✅ Jawaban</summary><div>
 <div class="codewrap"><div class="codecap good"><span>Main.java · jawaban</span><span>Java 17+</span></div><pre><code class="java">interface Shape { double area(); }
 
@@ -1743,7 +1743,7 @@ public class Main {
 </div></details>
 
 <h3>Latihan 3 · <span class="pill l">L</span>Penyimpanan baca-saja</h3>
-<p><b>Tugas:</b> Kode klien <code>backup()</code> meledak saat diberi <code>ReadOnlyStorage</code>. Rancang ulang agar kesalahan itu <b>tertangkap saat kompilasi</b>, bukan saat berjalan.</p>
+<p><b>Tugas:</b> Client code <code>backup()</code> meledak saat diberi <code>ReadOnlyStorage</code>. Rancang ulang agar kesalahan itu <b>tertangkap saat kompilasi</b>, bukan saat berjalan.</p>
 <div class="codewrap"><div class="codecap bad"><span>Main.java · kode awal</span><span>Java 17+</span></div><pre><code class="java">class FileStorage {
     protected String content = "isi awal";
 
@@ -1759,7 +1759,7 @@ class ReadOnlyStorage extends FileStorage {
 }
 
 public class Main {
-    static void backup(FileStorage storage) {      // klien wajar: tulis lalu baca
+    static void backup(FileStorage storage) {      // client wajar: tulis lalu baca
         storage.write("cadangan");
         System.out.println("Isi sekarang: " + storage.read());
     }
@@ -1773,7 +1773,7 @@ public class Main {
         }
     }
 }</code></pre></div>
-<details class="sol"><summary>💡 Petunjuk</summary><div>Subtipe tidak boleh membatalkan janji induk. Maka jangan janjikan <code>write()</code> di tempat yang tidak semua penyimpanan sanggup menulis. Mulailah dari interface paling kecil.</div></details>
+<details class="sol"><summary>💡 Petunjuk</summary><div>Subtype tidak boleh membatalkan janji induk. Maka jangan janjikan <code>write()</code> di tempat yang tidak semua penyimpanan sanggup menulis. Mulailah dari interface paling kecil.</div></details>
 <details class="sol"><summary>✅ Jawaban</summary><div>
 <div class="codewrap"><div class="codecap good"><span>Main.java · jawaban</span><span>Java 17+</span></div><pre><code class="java">interface ReadableStorage {
     String read();
@@ -1892,7 +1892,7 @@ public class Main {
         // Bagaimana menguji NotificationService tanpa benar-benar mengirim SMS?
     }
 }</code></pre></div>
-<details class="sol"><summary>💡 Petunjuk</summary><div>Buat interface dari sudut pandang <code>NotificationService</code> ("aku butuh sesuatu yang bisa mengirim pesan"), lalu suntikkan lewat konstruktor.</div></details>
+<details class="sol"><summary>💡 Petunjuk</summary><div>Buat interface dari sudut pandang <code>NotificationService</code> ("aku butuh sesuatu yang bisa mengirim pesan"), lalu suntikkan lewat constructor.</div></details>
 <details class="sol"><summary>✅ Jawaban</summary><div>
 <div class="codewrap"><div class="codecap good"><span>Main.java · jawaban</span><span>Java 17+</span></div><pre><code class="java">import java.util.ArrayList;
 import java.util.List;
@@ -1921,7 +1921,7 @@ class NotificationService {
     }
 }
 
-class FakeSender implements MessageSender {                        // untuk pengujian
+class FakeSender implements MessageSender {                        // untuk testing
     final List&lt;String&gt; log = new ArrayList&lt;&gt;();
     public void send(String to, String text) { log.add(to + "|" + text); }
 }
@@ -1954,15 +1954,15 @@ Tes lulus? true</pre></div>
 <h3>Cheat sheet</h3>
 <div class="tbl"><table>
   <tr><th>Prinsip</th><th>Satu kalimat</th><th>Tanda bahaya</th><th>Obat</th></tr>
-  <tr><td><span class="pill s">S</span><b>SRP</b></td><td>Satu kelas, satu aktor yang berhak memintanya berubah.</td><td>Kelas Manager/Util; import dari banyak lapisan; konflik merge berulang</td><td>Pecah per aktor; kelas pengatur tipis</td></tr>
-  <tr><td><span class="pill o">O</span><b>OCP</b></td><td>Tambah perilaku dengan menulis kode baru, bukan membongkar kode lama.</td><td><code>switch</code>/<code>if</code> per tipe di banyak tempat; <code>instanceof</code> berderet</td><td>Strategy, Decorator, polimorfisme</td></tr>
-  <tr><td><span class="pill l">L</span><b>LSP</b></td><td>Subtipe harus bisa menggantikan supertipe tanpa merusak klien.</td><td><code>UnsupportedOperationException</code>; method kosong; prasyarat diperketat</td><td>Kontrak yang jujur; interface; komposisi</td></tr>
-  <tr><td><span class="pill i">I</span><b>ISP</b></td><td>Klien tidak dipaksa bergantung pada method yang tak ia pakai.</td><td>Interface gemuk; implementasi "asal ada"</td><td>Role interface kecil</td></tr>
-  <tr><td><span class="pill d">D</span><b>DIP</b></td><td>Bisnis dan detail sama-sama bergantung pada abstraksi milik bisnis.</td><td><code>new</code> infrastruktur di dalam layanan; tes butuh database</td><td>Interface + injeksi konstruktor + composition root</td></tr>
+  <tr><td><span class="pill s">S</span><b>SRP</b></td><td>Satu kelas, satu actor yang berhak memintanya berubah.</td><td>Kelas Manager/Util; import dari banyak layer; konflik merge berulang</td><td>Pecah per actor; thin orchestrator class</td></tr>
+  <tr><td><span class="pill o">O</span><b>OCP</b></td><td>Tambah perilaku dengan menulis kode baru, bukan membongkar kode lama.</td><td><code>switch</code>/<code>if</code> per tipe di banyak tempat; <code>instanceof</code> berderet</td><td>Strategy, Decorator, polymorphism</td></tr>
+  <tr><td><span class="pill l">L</span><b>LSP</b></td><td>Subtype harus bisa menggantikan supertype tanpa merusak client.</td><td><code>UnsupportedOperationException</code>; method kosong; precondition diperketat</td><td>Contract yang jujur; interface; composition</td></tr>
+  <tr><td><span class="pill i">I</span><b>ISP</b></td><td>Client tidak dipaksa bergantung pada method yang tak ia pakai.</td><td>Interface gemuk; implementasi "asal ada"</td><td>Role interface kecil</td></tr>
+  <tr><td><span class="pill d">D</span><b>DIP</b></td><td>Bisnis dan detail sama-sama bergantung pada abstraction milik bisnis.</td><td><code>new</code> infrastruktur di dalam layanan; tes butuh database</td><td>Interface + injection constructor + composition root</td></tr>
 </table></div>
 <div class="tbl"><table>
   <tr><th>Kalau terjadi…</th><th>Curigai</th></tr>
-  <tr><td>Satu perubahan kecil menyentuh banyak file</td><td>O (titik variasi hilang) atau D (detail tersebar)</td></tr>
+  <tr><td>Satu perubahan kecil menyentuh banyak file</td><td>O (variation point hilang) atau D (detail tersebar)</td></tr>
   <tr><td>Mengubah A merusak B yang tak berhubungan</td><td>S (tanggung jawab bercampur) atau L</td></tr>
   <tr><td>Tes sulit atau lambat disiapkan</td><td>D (butuh dunia nyata) atau S (kelas terlalu besar)</td></tr>
   <tr><td>Ada method yang "dipaksakan" ada</td><td>I (interface gemuk) lalu L</td></tr>
@@ -1973,7 +1973,7 @@ Tes lulus? true</pre></div>
   Bertrand Meyer, <i>Object-Oriented Software Construction</i> (1988) untuk OCP dan Design by Contract ·
   Barbara Liskov &amp; Jeannette Wing, "A Behavioral Notion of Subtyping" (1994) ·
   Gamma, Helm, Johnson, Vlissides, <i>Design Patterns</i> (1994) ·
-  Joshua Bloch, <i>Effective Java</i> (bagian tentang pewarisan, interface, dan komposisi) ·
+  Joshua Bloch, <i>Effective Java</i> (bagian tentang inheritance, interface, dan composition) ·
   Martin Fowler, <i>Refactoring</i> (edisi ke-2, 2018).
 </div>
 <div class="nav-mod"><a class="btn" href="../index.html">← Kembali ke beranda</a><a class="btn" href="#peta">Ulangi dari awal ↑</a></div>
@@ -2024,10 +2024,10 @@ const srcOf=id=>($('#'+id)||{textContent:''}).textContent.replace(/^\n/,'');
 /* ---------- Kartu hero ---------- */
 (function(){
   const H=[['S','Single','Responsibility',['Satu kelas,','satu alasan','untuk berubah'],'--accent'],
-    ['O','Open/Closed','',['Terbuka untuk','perluasan, tertutup','untuk modifikasi'],'--good'],
+    ['O','Open/Closed','',['Open for extension,','closed for','modification'],'--good'],
     ['L','Liskov','Substitution',['Anak harus bisa','menggantikan','induknya'],'--warn'],
-    ['I','Interface','Segregation',['Interface kecil','sesuai kebutuhan','klien'],'--violet'],
-    ['D','Dependency','Inversion',['Bergantung pada','abstraksi, bukan','detail'],'--bad']];
+    ['I','Interface','Segregation',['Interface kecil','sesuai kebutuhan','client'],'--violet'],
+    ['D','Dependency','Inversion',['Bergantung pada','abstraction, bukan','detail'],'--bad']];
   $('#heroCards').innerHTML=H.map((h,i)=>{const x=10+i*138,c=`var(${h[4]})`;
     return `<rect x="${x}" y="12" width="128" height="176" rx="12" fill="var(--surface)" stroke="${c}" stroke-width="2"/>
     <text x="${x+64}" y="68" text-anchor="middle" font-size="46" font-weight="800" fill="${c}">${h[0]}</text>
@@ -2036,7 +2036,7 @@ const srcOf=id=>($('#'+id)||{textContent:''}).textContent.replace(/^\n/,'');
     ${h[3].map((t,j)=>`<text x="${x+64}" y="${138+j*15}" text-anchor="middle" font-size="11.5" fill="var(--muted)">${t}</text>`).join('')}`}).join('');
 })();
 
-/* ---------- Simulasi 1: efek riak ---------- */
+/* ---------- Simulasi 1: ripple effect ---------- */
 (function(){
   const W=90,Hh=30;
   const GR={
@@ -2102,7 +2102,7 @@ const srcOf=id=>($('#'+id)||{textContent:''}).textContent.replace(/^\n/,'');
     const t=k=>GR[k].sel?`<b>${GR[k].nodes.find(n=>n.id===GR[k].sel).t}</b> diubah → ikut terdampak: ${names(k)}.`:'';
     m.className='msg';m.innerHTML=[GR.A.sel?'A: '+t('A'):'',GR.B.sel?'B: '+t('B'):''].filter(Boolean).join('<br>');
   }
-  const P=[['db','🗄️ Ganti database'],['mail','✉️ Ganti penyedia email'],['pay','💳 Ganti payment gateway'],['disc','🏷️ Ubah aturan diskon'],['contract','📜 Ubah kontrak penyimpanan']];
+  const P=[['db','🗄️ Ganti database'],['mail','✉️ Ganti penyedia email'],['pay','💳 Ganti payment gateway'],['disc','🏷️ Ubah aturan diskon'],['contract','📜 Ubah contract penyimpanan']];
   $('#d1Presets').innerHTML=P.map(p=>`<button class="btn" data-p="${p[0]}">${p[1]}</button>`).join('');
   $$('#d1Presets .btn').forEach(b=>b.onclick=()=>{
     const p=b.dataset.p;
@@ -2136,7 +2136,7 @@ const srcOf=id=>($('#'+id)||{textContent:''}).textContent.replace(/^\n/,'');
     else if(st.design==='mono'&&wrong){c='msg no';t=`Gaji sudah benar sesuai permintaan Keuangan, tetapi laporan HR ikut berubah menjadi ${hrReg} jam reguler. Developer hanya menguji bagian gaji, jadi bug ini lolos.`}
     else if(st.design==='mono'&&st.cfo){c='msg wa';t='Kebetulan angkanya masih sama karena jam kerja ≤ 35. Geser jam kerja ke atas 40 untuk melihat kerusakannya.'}
     else if(st.design==='mono'){c='msg wa';t='Mengganti penyimpanan menyentuh kelas Employee yang sama dengan logika gaji dan laporan. Ketiga pihak harus ikut menguji ulang, walau tidak ada yang berubah bagi mereka.'}
-    else{c='msg ok';t=st.cfo&&st.db?'Dua perubahan dari dua aktor berbeda mendarat di dua kelas berbeda tanpa saling mengganggu.':st.cfo?'Hanya PayCalculator yang berubah. Laporan HR tetap benar dan tidak perlu diuji ulang.':'Hanya EmployeeRepository yang berubah. Logika gaji dan laporan tidak tersentuh.'}
+    else{c='msg ok';t=st.cfo&&st.db?'Dua perubahan dari dua actor berbeda mendarat di dua kelas berbeda tanpa saling mengganggu.':st.cfo?'Hanya PayCalculator yang berubah. Laporan HR tetap benar dan tidak perlu diuji ulang.':'Hanya EmployeeRepository yang berubah. Logika gaji dan laporan tidak tersentuh.'}
     m.className=c;m.textContent=t;
     $$('#d2Design button').forEach(b=>b.classList.toggle('on',b.dataset.v===st.design));
     $('#d2Cfo').classList.toggle('on',st.cfo);$('#d2Db').classList.toggle('on',st.db);
@@ -2168,7 +2168,7 @@ const srcOf=id=>($('#'+id)||{textContent:''}).textContent.replace(/^\n/,'');
     const L=['interface DiscountPolicy {','    double discount(double total);','}',''];
     all().forEach((e,i)=>{const m=i>=3?'  //+':'';
       L.push(`class ${e[1]} implements DiscountPolicy {${m}`,`    public double discount(double total) { return ${e[2]}; }${m}`,`}${m}`)});
-    L.push('','// Titik perakitan (satu-satunya yang tahu daftar jenis)','Map<String, DiscountPolicy> policies = Map.of(');
+    L.push('','// Composition root (satu-satunya yang tahu daftar jenis)','Map<String, DiscountPolicy> policies = Map.of(');
     const es=all();es.forEach((e,i)=>L.push(`    "${e[0]}", new ${e[1]}()${i<es.length-1?',':');'}${i>=3?'  //+':''}`));
     return L.join('\n');
   }
@@ -2198,9 +2198,9 @@ const srcOf=id=>($('#'+id)||{textContent:''}).textContent.replace(/^\n/,'');
 (function(){
   const st={pick:'rect',step:0};
   const CODE={
-    rect:['Rectangle r = new Rectangle();','r.setWidth(5);','r.setHeight(4);','int area = r.area();   // klien berharap 20'],
-    sq:['Rectangle r = new Square();','r.setWidth(5);','r.setHeight(4);','int area = r.area();   // klien berharap 20'],
-    shape:['Shape s = new Square(4);','double area = s.area();   // kontrak: luas bentuk ini','// s.setWidth(5);   <- tidak ada di Shape, tak bisa ditulis']
+    rect:['Rectangle r = new Rectangle();','r.setWidth(5);','r.setHeight(4);','int area = r.area();   // client berharap 20'],
+    sq:['Rectangle r = new Square();','r.setWidth(5);','r.setHeight(4);','int area = r.area();   // client berharap 20'],
+    shape:['Shape s = new Square(4);','double area = s.area();   // contract: luas bentuk ini','// s.setWidth(5);   <- tidak ada di Shape, tak bisa ditulis']
   };
   const STATE={ // [w,h] setelah tiap langkah
     rect:[[0,0],[0,0],[5,0],[5,4],[5,4]],
@@ -2212,20 +2212,20 @@ const srcOf=id=>($('#'+id)||{textContent:''}).textContent.replace(/^\n/,'');
     const area=w*h,expect=st.pick==='shape'?16:20,bad=st.pick==='sq'&&s===4;
     const lines=L.map((l,i)=>i===s-1?l+(bad?'  //!':'  //+'):l);
     $('#d4Code').innerHTML=hlJava(lines.join('\n'));
-    $('#d4Cap').textContent=st.pick==='shape'?'klien hanya mengenal Shape':'klien hanya mengenal Rectangle';
+    $('#d4Cap').textContent=st.pick==='shape'?'client hanya mengenal Shape':'client hanya mengenal Rectangle';
     $('#d4W').textContent=w;$('#d4H').textContent=h;const done=st.pick==='shape'?s>=2:s>=4;$('#d4A').textContent=done?area:'?';$('#d4E').textContent=expect;
     const u=26,x0=24,y0=196,ok=!bad;
     let svg=`<line x1="${x0}" y1="${y0}" x2="${x0+170}" y2="${y0}" stroke="var(--border)"/><line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y0-170}" stroke="var(--border)"/>`;
-    if(st.pick!=='shape'&&s>=3)svg+=`<rect x="${x0}" y="${y0-4*u}" width="${5*u}" height="${4*u}" fill="none" stroke="var(--muted)" stroke-dasharray="5 4"/><text x="${x0+5*u+6}" y="${y0-4*u+12}" font-size="11" fill="var(--muted)">harapan klien: 5 × 4</text>`;
+    if(st.pick!=='shape'&&s>=3)svg+=`<rect x="${x0}" y="${y0-4*u}" width="${5*u}" height="${4*u}" fill="none" stroke="var(--muted)" stroke-dasharray="5 4"/><text x="${x0+5*u+6}" y="${y0-4*u+12}" font-size="11" fill="var(--muted)">harapan client: 5 × 4</text>`;
     if(w>0||h>0)svg+=`<rect x="${x0}" y="${y0-h*u}" width="${Math.max(w*u,2)}" height="${Math.max(h*u,2)}" fill="color-mix(in srgb,var(${bad?'--bad':'--good'}) 26%,transparent)" stroke="var(${bad?'--bad':'--good'})" stroke-width="2.2"/>`;
     svg+=`<text x="${x0+Math.max(w,0)*u/2}" y="${y0+16}" text-anchor="middle" font-size="12" fill="var(--text)">lebar ${w}</text><text x="${x0-8}" y="${y0-h*u/2+4}" text-anchor="end" font-size="12" fill="var(--text)">${h}</text>`;
     $('#d4Svg').innerHTML=svg;
-    const m=$('#d4Msg');let c='msg',t='Tekan "Langkah berikutnya" untuk menjalankan klien baris demi baris.';
+    const m=$('#d4Msg');let c='msg',t='Tekan "Langkah berikutnya" untuk menjalankan client baris demi baris.';
     if(st.pick==='sq'&&s===2){c='msg wa';t='Perhatikan: setWidth(5) pada Square ikut mengubah tinggi menjadi 5. Induknya menjanjikan tinggi tidak berubah.'}
     if(st.pick==='sq'&&s===3){c='msg wa';t='setHeight(4) kini ikut mengubah lebar menjadi 4. Lebar 5 yang tadi diatur hilang.'}
-    if(st.pick==='sq'&&s===4){c='msg no';t='Luas = 16, bukan 20. Klien yang sangat wajar menjadi salah hanya karena menerima Square. Square tidak bisa menggantikan Rectangle: LSP dilanggar.'}
-    if(st.pick==='rect'&&s===4){c='msg ok';t='Luas = 20 sesuai harapan. Rectangle memenuhi kontraknya sendiri.'}
-    if(st.pick==='shape'&&s===2){c='msg ok';t='Luas 16 = sisi × sisi. Kontrak Shape hanya menjanjikan area(), sehingga tidak ada janji yang bisa dilanggar. Setter yang menyesatkan memang tidak bisa ditulis.'}
+    if(st.pick==='sq'&&s===4){c='msg no';t='Luas = 16, bukan 20. Client yang sangat wajar menjadi salah hanya karena menerima Square. Square tidak bisa menggantikan Rectangle: LSP dilanggar.'}
+    if(st.pick==='rect'&&s===4){c='msg ok';t='Luas = 20 sesuai harapan. Rectangle memenuhi contract-nya sendiri.'}
+    if(st.pick==='shape'&&s===2){c='msg ok';t='Luas 16 = sisi × sisi. Contract Shape hanya menjanjikan area(), sehingga tidak ada janji yang bisa dilanggar. Setter yang menyesatkan memang tidak bisa ditulis.'}
     if(st.pick==='shape'&&s>=3){c='msg ok'}
     m.className=c;m.textContent=t;
     $('#d4Step').disabled=s>=(st.pick==='shape'?2:4);
@@ -2241,21 +2241,21 @@ const srcOf=id=>($('#'+id)||{textContent:''}).textContent.replace(/^\n/,'');
 (function(){
   const C=[
     {c:'class Penguin extends Bird {\n    @Override void fly() { throw new UnsupportedOperationException(); }\n}',ok:false,
-      w:'Klien yang memegang Bird berhak memanggil fly(). Pinguin meledak. Pasca-syarat tidak terpenuhi dan muncul exception yang tak dijanjikan induk.'},
+      w:'Client yang memegang Bird berhak memanggil fly(). Pinguin meledak. Postcondition tidak terpenuhi dan muncul exception yang tak dijanjikan induk.'},
     {c:'class LoggingList<T> extends ArrayList<T> {\n    @Override public boolean add(T x) {\n        System.out.println("add " + x);\n        return super.add(x);\n    }\n}',ok:true,
-      w:'Aman. Subkelas hanya menambah efek samping (log) dan tetap memenuhi seluruh kontrak add().'},
+      w:'Aman. Subclass hanya menambah side effect (log) dan tetap memenuhi seluruh contract add().'},
     {c:'class PremiumAccount extends Account {\n    @Override void withdraw(double amount) {\n        if (amount < 100_000) throw new IllegalArgumentException();\n        super.withdraw(amount);\n    }\n}',ok:false,
-      w:'Prasyarat diperketat: induk menerima penarikan berapa pun (selama valid), subkelas menolak yang di bawah Rp100.000.'},
+      w:'Precondition diperketat: induk menerima penarikan berapa pun (selama valid), subclass menolak yang di bawah Rp100.000.'},
     {c:'class Animal { Animal reproduce() { ... } }\nclass Cat extends Animal {\n    @Override Cat reproduce() { ... }\n}',ok:true,
-      w:'Aman. Tipe kembalian yang lebih spesifik (covariant return) memperkuat pasca-syarat: klien yang mengharapkan Animal tetap puas.'},
+      w:'Aman. Tipe kembalian yang lebih spesifik (covariant return) memperkuat postcondition: client yang mengharapkan Animal tetap puas.'},
     {c:'class SortedList extends ArrayList<String> {\n    @Override public boolean add(String s) {\n        // menyisipkan sehingga daftar selalu terurut\n        ...\n    }\n}',ok:false,
-      w:'Kontrak List.add menambah di akhir. Klien yang menulis list.add(x) lalu list.get(list.size() - 1) tidak lagi mendapat x. Invarian/pasca-syarat dilanggar.'},
+      w:'Contract List.add menambah di akhir. Client yang menulis list.add(x) lalu list.get(list.size() - 1) tidak lagi mendapat x. Invariant/postcondition dilanggar.'},
     {c:'class Rectangle {\n    int area() { ... }\n}\nclass ColoredRectangle extends Rectangle {\n    String color = "merah";   // tambahan baru\n}',ok:true,
-      w:'Aman. Menambah anggota baru tanpa mengubah perilaku yang sudah dijanjikan induk adalah cara pewarisan yang sehat.'}
+      w:'Aman. Menambah anggota baru tanpa mengubah perilaku yang sudah dijanjikan induk adalah cara inheritance yang sehat.'}
   ];
   const ans={};
   $('#lspCases').innerHTML=C.map((x,i)=>`<div class="q" data-i="${i}"><p>${i+1}. Aman atau melanggar LSP?</p><pre><code class="java">${esc(x.c)}</code></pre>
-    <button data-j="1">✅ Aman, subtipe boleh menggantikan</button><button data-j="0">🚫 Melanggar LSP</button><div class="why"></div></div>`).join('');
+    <button data-j="1">✅ Aman, subtype boleh menggantikan</button><button data-j="0">🚫 Melanggar LSP</button><div class="why"></div></div>`).join('');
   $$('#lspCases pre code').forEach(el=>el.innerHTML=hlJava(el.textContent));
   $$('#lspCases .q button').forEach(b=>b.onclick=()=>{
     const box=b.closest('.q'),i=+box.dataset.i,x=C[i],pick=+b.dataset.j===1;
@@ -2265,7 +2265,7 @@ const srcOf=id=>($('#'+id)||{textContent:''}).textContent.replace(/^\n/,'');
     const w=box.querySelector('.why');w.style.display='block';w.textContent=(pick===x.ok?'Benar. ':'Belum tepat. ')+x.w;
     if(!(i in ans))ans[i]=pick===x.ok;
     const n=Object.keys(ans).length,ok=Object.values(ans).filter(Boolean).length;
-    $('#lspScore').textContent=n<C.length?`Terjawab ${n} dari ${C.length} · benar ${ok}`:`Skor: ${ok} dari ${C.length}. ${ok===C.length?'Tajam! 🎉':'Ulangi tabel kontrak di atas untuk kasus yang meleset.'}`;
+    $('#lspScore').textContent=n<C.length?`Terjawab ${n} dari ${C.length} · benar ${ok}`:`Skor: ${ok} dari ${C.length}. ${ok===C.length?'Tajam! 🎉':'Ulangi tabel contract di atas untuk kasus yang meleset.'}`;
   });
 })();
 
@@ -2279,7 +2279,7 @@ const srcOf=id=>($('#'+id)||{textContent:''}).textContent.replace(/^\n/,'');
     const affDev=d=>st.changed&&(fat||d.has.fax),affCli=c=>st.changed&&(fat||c.need==='fax');
     $('#d5Tbl').innerHTML=`<tr><th>Perangkat \\ ${fat?'MultiFunctionDevice':'interface yang diambil'}</th>${M.map(m=>`<th class="c2">${m}()</th>`).join('')}<th class="c2">Terdampak?</th></tr>`+
       DEV.map(d=>`<tr${affDev(d)?' style="background:color-mix(in srgb,var(--warn) 18%,transparent)"':''}><td><code>${d.n}</code></td>${M.map(m=>`<td class="c2">${d.has[m]?'✓ nyata':fat?'<span style="color:var(--bad)">⛔ dummy / throw</span>':'<span class="muted">— tak perlu</span>'}</td>`).join('')}<td class="c2">${st.changed?(affDev(d)?'⚠ kompilasi ulang':'aman'):'–'}</td></tr>`).join('');
-    $('#d5Clients').innerHTML='<b style="margin-right:6px">Klien:</b>'+CLI.map(c=>`<span style="border:1px solid var(--border);border-radius:99px;padding:1px 10px;${affCli(c)?'background:color-mix(in srgb,var(--warn) 22%,transparent);border-color:var(--warn)':''}">${c.n} <small>(butuh ${c.need})</small>${st.changed?(affCli(c)?' ⚠':' ✓'):''}</span>`).join('');
+    $('#d5Clients').innerHTML='<b style="margin-right:6px">Client:</b>'+CLI.map(c=>`<span style="border:1px solid var(--border);border-radius:99px;padding:1px 10px;${affCli(c)?'background:color-mix(in srgb,var(--warn) 22%,transparent);border-color:var(--warn)':''}">${c.n} <small>(butuh ${c.need})</small>${st.changed?(affCli(c)?' ⚠':' ✓'):''}</span>`).join('');
     const dummies=fat?DEV.reduce((s,d)=>s+M.filter(m=>!d.has[m]).length,0):0;
     $('#d5K1').className=dummies?'badv':'okv';$('#d5K1').innerHTML=`Method palsu yang terpaksa ditulis<b>${dummies}</b>`;
     const aff=DEV.filter(affDev).length+CLI.filter(affCli).length;
@@ -2287,8 +2287,8 @@ const srcOf=id=>($('#'+id)||{textContent:''}).textContent.replace(/^\n/,'');
     $('#d5K2').innerHTML=`Kelas yang terdampak perubahan fax()<b>${st.changed?aff+' dari 6':'–'}</b>`;
     const m=$('#d5Msg');
     if(!st.changed){m.className='msg';m.textContent=fat?'Perhatikan ⛔: SimplePrinter dan BookScanner terpaksa berbohong. Sekarang tekan "Ubah signature fax()".':'Setiap perangkat hanya menandatangani yang ia sanggupi. Sekarang tekan "Ubah signature fax()".'}
-    else if(fat){m.className='msg no';m.textContent='Satu perubahan pada fax() memaksa SEMUA perangkat dan SEMUA klien dikompilasi ulang, termasuk ReportService yang hanya mencetak dan tidak peduli fax sama sekali.'}
-    else{m.className='msg ok';m.textContent='Hanya AllInOne (satu-satunya yang punya fax) dan FaxDesk (satu-satunya klien fax) yang terdampak. Sisanya tidak tersentuh.'}
+    else if(fat){m.className='msg no';m.textContent='Satu perubahan pada fax() memaksa SEMUA perangkat dan SEMUA client dikompilasi ulang, termasuk ReportService yang hanya mencetak dan tidak peduli fax sama sekali.'}
+    else{m.className='msg ok';m.textContent='Hanya AllInOne (satu-satunya yang punya fax) dan FaxDesk (satu-satunya client fax) yang terdampak. Sisanya tidak tersentuh.'}
     $$('#d5Design button').forEach(b=>b.classList.toggle('on',b.dataset.v===st.design));
     $('#d5Change').classList.toggle('on',st.changed);
   }
@@ -2338,7 +2338,7 @@ const srcOf=id=>($('#'+id)||{textContent:''}).textContent.replace(/^\n/,'');
   function refresh(){
     $$('#d6Design button').forEach(b=>b.classList.toggle('on',b.dataset.v===st.design));
     diagram();code();
-    if(st.design==='bad'&&st.db!=='mysql')msg('Pada desain ini OrderService tidak bisa diberi tahu "pakai PostgreSQL". Kamu harus mengedit barisnya (merah di kanan) lalu mengompilasi ulang. Aturan bisnisnya tidak berubah sama sekali, tetapi file bisnis tetap harus dibongkar.','no');
+    if(st.design==='bad'&&st.db!=='mysql')msg('Pada desain ini OrderService tidak bisa diberi tahu "pakai PostgreSQL". Kamu harus mengedit barisnya (merah di kanan) lalu mengompilasi ulang. Business rulenya tidak berubah sama sekali, tetapi file bisnis tetap harus dibongkar.','no');
     else if(st.design==='bad')msg('Terlihat sederhana, dan memang berhasil. Coba ganti penyimpanan atau jalankan unit test.','wa');
     else msg('OrderService tidak pernah berubah. Gonta-ganti penyimpanan hanya mengubah satu baris di composition root.','ok');
   }
@@ -2389,10 +2389,10 @@ const srcOf=id=>($('#'+id)||{textContent:''}).textContent.replace(/^\n/,'');
      x:'<code>checkout()</code> menghitung diskon, menagih pembayaran, menyimpan ke MySQL, dan mengirim email. Metode bayar baru, aturan diskon baru, database baru, atau template email baru: semuanya membongkar method yang sama. Empat majikan, satu kelas, dan tes mustahil dijalankan tanpa menyentuh dunia nyata.'},
     {k:'case_s1',t:'Langkah 1 · SRP: pecah menurut alasan berubah',m:[1,4,4,0],
      x:'Kita ekstrak <code>DiscountCalculator</code>, <code>PaymentProcessor</code>, <code>MySqlOrderRepository</code>, dan <code>EmailSender</code>. <code>CheckoutService</code> kini hanya mengatur urutan. Tetapi lihat garis merah: ia masih memanggil <code>new</code> keempatnya, dan <code>if/else</code> tipe hanya pindah rumah.'},
-    {k:'case_s2',t:'Langkah 2 · OCP: ganti if/else dengan strategi',m:[1,0,2,0],
-     x:'<code>if/else</code> diskon dan pembayaran diganti interface <code>DiscountPolicy</code> dan <code>PaymentMethod</code>. Jenis diskon atau metode bayar baru kini hanya berupa kelas baru. <code>checkout()</code> menerima strategi sebagai parameter. Yang tersisa merah: penyimpanan dan email masih konkret.'},
-    {k:'case_good',t:'Langkah 3 · DIP + ISP: balik arah ketergantungan',m:[1,0,0,1],
-     x:'<code>OrderRepository</code> dan <code>Notifier</code> menjadi interface kecil yang disuntikkan lewat konstruktor, dan <code>main</code> menjadi <em>composition root</em>. Karena semua dependensi abstrak, di akhir <code>main</code> kita menguji <code>CheckoutService</code> dengan <code>FakeRepository</code> dan <code>FakeNotifier</code>, tanpa database dan email sungguhan.'}
+    {k:'case_s2',t:'Langkah 2 · OCP: ganti if/else dengan strategy',m:[1,0,2,0],
+     x:'<code>if/else</code> diskon dan pembayaran diganti interface <code>DiscountPolicy</code> dan <code>PaymentMethod</code>. Jenis diskon atau metode bayar baru kini hanya berupa kelas baru. <code>checkout()</code> menerima strategy sebagai parameter. Yang tersisa merah: penyimpanan dan email masih concrete.'},
+    {k:'case_good',t:'Langkah 3 · DIP + ISP: balik arah dependency',m:[1,0,0,1],
+     x:'<code>OrderRepository</code> dan <code>Notifier</code> menjadi interface kecil yang disuntikkan lewat constructor, dan <code>main</code> menjadi <em>composition root</em>. Karena semua dependency abstrak, di akhir <code>main</code> kita menguji <code>CheckoutService</code> dengan <code>FakeRepository</code> dan <code>FakeNotifier</code>, tanpa database dan email sungguhan.'}
   ];
   let cur=0;
   function meter(i,v,ideal,max,txt){
@@ -2428,8 +2428,8 @@ const srcOf=id=>($('#'+id)||{textContent:''}).textContent.replace(/^\n/,'');
   const T=[
     {max:20,h:'Cukup sederhana',c:'wa',l:['Satu atau dua kelas dengan nama yang jelas sudah memadai.','Pisahkan saja bagian baca/tulis (I/O) dari logika perhitungan.','Jangan membuat interface "untuk jaga-jaga".']},
     {max:45,h:'S dan D secukupnya',c:'',l:['Pecah kelas ketika ada dua alasan berubah yang nyata.','Sembunyikan database/jaringan di balik satu interface kecil.','Tulis tes untuk logika inti.','Tunda OCP dan ISP sampai variasi kedua atau ketiga muncul.']},
-    {max:70,h:'Terapkan SOLID, tetapi bertahap',c:'ok',l:['Pertahankan batas yang jelas antara bisnis dan infrastruktur (DIP).','Abstraksikan titik variasi ketika perubahan nyata muncul (OCP).','Perhatikan konstruktor yang menggemuk: tanda SRP dilanggar.','Jalankan tes kontrak untuk interface yang punya banyak implementasi.']},
-    {max:101,h:'Terapkan penuh sejak awal, dengan disiplin',c:'ok',l:['Tetapkan batas modul dan interface kecil sejak awal.','Wajibkan injeksi dependensi dan composition root.','Buat tes kontrak (LSP) untuk setiap interface publik.','Lakukan code review dengan daftar bau kode SOLID.']}];
+    {max:70,h:'Terapkan SOLID, tetapi bertahap',c:'ok',l:['Pertahankan batas yang jelas antara bisnis dan infrastruktur (DIP).','Buat abstraction untuk variation point ketika perubahan nyata muncul (OCP).','Perhatikan constructor yang menggemuk: tanda SRP dilanggar.','Jalankan contract test untuk interface yang punya banyak implementasi.']},
+    {max:101,h:'Terapkan penuh sejak awal, dengan disiplin',c:'ok',l:['Tetapkan batas modul dan interface kecil sejak awal.','Wajibkan dependency injection dan composition root.','Buat contract test (LSP) untuk setiap interface publik.','Lakukan code review dengan daftar code smell SOLID.']}];
   function draw(){
     const a=+$('#d8a').value,b=+$('#d8b').value,c=+$('#d8c').value,d=+$('#d8d').value;
     [a,b,c,d].forEach((v,i)=>$('#d8L'+(i+1)).textContent=L[i][v]);
@@ -2446,50 +2446,50 @@ const srcOf=id=>($('#'+id)||{textContent:''}).textContent.replace(/^\n/,'');
 const QZ=[
   {q:'Kelas <code>Report</code> punya method <code>generate()</code>, <code>exportToPdf()</code>, dan <code>sendByEmail()</code>. Alasan paling tepat untuk memisahkannya berdasarkan SRP?',
    o:['Supaya setiap method lebih pendek','Karena perubahan isi laporan, format PDF, dan kebijakan pengiriman datang dari pihak berbeda dan tidak boleh saling merusak','Karena SRP melarang kelas punya lebih dari satu method','Supaya jumlah kelas di proyek bertambah'],a:1,
-   w:'SRP bicara tentang aktor/alasan berubah, bukan jumlah method atau panjang kode.'},
+   w:'SRP bicara tentang actor/alasan berubah, bukan jumlah method atau panjang kode.'},
   {q:'<code>PayCalculator</code> punya 8 method, semuanya aturan perhitungan gaji yang hanya dipesan oleh bagian Keuangan. Apakah ini melanggar SRP?',
-   o:['Ya, karena terlalu banyak method','Ya, karena kelas harus punya satu method','Tidak, selama hanya satu aktor yang bisa memintanya berubah','Tidak, karena SRP hanya berlaku untuk interface'],a:2,
+   o:['Ya, karena terlalu banyak method','Ya, karena kelas harus punya satu method','Tidak, selama hanya satu actor yang bisa memintanya berubah','Tidak, karena SRP hanya berlaku untuk interface'],a:2,
    w:'Banyak method tidak masalah selama semuanya berubah karena satu alasan yang sama.'},
   {q:'Kamu menemukan <code>switch (type)</code> yang sama di 6 file berbeda. Menambah tipe baru berarti menyunting keenamnya. Prinsip yang paling dilanggar dan obat utamanya?',
-   o:['SRP, pecah file','OCP, polimorfisme/strategi','LSP, hapus pewarisan','ISP, perkecil interface'],a:1,
-   w:'Setiap tipe baru memaksa modifikasi kode lama (OCP). Obatnya polimorfisme: satu kelas per tipe di belakang satu abstraksi.'},
+   o:['SRP, pecah file','OCP, polymorphism/strategy','LSP, hapus inheritance','ISP, perkecil interface'],a:1,
+   w:'Setiap tipe baru memaksa modifikasi kode lama (OCP). Obatnya polymorphism: satu kelas per tipe di belakang satu abstraction.'},
   {q:'Manakah yang BUKAN cara mencapai OCP?',
-   o:['Menambahkan kelas baru yang mengimplementasikan interface yang ada','Memakai pola Strategy atau Decorator','Menambah parameter <code>boolean</code> baru ke method untuk setiap varian','Mengganti rantai <code>if/else</code> dengan polimorfisme'],a:2,
+   o:['Menambahkan kelas baru yang mengimplementasikan interface yang ada','Memakai pola Strategy atau Decorator','Menambah parameter <code>boolean</code> baru ke method untuk setiap varian','Mengganti rantai <code>if/else</code> dengan polymorphism'],a:2,
    w:'Flag boolean justru menambah cabang di dalam method lama, yaitu modifikasi, dan membuat method makin rumit.'},
-  {q:'<code>Square extends Rectangle</code> mengubah kedua sisi di setiap setter. Klien <code>r.setWidth(5); r.setHeight(4); r.area()</code> mendapat 16, bukan 20. Apa yang dilanggar?',
-   o:['SRP, karena Square punya dua tanggung jawab','LSP, karena Square tidak bisa menggantikan Rectangle tanpa merusak perilaku yang dijanjikan','DIP, karena Square bergantung pada kelas konkret','OCP, karena Rectangle dimodifikasi'],a:1,
-   w:'Pasca-syarat setter (sisi lain tidak berubah) dilanggar, sehingga substitusi tidak aman.'},
-  {q:'Subkelas <code>ReadOnlyList extends ArrayList</code> melempar exception pada <code>add()</code>. Perbaikan yang paling tepat?',
-   o:['Biarkan, cukup dokumentasikan di Javadoc','Tangkap exception di semua klien','Jangan mewarisi: buat interface baca-saja yang tidak menjanjikan <code>add()</code>, atau pakai komposisi','Ganti exception menjadi <code>RuntimeException</code>'],a:2,
-   w:'Jangan menjanjikan kemampuan yang tidak sanggup dipenuhi. Pecah kontraknya sehingga compiler membantu.'},
-  {q:'Menurut LSP, apa yang BOLEH dilakukan subkelas pada method yang di-<i>override</i>?',
+  {q:'<code>Square extends Rectangle</code> mengubah kedua sisi di setiap setter. Client <code>r.setWidth(5); r.setHeight(4); r.area()</code> mendapat 16, bukan 20. Apa yang dilanggar?',
+   o:['SRP, karena Square punya dua tanggung jawab','LSP, karena Square tidak bisa menggantikan Rectangle tanpa merusak perilaku yang dijanjikan','DIP, karena Square bergantung pada concrete class','OCP, karena Rectangle dimodifikasi'],a:1,
+   w:'Postcondition setter (sisi lain tidak berubah) dilanggar, sehingga substitusi tidak aman.'},
+  {q:'Subclass <code>ReadOnlyList extends ArrayList</code> melempar exception pada <code>add()</code>. Perbaikan yang paling tepat?',
+   o:['Biarkan, cukup dokumentasikan di Javadoc','Tangkap exception di semua client','Jangan mewarisi: buat interface baca-saja yang tidak menjanjikan <code>add()</code>, atau pakai composition','Ganti exception menjadi <code>RuntimeException</code>'],a:2,
+   w:'Jangan menjanjikan kemampuan yang tidak sanggup dipenuhi. Pecah contract-nya sehingga compiler membantu.'},
+  {q:'Menurut LSP, apa yang BOLEH dilakukan subclass pada method yang di-<i>override</i>?',
    o:['Menolak input yang diterima induk','Menerima input yang lebih luas dari induk','Melempar checked exception baru','Mengubah state yang diklaim induk tak berubah'],a:1,
-   w:'Prasyarat boleh dilonggarkan (menerima lebih banyak) dan pascasyarat boleh diperkuat, tidak sebaliknya.'},
-  {q:'<code>Robot implements Worker</code> mengosongkan method <code>eat()</code> karena robot tidak makan. Bau kode apa, dan obatnya?',
-   o:['Pelanggaran ISP: pecah <code>Worker</code> menjadi <code>Workable</code> dan <code>Eatable</code>','Pelanggaran SRP: gabung <code>Robot</code> dan <code>Human</code>','Pelanggaran DIP: pakai kelas konkret','Tidak ada masalah'],a:0,
-   w:'Interface gemuk memaksa implementor berbohong. Pecah menurut peran yang dibutuhkan klien.'},
-  {q:'Selain merepotkan implementor, kenapa interface gemuk juga merugikan KLIEN-nya?',
-   o:['Klien jadi lebih cepat','Klien ikut terdampak (kompilasi/uji ulang) ketika bagian yang tak ia pakai berubah','Klien tidak bisa memanggil method apa pun','Tidak ada kerugian bagi klien'],a:1,
-   w:'Klien bergantung pada seluruh interface, sehingga perubahan pada method yang tak ia pakai tetap memengaruhinya.'},
+   w:'Precondition boleh dilonggarkan (menerima lebih banyak) dan postcondition boleh diperkuat, tidak sebaliknya.'},
+  {q:'<code>Robot implements Worker</code> mengosongkan method <code>eat()</code> karena robot tidak makan. Code smell apa, dan obatnya?',
+   o:['Pelanggaran ISP: pecah <code>Worker</code> menjadi <code>Workable</code> dan <code>Eatable</code>','Pelanggaran SRP: gabung <code>Robot</code> dan <code>Human</code>','Pelanggaran DIP: pakai concrete class','Tidak ada masalah'],a:0,
+   w:'Interface gemuk memaksa implementor berbohong. Pecah menurut peran yang dibutuhkan client.'},
+  {q:'Selain merepotkan implementor, kenapa interface gemuk juga merugikan CLIENT-nya?',
+   o:['Client jadi lebih cepat','Client ikut terdampak (kompilasi/uji ulang) ketika bagian yang tak ia pakai berubah','Client tidak bisa memanggil method apa pun','Tidak ada kerugian bagi client'],a:1,
+   w:'Client bergantung pada seluruh interface, sehingga perubahan pada method yang tak ia pakai tetap memengaruhinya.'},
   {q:'Manakah potongan kode yang melanggar DIP?',
    code:'// A\nprivate final OrderRepository repo;\nOrderService(OrderRepository repo) { this.repo = repo; }\n\n// B\nprivate final MySqlRepo repo = new MySqlRepo();\n\n// C\nOrderService(Notifier notifier) { this.notifier = notifier; }',
    o:['A','B','C','Semuanya baik-baik saja'],a:1,
-   w:'B: layanan bisnis membuat sendiri sebuah kelas infrastruktur konkret. A dan C menerima abstraksi lewat konstruktor.'},
+   w:'B: layanan bisnis membuat sendiri sebuah kelas infrastruktur concrete. A dan C menerima abstraction lewat constructor.'},
   {q:'Apa beda Dependency Inversion Principle (DIP) dan Dependency Injection (DI)?',
-   o:['Keduanya sama','DIP prinsip tentang arah ketergantungan ke abstraksi; DI teknik menyuntikkan dependensi dari luar','DI prinsip desain; DIP kerangka kerja','DIP hanya untuk database'],a:1,
-   w:'DI sering dipakai untuk mencapai DIP, tetapi kamu bisa memakai DI tanpa DIP (menyuntikkan kelas konkret).'},
-  {q:'Kelas <code>OrderService</code> memiliki konstruktor dengan 11 parameter dependensi. Dugaan terkuat?',
+   o:['Keduanya sama','DIP prinsip tentang arah dependency ke abstraction; DI teknik menyuntikkan dependency dari luar','DI prinsip desain; DIP framework','DIP hanya untuk database'],a:1,
+   w:'DI sering dipakai untuk mencapai DIP, tetapi kamu bisa memakai DI tanpa DIP (menyuntikkan concrete class).'},
+  {q:'Kelas <code>OrderService</code> memiliki constructor dengan 11 parameter dependency. Dugaan terkuat?',
    o:['DIP diterapkan dengan sempurna','Kelas melakukan terlalu banyak hal (SRP dilanggar)','LSP dilanggar','Itu pertanda desain sudah ideal'],a:1,
    w:'Terlalu banyak kolaborator hampir selalu berarti terlalu banyak tanggung jawab.'},
   {q:'Kamu menulis skrip 50 baris sekali pakai untuk mengubah nama file. Sikap terbaik terhadap SOLID?',
-   o:['Buat 12 kelas dan 6 interface supaya SOLID','Tulis sederhana dan jelas; SOLID penuh belum diperlukan','Abaikan semua kerapian','Tambahkan kontainer DI'],a:1,
+   o:['Buat 12 kelas dan 6 interface supaya SOLID','Tulis sederhana dan jelas; SOLID penuh belum diperlukan','Abaikan semua kerapian','Tambahkan container DI'],a:1,
    w:'SOLID adalah alat untuk membuat perubahan murah. Tanpa perubahan di masa depan, tidak ada yang perlu dilindungi.'},
-  {q:'Prinsip mana yang membuat polimorfisme dapat DIPERCAYA sehingga OCP bisa berjalan?',
+  {q:'Prinsip mana yang membuat polymorphism dapat DIPERCAYA sehingga OCP bisa berjalan?',
    o:['SRP','LSP','ISP','Tidak ada'],a:1,
-   w:'OCP mengandalkan objek pengganti. LSP menjamin pengganti itu tidak merusak klien.'},
-  {q:'Kapan waktu yang tepat memperkenalkan abstraksi baru (misalnya interface strategi)?',
+   w:'OCP mengandalkan objek pengganti. LSP menjamin pengganti itu tidak merusak client.'},
+  {q:'Kapan waktu yang tepat memperkenalkan abstraction baru (misalnya interface strategy)?',
    o:['Sedini mungkin untuk semua kelas','Ketika perubahan atau varian nyata kedua/ketiga sudah muncul, atau di batas bisnis ↔ infrastruktur','Hanya setelah proyek selesai','Tidak pernah'],a:1,
-   w:'Abstraksi prematur menebak masa depan. Tunggu rasa sakit yang nyata, kecuali di batas arsitektur yang pasti berubah.'}
+   w:'Premature abstraction menebak masa depan. Tunggu rasa sakit yang nyata, kecuali di batas arsitektur yang pasti berubah.'}
 ];
 const answered={};
 $('#quiz').innerHTML=QZ.map((x,i)=>`<div class="q" data-i="${i}"><p>${i+1}. ${x.q}</p>${x.code?`<pre><code class="java">${esc(x.code)}</code></pre>`:''}${x.o.map((o,j)=>`<button data-j="${j}">${o}</button>`).join('')}<div class="why"></div></div>`).join('');
