@@ -25,6 +25,12 @@ Kumpulan modul belajar interaktif berbentuk HTML (cukup buka file di browser, ta
 |---|---|---|
 | Memahami Transformasi Fourier (intuisi, DFT/FFT, aliasing, filter) | [`fourier/01-transformasi-fourier.html`](fourier/01-transformasi-fourier.html) | ✅ Selesai |
 
+## Menyajikan Model AI
+
+| Modul | File | Status |
+|---|---|---|
+| Memahami FastAPI untuk AI/ML (HTTP, Pydantic, memuat model sekali, async vs def, dependency injection, streaming ala LLM, dynamic batching, keamanan, testing, deployment, studi kasus API sentimen; 12 simulasi dan kode Python yang sudah dijalankan) | [`fastapi/01-fastapi-untuk-ai-ml.html`](fastapi/01-fastapi-untuk-ai-ml.html) | ✅ Selesai |
+
 ## Kalkulus
 
 Ikuti urutan bernomor: **1 Limit → 2 Turunan → 3 Integral → 4 Studi Kasus Anggaran**.
