@@ -72,7 +72,7 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
 <header>
   <div>
     <h1>Modul Belajar Interaktif</h1>
-    <p class="lead">Kumpulan modul berbahasa Indonesia tentang AI (Reinforcement Learning dan Deep Learning), Kalkulus, Pemrosesan Sinyal, dan prinsip desain OOP (SOLID).
+    <p class="lead">Kumpulan modul berbahasa Indonesia tentang AI (Reinforcement Learning dan Deep Learning), Kalkulus, Pemrosesan Sinyal, dan desain OOP (SOLID dan Design Pattern).
     Setiap modul dilengkapi demo interaktif, contoh hitung manual langkah demi langkah, kode Python/Java yang sudah diuji, dan kuis.</p>
   </div>
   <button class="btn" id="themeBtn">🌓 Ganti tema</button>
@@ -91,7 +91,7 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
   </ul>
 </div>
 
-<footer>Referensi utama: Sutton &amp; Barto, <i>Reinforcement Learning: An Introduction</i> (2018); Goodfellow dkk., <i>Deep Learning</i> (2016); Vaswani dkk., <i>Attention Is All You Need</i> (2017); Thompson, <i>Calculus Made Easy</i> (1910); Strang, <i>Calculus</i> (MIT OCW); Martin, <i>Agile Software Development</i> (2002).</footer>
+<footer>Referensi utama: Sutton &amp; Barto, <i>Reinforcement Learning: An Introduction</i> (2018); Goodfellow dkk., <i>Deep Learning</i> (2016); Vaswani dkk., <i>Attention Is All You Need</i> (2017); Thompson, <i>Calculus Made Easy</i> (1910); Strang, <i>Calculus</i> (MIT OCW); Martin, <i>Agile Software Development</i> (2002); Gamma dkk., <i>Design Patterns</i> (1994).</footer>
 </div>
 
 <script>
@@ -123,11 +123,13 @@ const G=[
     {id:'anggaran',c:'--warn',tag:'Studi kasus',title:'Studi Kasus Anggaran',href:'kalkulus/04-studi-kasus-anggaran.html',time:'± 2 jam',demo:6,quiz:10,
      desc:'Titik impas, pajak, bunga pinjaman, harga optimal, stok, serapan anggaran, dan arus kas kedai kopi.'}
    ]},
-  {id:'oop',title:'🧱 Rekayasa Perangkat Lunak',note:'mandiri',free:true,
-   sub:'Prinsip desain berorientasi objek dengan contoh Java. Tidak bergantung pada kelompok lain.',
+  {id:'oop',title:'🧱 Rekayasa Perangkat Lunak',note:'2 modul berurutan',
+   sub:'Prinsip dan pola desain berorientasi objek dengan contoh Java. Tidak bergantung pada kelompok lain; Design Pattern memakai konsep dari SOLID.',
    items:[
     {id:'solid',title:'Memahami SOLID dari Nol',href:'oop/01-solid.html',time:'± 3 jam',demo:9,quiz:21,
-     desc:'SRP, OCP, LSP, ISP, dan DIP lewat analogi dapur restoran, simulasi efek riak, refactoring bertahap, dan kode Java yang sudah dijalankan.'}
+     desc:'SRP, OCP, LSP, ISP, dan DIP lewat analogi dapur restoran, simulasi efek riak, refactoring bertahap, dan kode Java yang sudah dijalankan.'},
+    {id:'dp',title:'Memahami Design Pattern dari Nol',href:'oop/02-design-pattern.html',time:'± 4 jam',demo:15,quiz:20,
+     desc:'15 pattern GoF (Builder, Factory, Adapter, Decorator, Proxy, Strategy, Observer, State, dll.) lewat analogi sehari-hari, diagram kelas, simulasi, dan studi kasus aplikasi pesan-antar.'}
    ]},
   {id:'sp',title:'📡 Pemrosesan Sinyal',note:'mandiri',free:true,
    sub:'Matematika di balik audio, gambar, dan sensor. Tidak bergantung pada kelompok lain.',

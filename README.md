@@ -38,6 +38,9 @@ Ikuti urutan bernomor: **1 Limit → 2 Turunan → 3 Integral → 4 Studi Kasus 
 
 ## Rekayasa Perangkat Lunak
 
+Ikuti urutan bernomor: **1 SOLID → 2 Design Pattern**.
+
 | Modul | File | Status |
 |---|---|---|
-| Memahami SOLID dari Nol (SRP, OCP, LSP, ISP, DIP dengan contoh Java, simulasi, dan studi kasus refactoring) | [`oop/01-solid.html`](oop/01-solid.html) | ✅ Selesai |
+| 1 · Memahami SOLID dari Nol (SRP, OCP, LSP, ISP, DIP dengan contoh Java, simulasi, dan studi kasus refactoring) | [`oop/01-solid.html`](oop/01-solid.html) | ✅ Selesai |
+| 2 · Memahami Design Pattern dari Nol (15 pattern GoF dengan analogi, diagram kelas, 15 simulasi, contoh Java, dan studi kasus aplikasi pesan-antar) | [`oop/02-design-pattern.html`](oop/02-design-pattern.html) | ✅ Selesai |
