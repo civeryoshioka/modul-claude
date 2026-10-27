@@ -72,7 +72,7 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
 <header>
   <div>
     <h1>Modul Belajar Interaktif</h1>
-    <p class="lead">Kumpulan modul berbahasa Indonesia tentang AI (Reinforcement Learning dan Deep Learning), menyajikan model AI sebagai layanan (FastAPI), Kalkulus, Pemrosesan Sinyal, dan desain OOP (SOLID dan Design Pattern).
+    <p class="lead">Kumpulan modul berbahasa Indonesia tentang AI (Reinforcement Learning dan Deep Learning), menyajikan model AI sebagai layanan (FastAPI untuk model klasik dan deep learning), Kalkulus, Pemrosesan Sinyal, dan desain OOP (SOLID dan Design Pattern).
     Setiap modul dilengkapi demo interaktif, contoh hitung manual langkah demi langkah, kode Python/Java yang sudah diuji, dan kuis.</p>
   </div>
   <button class="btn" id="themeBtn">🌓 Ganti tema</button>
@@ -91,7 +91,7 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
   </ul>
 </div>
 
-<footer>Referensi utama: Sutton &amp; Barto, <i>Reinforcement Learning: An Introduction</i> (2018); Goodfellow dkk., <i>Deep Learning</i> (2016); Vaswani dkk., <i>Attention Is All You Need</i> (2017); Thompson, <i>Calculus Made Easy</i> (1910); Strang, <i>Calculus</i> (MIT OCW); Martin, <i>Agile Software Development</i> (2002); Gamma dkk., <i>Design Patterns</i> (1994); dokumentasi FastAPI dan Pydantic; Huyen, <i>Designing Machine Learning Systems</i> (2022).</footer>
+<footer>Referensi utama: Sutton &amp; Barto, <i>Reinforcement Learning: An Introduction</i> (2018); Goodfellow dkk., <i>Deep Learning</i> (2016); Vaswani dkk., <i>Attention Is All You Need</i> (2017); Thompson, <i>Calculus Made Easy</i> (1910); Strang, <i>Calculus</i> (MIT OCW); Martin, <i>Agile Software Development</i> (2002); Gamma dkk., <i>Design Patterns</i> (1994); dokumentasi FastAPI, Pydantic, PyTorch, dan ONNX Runtime; Huyen, <i>Designing Machine Learning Systems</i> (2022); Zinkevich, <i>Rules of Machine Learning</i>.</footer>
 </div>
 
 <script>
@@ -111,11 +111,13 @@ const G=[
     {id:'adv',c:'--warn',tag:'Advanced',title:'Reinforcement Learning: Lanjut',href:'reinforcement-learning/03-advanced.html',time:'± 3,5 jam',demo:2,quiz:6,
      desc:'Policy gradient, actor-critic, PPO, SAC, offline RL, sampai RLHF, DPO, dan GRPO.'}
    ]},
-  {id:'srv',title:'🚀 Menyajikan Model AI',note:'mandiri',free:true,
-   sub:'Dari model di notebook menjadi layanan web yang aman dan siap produksi. Cukup tahu Python dan pernah memakai model scikit-learn; tidak bergantung pada kelompok lain.',
+  {id:'srv',title:'🚀 Menyajikan Model AI',note:'2 modul berurutan',
+   sub:'Dari model di notebook menjadi layanan web yang aman dan siap produksi. Ikuti urutan: FastAPI untuk model klasik dulu, lalu serving deep learning (PyTorch dan ONNX) yang memakai semua konsep modul pertama.',
    items:[
     {id:'fastapi',c:'--accent',tag:'Python',title:'Memahami FastAPI untuk AI/ML',href:'fastapi/01-fastapi-untuk-ai-ml.html',time:'± 4 jam',demo:12,quiz:25,
-     desc:'HTTP, Pydantic, memuat model sekali, async vs def, dependency injection, streaming ala LLM, dynamic batching, keamanan, testing, deployment, dan studi kasus API sentimen.'}
+     desc:'HTTP, Pydantic, memuat model sekali, async vs def, dependency injection, streaming ala LLM, dynamic batching, keamanan, testing, deployment, dan studi kasus API sentimen.'},
+    {id:'fastapidl',c:'--violet',tag:'PyTorch',title:'Serving Model Deep Learning dengan FastAPI',href:'fastapi/02-serving-deep-learning.html',time:'± 4,5 jam',demo:13,quiz:25,
+     desc:'Praproses dan train–serve skew (dengan CNN sungguhan di browser), format model yang aman, PyTorch vs ONNX Runtime dengan angka nyata, kuantisasi, cold start, batching, model generatif, memori GPU, drift, dan autoscaling.'}
    ]},
   {id:'ca',title:'📐 Kalkulus',note:'4 modul berurutan',
    sub:'Setiap modul memakai konsep dari modul sebelumnya. Studi kasus anggaran menggabungkan ketiganya.',
