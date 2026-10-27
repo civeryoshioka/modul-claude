@@ -35,3 +35,9 @@ Ikuti urutan bernomor: **1 Limit → 2 Turunan → 3 Integral → 4 Studi Kasus 
 | 2 · Memahami Turunan dari Nol (laju sesaat, limit, aturan rantai, optimasi, gradient descent) | [`kalkulus/02-turunan.html`](kalkulus/02-turunan.html) | ✅ Selesai |
 | 3 · Memahami Integral dari Nol (intuisi, jumlah Riemann, Teorema Dasar, teknik, numerik, aplikasi) | [`kalkulus/03-integral.html`](kalkulus/03-integral.html) | ✅ Selesai |
 | 4 · Studi Kasus Anggaran (titik impas, pajak, bunga, harga optimal, EOQ, kurva S, arus kas) | [`kalkulus/04-studi-kasus-anggaran.html`](kalkulus/04-studi-kasus-anggaran.html) | ✅ Selesai |
+
+## Rekayasa Perangkat Lunak
+
+| Modul | File | Status |
+|---|---|---|
+| Memahami SOLID dari Nol (SRP, OCP, LSP, ISP, DIP dengan contoh Java, simulasi, dan studi kasus refactoring) | [`oop/01-solid.html`](oop/01-solid.html) | ✅ Selesai |
