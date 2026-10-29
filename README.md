@@ -17,6 +17,7 @@ Kumpulan modul belajar interaktif berbentuk HTML (cukup buka file di browser, ta
 
 | Modul | File | Status |
 |---|---|---|
+| Backpropagation dari Nol (jaringan 3 lapisan 2–2–1: forward pass, loss, gradient descent, aturan rantai, satu iterasi dengan angka, simulator tahap demi tahap, gradient checking, melatih XOR di browser, bentuk matriks dan kode NumPy yang sudah dijalankan, vanishing gradient; 13 simulasi, latihan, dan 29 soal kuis) | [`deep-learning/00-backpropagation-dari-nol.html`](deep-learning/00-backpropagation-dari-nol.html) | ✅ Selesai |
 | Deep Learning & Transformer (jembatan ke LLM/RLHF) | [`deep-learning/01-deep-learning-transformer.html`](deep-learning/01-deep-learning-transformer.html) | ✅ Selesai |
 
 ## Pemrosesan Sinyal

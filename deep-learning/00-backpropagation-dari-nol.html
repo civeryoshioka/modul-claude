@@ -1,0 +1,2077 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Backpropagation dari Nol</title>
+<style>
+:root{
+  --bg:#f7f8fa;--surface:#ffffff;--surface-2:#f0f2f6;--text:#1c2230;--muted:#5b6474;
+  --border:#e1e5ec;--accent:#3a6df0;--accent-soft:#e6edff;--good:#1f9d63;--bad:#d64545;--warn:#c98a12;--violet:#7c4dff;
+  --code-bg:#f3f5f9;--sidebar-w:280px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+    --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--violet:#a98bff;--code-bg:#1d222b;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+  --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--violet:#a98bff;--code-bg:#1d222b;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+/* Sidebar */
+#sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);
+  overflow-y:auto;padding:22px 16px;z-index:20;transition:transform .25s}
+#sidebar .brand{font-weight:700;font-size:17px;margin:0 8px 2px}
+#sidebar .level{display:inline-block;margin:0 8px 16px;font-size:12px;padding:2px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar ol{list-style:none;margin:0;padding:0;counter-reset:toc}
+#sidebar li a{display:flex;gap:10px;padding:7px 10px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:14.5px;line-height:1.4}
+#sidebar li a::before{counter-increment:toc;content:counter(toc);min-width:20px;height:20px;border-radius:50%;background:var(--surface-2);
+  font-size:11.5px;display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+#sidebar li a:hover{background:var(--surface-2);color:var(--text)}
+#sidebar li a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar li a.active::before{background:var(--accent);color:#fff}
+#progress{height:4px;background:var(--surface-2);border-radius:4px;margin:0 8px 18px;overflow:hidden}
+#progress div{height:100%;width:0;background:var(--accent);transition:width .1s}
+#menuBtn{display:none;position:fixed;top:12px;left:12px;z-index:30;border:1px solid var(--border);background:var(--surface);color:var(--text);
+  border-radius:8px;padding:6px 12px;font-size:15px;cursor:pointer}
+.sbtns{display:flex;flex-wrap:wrap;gap:8px;margin:18px 8px 0}
+/* Main */
+main{margin-left:var(--sidebar-w);padding:40px 48px 80px;max-width:calc(var(--sidebar-w) + 920px)}
+main>*{max-width:880px}
+header.hero{padding:8px 0 24px;border-bottom:1px solid var(--border);margin-bottom:12px}
+header.hero h1{font-size:34px;line-height:1.2;margin:0 0 8px;text-wrap:balance}
+header.hero p{color:var(--muted);margin:0}
+section{padding-top:28px}
+h2{font-size:25px;margin:16px 0 10px;padding-top:8px;text-wrap:balance}
+h3{font-size:18.5px;margin:26px 0 6px;text-wrap:balance}
+p,li{color:var(--text)}
+main p,main li,.box{text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+.card span{text-align:left}
+.muted{color:var(--muted)}
+.box{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:16px 20px;margin:16px 0}
+.box.tip{border-left:4px solid var(--good)}
+.box.note{border-left:4px solid var(--accent)}
+.box.warn{border-left:4px solid var(--warn)}
+.box.bad{border-left:4px solid var(--bad)}
+.box>strong:first-child{display:block;margin-bottom:4px}
+.box ul,.box ol{margin:6px 0 0;padding-left:22px}
+.box p{margin:6px 0 0}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;background:var(--code-bg);padding:1px 6px;border-radius:5px}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-size:13.5px;line-height:1.55;margin:14px 0}
+pre code{background:none;padding:0;font-size:inherit}
+.c{color:var(--muted);font-style:italic} .k{color:var(--accent);font-weight:600} .s{color:var(--good)} .n{color:var(--warn)} .t{color:var(--violet)} .a{color:var(--warn)}
+/* Blok kode */
+.codewrap{margin:14px 0}
+.codewrap pre{margin:0;border-radius:0 0 10px 10px}
+.codecap{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font:600 12.5px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  background:var(--surface-2);border:1px solid var(--border);border-bottom:0;border-radius:10px 10px 0 0;padding:6px 14px;color:var(--muted)}
+.codecap.bad{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,var(--border))}
+.codecap.good{color:var(--good);border-color:color-mix(in srgb,var(--good) 40%,var(--border))}
+.codecap span:last-child{opacity:.75;font-weight:500}
+.ln{display:inline-block;min-width:calc(100% + 32px);margin:0 -16px;padding:0 16px}
+.ln.bad{background:color-mix(in srgb,var(--bad) 15%,transparent);box-shadow:inset 3px 0 var(--bad)}
+.ln.good{background:color-mix(in srgb,var(--good) 15%,transparent);box-shadow:inset 3px 0 var(--good)}
+.outwrap{margin:-6px 0 16px}
+.outwrap .codecap{border-radius:0;border-top:0;background:var(--surface);font-size:11.5px;padding:3px 14px}
+.outwrap pre{margin:0;border-radius:0 0 10px 10px;background:#10141c;color:#d7e3f4;border-color:#10141c;font-size:13px;padding:10px 16px}
+:root[data-theme="dark"] .outwrap pre{background:#0b0e13}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .outwrap pre{background:#0b0e13}}
+.tbl{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{border:1px solid var(--border);padding:7px 11px;text-align:left;vertical-align:top}
+th{background:var(--surface-2)}
+td.c2,th.c2{text-align:center}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin:14px 0}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:14px 0}
+.card{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 16px;min-width:0}
+.card b{display:block;margin-bottom:2px}
+.card span{color:var(--muted);font-size:14.5px;display:block}
+.card .ic{font-size:26px;line-height:1;display:block;margin-bottom:6px}
+.card.s{border-top:4px solid var(--accent)}.card.o{border-top:4px solid var(--good)}.card.l{border-top:4px solid var(--warn)}
+.card.i{border-top:4px solid var(--violet)}.card.d{border-top:4px solid var(--bad)}
+.pill{display:inline-block;font-size:11.5px;font-weight:700;padding:0 8px;border-radius:99px;margin-right:6px;vertical-align:1px;color:#fff}
+.pill.s{background:var(--accent)}.pill.o{background:var(--good)}.pill.l{background:var(--warn)}.pill.i{background:var(--violet)}.pill.d{background:var(--bad)}
+.vs{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:0 16px;align-items:start}
+.vs>div{min-width:0}
+/* Demo widgets */
+.demo{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:18px;margin:18px 0}
+.demo h4{margin:0 0 4px;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent)}
+.demo>p{margin:4px 0 8px;font-size:15px}
+.controls{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:10px 0}
+select.btn{max-width:100%;text-overflow:ellipsis}
+button.btn,select.btn,a.btn{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:8px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer;text-decoration:none;display:inline-block}
+button.btn:hover,select.btn:hover,a.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.btn.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+button.btn.danger{border-color:var(--bad);color:var(--bad)}
+button.btn:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+label.range{display:flex;align-items:center;gap:8px;font-size:14px;flex-wrap:wrap}
+label.range b{min-width:3.6em;font-variant-numeric:tabular-nums}
+label.chk{display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer}
+input[type=range]{accent-color:var(--accent);max-width:200px}
+input[type=checkbox],input[type=radio]{accent-color:var(--accent);width:16px;height:16px}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+.seg button{border:0;border-right:1px solid var(--border);background:var(--surface-2);color:var(--text);padding:7px 14px;font:inherit;font-size:14px;cursor:pointer}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--accent);color:#fff;font-weight:600}
+.kpi{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.kpi div{border:1px solid var(--border);background:var(--surface-2);border-radius:8px;padding:6px 12px;font-size:13px;color:var(--muted);min-width:0}
+.kpi b{display:block;font-size:17px;color:var(--text);font-variant-numeric:tabular-nums}
+.kpi .okv b{color:var(--good)} .kpi .badv b{color:var(--bad)}
+.msg{font-size:14px;margin:8px 0 0;padding:8px 12px;border-radius:8px;background:var(--accent-soft);color:var(--text);text-align:left}
+.msg.ok{background:color-mix(in srgb,var(--good) 15%,transparent)}
+.msg.no{background:color-mix(in srgb,var(--bad) 15%,transparent)}
+.msg.wa{background:color-mix(in srgb,var(--warn) 18%,transparent)}
+.console{background:#10141c;color:#d7e3f4;border-radius:10px;padding:10px 14px;font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;min-height:84px;max-height:200px;overflow:auto;white-space:pre-wrap}
+.console .e{color:#ff8f8f}.console .g{color:#7be3a4}.console .m{color:#8fa3bf}
+.cap{font-size:12.5px;color:var(--muted);margin:4px 2px 0;text-align:left}
+.legend{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:6px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.bar{height:10px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.mtr{display:grid;grid-template-columns:minmax(150px,1.2fr) 2fr 3.2em;gap:6px 10px;align-items:center;font-size:13.5px;margin:6px 0}
+.mtr span:last-child{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+/* Diagram */
+.diagram{overflow-x:auto;margin:16px 0}
+.diagram svg{display:block;width:100%;min-width:520px;max-width:760px;margin:0 auto}
+.diagram.fit svg{min-width:0;max-width:none}
+.diagram.narrow svg{min-width:300px;max-width:420px}
+.diagram text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.gnode{cursor:pointer}
+.gnode rect{transition:fill .15s,stroke .15s}
+.gnode:hover rect{stroke:var(--accent)}
+/* Steps */
+.steps{counter-reset:st;list-style:none;padding:0}
+.steps li{counter-increment:st;position:relative;padding:4px 0 10px 42px}
+.steps li::before{content:counter(st);position:absolute;left:0;top:4px;width:28px;height:28px;border-radius:50%;background:var(--accent-soft);
+  color:var(--accent);font-weight:700;display:grid;place-items:center;font-size:14px}
+/* Quiz */
+.q{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 18px;margin:12px 0}
+.q p{margin:0 0 8px;font-weight:600;text-align:left}
+.q pre{font-weight:400;margin:6px 0 10px;font-size:13px}
+.q button{display:block;width:100%;text-align:left;margin:6px 0;border:1px solid var(--border);background:var(--surface-2);color:var(--text);
+  border-radius:8px;padding:8px 12px;font:inherit;font-size:14.5px;cursor:pointer}
+.q button:hover{border-color:var(--accent)}
+.q button.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 15%,transparent)}
+.q button.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,transparent)}
+.q .why{font-size:14px;color:var(--muted);display:none;margin-top:6px}
+#qScore,.score{font-size:14px;color:var(--muted)}
+details.sol{border:1px solid var(--border);border-radius:10px;background:var(--surface);margin:10px 0;padding:0}
+details.sol>summary{cursor:pointer;padding:9px 14px;font-weight:600;font-size:14.5px}
+details.sol>div{padding:0 14px 12px}
+.nav-mod{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px}
+footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:14px}
+@media (max-width:900px){
+  #sidebar{transform:translateX(-100%);box-shadow:0 0 30px rgba(0,0,0,.2)}
+  #sidebar.open{transform:none}
+  #menuBtn{display:block}
+  main{margin-left:0;padding:60px 16px 60px}
+  header.hero h1{font-size:27px}
+}
+@media (max-width:620px){
+  main p,main li,.box{text-align:left}
+  .vs{grid-template-columns:minmax(0,1fr)}
+  .mtr{grid-template-columns:1fr 3em}
+  .mtr .bar{grid-column:1/-1;grid-row:2}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.bar>i,.gnode rect{transition:none}}
+@media print{
+  #sidebar,#menuBtn,.controls,.sbtns{display:none!important}
+  main{margin:0;padding:0;max-width:none}
+  body{background:#fff;color:#000;font-size:12pt}
+  .demo,.box,.card,.q{break-inside:avoid}
+  pre{white-space:pre-wrap;word-break:break-word}
+  section{break-before:auto}
+}
+/* ===== Khusus modul Backpropagation ===== */
+.rumus{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:12px 18px;margin:12px 0;text-align:center!important;overflow-x:auto;font:italic 17px/1.9 "Cambria Math","STIX Two Math",Georgia,"Times New Roman",serif}
+.rumus small{display:block;font:400 12.5px/1.5 system-ui,sans-serif;color:var(--muted);margin-top:2px}
+.rumus b,.rumus .u{font-style:normal}
+.rumus .r{font-style:normal}
+.m{font-family:"Cambria Math","STIX Two Math",Georgia,"Times New Roman",serif;font-style:italic;white-space:nowrap}
+.m .u{font-style:normal}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .2em;line-height:1.25}
+.fr>span:first-child{border-bottom:1.4px solid currentColor;padding:0 .3em .05em}
+.fr>span:last-child{padding:.05em .3em 0}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.eq{font:13.5px/1.7 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin:8px 0;overflow-x:auto;text-align:left!important;white-space:pre-wrap}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;align-items:start}
+.two>div{min-width:0}
+.mini{font-size:12.5px;color:var(--muted);margin:2px 0 6px;text-align:left}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.chip{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:99px;padding:3px 11px;font:inherit;font-size:13px;cursor:pointer}
+.chip:hover{border-color:var(--accent)}
+.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+input[type=number],input[type=text],select.inp{font:inherit;font-size:14px;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:8px;padding:5px 8px;min-width:0}
+input[type=number]{width:5.6em;font-variant-numeric:tabular-nums}
+.badge{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 8px;border-radius:99px;color:#fff;vertical-align:1px;margin-right:4px}
+.badge.g{background:var(--good)}.badge.b{background:var(--accent)}.badge.w{background:var(--warn)}.badge.r{background:var(--bad)}.badge.v{background:var(--violet)}
+.codecap.term{color:#8fa3bf}
+.fwd{color:var(--accent)}.bwd{color:var(--bad)}.upd{color:var(--good)}
+.tbl td.num,.tbl th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tbl table.hit td{font-variant-numeric:tabular-nums}
+.tbl tr.hl td{background:color-mix(in srgb,var(--warn) 14%,transparent)}
+/* Simulator langkah demi langkah */
+.stepper{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start}
+.netsvg{display:block;width:100%;height:auto;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+.netsvg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.netsvg .nm{font-size:13px;font-weight:700;fill:var(--text)}
+.netsvg .nv{font-size:11px;fill:var(--muted);font-variant-numeric:tabular-nums}
+.netsvg .ew{font-size:11.5px;font-weight:600;font-variant-numeric:tabular-nums}
+.netsvg .eg{font-size:11px;font-weight:600;fill:var(--bad);font-variant-numeric:tabular-nums}
+.netsvg .dl{font-size:11.5px;font-weight:700;fill:var(--bad);font-variant-numeric:tabular-nums}
+.netsvg .hot{filter:drop-shadow(0 0 4px color-mix(in srgb,var(--warn) 80%,transparent))}
+.stepnote{border:1px solid var(--border);background:var(--surface-2);border-radius:10px;padding:10px 14px;font-size:14.5px;min-height:150px}
+.stepnote h5{margin:0 0 4px;font-size:15px}
+.stepnote p{margin:4px 0;text-align:left!important}
+.stepnote .calc{font:13px/1.75 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 10px;margin:6px 0;overflow-x:auto;white-space:pre}
+.stepbar{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.stepbar span{font-size:11.5px;padding:2px 9px;border-radius:99px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer}
+.stepbar span.done{background:var(--accent-soft);color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,var(--border))}
+.stepbar span.now{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
+.stepbar span.b.done{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,var(--border))}
+.stepbar span.b.now{background:var(--bad);color:#fff;border-color:var(--bad)}
+.stepbar span.u.done{background:color-mix(in srgb,var(--good) 14%,transparent);color:var(--good);border-color:color-mix(in srgb,var(--good) 40%,var(--border))}
+.stepbar span.u.now{background:var(--good);color:#fff;border-color:var(--good)}
+.pgrid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px 12px;margin:8px 0}
+.pgrid2 label{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.pgrid2 label b{min-width:2.3em;color:var(--text);font-family:"Cambria Math","STIX Two Math",Georgia,serif;font-style:italic;font-weight:400;font-size:15px}
+canvas.cv{display:block;width:100%;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+.gear{display:flex;flex-wrap:wrap;gap:6px;align-items:stretch;margin:8px 0}
+.gear div{flex:1 1 90px;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:6px 8px;text-align:center;font-size:12.5px;color:var(--muted)}
+.gear div b{display:block;font-size:16px;color:var(--text);font-variant-numeric:tabular-nums}
+.gear div.x{flex:0 0 auto;border:0;background:none;display:grid;place-items:center;font-size:18px;padding:0 2px}
+.gear div.res{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,transparent)}
+.gear div.res b{color:var(--bad)}
+.vgrow{display:grid;grid-template-columns:5.2em 1fr 6.4em;gap:8px;align-items:center;font-size:12.5px;margin:2px 0;font-variant-numeric:tabular-nums}
+.vgrow .t{height:12px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.vgrow .t i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.vgrow span:last-child{text-align:right}
+.ex input{width:6.4em}
+.ex .rowq{display:grid;grid-template-columns:minmax(0,1fr) 7em 2.2em;gap:8px;align-items:center;margin:5px 0;font-size:14px}
+.ex .rowq .m{font-size:15px}
+.ex .ok{color:var(--good);font-weight:700}.ex .no{color:var(--bad);font-weight:700}
+.analog{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center;font-size:14.5px}
+.analog b{color:var(--accent)}
+.netsvg .halo{paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round}
+.netsvg .flowF,.netsvg .flowB,.netsvg .flowU{stroke-dasharray:8 7}
+.netsvg .flowF{animation:flowF .9s linear infinite}
+.netsvg .flowB{animation:flowB .9s linear infinite}
+.netsvg .flowU{animation:flowF 1.4s linear infinite}
+@keyframes flowF{to{stroke-dashoffset:-15}}
+@keyframes flowB{to{stroke-dashoffset:15}}
+@media (prefers-reduced-motion:reduce){.netsvg .flowF,.netsvg .flowB,.netsvg .flowU{animation:none}}
+.rumus .fr{font-style:italic}
+.codewrap pre code .c{font-style:italic}
+select.inp{max-width:100%}
+.controls>label{max-width:100%}
+
+</style>
+</head>
+<body>
+<button id="menuBtn" aria-label="Buka daftar isi">☰ Daftar Isi</button>
+
+<nav id="sidebar" aria-label="Daftar isi">
+  <a class="home-link" href="../index.html" style="display:block;margin:0 8px 12px;font-size:13px;text-decoration:none">← Beranda semua modul</a>
+  <div class="brand">Backpropagation dari Nol</div>
+  <span class="level">Hitung &amp; simulasi · Dasar</span>
+  <div id="progress"><div></div></div>
+  <ol id="toc">
+    <li><a href="#gambaran">Gambaran &amp; Peta Belajar</a></li>
+    <li><a href="#neuron">Neuron: Satu Unit Hitung</a></li>
+    <li><a href="#arsitektur">Arsitektur 3 Lapisan &amp; Notasi</a></li>
+    <li><a href="#maju">Forward Pass: Menghitung Maju</a></li>
+    <li><a href="#loss">Loss: Mengukur Seberapa Salah</a></li>
+    <li><a href="#gradien">Gradient Descent: Turun Bukit</a></li>
+    <li><a href="#rantai">Aturan Rantai</a></li>
+    <li><a href="#turunan">Backpropagation: Menurunkan Rumus</a></li>
+    <li><a href="#contoh">Satu Iterasi dengan Angka</a></li>
+    <li><a href="#simulator">Simulator Langkah demi Langkah</a></li>
+    <li><a href="#gradcheck">Gradient Checking</a></li>
+    <li><a href="#latih">Melatih Jaringan: XOR</a></li>
+    <li><a href="#matriks">Bentuk Matriks &amp; Kode</a></li>
+    <li><a href="#masalah">Masalah Praktis</a></li>
+    <li><a href="#latihan">Latihan Hitung Sendiri</a></li>
+    <li><a href="#kuis">Kuis &amp; Cheat Sheet</a></li>
+  </ol>
+  <div class="sbtns">
+    <button class="btn" id="themeBtn">🌓 Ganti tema</button>
+    <button class="btn" id="printBtn">🖨 Cetak / PDF</button>
+  </div>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Backpropagation dari Nol: Hitungan dan Simulasi Langkah demi Langkah</h1>
+  <p>Modul ini membahas cara sebuah <i>neural network</i> <b>belajar</b>: dari menghitung keluaran (<i>forward pass</i>), mengukur seberapa salah (<i>loss</i>), menelusuri kesalahan itu mundur ke setiap bobot (<i>backpropagation</i>), sampai memperbarui bobot (<i>gradient descent</i>). Kita memakai jaringan <b>3 lapisan</b> yang cukup kecil untuk dihitung dengan tangan, lalu memperbesarnya di simulator: ada analogi, diagram, hitungan angka demi angka, <b>13 simulasi interaktif</b> (termasuk melatih jaringan XOR langsung di browsermu), kode Python yang sudah dijalankan, latihan, dan kuis. Estimasi waktu belajar ± 4 jam.</p>
+</header>
+
+<div class="diagram" aria-label="Siklus pelatihan neural network">
+<svg viewBox="0 0 760 210" role="img">
+  <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>
+  <g font-size="12" text-anchor="middle">
+    <rect x="6" y="34" width="160" height="92" rx="12" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2.5"/>
+    <text x="86" y="62" font-size="22">➡️</text><text x="86" y="84" font-weight="700" fill="var(--accent)" font-size="14">1 · Maju</text><text x="86" y="102" fill="var(--text)">hitung keluaran ŷ</text><text x="86" y="117" fill="var(--muted)" font-size="11">(forward pass)</text>
+    <rect x="204" y="34" width="160" height="92" rx="12" fill="var(--surface)" stroke="var(--warn)" stroke-width="2.5"/>
+    <text x="284" y="62" font-size="22">📏</text><text x="284" y="84" font-weight="700" fill="var(--warn)" font-size="14">2 · Loss</text><text x="284" y="102" fill="var(--text)">seberapa jauh ŷ dari target?</text><text x="284" y="117" fill="var(--muted)" font-size="11">L = ½(t − ŷ)²</text>
+    <rect x="402" y="34" width="160" height="92" rx="12" fill="color-mix(in srgb,var(--bad) 10%,transparent)" stroke="var(--bad)" stroke-width="2.5"/>
+    <text x="482" y="62" font-size="22">⬅️</text><text x="482" y="84" font-weight="700" fill="var(--bad)" font-size="14">3 · Mundur</text><text x="482" y="102" fill="var(--text)">siapa yang bertanggung jawab?</text><text x="482" y="117" fill="var(--muted)" font-size="11">gradien ∂L/∂bobot</text>
+    <rect x="600" y="34" width="154" height="92" rx="12" fill="color-mix(in srgb,var(--good) 10%,transparent)" stroke="var(--good)" stroke-width="2.5"/>
+    <text x="677" y="62" font-size="22">🔧</text><text x="677" y="84" font-weight="700" fill="var(--good)" font-size="14">4 · Perbarui</text><text x="677" y="102" fill="var(--text)">geser bobot sedikit</text><text x="677" y="117" fill="var(--muted)" font-size="11">w ← w − η·gradien</text>
+  </g>
+  <g stroke="var(--muted)" stroke-width="2" marker-end="url(#ah)" fill="none"><path d="M168 80H200"/><path d="M366 80H398"/><path d="M564 80H596"/><path d="M677 130V166H86V132"/></g>
+  <text x="380" y="190" font-size="12.5" fill="var(--muted)" text-anchor="middle">ulangi ribuan kali sampai loss cukup kecil: inilah "belajar"</text>
+</svg>
+</div>
+
+<div class="box note">
+  <strong>🎯 Tujuan belajar</strong>
+  Setelah modul ini kamu bisa <b>menghitung dengan tangan</b> satu putaran penuh pelatihan jaringan 3 lapisan (maju, loss, mundur, perbarui), <b>menurunkan</b> rumus backpropagation dari aturan rantai, memeriksa gradien dengan <i>gradient checking</i>, melatih jaringan sampai bisa memecahkan XOR, membaca bentuk matriks dan kode NumPy-nya, serta menjelaskan kenapa pelatihan bisa macet (<i>vanishing gradient</i>, learning rate, inisialisasi).
+  <br><span class="muted">Prasyarat: aljabar dasar (perkalian, penjumlahan, eksponen) dan ide turunan; aturan rantai akan diulang dari awal di Bagian 7 (bila perlu, lihat modul <a href="../kalkulus/02-turunan.html">Turunan</a>). Tidak perlu pengalaman pemrograman untuk membaca hitungannya; kode Python hanya di Bagian 13.</span>
+</div>
+
+<!-- 1 -->
+<section id="gambaran">
+<h2>1. Gambaran &amp; Peta Belajar</h2>
+<p>Sebuah <i>neural network</i> pada dasarnya adalah <b>fungsi dengan banyak "kenop"</b>. Masukan masuk, dikalikan bobot, dijumlahkan, dilewatkan fungsi aktivasi, lalu diteruskan ke lapisan berikutnya, dan di ujung keluar sebuah jawaban. "Kenop"-nya adalah <b>parameter</b> (bobot dan bias). Belajar berarti memutar kenop-kenop itu sampai jawaban jaringan mendekati jawaban yang benar.</p>
+<p>Masalahnya: jaringan sungguhan punya ribuan sampai miliaran kenop. Untuk setiap kenop kita perlu tahu <b>diputar ke arah mana dan seberapa banyak</b> agar kesalahan mengecil. Mencoba satu per satu terlalu mahal. <b>Backpropagation</b> (disingkat <i>backprop</i>) adalah cara cerdik untuk mendapatkan "arah dan seberapa banyak" itu untuk <i>semua</i> kenop sekaligus, hanya dengan satu kali perjalanan mundur melewati jaringan. Karena itulah backprop menjadi mesin di balik hampir semua deep learning modern, dari pengenal gambar sampai model bahasa.</p>
+
+<h3>Analogi: pabrik kue dan keluhan pelanggan</h3>
+<p>Bayangkan pabrik kue dengan tiga divisi berurutan: <b>gudang bahan</b> (masukan), <b>divisi adonan &amp; oven</b> (lapisan tersembunyi), dan <b>divisi pengemasan &amp; rasa akhir</b> (keluaran). Setiap divisi punya "resep" (bobot) yang menentukan seberapa banyak ia mengambil dari divisi sebelumnya. Suatu hari pelanggan mengeluh: <i>"Kuemu kurang manis dibanding standar!"</i> Itulah <b>loss</b>.</p>
+<div class="box">
+  <div class="analog">
+    <b>Maju (forward)</b><span>Bahan diolah divisi demi divisi sampai menjadi kue jadi.</span>
+    <b>Loss</b><span>Pelanggan membandingkan kue dengan standar: "kurang manis sebesar sekian".</span>
+    <b>Mundur (backward)</b><span>Manajer menelusuri <i>mundur</i>: divisi akhir ditanya dulu, lalu divisi adonan. Tiap divisi diberi <b>porsi kesalahan</b> sebanding dengan seberapa besar pengaruhnya pada rasa akhir.</span>
+    <b>Perbarui (update)</b><span>Tiap divisi mengubah resepnya sedikit ke arah yang mengurangi keluhan. Keesokan harinya pabrik mencoba lagi.</span>
+  </div>
+</div>
+<p>Inti backprop persis ini: <b>pembagian tanggung jawab (<i>credit assignment</i>) dari belakang ke depan</b>. Divisi akhir tahu persis seberapa ia memengaruhi rasa; divisi sebelumnya hanya bisa tahu <i>lewat</i> divisi akhir ("pengaruhku ke rasa = pengaruhku ke divisi akhir × pengaruh divisi akhir ke rasa"). Perkalian pengaruh berantai itu adalah <b>aturan rantai</b>.</p>
+
+<h3>Kenapa jaringan 3 lapisan (2 – 2 – 1)?</h3>
+<div class="box tip">
+  <strong>💡 Rekomendasi arsitektur untuk belajar</strong>
+  Kamu meminta minimal 3 lapisan, dan itu memang titik awal terbaik. Kita pakai <b>2 – 2 – 1</b>: 2 neuron masukan, 2 neuron di satu lapisan tersembunyi, 1 neuron keluaran. Alasannya:
+  <ul>
+    <li><b>Ia jaringan terkecil yang butuh backprop sungguhan.</b> Tanpa lapisan tersembunyi, gradien cukup satu langkah turunan. Dengan satu lapisan tersembunyi, kesalahan harus <i>dijalarkan lewat lapisan perantara</i>, dan itulah ide utamanya.</li>
+    <li><b>Cukup kecil untuk dihitung tangan:</b> hanya 9 parameter (6 di lapisan tersembunyi, 3 di keluaran), jadi setiap angka bisa kamu ikuti dan periksa sendiri.</li>
+    <li><b>Rumusnya langsung berlaku untuk jaringan yang lebih dalam.</b> Lapisan tersembunyi kedua, ketiga, dan seterusnya hanya mengulang langkah yang sama (Bagian 8 dan 13). Di simulator XOR kamu bisa memakai 1 atau 2 lapisan tersembunyi (jadi 3 atau 4 lapisan) dan sampai 6 neuron per lapisan.</li>
+  </ul>
+</div>
+
+<h3>Peta belajar</h3>
+<div class="grid3">
+  <div class="card s"><span class="ic">🧩</span><b>Bagian 2–5 · Bahan dasar</b><span>Neuron, arsitektur, notasi, forward pass, dan loss. Semuanya dihitung dengan angka.</span></div>
+  <div class="card o"><span class="ic">📐</span><b>Bagian 6–8 · Teori</b><span>Gradient descent, aturan rantai, lalu penurunan rumus backprop langkah demi langkah.</span></div>
+  <div class="card l"><span class="ic">🔢</span><b>Bagian 9–11 · Hitung &amp; verifikasi</b><span>Satu iterasi penuh dengan angka, simulator interaktif, dan gradient checking.</span></div>
+  <div class="card i"><span class="ic">🏋️</span><b>Bagian 12–14 · Praktik</b><span>Melatih XOR, bentuk matriks dan kode, serta masalah yang sering muncul.</span></div>
+  <div class="card d"><span class="ic">✍️</span><b>Bagian 15–16 · Uji diri</b><span>Latihan hitung dengan soal acak yang bisa dikoreksi otomatis, kuis, dan cheat sheet.</span></div>
+</div>
+<div class="box warn">
+  <strong>📖 Cara membaca</strong>
+  Angka di modul ditulis dengan <b>koma desimal</b> (0,6225) dan dibulatkan ke 4 desimal. Komputer menghitung dengan presisi penuh, jadi kalau kamu menghitung ulang dari angka yang sudah dibulatkan, digit terakhirmu bisa selisih ±1. Itu wajar. Istilah bahasa Inggris yang sudah baku (<i>loss, gradient, bias, epoch</i>) sengaja tidak diterjemahkan.
+</div>
+</section>
+
+<!-- 2 -->
+<section id="neuron">
+<h2>2. Neuron: Satu Unit Hitung</h2>
+<p>Satu neuron melakukan tiga hal: (1) mengalikan tiap masukan dengan <b>bobot</b>-nya, (2) menjumlahkan semuanya dan menambah <b>bias</b>, (3) melewatkan hasilnya ke <b>fungsi aktivasi</b>.</p>
+<div class="rumus">z = w<sub>1</sub>x<sub>1</sub> + w<sub>2</sub>x<sub>2</sub> + b &nbsp;&nbsp;→&nbsp;&nbsp; a = σ(z)<small>z = "jumlah berbobot" (pre-aktivasi) · a = keluaran neuron (aktivasi) · σ = fungsi aktivasi, di sini <i>sigmoid</i></small></div>
+<p>Analogi: neuron adalah <b>juri</b> yang mendengar pendapat beberapa juri awal (<i>x</i>). Ia tidak mempercayai semua juri sama rata: tiap juri punya tingkat kepercayaan (<i>bobot</i>, boleh negatif bila ia "berlawanan arah"). Juri ini juga punya kecenderungan bawaan (<i>bias</i>): ada yang pelit nilai, ada yang murah hati. Terakhir, ia merangkum semuanya jadi satu keputusan yang "dilunakkan" (<i>aktivasi</i>), misalnya angka antara 0 dan 1.</p>
+
+<h3>Kenapa perlu fungsi aktivasi?</h3>
+<p>Tanpa aktivasi, setiap lapisan hanya melakukan operasi linear (kali bobot, tambah bias). Padahal gabungan dua operasi linear tetap operasi linear: <i>W</i><sub>2</sub>(<i>W</i><sub>1</sub><i>x</i> + <i>b</i><sub>1</sub>) + <i>b</i><sub>2</sub> = (<i>W</i><sub>2</sub><i>W</i><sub>1</sub>)<i>x</i> + (<i>W</i><sub>2</sub><i>b</i><sub>1</sub> + <i>b</i><sub>2</sub>). Ratusan lapisan tanpa aktivasi tak lebih kuat daripada satu lapisan. Aktivasi yang <b>tidak linear</b> memberi jaringan kemampuan melengkungkan batas keputusan, dan ini yang membuat lapisan tersembunyi berguna (kita buktikan dengan XOR di Bagian 12).</p>
+
+<h3>Sigmoid dan turunannya</h3>
+<p>Fungsi aktivasi pertama kita adalah <b>sigmoid</b>, yang menekan angka apa pun ke rentang (0, 1):</p>
+<div class="rumus">σ(z) = <span class="fr"><span>1</span><span>1 + e<sup>−z</sup></span></span> &nbsp;&nbsp;,&nbsp;&nbsp; σ′(z) = σ(z) · (1 − σ(z))<small>turunannya bisa dihitung dari keluarannya sendiri, tanpa menghitung ulang eksponen</small></div>
+<p>Kenapa σ′ = σ(1 − σ)? Tuliskan σ(z) = (1 + e<sup>−z</sup>)<sup>−1</sup>. Dengan aturan rantai, σ′(z) = e<sup>−z</sup>·(1 + e<sup>−z</sup>)<sup>−2</sup> = <span class="fr"><span>1</span><span>1 + e<sup>−z</sup></span></span> · <span class="fr"><span>e<sup>−z</sup></span><span>1 + e<sup>−z</sup></span></span> = σ(z) · (1 − σ(z)), karena <span class="fr"><span>e<sup>−z</sup></span><span>1 + e<sup>−z</sup></span></span> = 1 − <span class="fr"><span>1</span><span>1 + e<sup>−z</sup></span></span>. Sifat ini sangat praktis di backprop: begitu nilai <i>a</i> sudah disimpan dari forward pass, turunannya tinggal <i>a</i>(1 − <i>a</i>).</p>
+<div class="tbl"><table>
+  <tr><th class="num">z</th><th class="num">σ(z)</th><th class="num">σ′(z) = σ(1 − σ)</th><th>Keterangan</th></tr>
+  <tr><td class="num">−4</td><td class="num">0,0180</td><td class="num">0,0177</td><td>jenuh (saturasi): hampir datar</td></tr>
+  <tr><td class="num">−2</td><td class="num">0,1192</td><td class="num">0,1050</td><td></td></tr>
+  <tr class="hl"><td class="num">0</td><td class="num">0,5000</td><td class="num"><b>0,2500</b></td><td>paling curam: turunan maksimum σ′ = 0,25</td></tr>
+  <tr><td class="num">2</td><td class="num">0,8808</td><td class="num">0,1050</td><td></td></tr>
+  <tr><td class="num">4</td><td class="num">0,9820</td><td class="num">0,0177</td><td>jenuh (saturasi): hampir datar</td></tr>
+</table></div>
+<div class="box warn"><strong>⚠️ Ingat dua fakta ini</strong>
+  Turunan sigmoid <b>paling besar 0,25</b> dan <b>mendekati 0 di ujung-ujungnya</b>. Setiap lapisan sigmoid yang dilewati gradien mengalikannya dengan angka ≤ 0,25. Di Bagian 14 kita lihat akibatnya pada jaringan dalam: <i>vanishing gradient</i>.
+</div>
+
+<h3>Fungsi aktivasi lain</h3>
+<div class="tbl"><table>
+  <tr><th>Nama</th><th>Rumus</th><th>Turunan</th><th>Catatan</th></tr>
+  <tr><td><b>Sigmoid</b></td><td>1 / (1 + e<sup>−z</sup>)</td><td>σ(1 − σ)</td><td>Keluaran 0–1; cocok untuk peluang di lapisan keluaran. Mudah jenuh.</td></tr>
+  <tr><td><b>Tanh</b></td><td>(e<sup>z</sup> − e<sup>−z</sup>) / (e<sup>z</sup> + e<sup>−z</sup>)</td><td>1 − tanh²(z)</td><td>Keluaran −1 sampai 1, berpusat di nol; turunan maksimum 1. Lebih baik daripada sigmoid untuk lapisan tersembunyi.</td></tr>
+  <tr><td><b>ReLU</b></td><td>max(0, z)</td><td>1 bila z &gt; 0, selain itu 0</td><td>Sederhana dan murah; gradien tidak mengecil di sisi positif. Standar untuk jaringan dalam.</td></tr>
+</table></div>
+
+<div class="demo">
+  <h4>Simulasi 1 · Neuron dan fungsi aktivasi</h4>
+  <p>Atur masukan, bobot, dan bias. Lihat bagaimana <i>z</i> terbentuk, lalu bagaimana aktivasi (garis biru) dan turunannya (garis merah putus-putus) di titik itu. Turunan inilah yang kelak dipakai backprop.</p>
+  <div class="two">
+    <div>
+      <div class="chips" id="s1Act"></div>
+      <div class="controls">
+        <label class="range">x<sub>1</sub> <input type="range" id="s1x1" min="-3" max="3" step="0.1" value="1"><b id="s1x1v"></b></label>
+        <label class="range">x<sub>2</sub> <input type="range" id="s1x2" min="-3" max="3" step="0.1" value="0.5"><b id="s1x2v"></b></label>
+        <label class="range">w<sub>1</sub> <input type="range" id="s1w1" min="-3" max="3" step="0.1" value="0.8"><b id="s1w1v"></b></label>
+        <label class="range">w<sub>2</sub> <input type="range" id="s1w2" min="-3" max="3" step="0.1" value="-0.6"><b id="s1w2v"></b></label>
+        <label class="range">b <input type="range" id="s1b" min="-3" max="3" step="0.1" value="0.2"><b id="s1bv"></b></label>
+      </div>
+      <div class="eq" id="s1Eq"></div>
+    </div>
+    <div>
+      <canvas class="cv" id="s1Cv" width="560" height="320" aria-label="Grafik fungsi aktivasi dan turunannya"></canvas>
+      <div class="legend"><span><span class="dot" style="background:var(--accent)"></span>a = f(z)</span><span><span class="dot" style="background:var(--bad)"></span>turunan f′(z)</span><span><span class="dot" style="background:var(--warn)"></span>titik z saat ini</span></div>
+    </div>
+  </div>
+  <div class="kpi" id="s1Kpi"></div>
+</div>
+</section>
+
+<!-- 3 -->
+<section id="arsitektur">
+<h2>3. Arsitektur 3 Lapisan &amp; Notasi</h2>
+<p>Neuron-neuron disusun dalam <b>lapisan</b> (<i>layer</i>). Lapisan <b>masukan</b> hanya menampung data (tidak menghitung apa-apa), lapisan <b>tersembunyi</b> (<i>hidden</i>) mengolah, dan lapisan <b>keluaran</b> memberi jawaban. Setiap neuron di satu lapisan terhubung ke <i>semua</i> neuron di lapisan berikutnya (<i>fully connected</i>), dan setiap sambungan punya satu bobot.</p>
+
+<div class="diagram" aria-label="Jaringan 2-2-1 dengan notasi">
+<svg viewBox="0 0 760 330" role="img">
+  <defs>
+    <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker>
+  </defs>
+  <g stroke="var(--muted)" stroke-width="1.8" fill="none" marker-end="url(#ah2)">
+    <path d="M118 100L314 100"/><path d="M115 113L318 216"/><path d="M115 219L318 116"/><path d="M118 232L314 232"/>
+    <path d="M383 108L595 157"/><path d="M383 224L595 175"/>
+  </g>
+  <g font-size="12.5" font-weight="700" text-anchor="middle">
+    <circle cx="90" cy="100" r="28" fill="var(--surface)" stroke="var(--good)" stroke-width="2.5"/><text x="90" y="105" fill="var(--text)" font-size="15">x₁</text>
+    <circle cx="90" cy="232" r="28" fill="var(--surface)" stroke="var(--good)" stroke-width="2.5"/><text x="90" y="237" fill="var(--text)" font-size="15">x₂</text>
+    <circle cx="350" cy="100" r="34" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2.5"/><text x="350" y="96" fill="var(--accent)" font-size="15">h₁</text><text x="350" y="114" fill="var(--muted)" font-size="11" font-weight="500">z₁ → σ</text>
+    <circle cx="350" cy="232" r="34" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2.5"/><text x="350" y="228" fill="var(--accent)" font-size="15">h₂</text><text x="350" y="246" fill="var(--muted)" font-size="11" font-weight="500">z₂ → σ</text>
+    <circle cx="634" cy="166" r="38" fill="color-mix(in srgb,var(--warn) 14%,transparent)" stroke="var(--warn)" stroke-width="2.5"/><text x="634" y="162" fill="var(--warn)" font-size="16">ŷ</text><text x="634" y="180" fill="var(--muted)" font-size="11" font-weight="500">u → σ</text>
+  </g>
+  <g font-size="14" fill="var(--text)" font-weight="700" text-anchor="middle" style="paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round">
+    <text x="210" y="90">w₁₁</text><text x="170" y="134">w₂₁</text>
+    <text x="170" y="205">w₁₂</text><text x="210" y="256">w₂₂</text>
+    <text x="478" y="124">v₁</text><text x="478" y="222">v₂</text>
+  </g>
+  <g font-size="11.5" fill="var(--muted)" text-anchor="middle">
+    <text x="350" y="52">bias b₁</text><text x="350" y="290">bias b₂</text><text x="634" y="108">bias c</text>
+    <text x="90" y="30" font-weight="700" fill="var(--good)" font-size="13">Lapisan 1 · masukan</text>
+    <text x="350" y="30" font-weight="700" fill="var(--accent)" font-size="13">Lapisan 2 · tersembunyi</text>
+    <text x="634" y="30" font-weight="700" fill="var(--warn)" font-size="13">Lapisan 3 · keluaran</text>
+  </g>
+  <text x="380" y="322" text-anchor="middle" font-size="12" fill="var(--muted)">w<tspan font-size="9" dy="3">jk</tspan><tspan dy="-3"> = bobot dari masukan ke‑k menuju neuron hidden ke‑j (contoh: w₁₂ menghubungkan x₂ ke h₁)</tspan></text>
+</svg>
+</div>
+
+<h3>Notasi yang dipakai</h3>
+<div class="tbl"><table>
+  <tr><th>Simbol</th><th>Arti</th><th>Rumus</th></tr>
+  <tr><td><span class="m">x<sub>1</sub>, x<sub>2</sub></span></td><td>masukan</td><td>data</td></tr>
+  <tr><td><span class="m">w<sub>jk</sub>, b<sub>j</sub></span></td><td>bobot dari masukan <i>k</i> ke neuron hidden <i>j</i>; bias neuron hidden <i>j</i></td><td>4 bobot + 2 bias</td></tr>
+  <tr><td><span class="m">z<sub>j</sub></span></td><td>jumlah berbobot neuron hidden <i>j</i> (sebelum aktivasi)</td><td><span class="m">z<sub>j</sub> = w<sub>j1</sub>x<sub>1</sub> + w<sub>j2</sub>x<sub>2</sub> + b<sub>j</sub></span></td></tr>
+  <tr><td><span class="m">h<sub>j</sub></span></td><td>keluaran neuron hidden <i>j</i> (sesudah aktivasi)</td><td><span class="m">h<sub>j</sub> = σ(z<sub>j</sub>)</span></td></tr>
+  <tr><td><span class="m">v<sub>1</sub>, v<sub>2</sub>, c</span></td><td>bobot hidden → keluaran, dan bias keluaran</td><td>2 bobot + 1 bias</td></tr>
+  <tr><td><span class="m">u</span></td><td>jumlah berbobot neuron keluaran</td><td><span class="m">u = v<sub>1</sub>h<sub>1</sub> + v<sub>2</sub>h<sub>2</sub> + c</span></td></tr>
+  <tr><td><span class="m">ŷ</span></td><td>keluaran jaringan (prediksi)</td><td><span class="m">ŷ = σ(u)</span></td></tr>
+  <tr><td><span class="m">t</span></td><td>target (jawaban yang benar)</td><td>data</td></tr>
+  <tr><td><span class="m">L</span></td><td>loss untuk satu contoh</td><td><span class="m">L = ½(t − ŷ)²</span></td></tr>
+  <tr><td><span class="m">δ</span></td><td>sinyal kesalahan: ∂L/∂(jumlah berbobot) sebuah neuron (Bagian 8)</td><td><span class="m">δ<sub>o</sub>, δ<sub>1</sub>, δ<sub>2</sub></span></td></tr>
+  <tr><td><span class="m">η</span></td><td><i>learning rate</i>: besar langkah pembaruan</td><td>mis. 0,5</td></tr>
+</table></div>
+<p>Untuk jaringan dengan lapisan sembarang, notasi ini diperumum dengan nomor lapisan di atas: <i>W</i><sup>(<i>l</i>)</sup>, <i>b</i><sup>(<i>l</i>)</sup>, <i>z</i><sup>(<i>l</i>)</sup>, <i>a</i><sup>(<i>l</i>)</sup>, <i>δ</i><sup>(<i>l</i>)</sup> (dipakai di Bagian 8 dan 13). Untuk contoh 2–2–1, nama khusus di atas lebih mudah dibaca.</p>
+<p>Jumlah parameter jaringan berlapis penuh dengan ukuran <i>n</i><sub>0</sub> – <i>n</i><sub>1</sub> – … – <i>n</i><sub>L</sub> adalah jumlah dari <i>n</i><sub>l</sub> × (<i>n</i><sub>l−1</sub> + 1) di setiap lapisan (bobot ditambah satu bias per neuron). Untuk 2 – 2 – 1: 2×(2+1) + 1×(2+1) = 6 + 3 = <b>9</b>.</p>
+
+<div class="demo">
+  <h4>Simulasi 2 · Penghitung parameter</h4>
+  <p>Ubah ukuran tiap lapisan (0 = lapisan tidak dipakai). Lihat bentuk matriks bobot dan total parameternya. Perhatikan betapa cepat jumlahnya membengkak.</p>
+  <div class="controls" id="s2Ctl"></div>
+  <div class="tbl"><table id="s2Tbl"></table></div>
+  <div class="kpi" id="s2Kpi"></div>
+</div>
+</section>
+
+<!-- 4 -->
+<section id="maju">
+<h2>4. Forward Pass: Menghitung Maju</h2>
+<p><i>Forward pass</i> adalah menghitung keluaran jaringan dari masukan, lapis demi lapis dari kiri ke kanan. Tidak ada yang "dipelajari" di sini; kita hanya memakai bobot yang ada. Kita pakai contoh berikut selama modul ini:</p>
+<div class="tbl"><table>
+  <tr><th colspan="2">Data</th><th colspan="3">Lapisan tersembunyi</th><th colspan="2">Lapisan keluaran</th><th>Pelatihan</th></tr>
+  <tr><td class="num"><span class="m">x<sub>1</sub> = 1</span></td><td class="num"><span class="m">x<sub>2</sub> = 0,5</span></td>
+      <td class="num"><span class="m">w<sub>11</sub> = 0,2<br>w<sub>12</sub> = 0,4</span></td><td class="num"><span class="m">w<sub>21</sub> = −0,5<br>w<sub>22</sub> = 0,3</span></td><td class="num"><span class="m">b<sub>1</sub> = 0,1<br>b<sub>2</sub> = −0,1</span></td>
+      <td class="num"><span class="m">v<sub>1</sub> = 0,6<br>v<sub>2</sub> = −0,4</span></td><td class="num"><span class="m">c = 0,2</span></td>
+      <td class="num"><span class="m">t = 1<br>η = 0,5</span></td></tr>
+</table></div>
+<p>Aktivasi sigmoid dipakai di lapisan tersembunyi <i>dan</i> keluaran, dan target <i>t</i> = 1. Bobot awal ini sengaja dipilih sembarang (dalam praktik diacak kecil). Mari hitung.</p>
+
+<h3>Langkah 1 · Jumlah berbobot di lapisan tersembunyi</h3>
+<div class="eq">z₁ = w₁₁·x₁ + w₁₂·x₂ + b₁ = 0,2·1 + 0,4·0,5 + 0,1 = 0,2 + 0,2 + 0,1 = <b>0,5000</b>
+z₂ = w₂₁·x₁ + w₂₂·x₂ + b₂ = (−0,5)·1 + 0,3·0,5 + (−0,1) = −0,5 + 0,15 − 0,1 = <b>−0,4500</b></div>
+<h3>Langkah 2 · Aktivasi lapisan tersembunyi</h3>
+<div class="eq">h₁ = σ(0,5)   = 1 / (1 + e^−0,5)  = 1 / (1 + 0,6065) = <b>0,6225</b>
+h₂ = σ(−0,45) = 1 / (1 + e^0,45)  = 1 / (1 + 1,5683) = <b>0,3894</b></div>
+<h3>Langkah 3 · Jumlah berbobot di lapisan keluaran</h3>
+<div class="eq">u = v₁·h₁ + v₂·h₂ + c = 0,6·0,6225 + (−0,4)·0,3894 + 0,2 = 0,3735 − 0,1558 + 0,2 = <b>0,4177</b></div>
+<h3>Langkah 4 · Keluaran jaringan</h3>
+<div class="eq">ŷ = σ(0,4177) = 1 / (1 + e^−0,4177) = <b>0,6029</b></div>
+<p>Jaringan menjawab <b>0,6029</b>, padahal targetnya <b>1</b>. Jaringan masih salah; yang kita perlukan sekarang adalah ukuran seberapa salah (Bagian 5) dan cara memperbaikinya (Bagian 6 sampai 9).</p>
+<div class="box note"><strong>📌 Simpan semua nilai antara!</strong> <i>z</i>, <i>h</i>, <i>u</i>, dan ŷ akan dipakai lagi saat backward pass (turunan sigmoid memakai <i>h</i> dan ŷ; gradien bobot memakai <i>x</i> dan <i>h</i>). Inilah sebabnya forward pass di pelatihan menyimpan ("meng-cache") semua nilai antaranya.</div>
+
+<div class="demo">
+  <h4>Simulasi 3 · Apa jawaban jaringan?</h4>
+  <p>Geser titik masukan (<i>x</i><sub>1</sub>, <i>x</i><sub>2</sub>) dan lihat hitungan maju secara langsung. Peta warna menunjukkan jawaban ŷ untuk <i>semua</i> titik masukan. Bandingkan <b>bobot awal</b> dengan <b>bobot setelah 100 iterasi</b> melatih contoh yang sama (Bagian 10): melatih satu contoh ternyata menggeser jawaban di seluruh peta.</p>
+  <div class="chips" id="s3Chips"></div>
+  <div class="two">
+    <div>
+      <div class="controls">
+        <label class="range">x<sub>1</sub> <input type="range" id="s3x1" min="-2" max="2" step="0.05" value="1"><b id="s3x1v"></b></label>
+        <label class="range">x<sub>2</sub> <input type="range" id="s3x2" min="-2" max="2" step="0.05" value="0.5"><b id="s3x2v"></b></label>
+      </div>
+      <div class="eq" id="s3Eq"></div>
+    </div>
+    <div>
+      <canvas class="cv" id="s3Cv" width="420" height="420" aria-label="Peta jawaban jaringan"></canvas>
+      <div class="legend"><span><span class="dot" style="background:var(--accent)"></span>ŷ mendekati 1</span><span><span class="dot" style="background:var(--bad)"></span>ŷ mendekati 0</span><span>titik putih = (x₁, x₂) saat ini</span></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- 5 -->
+<section id="loss">
+<h2>5. Loss: Mengukur Seberapa Salah</h2>
+<p>Agar jaringan bisa memperbaiki diri, kita perlu <b>satu angka</b> yang menyatakan seberapa buruk jawabannya: <b>loss</b> (atau <i>cost</i>/<i>error</i>). Makin kecil makin baik. Untuk satu contoh dengan target <i>t</i> dan jawaban ŷ, kita pakai <b>kuadrat selisih</b> (<i>squared error</i>):</p>
+<div class="rumus">L = ½ (t − ŷ)²<small>½ hanyalah kenyamanan: saat diturunkan, pangkat 2 turun menjadi pengali 2 dan ½ meniadakannya</small></div>
+<p>Pada contoh kita: <i>L</i> = ½ (1 − 0,6029)² = ½ × 0,1577 = <b>0,0788</b>. Kenapa dikuadratkan? (1) Selisih negatif dan positif sama-sama dianggap salah, (2) kesalahan besar dihukum jauh lebih berat daripada kesalahan kecil, (3) grafiknya mulus sehingga mudah diturunkan.</p>
+<div class="tbl"><table>
+  <tr><th class="num">ŷ</th><th class="num">selisih t − ŷ</th><th class="num">L = ½(t − ŷ)²</th><th>Kesan</th></tr>
+  <tr><td class="num">1,0000</td><td class="num">0,0000</td><td class="num">0,0000</td><td>sempurna</td></tr>
+  <tr><td class="num">0,9000</td><td class="num">0,1000</td><td class="num">0,0050</td><td>hampir tepat</td></tr>
+  <tr class="hl"><td class="num">0,6029</td><td class="num">0,3971</td><td class="num">0,0788</td><td>contoh kita</td></tr>
+  <tr><td class="num">0,0000</td><td class="num">1,0000</td><td class="num">0,5000</td><td>salah total</td></tr>
+</table></div>
+<p>Untuk banyak contoh (data latih berukuran <i>N</i>), loss total biasanya <b>rata-rata</b> loss tiap contoh: <i>J</i> = (1/<i>N</i>) Σ <i>L</i><sub>n</sub>. Jaringan kita punya 9 parameter, jadi <i>J</i> adalah fungsi dari 9 variabel. Bayangkan sebuah "permukaan" di atas ruang 9 dimensi: tugas pelatihan adalah menemukan titik terendahnya.</p>
+<div class="box note"><strong>ℹ️ Loss lain</strong> Untuk klasifikasi dengan keluaran sigmoid, loss yang lebih umum adalah <b>binary cross-entropy</b>: <i>L</i> = −[<i>t</i> ln ŷ + (1 − <i>t</i>) ln(1 − ŷ)]. Bedanya terasa saat backprop: turunannya jauh lebih "ramah" (Bagian 8 dan 14). Selama Bagian 6–11 kita tetap memakai kuadrat selisih supaya rumusnya paling mudah diikuti.</div>
+
+<div class="demo">
+  <h4>Simulasi 4 · Bentuk loss</h4>
+  <p>Geser jawaban ŷ dan lihat dua jenis loss untuk target yang dipilih. Perhatikan: kuadrat selisih "landai" bila jawaban sangat salah, sedangkan cross-entropy menaik tajam.</p>
+  <div class="controls">
+    <span class="seg" id="s4T"><button data-t="1" class="on">target t = 1</button><button data-t="0">target t = 0</button></span>
+    <label class="range">ŷ <input type="range" id="s4y" min="0.01" max="0.99" step="0.01" value="0.6"><b id="s4yv"></b></label>
+  </div>
+  <canvas class="cv" id="s4Cv" width="760" height="280" aria-label="Kurva loss terhadap ŷ"></canvas>
+  <div class="legend"><span><span class="dot" style="background:var(--accent)"></span>kuadrat selisih ½(t − ŷ)²</span><span><span class="dot" style="background:var(--bad)"></span>cross-entropy</span></div>
+  <div class="kpi" id="s4Kpi"></div>
+</div>
+</section>
+
+<!-- 6 -->
+<section id="gradien">
+<h2>6. Gradient Descent: Turun Bukit</h2>
+<p>Sekarang kita punya angka <i>L</i> yang ingin dibuat sekecil mungkin dengan mengatur 9 parameter. Analogi klasiknya: kamu berdiri di lereng bukit <b>berkabut tebal</b> dan ingin sampai ke lembah. Kamu tidak melihat peta, tapi bisa merasakan <b>kemiringan tanah tepat di bawah kakimu</b>. Strategi paling masuk akal: melangkah sedikit ke arah <b>turun paling curam</b>, rasakan lagi kemiringannya, melangkah lagi, dan seterusnya.</p>
+<p>Kemiringan itu adalah <b>gradien</b>: kumpulan turunan parsial ∂<i>L</i>/∂θ untuk setiap parameter θ. Gradien menunjuk ke arah <i>naik</i> paling curam, jadi kita melangkah <b>berlawanan arah</b>:</p>
+<div class="rumus">θ ← θ − η · <span class="fr"><span>∂L</span><span>∂θ</span></span><small>untuk setiap parameter θ (bobot atau bias). η = <i>learning rate</i>, besar langkah. Turunan positif → θ dikurangi; turunan negatif → θ ditambah.</small></div>
+<p>Makna tanda: bila ∂<i>L</i>/∂θ <b>positif</b>, menaikkan θ akan menaikkan loss, jadi kita menurunkan θ. Bila <b>negatif</b>, menaikkan θ menurunkan loss, jadi kita menaikkan θ. Besarnya turunan menunjukkan seberapa sensitif loss terhadap θ: parameter yang sangat berpengaruh digeser lebih jauh.</p>
+
+<h3>Contoh satu variabel</h3>
+<p>Ambil <i>f</i>(w) = (w − 3)² + 1 dengan turunan <i>f</i>′(w) = 2(w − 3). Mulai dari w = 0 dengan η = 0,1:</p>
+<div class="tbl"><table>
+  <tr><th class="num">langkah</th><th class="num">w</th><th class="num">f′(w) = 2(w − 3)</th><th class="num">w baru = w − 0,1·f′(w)</th></tr>
+  <tr><td class="num">0</td><td class="num">0,0000</td><td class="num">−6,0000</td><td class="num">0 − 0,1·(−6) = 0,6000</td></tr>
+  <tr><td class="num">1</td><td class="num">0,6000</td><td class="num">−4,8000</td><td class="num">0,6 + 0,48 = 1,0800</td></tr>
+  <tr><td class="num">2</td><td class="num">1,0800</td><td class="num">−3,8400</td><td class="num">1,08 + 0,384 = 1,4640</td></tr>
+  <tr><td class="num">3</td><td class="num">1,4640</td><td class="num">−3,0720</td><td class="num">1,464 + 0,3072 = 1,7712</td></tr>
+</table></div>
+<p>Dua hal tampak: <i>w</i> bergerak menuju 3 (titik terendah), dan langkahnya <b>makin kecil</b> karena kemiringan makin landai. Itu sifat bagus gradient descent: ia otomatis melambat di dekat dasar lembah. Tetapi seberapa besar η sangat menentukan, seperti yang bisa kamu coba sendiri:</p>
+
+<div class="demo">
+  <h4>Simulasi 5 · Turun gunung dan learning rate</h4>
+  <p>Kurva adalah <i>f</i>(w) = (w − 3)² + 1. Klik <b>Langkah</b> atau <b>Auto</b>. Coba η kecil (lambat), η sekitar 0,5 (tepat sekali jalan), η di atas 0,5 (bolak-balik melewati dasar), dan η di atas 1 (<b>meledak</b>, menjauh dari lembah).</p>
+  <div class="controls">
+    <label class="range">η <input type="range" id="s5e" min="0.02" max="1.15" step="0.01" value="0.1"><b id="s5ev"></b></label>
+    <label class="range">w awal <input type="range" id="s5w" min="-2" max="8" step="0.5" value="0"><b id="s5wv"></b></label>
+    <button class="btn primary" id="s5Step">Langkah</button><button class="btn" id="s5Auto">Auto ▶</button><button class="btn" id="s5Reset">Reset</button>
+  </div>
+  <canvas class="cv" id="s5Cv" width="760" height="300" aria-label="Gradient descent satu dimensi"></canvas>
+  <div class="kpi" id="s5Kpi"></div>
+  <div class="msg" id="s5Msg"></div>
+</div>
+
+<h3>Bukit loss untuk bobot sungguhan</h3>
+<p>Untuk jaringan kita, <i>L</i> bergantung pada 9 parameter, tapi kita bisa mengiris satu "garis": tahan 8 parameter di nilai awalnya, geser <b>hanya satu</b>, dan lihat loss-nya. Garis singgung di titik saat ini punya kemiringan sama dengan ∂<i>L</i>/∂θ, dan <b>angka itu dihitung oleh backprop</b> (Bagian 8). Garis tebal oranye adalah kurva loss; garis putus-putus merah adalah garis singgung dari gradien backprop.</p>
+<div class="demo">
+  <h4>Simulasi 6 · Satu irisan permukaan loss</h4>
+  <div class="controls">
+    <label>Parameter:&nbsp;<select class="inp" id="s6P"></select></label>
+    <label class="range">nilai <input type="range" id="s6v" min="-4" max="4" step="0.01" value="0.6"><b id="s6vv"></b></label>
+    <label class="range">η <input type="range" id="s6e" min="0.1" max="20" step="0.1" value="2"><b id="s6ev"></b></label>
+    <button class="btn primary" id="s6Step">Satu langkah GD</button><button class="btn" id="s6Reset">Reset</button>
+  </div>
+  <canvas class="cv" id="s6Cv" width="760" height="300" aria-label="Irisan permukaan loss untuk satu parameter"></canvas>
+  <div class="kpi" id="s6Kpi"></div>
+  <div class="msg" id="s6Msg"></div>
+</div>
+<p>Amati: untuk <i>v</i><sub>1</sub>, kurvanya turun tetapi akhirnya <b>mendatar</b> (sigmoid keluaran sudah hampir 1, sehingga memperbesar <i>v</i><sub>1</sub> lagi nyaris tak menambah apa-apa). Di dataran seperti itu gradiennya mendekati 0 dan gradient descent merayap pelan; ini cikal bakal masalah <i>vanishing gradient</i>. Coba juga parameter lain: yang kurvanya lebih curam di titik awal menerima gradien lebih besar.</p>
+
+<h3>Masalah sebenarnya: dari mana gradien?</h3>
+<p>Gradient descent butuh ∂<i>L</i>/∂θ untuk <b>semua</b> parameter. Cara paling lugu adalah <b>beda hingga</b> (<i>finite difference</i>): geser satu parameter sedikit (ε), hitung ulang loss, lalu bagi selisihnya dengan ε. Itu butuh dua <i>forward pass</i> penuh <b>per parameter</b>.</p>
+<div class="tbl"><table>
+  <tr><th>Jumlah parameter P</th><th class="num">Beda hingga (2P forward pass)</th><th class="num">Backprop</th></tr>
+  <tr><td>9 (jaringan kita)</td><td class="num">18 forward pass</td><td class="num">1 forward + 1 backward</td></tr>
+  <tr><td>1.370 (CNN angka)</td><td class="num">2.740 forward pass</td><td class="num">1 forward + 1 backward</td></tr>
+  <tr><td>1.000.000</td><td class="num">2.000.000 forward pass</td><td class="num">1 forward + 1 backward</td></tr>
+  <tr><td>7.000.000.000 (LLM kecil)</td><td class="num">14.000.000.000 forward pass</td><td class="num">1 forward + 1 backward</td></tr>
+</table></div>
+<p>Backprop menghitung <b>seluruh</b> gradien dengan biaya sekitar 2–3 kali satu forward pass, berapa pun jumlah parameternya. Itulah terobosan yang membuat jaringan besar bisa dilatih. Kuncinya: aturan rantai dan <b>menggunakan ulang</b> hasil antara. Mari kita lihat.</p>
+</section>
+
+<!-- 7 -->
+<section id="rantai">
+<h2>7. Aturan Rantai</h2>
+<p>Kalau <i>y</i> bergantung pada <i>u</i>, dan <i>u</i> bergantung pada <i>x</i>, maka perubahan kecil pada <i>x</i> merambat ke <i>y</i> lewat <i>u</i>. Aturan rantai mengatakan bahwa <b>pengaruh total adalah hasil kali pengaruh tiap mata rantai</b>:</p>
+<div class="rumus"><span class="fr"><span>dy</span><span>dx</span></span> = <span class="fr"><span>dy</span><span>du</span></span> · <span class="fr"><span>du</span><span>dx</span></span><small>"seberapa y berubah bila x berubah" = "seberapa y berubah bila u berubah" × "seberapa u berubah bila x berubah"</small></div>
+<p>Analogi <b>roda gigi</b>: tiga roda gigi bertautan. Roda A berputar 1 kali, roda B berputar 2 kali per putaran A (rasio 2), roda C berputar 0,5 kali per putaran B (rasio 0,5). Maka C berputar 2 × 0,5 = <b>1 kali</b> per putaran A. Rasio-rasio itu dikalikan, bukan dijumlahkan. Dalam jaringan, tiap "roda gigi" adalah satu operasi (kali bobot, sigmoid, dan seterusnya), dan rasionya adalah <b>turunan lokal</b> operasi itu.</p>
+
+<h3>Contoh angka: jaringan rantai 1 – 1 – 1</h3>
+<p>Supaya fokus pada rantai, ambil jaringan paling sederhana: satu neuron per lapisan. <i>x</i> = 1, <i>w</i><sub>1</sub> = 0,5, <i>w</i><sub>2</sub> = 1, target <i>t</i> = 1:</p>
+<div class="rumus">z<sub>1</sub> = w<sub>1</sub>x &nbsp;→&nbsp; a<sub>1</sub> = σ(z<sub>1</sub>) &nbsp;→&nbsp; z<sub>2</sub> = w<sub>2</sub>a<sub>1</sub> &nbsp;→&nbsp; ŷ = σ(z<sub>2</sub>) &nbsp;→&nbsp; L = ½(t − ŷ)²</div>
+<p>Maju: <i>z</i><sub>1</sub> = 0,5 → <i>a</i><sub>1</sub> = 0,6225 → <i>z</i><sub>2</sub> = 0,6225 → ŷ = 0,6508 → <i>L</i> = 0,0610. Kita ingin tahu ∂<i>L</i>/∂<i>w</i><sub>1</sub>: bagaimana <i>L</i> berubah bila <i>w</i><sub>1</sub> sedikit berubah? <i>w</i><sub>1</sub> memengaruhi <i>z</i><sub>1</sub>, yang memengaruhi <i>a</i><sub>1</sub>, yang memengaruhi <i>z</i><sub>2</sub>, yang memengaruhi ŷ, yang memengaruhi <i>L</i>. Lima mata rantai:</p>
+<div class="rumus"><span class="fr"><span>∂L</span><span>∂w<sub>1</sub></span></span> = <span class="fr"><span>∂L</span><span>∂ŷ</span></span> · <span class="fr"><span>∂ŷ</span><span>∂z<sub>2</sub></span></span> · <span class="fr"><span>∂z<sub>2</sub></span><span>∂a<sub>1</sub></span></span> · <span class="fr"><span>∂a<sub>1</sub></span><span>∂z<sub>1</sub></span></span> · <span class="fr"><span>∂z<sub>1</sub></span><span>∂w<sub>1</sub></span></span></div>
+<div class="tbl"><table>
+  <tr><th>Mata rantai</th><th>Rumus turunan lokal</th><th class="num">Nilai</th></tr>
+  <tr><td>∂L/∂ŷ</td><td>ŷ − t</td><td class="num">0,6508 − 1 = −0,3492</td></tr>
+  <tr><td>∂ŷ/∂z<sub>2</sub></td><td>ŷ(1 − ŷ)</td><td class="num">0,6508 × 0,3492 = 0,2273</td></tr>
+  <tr><td>∂z<sub>2</sub>/∂a<sub>1</sub></td><td>w<sub>2</sub></td><td class="num">1,0000</td></tr>
+  <tr><td>∂a<sub>1</sub>/∂z<sub>1</sub></td><td>a<sub>1</sub>(1 − a<sub>1</sub>)</td><td class="num">0,6225 × 0,3775 = 0,2350</td></tr>
+  <tr><td>∂z<sub>1</sub>/∂w<sub>1</sub></td><td>x</td><td class="num">1,0000</td></tr>
+  <tr class="hl"><td colspan="2"><b>Hasil kali = ∂L/∂w<sub>1</sub></b></td><td class="num"><b>−0,3492 × 0,2273 × 1 × 0,2350 × 1 = −0,01865</b></td></tr>
+</table></div>
+<p>Bukti bahwa ini benar: naikkan <i>w</i><sub>1</sub> sebesar 0,01 (dari 0,5 menjadi 0,51) dan hitung ulang <i>L</i>. Hasilnya turun dari 0,060978 menjadi 0,060792, yaitu berubah <b>−0,000186</b>. Prediksi dari gradien: −0,01865 × 0,01 = <b>−0,000187</b>. Cocok. Gradien memang "faktor pengali perubahan kecil".</p>
+
+<div class="demo">
+  <h4>Simulasi 7 · Roda gigi aturan rantai</h4>
+  <p>Ubah parameter jaringan rantai. Kotak-kotak adalah turunan lokal; hasil kalinya adalah gradien ∂L/∂w<sub>1</sub>. Lalu "dorong" w<sub>1</sub> sebesar Δ dan bandingkan perubahan loss yang <i>sebenarnya</i> dengan perkiraan gradien × Δ.</p>
+  <div class="controls">
+    <label class="range">x <input type="range" id="s7x" min="-2" max="2" step="0.05" value="1"><b id="s7xv"></b></label>
+    <label class="range">w<sub>1</sub> <input type="range" id="s7w1" min="-3" max="3" step="0.05" value="0.5"><b id="s7w1v"></b></label>
+    <label class="range">w<sub>2</sub> <input type="range" id="s7w2" min="-3" max="3" step="0.05" value="1"><b id="s7w2v"></b></label>
+    <label class="range">t <input type="range" id="s7t" min="0" max="1" step="0.05" value="1"><b id="s7tv"></b></label>
+  </div>
+  <div class="gear" id="s7Gear"></div>
+  <div class="controls">
+    <label class="range">Dorong w<sub>1</sub> sebesar Δ <input type="range" id="s7d" min="-1" max="1" step="0.01" value="0.01"><b id="s7dv"></b></label>
+  </div>
+  <div class="kpi" id="s7Kpi"></div>
+  <div class="msg" id="s7Msg"></div>
+</div>
+
+<h3>Dua aturan tambahan</h3>
+<ul>
+  <li><b>Jumlahkan semua jalur.</b> Bila sebuah nilai memengaruhi loss lewat <i>beberapa</i> jalur, kontribusi tiap jalur dijumlahkan. Di jaringan 2 – 2 – 1, tiap neuron hidden hanya punya satu jalur ke keluaran. Tetapi bila keluarannya ada dua neuron, ∂<i>L</i>/∂<i>h</i><sub>j</sub> = jumlah dari kontribusi keduanya. Itulah asal tanda Σ pada rumus umum di bagian berikut.</li>
+  <li><b>Pakai ulang yang sudah dihitung.</b> Dua bobot yang masuk ke neuron yang sama berbagi sebagian besar rantai (semua yang ada di <i>depan</i> neuron itu). Backprop menghitung bagian bersama itu sekali (disebut <i>δ</i>) dan memakainya untuk semua bobot yang bersangkutan. Itu sebabnya ia efisien.</li>
+</ul>
+</section>
+
+<!-- 8 -->
+<section id="turunan">
+<h2>8. Backpropagation: Menurunkan Rumus</h2>
+<p>Sekarang kita terapkan aturan rantai pada jaringan 2 – 2 – 1, dari <b>belakang ke depan</b>. Ide utama: definisikan <b>sinyal kesalahan</b> untuk setiap neuron,</p>
+<div class="rumus">δ = <span class="fr"><span>∂L</span><span>∂z</span></span><small>seberapa sensitif loss terhadap jumlah berbobot (z) neuron itu</small></div>
+<p>Setelah δ sebuah neuron diketahui, gradien semua bobot yang masuk ke neuron itu langsung didapat. Jadi tugas backprop: <i>hitung δ untuk tiap neuron, mulai dari keluaran, lalu mundur</i>.</p>
+
+<h3>Langkah A · Neuron keluaran</h3>
+<p>Karena <i>L</i> = ½(<i>t</i> − ŷ)², maka ∂<i>L</i>/∂ŷ = ŷ − <i>t</i> (turunan ½(·)² adalah (·), dan turunan dalamnya −1 membalik tanda). Lalu ŷ = σ(<i>u</i>) sehingga ∂ŷ/∂<i>u</i> = ŷ(1 − ŷ). Dengan aturan rantai:</p>
+<div class="rumus">δ<sub>o</sub> = <span class="fr"><span>∂L</span><span>∂u</span></span> = <span class="fr"><span>∂L</span><span>∂ŷ</span></span> · <span class="fr"><span>∂ŷ</span><span>∂u</span></span> = (ŷ − t) · ŷ(1 − ŷ)</div>
+
+<h3>Langkah B · Bobot keluaran</h3>
+<p>Karena <i>u</i> = <i>v</i><sub>1</sub><i>h</i><sub>1</sub> + <i>v</i><sub>2</sub><i>h</i><sub>2</sub> + <i>c</i>, turunan lokalnya: ∂<i>u</i>/∂<i>v</i><sub>j</sub> = <i>h</i><sub>j</sub> dan ∂<i>u</i>/∂<i>c</i> = 1. Jadi:</p>
+<div class="rumus"><span class="fr"><span>∂L</span><span>∂v<sub>j</sub></span></span> = δ<sub>o</sub> · h<sub>j</sub> &nbsp;&nbsp;,&nbsp;&nbsp; <span class="fr"><span>∂L</span><span>∂c</span></span> = δ<sub>o</sub><small>gradien bobot = (sinyal kesalahan di ujung tujuan) × (aktivasi di ujung asal)</small></div>
+
+<h3>Langkah C · Meneruskan kesalahan ke lapisan tersembunyi</h3>
+<p>Neuron hidden <i>j</i> memengaruhi loss lewat <i>u</i>, dengan ∂<i>u</i>/∂<i>h</i><sub>j</sub> = <i>v</i><sub>j</sub>. Maka ∂<i>L</i>/∂<i>h</i><sub>j</sub> = <i>v</i><sub>j</sub> δ<sub>o</sub>: kesalahan keluaran "mengalir mundur" lewat <b>bobot yang sama</b> yang tadi dipakai maju. Kemudian melewati aktivasi hidden (∂<i>h</i><sub>j</sub>/∂<i>z</i><sub>j</sub> = <i>h</i><sub>j</sub>(1 − <i>h</i><sub>j</sub>)):</p>
+<div class="rumus">δ<sub>j</sub> = <span class="fr"><span>∂L</span><span>∂z<sub>j</sub></span></span> = v<sub>j</sub> δ<sub>o</sub> · h<sub>j</sub>(1 − h<sub>j</sub>)</div>
+
+<h3>Langkah D · Bobot lapisan tersembunyi</h3>
+<p>Karena <i>z</i><sub>j</sub> = <i>w</i><sub>j1</sub><i>x</i><sub>1</sub> + <i>w</i><sub>j2</sub><i>x</i><sub>2</sub> + <i>b</i><sub>j</sub>, maka ∂<i>z</i><sub>j</sub>/∂<i>w</i><sub>jk</sub> = <i>x</i><sub>k</sub> dan ∂<i>z</i><sub>j</sub>/∂<i>b</i><sub>j</sub> = 1:</p>
+<div class="rumus"><span class="fr"><span>∂L</span><span>∂w<sub>jk</sub></span></span> = δ<sub>j</sub> · x<sub>k</sub> &nbsp;&nbsp;,&nbsp;&nbsp; <span class="fr"><span>∂L</span><span>∂b<sub>j</sub></span></span> = δ<sub>j</sub></div>
+
+<h3>Ringkasan untuk 2 – 2 – 1</h3>
+<div class="tbl"><table>
+  <tr><th>#</th><th>Yang dihitung</th><th>Rumus</th><th>Arah</th></tr>
+  <tr><td>1</td><td>sinyal kesalahan keluaran</td><td><span class="m">δ<sub>o</sub> = (ŷ − t) · ŷ(1 − ŷ)</span></td><td class="bwd">mulai di ujung</td></tr>
+  <tr><td>2</td><td>gradien bobot &amp; bias keluaran</td><td><span class="m">∂L/∂v<sub>j</sub> = δ<sub>o</sub>h<sub>j</sub> ; ∂L/∂c = δ<sub>o</sub></span></td><td class="bwd">pakai h dari forward</td></tr>
+  <tr><td>3</td><td>sinyal kesalahan hidden</td><td><span class="m">δ<sub>j</sub> = v<sub>j</sub>δ<sub>o</sub> · h<sub>j</sub>(1 − h<sub>j</sub>)</span></td><td class="bwd">mundur lewat v</td></tr>
+  <tr><td>4</td><td>gradien bobot &amp; bias hidden</td><td><span class="m">∂L/∂w<sub>jk</sub> = δ<sub>j</sub>x<sub>k</sub> ; ∂L/∂b<sub>j</sub> = δ<sub>j</sub></span></td><td class="bwd">pakai x dari forward</td></tr>
+  <tr><td>5</td><td>pembaruan semua parameter</td><td><span class="m">θ ← θ − η · ∂L/∂θ</span></td><td class="upd">gradient descent</td></tr>
+</table></div>
+
+<div class="diagram" aria-label="Graf komputasi: maju dan mundur">
+<svg viewBox="0 0 760 270" role="img">
+  <defs>
+    <marker id="af" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker>
+    <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--bad)"/></marker>
+  </defs>
+  <g font-size="13" font-weight="700" text-anchor="middle">
+    <rect x="8" y="92" width="86" height="46" rx="10" fill="var(--surface)" stroke="var(--good)" stroke-width="2.5"/><text x="51" y="120" fill="var(--text)">x, w, b</text>
+    <rect x="148" y="92" width="86" height="46" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5"/><text x="191" y="120" fill="var(--text)">z</text>
+    <rect x="288" y="92" width="86" height="46" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5"/><text x="331" y="120" fill="var(--text)">h = σ(z)</text>
+    <rect x="428" y="92" width="86" height="46" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5"/><text x="471" y="120" fill="var(--text)">u</text>
+    <rect x="568" y="92" width="86" height="46" rx="10" fill="var(--surface)" stroke="var(--warn)" stroke-width="2.5"/><text x="611" y="120" fill="var(--text)">ŷ = σ(u)</text>
+    <rect x="696" y="92" width="58" height="46" rx="10" fill="var(--surface)" stroke="var(--warn)" stroke-width="2.5"/><text x="725" y="120" fill="var(--text)">L</text>
+  </g>
+  <g stroke-width="2.4" fill="none">
+    <g stroke="var(--accent)" marker-end="url(#af)"><path d="M96 106H144"/><path d="M236 106H284"/><path d="M376 106H424"/><path d="M516 106H564"/><path d="M656 106H692"/></g>
+    <g stroke="var(--bad)" marker-end="url(#ab)"><path d="M692 126H658"/><path d="M564 126H518"/><path d="M424 126H378"/><path d="M284 126H238"/><path d="M144 126H98"/></g>
+  </g>
+  <g font-size="11.5" text-anchor="middle" fill="var(--accent)">
+    <text x="120" y="88">× w + b</text><text x="260" y="88">σ</text><text x="400" y="88">× v + c</text><text x="540" y="88">σ</text><text x="675" y="88">½(t−ŷ)²</text>
+    <text x="380" y="40" font-weight="700" font-size="13">➡ MAJU: hitung nilai &amp; simpan</text>
+  </g>
+  <g font-size="11.5" text-anchor="middle" fill="var(--bad)">
+    <text x="675" y="152">ŷ − t</text><text x="540" y="152">ŷ(1−ŷ)</text><text x="400" y="152">v</text><text x="260" y="152">h(1−h)</text><text x="120" y="152">x</text>
+    <text x="380" y="240" font-weight="700" font-size="13">⬅ MUNDUR: kalikan turunan lokal sambil bergerak ke kiri</text>
+  </g>
+  <g font-size="11.5" text-anchor="middle" fill="var(--text)">
+    <text x="471" y="178">δ<tspan font-size="9" dy="3">o</tspan><tspan dy="-3"> = (ŷ−t)ŷ(1−ŷ)</tspan></text>
+    <text x="191" y="178">δ<tspan font-size="9" dy="3">j</tspan><tspan dy="-3"> = vδ</tspan><tspan font-size="9" dy="3">o</tspan><tspan dy="-3">·h(1−h)</tspan></text>
+    <text x="51" y="178">∂L/∂w = δ·x</text>
+  </g>
+  <g stroke="var(--border)" stroke-dasharray="3 4" stroke-width="1.5"><path d="M471 140V160"/><path d="M191 140V160"/><path d="M51 140V160"/></g>
+</svg>
+</div>
+<p class="cap" style="text-align:center">Graf komputasi: panah biru = nilai mengalir maju; panah merah = gradien mengalir mundur dan dikalikan turunan lokal di setiap mata rantai.</p>
+
+<h3>Rumus umum untuk lapisan sembarang</h3>
+<p>Pola yang sama berlaku untuk jaringan dengan <i>L</i> lapisan. Di sini <i>W</i><sup>(l)</sup> adalah matriks bobot yang menuju lapisan <i>l</i> (baris = neuron tujuan, kolom = neuron asal), <i>f</i> fungsi aktivasi, dan ⊙ perkalian elemen demi elemen:</p>
+<div class="tbl"><table>
+  <tr><th>Persamaan</th><th>Rumus</th><th>Dibaca</th></tr>
+  <tr><td><b>Maju</b></td><td><span class="m">z<sup>(l)</sup> = W<sup>(l)</sup> a<sup>(l−1)</sup> + b<sup>(l)</sup> ; a<sup>(l)</sup> = f(z<sup>(l)</sup>)</span></td><td>dengan <i>a</i><sup>(1)</sup> = <i>x</i></td></tr>
+  <tr><td><b>BP1</b> · lapisan keluaran</td><td><span class="m">δ<sup>(L)</sup> = (a<sup>(L)</sup> − t) ⊙ f′(z<sup>(L)</sup>)</span></td><td>untuk loss kuadrat; kesalahan keluaran × turunan aktivasi</td></tr>
+  <tr><td><b>BP2</b> · mundur satu lapisan</td><td><span class="m">δ<sup>(l)</sup> = ((W<sup>(l+1)</sup>)<sup>T</sup> δ<sup>(l+1)</sup>) ⊙ f′(z<sup>(l)</sup>)</span></td><td>kirim δ mundur lewat <b>transpos</b> bobot (ini penjumlahan semua jalur), lalu kali turunan aktivasi</td></tr>
+  <tr><td><b>BP3</b> · gradien bobot</td><td><span class="m">∂L/∂W<sup>(l)</sup> = δ<sup>(l)</sup> (a<sup>(l−1)</sup>)<sup>T</sup></span></td><td>perkalian luar δ (tujuan) dengan <i>a</i> (asal)</td></tr>
+  <tr><td><b>BP4</b> · gradien bias</td><td><span class="m">∂L/∂b<sup>(l)</sup> = δ<sup>(l)</sup></span></td><td>bias selalu "dikalikan 1"</td></tr>
+</table></div>
+<p>Pada 2 – 2 – 1 dengan <i>L</i> = 3: <i>W</i><sup>(2)</sup> = [[<i>w</i><sub>11</sub>, <i>w</i><sub>12</sub>], [<i>w</i><sub>21</sub>, <i>w</i><sub>22</sub>]], <i>W</i><sup>(3)</sup> = [<i>v</i><sub>1</sub>, <i>v</i><sub>2</sub>], δ<sup>(3)</sup> = δ<sub>o</sub>, dan δ<sup>(2)</sup> = (δ<sub>1</sub>, δ<sub>2</sub>). Jaringan 4, 5, atau 100 lapisan hanya mengulang BP2 lebih banyak kali.</p>
+
+<div class="box tip"><strong>🧠 Tiga cara membaca rumus ini</strong>
+  <ul>
+    <li><b>Siapa yang disalahkan?</b> Bobot yang menghubungkan neuron aktif (<i>a</i> besar) ke neuron yang kesalahannya besar (δ besar) mendapat gradien terbesar. Bobot dari neuron yang diam (<i>a</i> ≈ 0) hampir tidak disentuh.</li>
+    <li><b>Kesalahan merambat lewat bobot.</b> Kesalahan keluaran dibagikan ke neuron hidden sebanding dengan bobot sambungannya (<i>v</i><sub>j</sub>). Hidden yang pengaruhnya ke keluaran kuat (|<i>v</i>| besar) menanggung kesalahan lebih besar.</li>
+    <li><b>Turunan aktivasi sebagai "keran".</b> Setiap kali kesalahan melewati satu neuron, ia dikali <i>f</i>′(<i>z</i>). Untuk sigmoid angka ini ≤ 0,25 dan hampir 0 bila neuron jenuh. Neuron yang jenuh "menutup keran" dan gradien tidak lewat.</li>
+  </ul>
+</div>
+<div class="box note"><strong>ℹ️ Bila loss-nya cross-entropy</strong> Dengan keluaran sigmoid dan binary cross-entropy, ∂<i>L</i>/∂ŷ = (ŷ − <i>t</i>) / [ŷ(1 − ŷ)], dan faktor ŷ(1 − ŷ) di penyebut <b>meniadakan</b> turunan sigmoid. Hasilnya <b>δ<sub>o</sub> = ŷ − <i>t</i></b>: sangat sederhana, dan tidak mengecil ketika neuron keluaran jenuh dan jawabannya salah. Bagian lain backprop tidak berubah. Karena itu sigmoid + cross-entropy adalah pasangan standar (demikian juga softmax + cross-entropy untuk banyak kelas).</div>
+</section>
+
+<!-- 9 -->
+<section id="contoh">
+<h2>9. Satu Iterasi dengan Angka</h2>
+<p>Saatnya menjalankan seluruh rumus pada contoh kita. Parameter awal dan forward pass sudah dihitung di Bagian 4: <i>z</i><sub>1</sub> = 0,5000, <i>z</i><sub>2</sub> = −0,4500, <i>h</i><sub>1</sub> = 0,6225, <i>h</i><sub>2</sub> = 0,3894, <i>u</i> = 0,4177, ŷ = 0,6029, dan <i>L</i> = 0,0788. Sekarang <b class="bwd">backward pass</b>.</p>
+
+<h3 class="bwd">Langkah 5 · Sinyal kesalahan neuron keluaran (δ<sub>o</sub>)</h3>
+<div class="eq">∂L/∂ŷ = ŷ − t              = 0,6029 − 1             = <b>−0,3971</b>
+σ′(u)  = ŷ(1 − ŷ)          = 0,6029 × 0,3971        = <b>0,2394</b>
+δ_o    = (∂L/∂ŷ) × σ′(u)   = −0,3971 × 0,2394       = <b>−0,0951</b></div>
+<p>Negatif: menaikkan <i>u</i> akan <i>menurunkan</i> loss, yaitu keluaran memang perlu dinaikkan (menuju 1).</p>
+
+<h3 class="bwd">Langkah 6 · Gradien bobot dan bias keluaran</h3>
+<div class="eq">∂L/∂v₁ = δ_o × h₁ = −0,0951 × 0,6225 = <b>−0,0592</b>
+∂L/∂v₂ = δ_o × h₂ = −0,0951 × 0,3894 = <b>−0,0370</b>
+∂L/∂c  = δ_o      =                      <b>−0,0951</b></div>
+
+<h3 class="bwd">Langkah 7 · Kirim kesalahan ke lapisan tersembunyi (δ<sub>1</sub>, δ<sub>2</sub>)</h3>
+<div class="eq">∂L/∂h₁ = v₁ × δ_o = 0,6 × (−0,0951)    = −0,0570     σ′(z₁) = h₁(1 − h₁) = 0,6225 × 0,3775 = 0,2350
+∂L/∂h₂ = v₂ × δ_o = (−0,4) × (−0,0951) = +0,0380     σ′(z₂) = h₂(1 − h₂) = 0,3894 × 0,6106 = 0,2378
+
+δ₁ = −0,0570 × 0,2350 = <b>−0,0134</b>
+δ₂ = +0,0380 × 0,2378 = <b>+0,0090</b></div>
+<p>Perhatikan δ<sub>2</sub> <b>positif</b> padahal δ<sub>o</sub> negatif: karena <i>v</i><sub>2</sub> = −0,4 negatif, menaikkan <i>h</i><sub>2</sub> justru <i>menurunkan</i> <i>u</i>. Jadi agar ŷ naik, <i>h</i><sub>2</sub> harus <i>turun</i>. Bobot negatif membalik tanda kesalahan.</p>
+
+<h3 class="bwd">Langkah 8 · Gradien bobot dan bias lapisan tersembunyi</h3>
+<div class="tbl"><table>
+  <tr><th>Parameter</th><th>Rumus</th><th class="num">Gradien</th></tr>
+  <tr><td>w₁₁</td><td>δ₁ × x₁ = −0,0134 × 1</td><td class="num"><b>−0,0134</b></td></tr>
+  <tr><td>w₁₂</td><td>δ₁ × x₂ = −0,0134 × 0,5</td><td class="num"><b>−0,0067</b></td></tr>
+  <tr><td>b₁</td><td>δ₁</td><td class="num"><b>−0,0134</b></td></tr>
+  <tr><td>w₂₁</td><td>δ₂ × x₁ = 0,0090 × 1</td><td class="num"><b>+0,0090</b></td></tr>
+  <tr><td>w₂₂</td><td>δ₂ × x₂ = 0,0090 × 0,5</td><td class="num"><b>+0,0045</b></td></tr>
+  <tr><td>b₂</td><td>δ₂</td><td class="num"><b>+0,0090</b></td></tr>
+</table></div>
+
+<h3 class="upd">Langkah 9 · Perbarui semua parameter (η = 0,5)</h3>
+<div class="tbl"><table>
+  <tr><th>Parameter</th><th class="num">Lama</th><th class="num">Gradien</th><th class="num">Baru = lama − 0,5 × gradien</th></tr>
+  <tr><td>w₁₁</td><td class="num">0,2000</td><td class="num">−0,0134</td><td class="num"><b>0,2067</b></td></tr>
+  <tr><td>w₁₂</td><td class="num">0,4000</td><td class="num">−0,0067</td><td class="num"><b>0,4034</b></td></tr>
+  <tr><td>b₁</td><td class="num">0,1000</td><td class="num">−0,0134</td><td class="num"><b>0,1067</b></td></tr>
+  <tr><td>w₂₁</td><td class="num">−0,5000</td><td class="num">+0,0090</td><td class="num"><b>−0,5045</b></td></tr>
+  <tr><td>w₂₂</td><td class="num">0,3000</td><td class="num">+0,0045</td><td class="num"><b>0,2977</b></td></tr>
+  <tr><td>b₂</td><td class="num">−0,1000</td><td class="num">+0,0090</td><td class="num"><b>−0,1045</b></td></tr>
+  <tr><td>v₁</td><td class="num">0,6000</td><td class="num">−0,0592</td><td class="num"><b>0,6296</b></td></tr>
+  <tr><td>v₂</td><td class="num">−0,4000</td><td class="num">−0,0370</td><td class="num"><b>−0,3815</b></td></tr>
+  <tr><td>c</td><td class="num">0,2000</td><td class="num">−0,0951</td><td class="num"><b>0,2475</b></td></tr>
+</table></div>
+<p><b>Penting:</b> semua gradien dihitung dari parameter <i>lama</i> dulu, baru semuanya diperbarui sekaligus. Jangan memperbarui <i>v</i> sebelum δ<sub>1</sub>, δ<sub>2</sub> dihitung, sebab δ<sub>1</sub>, δ<sub>2</sub> memakai <i>v</i> yang lama.</p>
+
+<h3 class="fwd">Langkah 10 · Periksa: forward pass lagi dengan parameter baru</h3>
+<div class="eq">z₁ = 0,2067·1 + 0,4034·0,5 + 0,1067     = 0,5151     h₁ = σ(0,5151)  = 0,6260
+z₂ = −0,5045·1 + 0,2977·0,5 + (−0,1045)  = −0,4602    h₂ = σ(−0,4602) = 0,3869
+u  = 0,6296·0,6260 + (−0,3815)·0,3869 + 0,2475 = 0,4940
+ŷ  = σ(0,4940) = <b>0,6211</b>      L = ½(1 − 0,6211)² = <b>0,0718</b></div>
+<p>Hasilnya: ŷ naik dari 0,6029 menjadi <b>0,6211</b> (mendekati target 1) dan loss turun dari <b>0,0788</b> menjadi <b>0,0718</b> (turun sekitar 8,9%) hanya dalam satu iterasi. Mengulangnya terus memberikan:</p>
+<div class="tbl"><table>
+  <tr><th class="num">Iterasi</th><th class="num">0</th><th class="num">1</th><th class="num">10</th><th class="num">100</th><th class="num">1.000</th></tr>
+  <tr><td>ŷ</td><td class="num">0,6029</td><td class="num">0,6211</td><td class="num">0,7332</td><td class="num">0,9139</td><td class="num">0,9762</td></tr>
+  <tr><td>Loss</td><td class="num">0,0788</td><td class="num">0,0718</td><td class="num">0,0356</td><td class="num">0,0037</td><td class="num">0,0003</td></tr>
+</table></div>
+
+<div class="box tip"><strong>🔍 Yang bisa dipelajari dari angka-angka ini</strong>
+  <ul>
+    <li><b>Tanda gradien menentukan arah.</b> Hampir semua gradien negatif sehingga bobot naik; hanya parameter neuron hidden 2 (δ<sub>2</sub> positif) yang turun.</li>
+    <li><b>Gradien lapisan tersembunyi jauh lebih kecil</b> (≈ 0,01) daripada lapisan keluaran (≈ 0,06–0,10). Setiap lapisan yang dilewati mengalikan dengan bobot dan turunan sigmoid (≤ 0,25), sehingga gradien menyusut. Pada jaringan yang sangat dalam ini jadi masalah serius (Bagian 14).</li>
+    <li><b>Perubahan per iterasi kecil</b> (η kecil, gradien kecil). Itu sebabnya pelatihan butuh banyak iterasi.</li>
+    <li>Kita belum menyentuh <b>satu pun</b> turunan numerik: semua gradien berasal dari aturan rantai. Di Bagian 11 kita buktikan hasilnya benar.</li>
+  </ul>
+</div>
+</section>
+
+<!-- 10 -->
+<section id="simulator">
+<h2>10. Simulator Langkah demi Langkah</h2>
+<p>Sekarang kamu yang menjalankannya. Simulator ini melakukan <b>persis</b> hitungan Bagian 4 dan 9, tetapi dengan angka yang bisa kamu ubah. Tekan <b>Langkah berikut</b> untuk maju satu tahap; diagram menyorot bagian yang sedang dihitung, dan panel kanan menuliskan rumus lengkap dengan angkanya. Biru = maju, merah = mundur, hijau = perbarui.</p>
+<div class="demo">
+  <h4>Simulasi 8 · Satu iterasi pelatihan, tahap demi tahap</h4>
+  <div class="pgrid2" id="s8Inputs"></div>
+  <div class="controls">
+    <button class="btn" id="s8Prev">◀ Langkah sebelumnya</button>
+    <button class="btn primary" id="s8Next">Langkah berikut ▶</button>
+    <button class="btn" id="s8Iter">⏭ Selesaikan iterasi</button>
+    <button class="btn" id="s8Run10">+10 iterasi</button>
+    <button class="btn" id="s8Run100">+100 iterasi</button>
+    <button class="btn" id="s8Preset">↺ Contoh modul</button>
+    <button class="btn" id="s8Rand">🎲 Bobot acak</button>
+  </div>
+  <div class="stepbar" id="s8Bar"></div>
+  <div class="stepper">
+    <div style="overflow-x:auto"><svg class="netsvg" style="min-width:560px" id="s8Svg" viewBox="0 0 640 380" role="img" aria-label="Diagram jaringan 2-2-1 dengan nilai di setiap tahap"></svg></div>
+    <div>
+      <div class="stepnote" id="s8Note"></div>
+    </div>
+  </div>
+  <div class="two" style="margin-top:12px">
+    <div><p class="mini" style="margin-top:0">Loss tiap iterasi (titik terakhir = iterasi saat ini)</p><canvas class="cv" id="s8Cv" width="520" height="190" aria-label="Kurva loss per iterasi"></canvas></div>
+    <div><div class="kpi" id="s8Kpi"></div><div class="tbl"><table id="s8Tbl"></table></div></div>
+  </div>
+</div>
+<div class="box note"><strong>🧪 Eksperimen yang disarankan</strong>
+  <ul>
+    <li>Ubah target <i>t</i> menjadi 0 dan jalankan satu iterasi: δ<sub>o</sub> berubah tanda, ŷ didorong turun.</li>
+    <li>Naikkan η menjadi 5, lalu 20, dan tekan <b>+10 iterasi</b>. Apa yang terjadi pada kurva loss?</li>
+    <li>Atur <i>x</i><sub>1</sub> = <i>x</i><sub>2</sub> = 0. Gradien <i>w</i><sub>11</sub> sampai <i>w</i><sub>22</sub> menjadi 0 (karena <i>x</i> = 0), hanya bias hidden dan lapisan keluaran yang belajar. Mengapa?</li>
+    <li>Ubah <i>v</i><sub>2</sub> ke 0. Perhatikan δ<sub>2</sub> menjadi 0 dan neuron hidden 2 <b>berhenti belajar</b>: kesalahan tak punya jalan ke sana.</li>
+    <li>Tekan <b>+100 iterasi</b> beberapa kali, lalu bandingkan dengan tabel di Bagian 9.</li>
+  </ul>
+</div>
+</section>
+
+<!-- 11 -->
+<section id="gradcheck">
+<h2>11. Gradient Checking</h2>
+<p>Menurunkan rumus backprop itu mudah salah: lupa satu tanda minus, lupa turunan aktivasi, salah indeks. Dan yang membuat repot, <b>jaringan yang gradiennya salah tetap bisa "berjalan"</b>; ia hanya belajar lebih buruk atau tidak belajar, tanpa pesan galat apa pun. Obatnya adalah <i>gradient checking</i>: bandingkan gradien dari backprop dengan gradien yang dihitung langsung dari <b>definisi turunan</b>.</p>
+<div class="rumus"><span class="fr"><span>∂L</span><span>∂θ</span></span> ≈ <span class="fr"><span>L(θ + ε) − L(θ − ε)</span><span>2ε</span></span><small>beda hingga terpusat (<i>central difference</i>): geser θ sedikit ke dua arah, lihat selisih loss. ε kecil, mis. 10<sup>−5</sup></small></div>
+<p>Contoh untuk <i>v</i><sub>1</sub> pada jaringan kita dengan ε = 0,001: <i>L</i>(0,601) = 0,078769 dan <i>L</i>(0,599) = 0,078887. Maka (0,078769 − 0,078887) / 0,002 = <b>−0,059169</b>, sedangkan backprop memberi <b>−0,059169</b>. Identik sampai 6 digit. Untuk semua parameter, dengan ε = 10<sup>−5</sup>:</p>
+<div class="tbl"><table>
+  <tr><th>Parameter</th><th class="num">Backprop</th><th class="num">Numerik</th><th class="num">Galat relatif</th></tr>
+  <tr><td>w₁₁</td><td class="num">−0,01340331</td><td class="num">−0,01340331</td><td class="num">4,2·10⁻¹¹</td></tr>
+  <tr><td>w₁₂</td><td class="num">−0,00670165</td><td class="num">−0,00670165</td><td class="num">1,1·10⁻¹⁰</td></tr>
+  <tr><td>b₁</td><td class="num">−0,01340331</td><td class="num">−0,01340331</td><td class="num">4,2·10⁻¹¹</td></tr>
+  <tr><td>w₂₁</td><td class="num">+0,00904030</td><td class="num">+0,00904030</td><td class="num">7,8·10⁻¹¹</td></tr>
+  <tr><td>w₂₂</td><td class="num">+0,00452015</td><td class="num">+0,00452015</td><td class="num">1,9·10⁻¹⁰</td></tr>
+  <tr><td>b₂</td><td class="num">+0,00904030</td><td class="num">+0,00904030</td><td class="num">7,8·10⁻¹¹</td></tr>
+  <tr><td>v₁</td><td class="num">−0,05916938</td><td class="num">−0,05916938</td><td class="num">1,8·10⁻¹²</td></tr>
+  <tr><td>v₂</td><td class="num">−0,03701163</td><td class="num">−0,03701163</td><td class="num">2,7·10⁻¹¹</td></tr>
+  <tr><td>c</td><td class="num">−0,09505742</td><td class="num">−0,09505742</td><td class="num">5,4·10⁻¹²</td></tr>
+</table></div>
+<p>Galat relatif didefinisikan |<i>a</i> − <i>n</i>| / (|<i>a</i>| + |<i>n</i>|) dengan <i>a</i> = gradien backprop dan <i>n</i> = gradien numerik. Semua di bawah 10<sup>−9</sup>: backprop kita benar.</p>
+<div class="tbl"><table>
+  <tr><th>Galat relatif</th><th>Penilaian</th></tr>
+  <tr><td>&lt; 10⁻⁷</td><td class="pass">Sangat baik (pembulatan komputer)</td></tr>
+  <tr><td>10⁻⁷ sampai 10⁻⁴</td><td>Mencurigakan; periksa lagi (sering wajar bila ada ReLU di dekat 0)</td></tr>
+  <tr><td>&gt; 10⁻³</td><td class="fail">Hampir pasti ada <i>bug</i> pada backprop</td></tr>
+</table></div>
+
+<div class="demo">
+  <h4>Simulasi 9 · Gradient checking dan penyuntik bug</h4>
+  <p>Pilih ukuran ε dan jenis beda hingga. Lalu <b>suntikkan bug</b> ke backprop dan lihat bagaimana gradient checking menangkapnya. Perhatikan juga apa yang terjadi bila ε terlalu besar (galat pemotongan) atau terlalu kecil (galat pembulatan komputer).</p>
+  <div class="controls">
+    <label>ε:&nbsp;<select class="inp" id="s9E"><option value="0.1">10⁻¹</option><option value="0.001">10⁻³</option><option value="0.00001" selected>10⁻⁵</option><option value="1e-8">10⁻⁸</option><option value="1e-11">10⁻¹¹</option><option value="1e-14">10⁻¹⁴</option></select></label>
+    <label>Beda hingga:&nbsp;<select class="inp" id="s9M"><option value="c" selected>terpusat (L(θ+ε) − L(θ−ε)) / 2ε</option><option value="f">maju (L(θ+ε) − L(θ)) / ε</option></select></label>
+    <label>Bug:&nbsp;<select class="inp" id="s9B"><option value="0" selected>tanpa bug</option><option value="1">lupa turunan sigmoid di lapisan hidden</option><option value="2">salah tanda pada δ keluaran</option><option value="3">lupa mengalikan x pada gradien w</option><option value="4">memakai v yang sudah diperbarui (urutan salah)</option></select></label>
+  </div>
+  <div class="tbl"><table id="s9Tbl"></table></div>
+  <div class="msg" id="s9Msg"></div>
+</div>
+<div class="box warn"><strong>⚠️ Catatan praktis</strong>
+  <ul>
+    <li>Gradient checking <b>sangat lambat</b> (2 forward pass per parameter), jadi dipakai sekali saat mengembangkan atau mengubah kode backprop, bukan saat pelatihan sungguhan. Pada jaringan besar cukup periksa beberapa parameter acak.</li>
+    <li>Matikan hal acak (<i>dropout</i>) saat memeriksa, dan pakai presisi ganda (64-bit) agar galat pembulatan kecil.</li>
+    <li>Pustaka seperti PyTorch dan TensorFlow menghitung gradien otomatis (<i>autograd</i>) dengan prinsip yang sama persis dengan modul ini: simpan graf komputasi saat maju, lalu kalikan turunan lokal saat mundur. Memahami backprop manual membuatmu bisa mendiagnosis saat <i>autograd</i> menghasilkan sesuatu yang aneh.</li>
+  </ul>
+</div>
+</section>
+
+<!-- 12 -->
+<section id="latih">
+<h2>12. Melatih Jaringan: XOR</h2>
+<p>Satu iterasi hanya menggeser bobot sedikit. Pelatihan sesungguhnya adalah <b>mengulang</b> siklus maju → loss → mundur → perbarui pada banyak contoh, ribuan kali. Istilah yang perlu diketahui:</p>
+<div class="tbl"><table>
+  <tr><th>Istilah</th><th>Artinya</th></tr>
+  <tr><td><b>Iterasi / langkah</b></td><td>Satu kali pembaruan bobot.</td></tr>
+  <tr><td><b>Epoch</b></td><td>Satu putaran penuh melewati seluruh data latih.</td></tr>
+  <tr><td><b>Batch (full-batch)</b></td><td>Gradien dihitung dari <i>seluruh</i> data (rata-rata gradien tiap contoh), lalu satu pembaruan. Simulator di bawah memakai ini; satu epoch = satu iterasi.</td></tr>
+  <tr><td><b>Mini-batch / SGD</b></td><td>Gradien dihitung dari potongan kecil data (mis. 32 contoh), jadi satu epoch berisi banyak pembaruan. Lebih cepat dan "berisik" dengan cara yang berguna; standar pada data besar.</td></tr>
+</table></div>
+
+<h3>Mengapa XOR?</h3>
+<p><b>XOR</b> ("salah satu saja"): keluarannya 1 bila tepat satu masukan bernilai 1. Dulu XOR menjadi contoh terkenal masalah yang <b>tidak bisa</b> dipecahkan satu neuron (tanpa lapisan tersembunyi), karena kedua kelas tidak bisa dipisahkan satu garis lurus:</p>
+<div class="grid2">
+  <div class="tbl"><table>
+    <tr><th class="c2">x₁</th><th class="c2">x₂</th><th class="c2">XOR</th></tr>
+    <tr><td class="c2">0</td><td class="c2">0</td><td class="c2">0</td></tr>
+    <tr><td class="c2">0</td><td class="c2">1</td><td class="c2"><b>1</b></td></tr>
+    <tr><td class="c2">1</td><td class="c2">0</td><td class="c2"><b>1</b></td></tr>
+    <tr><td class="c2">1</td><td class="c2">1</td><td class="c2">0</td></tr>
+  </table></div>
+  <div class="diagram narrow"><svg viewBox="0 0 260 220" role="img" aria-label="Titik XOR pada bidang">
+    <rect x="30" y="20" width="200" height="170" fill="var(--surface)" stroke="var(--border)"/>
+    <g text-anchor="middle" font-size="11" fill="var(--muted)"><text x="50" y="206">0</text><text x="210" y="206">1</text><text x="130" y="216">x₁</text><text x="18" y="172">0</text><text x="18" y="52">1</text><text x="8" y="112">x₂</text></g>
+    <circle cx="50" cy="170" r="14" fill="var(--bad)"/><text x="50" y="175" text-anchor="middle" fill="#fff" font-weight="700">0</text>
+    <circle cx="210" cy="170" r="14" fill="var(--accent)"/><text x="210" y="175" text-anchor="middle" fill="#fff" font-weight="700">1</text>
+    <circle cx="50" cy="40" r="14" fill="var(--accent)"/><text x="50" y="45" text-anchor="middle" fill="#fff" font-weight="700">1</text>
+    <circle cx="210" cy="40" r="14" fill="var(--bad)"/><text x="210" y="45" text-anchor="middle" fill="#fff" font-weight="700">0</text>
+    <path d="M30 110L230 100" stroke="var(--muted)" stroke-dasharray="5 4" fill="none"/><text x="130" y="94" text-anchor="middle" font-size="10.5" fill="var(--muted)">garis mana pun salah</text>
+  </svg></div>
+</div>
+<p>Dengan satu lapisan tersembunyi, masalah jadi terpecahkan: neuron hidden pertama bisa belajar "x₁ ATAU x₂", yang kedua "x₁ DAN x₂", dan neuron keluaran menggabungkan: "ATAU tetapi bukan DAN". Lapisan tersembunyi mengubah ruang masukan menjadi ruang baru yang <i>bisa</i> dipisahkan garis lurus. Dan <b>backprop-lah yang menemukan</b> bobot-bobot itu sendiri, tanpa diberi tahu.</p>
+
+<div class="demo">
+  <h4>Simulasi 10 · Playground: melatih jaringan di browser</h4>
+  <p>Ini jaringan sungguhan yang berlatih langsung di halaman ini, memakai persis rumus backprop di Bagian 8. Peta warna adalah jawaban jaringan untuk setiap titik; titik adalah data. Di diagram jaringan, garis <span style="color:var(--accent);font-weight:700">biru</span> = bobot positif, <span style="color:var(--bad);font-weight:700">merah</span> = bobot negatif, makin tebal makin besar.</p>
+  <div class="two">
+    <div>
+      <div class="chips" id="s10Data"></div>
+      <div class="controls">
+        <label>Lapisan tersembunyi:&nbsp;<select class="inp" id="s10L"><option value="1" selected>1 (jaringan 3 lapisan)</option><option value="2">2 (jaringan 4 lapisan)</option></select></label>
+        <label>Neuron per lapisan:&nbsp;<select class="inp" id="s10N"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>6</option></select></label>
+        <label>Aktivasi hidden:&nbsp;<select class="inp" id="s10A"><option value="tanh" selected>tanh</option><option value="sigmoid">sigmoid</option><option value="relu">ReLU</option></select></label>
+        <label>Loss:&nbsp;<select class="inp" id="s10Loss"><option value="mse">kuadrat selisih</option><option value="bce" selected>cross-entropy</option></select></label>
+        <label>Inisialisasi:&nbsp;<select class="inp" id="s10I"><option value="acak" selected>acak kecil (benar)</option><option value="nol">semua nol</option><option value="sama">semua sama (0,5)</option><option value="besar">acak besar</option></select></label>
+        <label class="range">η <input type="range" id="s10E" min="-2" max="1" step="0.05" value="-0.3"><b id="s10Ev"></b></label>
+      </div>
+      <div class="controls">
+        <button class="btn primary" id="s10Play">▶ Latih</button>
+        <button class="btn" id="s10Step">+1 epoch</button>
+        <button class="btn" id="s10Step100">+100 epoch</button>
+        <button class="btn" id="s10Reset">↺ Reset (acak ulang)</button>
+      </div>
+      <div class="kpi" id="s10Kpi"></div>
+      <div class="msg" id="s10Msg"></div>
+    </div>
+    <div>
+      <canvas class="cv" id="s10Cv" width="400" height="400" aria-label="Peta jawaban jaringan dan data"></canvas>
+      <div class="legend"><span><span class="dot" style="background:var(--accent)"></span>kelas 1 (ŷ → 1)</span><span><span class="dot" style="background:var(--bad)"></span>kelas 0 (ŷ → 0)</span></div>
+    </div>
+  </div>
+  <div class="two" style="margin-top:10px">
+    <div><p class="mini" style="margin-top:0">Jaringan (tebal garis = |bobot|)</p><svg class="netsvg" id="s10Svg" viewBox="0 0 520 280" role="img" aria-label="Diagram jaringan"></svg></div>
+    <div><p class="mini" style="margin-top:0">Loss selama pelatihan</p><canvas class="cv" id="s10Loss2" width="520" height="280" aria-label="Kurva loss"></canvas></div>
+  </div>
+</div>
+<div class="box tip"><strong>🧪 Coba ini (urutan yang disarankan)</strong>
+  <ol>
+    <li><b>XOR, 1 lapisan, 2 neuron, tanh</b>, klik Latih. Biasanya dalam beberapa ratus epoch peta terbagi dua diagonal dan akurasi 100%. Bila macet di ~75%, tekan Reset: bobot awal acak memengaruhi hasil (kadang terjebak di dataran).</li>
+    <li>Ubah neuron menjadi <b>1</b>. XOR <i>tidak bisa</i> dipecahkan: akurasi mentok. Satu neuron hidden belum cukup membengkokkan ruang.</li>
+    <li>Kembali ke 2 neuron, ganti inisialisasi menjadi <b>semua nol</b> atau <b>semua sama</b>. Loss tidak turun sebagaimana mestinya. Pada "semua sama", dua neuron hidden menerima gradien yang <i>persis sama</i>, sehingga selamanya identik (<i>symmetry problem</i>); itulah mengapa bobot awal harus <b>acak</b>.</li>
+    <li>Kembalikan ke acak lalu naikkan η mendekati 10 (geser ke kanan): loss berosilasi atau meledak. Turunkan ke 0,02: belajar sangat lambat.</li>
+    <li>Pilih data <b>Lingkaran</b>. 2 neuron biasanya kurang; coba 4 atau 6 neuron, atau 2 lapisan.</li>
+    <li>Bandingkan <b>kuadrat selisih</b> dengan <b>cross-entropy</b> pada aktivasi sigmoid: cross-entropy umumnya turun lebih cepat di awal (Bagian 14).</li>
+  </ol>
+</div>
+</section>
+
+<!-- 13 -->
+<section id="matriks">
+<h2>13. Bentuk Matriks &amp; Kode</h2>
+<p>Menulis backprop per neuron seperti di Bagian 9 baik untuk belajar, tetapi dalam praktik semuanya ditulis sebagai <b>operasi matriks</b>: lebih singkat, jauh lebih cepat (GPU dan pustaka aljabar linear sangat mahir mengalikan matriks), dan langsung memproses banyak contoh sekaligus. Dengan <i>N</i> contoh dalam satu batch (satu baris = satu contoh), bentuk matriks BP1–BP4 menjadi:</p>
+<div class="tbl"><table>
+  <tr><th>Tahap</th><th>Rumus (NumPy)</th><th>Bentuk pada 2 – 2 – 1</th></tr>
+  <tr><td>Maju</td><td><code>Z = A_prev @ W.T + b</code>, <code>A = f(Z)</code></td><td><code>X (N×2) → Z₂ (N×2) → A₂ (N×2) → Z₃ (N×1) → ŷ (N×1)</code></td></tr>
+  <tr><td>δ keluaran</td><td><code>D3 = (Y_hat - T) * f'(Z3) / N</code></td><td><code>(N×1)</code>; dibagi <i>N</i> karena loss adalah <b>rata-rata</b></td></tr>
+  <tr><td>Gradien bobot</td><td><code>gW = D.T @ A_prev</code></td><td><code>gW₃ (1×2)</code>, <code>gW₂ (2×2)</code></td></tr>
+  <tr><td>Gradien bias</td><td><code>gb = D.sum(axis=0)</code></td><td><code>gb₃ (1)</code>, <code>gb₂ (2)</code></td></tr>
+  <tr><td>Mundur satu lapisan</td><td><code>D_prev = (D @ W) * f'(Z_prev)</code></td><td><code>D₂ (N×2) = (D₃ @ W₃) * f'(Z₂)</code></td></tr>
+  <tr><td>Perbarui</td><td><code>W -= eta * gW</code>, <code>b -= eta * gb</code></td><td>bentuk tidak berubah</td></tr>
+</table></div>
+<p>Cara cepat memeriksa tidak salah: <b>bentuk gradien harus sama persis dengan bentuk parameternya</b> (<code>gW.shape == W.shape</code>). Bila tidak, ada transpos yang terlewat.</p>
+
+<h3>Kode 1 · Contoh 2 – 2 – 1 persis seperti di Bagian 9</h3>
+<p>Kode ini sengaja tidak memakai pustaka khusus pelatihan agar setiap baris bisa dicocokkan dengan hitungan tangan. Perhatikan: angka keluarannya <b>sama</b> dengan Bagian 9.</p>
+<div class="codewrap"><div class="codecap"><span>bp_2_2_1.py</span><span>Python + NumPy</span></div><pre><code class="py">import numpy as np
+
+def sigmoid(z):
+    return 1.0 / (1.0 + np.exp(-z))
+
+# ---- data dan parameter awal (sama dengan contoh di modul) ----
+x = np.array([1.0, 0.5])          # masukan x1, x2
+t = 1.0                           # target
+eta = 0.5                         # learning rate
+W1 = np.array([[0.2, 0.4],        # baris j = neuron hidden j; kolom k = masukan k
+               [-0.5, 0.3]])
+b1 = np.array([0.1, -0.1])
+v = np.array([0.6, -0.4])         # bobot hidden -> output
+c = 0.2                           # bias output
+
+# ---- maju ----
+z = W1 @ x + b1                   # z1, z2
+h = sigmoid(z)                    # h1, h2
+u = v @ h + c
+y = sigmoid(u)                    # y-topi
+L = 0.5 * (t - y) ** 2
+print(f"z = {z.round(4)}  h = {h.round(4)}  u = {u:.4f}  y = {y:.4f}  L = {L:.4f}")
+
+# ---- mundur ----
+delta_o = (y - t) * y * (1 - y)             # dL/du
+g_v = delta_o * h                           # dL/dv
+g_c = delta_o                               # dL/dc
+delta_h = (v * delta_o) * h * (1 - h)       # dL/dz1, dL/dz2
+g_W1 = np.outer(delta_h, x)                 # dL/dW1
+g_b1 = delta_h                              # dL/db1
+print(f"delta_o = {delta_o:.4f}  delta_h = {delta_h.round(4)}")
+print("g_v =", g_v.round(4), " g_c =", round(g_c, 4))
+print("g_W1 =", g_W1.round(4).tolist(), " g_b1 =", g_b1.round(4))
+
+# ---- perbarui ----
+W1 -= eta * g_W1; b1 -= eta * g_b1
+v  -= eta * g_v;  c  -= eta * g_c
+print("W1 baru =", W1.round(4).tolist(), " b1 baru =", b1.round(4))
+print("v baru =", v.round(4), " c baru =", round(c, 4))
+
+# ---- maju lagi: loss harus turun ----
+h = sigmoid(W1 @ x + b1); y = sigmoid(v @ h + c)
+print(f"y baru = {y:.4f}  L baru = {0.5 * (t - y) ** 2:.4f}")</code></pre></div>
+<div class="outwrap"><div class="codecap"><span>keluaran</span><span>python bp_2_2_1.py</span></div><pre>z = [ 0.5  -0.45]  h = [0.6225 0.3894]  u = 0.4177  y = 0.6029  L = 0.0788
+delta_o = -0.0951  delta_h = [-0.0134  0.009 ]
+g_v = [-0.0592 -0.037 ]  g_c = -0.0951
+g_W1 = [[-0.0134, -0.0067], [0.009, 0.0045]]  g_b1 = [-0.0134  0.009 ]
+W1 baru = [[0.2067, 0.4034], [-0.5045, 0.2977]]  b1 baru = [ 0.1067 -0.1045]
+v baru = [ 0.6296 -0.3815]  c baru = 0.2475
+y baru = 0.6211  L baru = 0.0718</pre></div>
+
+<h3>Kode 2 · Jaringan berlapis sembarang, melatih XOR</h3>
+<p>Versi umum: daftar ukuran lapisan bebas (<code>[2, 4, 1]</code>, <code>[2, 8, 8, 1]</code>, dan seterusnya), bentuk matriks, hidden tanh, keluaran sigmoid, dan loss binary cross-entropy (sehingga δ keluaran = <code>y - t</code>). Loop <code>for l in range(len(W)-1, -1, -1)</code> di <code>mundur</code> adalah BP2–BP4 yang diulang dari lapisan terakhir ke pertama. Sebelum melatih, kode memeriksa dirinya dengan <i>gradient checking</i>.</p>
+<div class="codewrap"><div class="codecap"><span>mlp_nol.py</span><span>Python + NumPy</span></div><pre><code class="py">import numpy as np
+
+class MLP:
+    """Jaringan berlapis penuh: hidden tanh, output sigmoid, loss binary cross-entropy."""
+    def __init__(self, ukuran, seed=0):
+        rng = np.random.default_rng(seed)
+        self.W = [rng.normal(0, np.sqrt(1 / m), (n, m)) for m, n in zip(ukuran[:-1], ukuran[1:])]
+        self.b = [np.zeros(n) for n in ukuran[1:]]
+
+    def maju(self, X):
+        A = [X]                                   # X: (N, fitur)
+        for l, (W, b) in enumerate(zip(self.W, self.b)):
+            Z = A[-1] @ W.T + b
+            A.append(1 / (1 + np.exp(-Z)) if l == len(self.W) - 1 else np.tanh(Z))
+        return A
+
+    def loss(self, X, T):
+        y = self.maju(X)[-1]
+        return -np.mean(T * np.log(y) + (1 - T) * np.log(1 - y))
+
+    def mundur(self, X, T):
+        A = self.maju(X)
+        N = len(X)
+        delta = (A[-1] - T) / N                   # sigmoid + BCE: delta = y - t
+        gW, gb = [], []
+        for l in range(len(self.W) - 1, -1, -1):
+            gW.insert(0, delta.T @ A[l])          # dL/dW(l)
+            gb.insert(0, delta.sum(axis=0))       # dL/db(l)
+            if l > 0:                             # kirim kesalahan ke lapisan sebelumnya
+                delta = (delta @ self.W[l]) * (1 - A[l] ** 2)
+        return gW, gb
+
+    def latih(self, X, T, eta, epoch, tiap=500):
+        for e in range(epoch + 1):
+            if e % tiap == 0:
+                print(f"epoch {e:5d}  loss = {self.loss(X, T):.4f}")
+            gW, gb = self.mundur(X, T)
+            for l in range(len(self.W)):
+                self.W[l] -= eta * gW[l]
+                self.b[l] -= eta * gb[l]
+
+# XOR
+X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]], dtype=float)
+T = np.array([[0], [1], [1], [0]], dtype=float)
+
+net = MLP([2, 4, 1], seed=1)
+
+# gradient checking sebelum melatih
+gW, gb = net.mundur(X, T)
+eps, galat = 1e-6, 0.0
+for l in range(len(net.W)):
+    for idx in np.ndindex(net.W[l].shape):
+        asli = net.W[l][idx]
+        net.W[l][idx] = asli + eps; Lp = net.loss(X, T)
+        net.W[l][idx] = asli - eps; Lm = net.loss(X, T)
+        net.W[l][idx] = asli
+        galat = max(galat, abs((Lp - Lm) / (2 * eps) - gW[l][idx]))
+print(f"selisih terbesar backprop vs numerik: {galat:.2e}")
+
+net.latih(X, T, eta=0.5, epoch=2000, tiap=500)
+print("prediksi XOR:", net.maju(X)[-1].ravel().round(3))</code></pre></div>
+<div class="outwrap"><div class="codecap"><span>keluaran</span><span>python mlp_nol.py</span></div><pre>selisih terbesar backprop vs numerik: 9.34e-11
+epoch     0  loss = 0.6897
+epoch   500  loss = 0.0121
+epoch  1000  loss = 0.0053
+epoch  1500  loss = 0.0034
+epoch  2000  loss = 0.0025
+prediksi XOR: [0.    0.997 0.997 0.004]</pre></div>
+<p>Jaringan 2 – 4 – 1 ini memecahkan XOR: prediksi mendekati 0, 1, 1, 0. Gradient check menunjukkan selisih terbesar hanya 9,34·10⁻¹¹, jadi <code>mundur</code> benar. Untuk menjadikannya jaringan dengan dua lapisan tersembunyi cukup mengganti <code>[2, 4, 1]</code> menjadi <code>[2, 4, 4, 1]</code>; tidak ada baris lain yang berubah, karena loop sudah menangani lapisan sebanyak apa pun.</p>
+<div class="box note"><strong>🔗 Hubungan dengan PyTorch/TensorFlow</strong> Pemanggilan <code>loss.backward()</code> di PyTorch menjalankan persis ide ini: tiap operasi mencatat turunan lokalnya saat forward, lalu <code>backward()</code> mengalikan semuanya dari loss ke belakang dan mengisi <code>.grad</code> tiap parameter. Yang berbeda hanya otomatisasinya. Modul <a href="02-cnn-angka-langkah-demi-langkah.html">Membedah CNN Angka</a> menerapkan backprop yang sama pada lapisan konvolusi, ReLU, pooling, dan softmax.</div>
+</section>
+
+<!-- 14 -->
+<section id="masalah">
+<h2>14. Masalah Praktis</h2>
+<p>Rumus backprop sudah kamu kuasai. Berikut hal-hal yang menentukan apakah pelatihan benar-benar berhasil di dunia nyata.</p>
+
+<h3>14.1 Learning rate</h3>
+<p>Sudah terlihat di Simulasi 5 dan 10. η terlalu kecil → lambat dan mudah terjebak di dataran; η terlalu besar → loss berosilasi atau meledak (bahkan menjadi <code>nan</code>). Tidak ada nilai ajaib: umumnya dicoba beberapa orde (0,001; 0,01; 0,1), dan optimizer modern seperti <b>Adam</b> menyesuaikan langkah tiap bobot secara otomatis.</p>
+
+<h3>14.2 Saturasi: kenapa cross-entropy lebih disukai</h3>
+<p>Ingat σ′(<i>u</i>) hampir 0 bila |<i>u</i>| besar. Dengan kuadrat selisih, δ<sub>o</sub> = (ŷ − <i>t</i>)·σ′(<i>u</i>). Jadi bila neuron keluaran <b>sangat yakin tapi salah</b> (mis. <i>u</i> = −6 → ŷ = 0,0025 padahal <i>t</i> = 1), turunan sigmoidnya sekitar 0,0025, dan gradiennya nyaris nol: jaringan <i>macet justru ketika paling salah</i>. Dengan cross-entropy, faktor σ′ meniadakan dirinya sendiri, dan δ<sub>o</sub> = ŷ − <i>t</i> tetap besar.</p>
+<div class="demo">
+  <h4>Simulasi 11 · Gradien keluaran: kuadrat selisih vs cross-entropy</h4>
+  <p>Sumbu datar adalah <i>u</i> (sebelum sigmoid) dengan target <i>t</i> = 1. Kurva menunjukkan besarnya sinyal kesalahan |δ<sub>o</sub>|. Geser <i>u</i> ke kiri (jaringan yakin salah).</p>
+  <div class="controls"><label class="range">u <input type="range" id="s11u" min="-8" max="8" step="0.1" value="-4"><b id="s11uv"></b></label></div>
+  <canvas class="cv" id="s11Cv" width="760" height="280" aria-label="Besar sinyal kesalahan terhadap u"></canvas>
+  <div class="legend"><span><span class="dot" style="background:var(--accent)"></span>kuadrat selisih: |(ŷ − 1)·ŷ(1 − ŷ)|</span><span><span class="dot" style="background:var(--bad)"></span>cross-entropy: |ŷ − 1|</span></div>
+  <div class="kpi" id="s11Kpi"></div>
+  <div class="msg" id="s11Msg"></div>
+</div>
+
+<h3>14.3 Vanishing gradient (gradien menghilang)</h3>
+<p>Di BP2, δ dikalikan <i>f</i>′(<i>z</i>) di <b>setiap lapisan</b> yang dilewati. Bila <i>f</i>′ ≤ 0,25 (sigmoid) dan bobotnya tidak besar, gradien dikali angka kecil berulang-ulang: setelah 10 lapisan, 0,25<sup>10</sup> ≈ 10<sup>−6</sup>. Lapisan-lapisan awal praktis <b>tidak belajar</b>. Kebalikannya, bila faktor-faktor itu &gt; 1 gradien <b>meledak</b> (<i>exploding gradient</i>).</p>
+<p>Solusi yang dipakai luas: aktivasi <b>ReLU</b> (turunan 1 di sisi positif) dan keluarganya, inisialisasi yang tepat (Xavier/He), <i>batch normalization</i>, <i>residual connection</i> (jalan pintas yang mengalirkan gradien langsung), dan <i>gradient clipping</i> untuk yang meledak.</p>
+<div class="demo">
+  <h4>Simulasi 12 · Gradien tiap lapisan pada jaringan dalam</h4>
+  <p>Jaringan acak dengan lebar 8 neuron per lapisan tersembunyi. Batang menunjukkan norma gradien bobot tiap lapisan (rata-rata 30 jaringan acak), skala logaritmik. Lapisan 1 paling dekat masukan, lapisan terakhir paling dekat keluaran. Naikkan kedalaman dan bandingkan sigmoid dengan ReLU.</p>
+  <div class="controls">
+    <label class="range">kedalaman <input type="range" id="s12d" min="2" max="20" step="1" value="10"><b id="s12dv"></b></label>
+    <span class="chips" id="s12A"></span>
+  </div>
+  <div id="s12Bars"></div>
+  <div class="kpi" id="s12Kpi"></div>
+  <div class="msg" id="s12Msg"></div>
+</div>
+
+<h3>14.4 Dead ReLU</h3>
+<p>Turunan ReLU adalah 0 bila <i>z</i> ≤ 0. Bila sebuah neuron kebetulan selalu mendapat <i>z</i> negatif (mis. setelah pembaruan terlalu besar), gradiennya selalu 0 dan ia <b>mati</b> permanen. Obat: η tidak terlalu besar, inisialisasi baik, atau varian seperti <i>Leaky ReLU</i> yang punya kemiringan kecil di sisi negatif.</p>
+
+<h3>14.5 Inisialisasi bobot</h3>
+<p>Bobot tidak boleh semuanya sama (simetri tak pernah pecah, Simulasi 10), dan skalanya harus pantas: terlalu besar → neuron jenuh dan gradien hilang; terlalu kecil → sinyal melemah di jaringan dalam. Aturan praktis: <b>Xavier</b> (varians 1/<i>n</i><sub>in</sub>) untuk tanh/sigmoid, <b>He</b> (varians 2/<i>n</i><sub>in</sub>) untuk ReLU. Bias biasanya diawali 0.</p>
+
+<h3>14.6 Overfitting</h3>
+<p>Jaringan yang cukup besar bisa menghafal data latih, termasuk <i>noise</i>-nya, lalu gagal pada data baru. Selalu sisihkan <b>data validasi</b> dan pantau loss-nya. Perlengkapan standar: lebih banyak data atau augmentasi, <i>weight decay</i> (L2), <i>dropout</i>, jaringan lebih kecil, dan <i>early stopping</i> (berhenti saat loss validasi mulai naik).</p>
+
+<h3>Tabel gejala dan penyebab</h3>
+<div class="tbl"><table>
+  <tr><th>Gejala</th><th>Curigai</th></tr>
+  <tr><td>Loss tidak turun sama sekali</td><td>η terlalu kecil atau terlalu besar; gradien salah (jalankan gradient check); data/label tidak cocok; semua bobot awal sama atau nol</td></tr>
+  <tr><td>Loss menjadi <code>nan</code> atau <code>inf</code></td><td>η terlalu besar (gradien meledak); <code>log(0)</code> pada cross-entropy tanpa pengaman; pembagian dengan nol</td></tr>
+  <tr><td>Lapisan awal tidak berubah</td><td><i>Vanishing gradient</i>: sigmoid/tanh di jaringan dalam; coba ReLU dan inisialisasi He</td></tr>
+  <tr><td>Banyak neuron selalu keluar 0</td><td><i>Dead ReLU</i>; turunkan η, periksa inisialisasi</td></tr>
+  <tr><td>Loss latih turun, loss validasi naik</td><td><i>Overfitting</i>: regularisasi, data lebih banyak, early stopping</td></tr>
+  <tr><td>Loss turun lalu mendatar tinggi</td><td>Kapasitas kurang (tambah neuron/lapisan), terjebak di dataran/titik pelana, atau η perlu dijadwalkan turun</td></tr>
+  <tr><td>Hasil pelatihan beda tiap dijalankan</td><td>Wajar: bobot awal acak dan urutan data acak. Tetapkan <i>seed</i> untuk membandingkan</td></tr>
+</table></div>
+</section>
+
+<!-- 15 -->
+<section id="latihan">
+<h2>15. Latihan Hitung Sendiri</h2>
+<p>Cara terbaik memastikan paham adalah menghitung sendiri. Mulailah dengan generator soal acak (dikoreksi otomatis), lalu kerjakan soal tertulis dan cocokkan dengan kunci.</p>
+<div class="demo ex">
+  <h4>Simulasi 13 · Generator soal 2 – 2 – 1</h4>
+  <p>Setiap klik <b>Soal baru</b> memberi jaringan dengan angka sederhana (aktivasi sigmoid, loss ½(t − ŷ)², η tidak dipakai). Hitung dengan kalkulator, isi jawaban (4 desimal; toleransi ±0,002; boleh titik atau koma), lalu <b>Periksa</b>. Kerjakan berurutan: jawaban sebelumnya dipakai di soal berikutnya.</p>
+  <div class="eq" id="s13Prob"></div>
+  <div id="s13Rows"></div>
+  <div class="controls"><button class="btn primary" id="s13Check">Periksa</button><button class="btn" id="s13Show">Tunjukkan jawaban</button><button class="btn" id="s13New">Soal baru 🎲</button></div>
+  <div class="msg" id="s13Msg">Isi minimal satu jawaban, lalu tekan Periksa.</div>
+</div>
+
+<h3>Soal tertulis</h3>
+<p><b>Soal 1.</b> Jaringan 2 – 2 – 1, sigmoid di mana-mana, loss ½(<i>t</i> − ŷ)². Diketahui <i>x</i> = (1, 0), <i>t</i> = 0, <i>w</i><sub>11</sub> = 1, <i>w</i><sub>12</sub> = −1, <i>w</i><sub>21</sub> = 0,5, <i>w</i><sub>22</sub> = 0,5, semua bias 0, <i>v</i><sub>1</sub> = 1, <i>v</i><sub>2</sub> = −1. Hitung <i>z</i>, <i>h</i>, <i>u</i>, ŷ, <i>L</i>, lalu δ<sub>o</sub>, ∂<i>L</i>/∂<i>v</i><sub>1</sub>, ∂<i>L</i>/∂<i>v</i><sub>2</sub>, δ<sub>1</sub>, δ<sub>2</sub>, dan ∂<i>L</i>/∂<i>w</i><sub>12</sub>.</p>
+<details class="sol"><summary>Kunci Soal 1</summary><div>
+  <div class="eq">z₁ = 1·1 + (−1)·0 + 0 = 1        z₂ = 0,5·1 + 0,5·0 + 0 = 0,5
+h₁ = σ(1) = 0,7311             h₂ = σ(0,5) = 0,6225
+u  = 1·0,7311 + (−1)·0,6225 + 0 = 0,1086     ŷ = σ(0,1086) = 0,5271
+L  = ½(0 − 0,5271)² = 0,1389
+
+δ_o = (ŷ − t)·ŷ(1 − ŷ) = 0,5271 × 0,5271 × 0,4729 = 0,1314
+∂L/∂v₁ = δ_o·h₁ = 0,1314 × 0,7311 = 0,0961
+∂L/∂v₂ = δ_o·h₂ = 0,1314 × 0,6225 = 0,0818
+δ₁ = v₁δ_o·h₁(1 − h₁) = 1 × 0,1314 × 0,1966 = 0,0258
+δ₂ = v₂δ_o·h₂(1 − h₂) = (−1) × 0,1314 × 0,2350 = −0,0309
+∂L/∂w₁₂ = δ₁·x₂ = 0,0258 × 0 = 0  (x₂ = 0, jadi w₁₂ dan w₂₂ tidak mendapat gradien)</div>
+</div></details>
+
+<p><b>Soal 2.</b> Hitung σ′(<i>z</i>) untuk <i>z</i> = 0 dan <i>z</i> = 4. Berapa kali lebih kecil gradien yang melewati neuron dengan <i>z</i> = 4 dibanding <i>z</i> = 0?</p>
+<details class="sol"><summary>Kunci Soal 2</summary><div>
+  <p>σ′(0) = 0,5 × 0,5 = <b>0,25</b>. σ(4) = 0,9820 sehingga σ′(4) = 0,9820 × 0,0180 = <b>0,0177</b>. Rasio: 0,25 / 0,0177 ≈ <b>14 kali</b> lebih kecil. Dua atau tiga neuron jenuh berurutan sudah cukup untuk membuat gradien hilang.</p>
+</div></details>
+
+<p><b>Soal 3.</b> Semua bobot dan bias lapisan tersembunyi diisi dengan nilai yang sama (mis. semua 0,5), begitu juga bobot keluaran. Jelaskan mengapa dua neuron hidden tidak akan pernah berbeda, sebanyak apa pun iterasinya.</p>
+<details class="sol"><summary>Kunci Soal 3</summary><div>
+  <p>Dengan parameter identik, <i>z</i><sub>1</sub> = <i>z</i><sub>2</sub> sehingga <i>h</i><sub>1</sub> = <i>h</i><sub>2</sub>. Lalu δ<sub>1</sub> = <i>v</i><sub>1</sub>δ<sub>o</sub>·σ′(<i>z</i><sub>1</sub>) dan δ<sub>2</sub> = <i>v</i><sub>2</sub>δ<sub>o</sub>·σ′(<i>z</i><sub>2</sub>) juga sama (karena <i>v</i><sub>1</sub> = <i>v</i><sub>2</sub>), sehingga semua gradien neuron 1 dan 2 sama persis, dan pembaruan menjaga keduanya tetap identik. Dua neuron berperan sebagai satu neuron: kapasitas jaringan terbuang. Solusi: inisialisasi acak untuk "memecahkan simetri".</p>
+</div></details>
+
+<p><b>Soal 4.</b> Untuk contoh Bagian 9 (ŷ = 0,6029, <i>t</i> = 1), hitung δ<sub>o</sub> bila lossnya binary cross-entropy. Bandingkan dengan δ<sub>o</sub> kuadrat selisih (−0,0951).</p>
+<details class="sol"><summary>Kunci Soal 4</summary><div>
+  <p>Cross-entropy dengan sigmoid: δ<sub>o</sub> = ŷ − <i>t</i> = 0,6029 − 1 = <b>−0,3971</b>. Itu <b>4,2 kali</b> lebih besar daripada −0,0951: pembaruan awal jauh lebih kuat ketika jawaban masih salah. Pada η yang sama, cross-entropy belajar lebih cepat di sini.</p>
+</div></details>
+
+<p><b>Soal 5.</b> Ganti aktivasi lapisan tersembunyi pada contoh Bagian 4 menjadi ReLU (keluaran tetap sigmoid). Hitung <i>h</i>, ŷ, δ<sub>o</sub>, δ<sub>1</sub>, δ<sub>2</sub>. Apa yang istimewa pada δ<sub>2</sub>?</p>
+<details class="sol"><summary>Kunci Soal 5</summary><div>
+  <div class="eq">z₁ = 0,5 → h₁ = ReLU(0,5) = 0,5        z₂ = −0,45 → h₂ = ReLU(−0,45) = 0
+u  = 0,6·0,5 + (−0,4)·0 + 0,2 = 0,5          ŷ = σ(0,5) = 0,6225
+δ_o = (0,6225 − 1) × 0,6225 × 0,3775 = −0,0887
+δ₁ = v₁δ_o × 1[z₁ &gt; 0] = 0,6 × (−0,0887) × 1 = −0,0532
+δ₂ = v₂δ_o × 1[z₂ &gt; 0] = (−0,4) × (−0,0887) × 0 = 0</div>
+  <p>δ<sub>2</sub> = 0 karena <i>z</i><sub>2</sub> negatif: pada contoh ini neuron hidden 2 "mati" sehingga bobot-bobotnya tidak berubah. Gradiennya tidak mengecil sedikit-sedikit seperti sigmoid, melainkan tepat nol.</p>
+</div></details>
+
+<p><b>Soal 6.</b> Berapa jumlah parameter jaringan 4 – 5 – 3 – 2? Tuliskan juga bentuk matriks bobot tiap lapisan (baris × kolom).</p>
+<details class="sol"><summary>Kunci Soal 6</summary><div>
+  <p><i>W</i><sup>(2)</sup>: 5×4 = 20 bobot + 5 bias = 25. <i>W</i><sup>(3)</sup>: 3×5 = 15 + 3 = 18. <i>W</i><sup>(4)</sup>: 2×3 = 6 + 2 = 8. Total <b>51</b> parameter.</p>
+</div></details>
+
+<p><b>Soal 7 (kode).</b> Ubah <code>mlp_nol.py</code> agar memakai ReLU di lapisan tersembunyi: ganti <code>np.tanh(Z)</code> dengan <code>np.maximum(Z, 0)</code> dan <code>(1 - A[l] ** 2)</code> dengan <code>(A[l] &gt; 0)</code>. Jalankan gradient check dulu. Apakah XOR tetap terpecahkan? Coba juga <code>[2, 8, 8, 1]</code>. (Petunjuk: bila gradient check sedikit meleset, itu bisa karena ada <i>z</i> yang sangat dekat 0.)</p>
+</section>
+
+<!-- 16 -->
+<section id="kuis">
+<h2>16. Kuis &amp; Cheat Sheet</h2>
+<p id="qScore">Jawab semua soal untuk melihat skormu.</p>
+<div id="quiz"></div>
+
+<h3>Cheat sheet 1 · Rumus jaringan 2 – 2 – 1</h3>
+<div class="tbl"><table>
+  <tr><th>Tahap</th><th>Rumus</th></tr>
+  <tr><td class="fwd"><b>Maju</b></td><td><span class="m">z<sub>j</sub> = w<sub>j1</sub>x<sub>1</sub> + w<sub>j2</sub>x<sub>2</sub> + b<sub>j</sub> ; h<sub>j</sub> = σ(z<sub>j</sub>) ; u = v<sub>1</sub>h<sub>1</sub> + v<sub>2</sub>h<sub>2</sub> + c ; ŷ = σ(u)</span></td></tr>
+  <tr><td class="fwd"><b>Loss</b></td><td><span class="m">L = ½(t − ŷ)²</span></td></tr>
+  <tr><td class="bwd"><b>δ keluaran</b></td><td><span class="m">δ<sub>o</sub> = (ŷ − t)·ŷ(1 − ŷ)</span> &nbsp;(cross-entropy: <span class="m">δ<sub>o</sub> = ŷ − t</span>)</td></tr>
+  <tr><td class="bwd"><b>Gradien keluaran</b></td><td><span class="m">∂L/∂v<sub>j</sub> = δ<sub>o</sub>h<sub>j</sub> ; ∂L/∂c = δ<sub>o</sub></span></td></tr>
+  <tr><td class="bwd"><b>δ hidden</b></td><td><span class="m">δ<sub>j</sub> = v<sub>j</sub>δ<sub>o</sub>·h<sub>j</sub>(1 − h<sub>j</sub>)</span></td></tr>
+  <tr><td class="bwd"><b>Gradien hidden</b></td><td><span class="m">∂L/∂w<sub>jk</sub> = δ<sub>j</sub>x<sub>k</sub> ; ∂L/∂b<sub>j</sub> = δ<sub>j</sub></span></td></tr>
+  <tr><td class="upd"><b>Perbarui</b></td><td><span class="m">θ ← θ − η·∂L/∂θ</span> (semua parameter, dari nilai lama)</td></tr>
+</table></div>
+
+<h3>Cheat sheet 2 · Lapisan sembarang dan turunan aktivasi</h3>
+<div class="tbl"><table>
+  <tr><th>Item</th><th>Rumus</th></tr>
+  <tr><td>BP1</td><td><span class="m">δ<sup>(L)</sup> = (a<sup>(L)</sup> − t) ⊙ f′(z<sup>(L)</sup>)</span></td></tr>
+  <tr><td>BP2</td><td><span class="m">δ<sup>(l)</sup> = ((W<sup>(l+1)</sup>)<sup>T</sup> δ<sup>(l+1)</sup>) ⊙ f′(z<sup>(l)</sup>)</span></td></tr>
+  <tr><td>BP3 · BP4</td><td><span class="m">∂L/∂W<sup>(l)</sup> = δ<sup>(l)</sup> (a<sup>(l−1)</sup>)<sup>T</sup> ; ∂L/∂b<sup>(l)</sup> = δ<sup>(l)</sup></span></td></tr>
+  <tr><td>σ′ (sigmoid)</td><td><span class="m">a(1 − a)</span> · maksimum 0,25</td></tr>
+  <tr><td>tanh′</td><td><span class="m">1 − a²</span> · maksimum 1</td></tr>
+  <tr><td>ReLU′</td><td>1 bila z &gt; 0, selain itu 0</td></tr>
+  <tr><td>Jumlah parameter</td><td>Σ <i>n</i><sub>l</sub>(<i>n</i><sub>l−1</sub> + 1)</td></tr>
+  <tr><td>Gradient check</td><td>(L(θ+ε) − L(θ−ε)) / 2ε, ε ≈ 10⁻⁵; galat relatif &lt; 10⁻⁷ = baik</td></tr>
+  <tr><td>Bentuk gradien</td><td>sama dengan bentuk parameternya</td></tr>
+</table></div>
+
+<div class="box note"><strong>📚 Untuk memperdalam</strong>
+  D. Rumelhart, G. Hinton, R. Williams, "Learning representations by back-propagating errors" (<i>Nature</i> 323, 1986), makalah yang mempopulerkan backprop ·
+  Michael Nielsen, <i>Neural Networks and Deep Learning</i> (buku daring gratis), Bab 2 "How the backpropagation algorithm works" ·
+  I. Goodfellow, Y. Bengio, A. Courville, <i>Deep Learning</i> (MIT Press, 2016), Bab 6 ·
+  Andrej Karpathy, "Neural Networks: Zero to Hero" (seri video) dan artikel "Yes you should understand backprop" ·
+  Stanford <b>CS231n</b>, catatan "Backpropagation, Intuitions" ·
+  X. Glorot dan Y. Bengio, "Understanding the difficulty of training deep feedforward neural networks" (2010) dan K. He dkk., "Delving Deep into Rectifiers" (2015), untuk inisialisasi ·
+  lanjutkan ke modul <a href="01-deep-learning-transformer.html">Deep Learning &amp; Transformer</a> dan <a href="02-cnn-angka-langkah-demi-langkah.html">Membedah CNN Angka</a>, yang memakai backprop yang sama pada arsitektur yang lebih besar.
+</div>
+<div class="nav-mod"><a class="btn" href="../index.html">← Beranda</a><a class="btn" href="01-deep-learning-transformer.html">Modul berikut: Deep Learning &amp; Transformer →</a><a class="btn" href="#gambaran">Ulangi dari awal ↑</a></div>
+</section>
+
+<footer>Semua angka dalam modul dihitung dengan NumPy (presisi ganda) dan dicocokkan dengan mesin backprop JavaScript yang dipakai simulasi. Gradien contoh dibuktikan dengan beda hingga (galat relatif &lt; 10⁻⁹).</footer>
+</main>
+<script>
+/* ===================== ENGINE:BEGIN =====================
+   Mesin backprop jaringan berlapis penuh dalam JavaScript (tanpa DOM). Dicocokkan dengan NumPy di Node.
+   Konvensi: net.W[l] menghubungkan lapisan l -> l+1 (baris = neuron tujuan, kolom = neuron asal);
+   cache.A[l] = aktivasi lapisan l (A[0] = masukan), cache.Z[l] = jumlah berbobot lapisan l (Z[0] = null);
+   D[l] = delta untuk lapisan l+1, yaitu dL/dZ[l+1]. */
+const ACT={
+  sigmoid:{f:z=>1/(1+Math.exp(-z)),d:(z,a)=>a*(1-a)},
+  tanh:{f:Math.tanh,d:(z,a)=>1-a*a},
+  relu:{f:z=>z>0?z:0,d:(z,a)=>z>0?1:0},
+  linear:{f:z=>z,d:()=>1}
+};
+function rngJS(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function gauss(r){let u=0,v=0;while(u===0)u=r();v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function mkNet(sizes,acts,init,rand){
+  const W=[],b=[];
+  for(let l=1;l<sizes.length;l++){
+    const nin=sizes[l-1],nout=sizes[l],relu=acts[l-1]==='relu';
+    const std=relu?Math.sqrt(2/nin):Math.sqrt(1/nin);
+    W.push(Array.from({length:nout},()=>Array.from({length:nin},()=>
+      init==='nol'?0:init==='sama'?0.5:init==='besar'?gauss(rand)*3:gauss(rand)*std)));
+    b.push(new Array(nout).fill(init==='sama'?0.5:0));
+  }
+  return {sizes:sizes.slice(),acts:acts.slice(),W,b};
+}
+function fwd(net,x){
+  const A=[x],Z=[null];let a=x;
+  for(let l=0;l<net.W.length;l++){
+    const f=ACT[net.acts[l]].f,Wl=net.W[l],bl=net.b[l],z=new Array(Wl.length),o=new Array(Wl.length);
+    for(let j=0;j<Wl.length;j++){let s=bl[j];const r=Wl[j];for(let k=0;k<r.length;k++)s+=r[k]*a[k];z[j]=s;o[j]=f(s)}
+    Z.push(z);A.push(o);a=o;
+  }
+  return {A,Z};
+}
+function lossVal(y,t,kind){
+  let s=0;
+  for(let j=0;j<y.length;j++){
+    if(kind==='bce'){const p=Math.min(1-1e-12,Math.max(1e-12,y[j]));s-=t[j]*Math.log(p)+(1-t[j])*Math.log(1-p)}
+    else s+=0.5*(t[j]-y[j])*(t[j]-y[j]);
+  }
+  return s;
+}
+function bwd(net,c,t,kind){
+  const L=net.W.length,D=new Array(L),dW=new Array(L),db=new Array(L);
+  const out=c.A[L],zL=c.Z[L],fL=ACT[net.acts[L-1]];
+  D[L-1]=out.map((y,j)=>kind==='bce'?(y-t[j]):(y-t[j])*fL.d(zL[j],y));         // BP1 (bce + sigmoid: y - t)
+  for(let l=L-2;l>=0;l--){                                                      // BP2
+    const Wn=net.W[l+1],dn=D[l+1],z=c.Z[l+1],a=c.A[l+1],df=ACT[net.acts[l]].d;
+    D[l]=a.map((_,j)=>{let s=0;for(let i=0;i<Wn.length;i++)s+=Wn[i][j]*dn[i];return s*df(z[j],a[j])});
+  }
+  for(let l=0;l<L;l++){dW[l]=D[l].map(d=>c.A[l].map(x=>d*x));db[l]=D[l].slice()}   // BP3, BP4
+  return {D,dW,db};
+}
+function zeroGrad(net){return {dW:net.W.map(M=>M.map(r=>r.map(()=>0))),db:net.b.map(v=>v.map(()=>0))}}
+function addGrad(G,g,s){for(let l=0;l<G.dW.length;l++){for(let j=0;j<G.dW[l].length;j++){G.db[l][j]+=s*g.db[l][j];for(let k=0;k<G.dW[l][j].length;k++)G.dW[l][j][k]+=s*g.dW[l][j][k]}}}
+function applyGrad(net,G,eta){for(let l=0;l<net.W.length;l++){for(let j=0;j<net.W[l].length;j++){net.b[l][j]-=eta*G.db[l][j];for(let k=0;k<net.W[l][j].length;k++)net.W[l][j][k]-=eta*G.dW[l][j][k]}}}
+function batchStep(net,X,Y,kind,eta){            // satu epoch full-batch: mengembalikan loss rata-rata SEBELUM pembaruan
+  const G=zeroGrad(net);let tot=0;const s=1/X.length;
+  for(let i=0;i<X.length;i++){const c=fwd(net,X[i]);tot+=lossVal(c.A[c.A.length-1],Y[i],kind);addGrad(G,bwd(net,c,Y[i],kind),s)}
+  applyGrad(net,G,eta);return tot*s;
+}
+/* ---- contoh 2-2-1 buatan tangan (identik dengan Bagian 4 dan 9): rumus eksplisit, bukan mesin umum ---- */
+const P0={x:[1,0.5],t:1,eta:0.5,W:[[0.2,0.4],[-0.5,0.3]],b:[0.1,-0.1],v:[0.6,-0.4],c:0.2};
+const clone=o=>JSON.parse(JSON.stringify(o));
+const sg=z=>1/(1+Math.exp(-z));
+function hitung(p){                                // semua tahap sekaligus: maju, loss, mundur, pembaruan
+  const r={};
+  r.z=[0,1].map(j=>p.W[j][0]*p.x[0]+p.W[j][1]*p.x[1]+p.b[j]);
+  r.h=r.z.map(sg);
+  r.u=p.v[0]*r.h[0]+p.v[1]*r.h[1]+p.c;
+  r.y=sg(r.u);
+  r.L=0.5*(p.t-r.y)*(p.t-r.y);
+  r.dy=r.y-p.t;                                    // dL/dy
+  r.sp=r.y*(1-r.y);                                // sigma'(u)
+  r.dO=r.dy*r.sp;                                  // delta keluaran
+  r.gv=r.h.map(h=>r.dO*h);r.gc=r.dO;
+  r.dh=p.v.map(v=>v*r.dO);                         // dL/dh
+  r.sph=r.h.map(h=>h*(1-h));
+  r.d=[0,1].map(j=>r.dh[j]*r.sph[j]);              // delta hidden
+  r.gW=[0,1].map(j=>[r.d[j]*p.x[0],r.d[j]*p.x[1]]);r.gb=r.d.slice();
+  r.nw={W:p.W.map((row,j)=>row.map((w,k)=>w-p.eta*r.gW[j][k])),b:p.b.map((b,j)=>b-p.eta*r.gb[j]),
+        v:p.v.map((v,j)=>v-p.eta*r.gv[j]),c:p.c-p.eta*r.gc};
+  return r;
+}
+function lossP(p){const h=[0,1].map(j=>sg(p.W[j][0]*p.x[0]+p.W[j][1]*p.x[1]+p.b[j]));const y=sg(p.v[0]*h[0]+p.v[1]*h[1]+p.c);return 0.5*(p.t-y)*(p.t-y)}
+function stepP(p){const r=hitung(p),q=clone(p);q.W=r.nw.W;q.b=r.nw.b;q.v=r.nw.v;q.c=r.nw.c;return q}
+function trainP(p,n){let q=clone(p);for(let i=0;i<n;i++)q=stepP(q);return q}
+/* ===================== ENGINE:END ===================== */
+
+/* ---------- util ---------- */
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const dec=(v,n)=>{if(!isFinite(v))return isNaN(v)?'NaN':v>0?'∞':'−∞';let s=Number(v).toFixed(n);if(/^-0(\.0+)?$/.test(s))s=s.slice(1);return s.replace('-','−').replace('.',',')};
+const pn=(v,n)=>v<0?'('+dec(v,n===undefined?4:n)+')':dec(v,n===undefined?4:n);          // angka negatif dibungkus kurung di dalam rumus
+const SUP={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
+const sci=(v,d)=>{if(v===0)return '0';if(!isFinite(v))return 'NaN';const [m,e]=Number(v).toExponential(d===undefined?1:d).split('e');return m.replace('.',',').replace('-','−')+'·10'+[...String(parseInt(e,10))].map(c=>SUP[c]).join('')};
+const val=id=>+$('#'+id).value;
+function bindRange(id,out,fmt,cb){const el=$('#'+id),o=$('#'+out);const f=()=>{o.textContent=fmt(+el.value);cb&&cb()};el.addEventListener('input',f);f();return el}
+function chipsHTML(items,sel){return items.map((t,i)=>`<button class="chip${i===sel?' on':''}" data-i="${i}">${t}</button>`).join('')}
+function onChips(box,cb){box.addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;cb(+b.dataset.i)})}
+function setMsg(el,cls,html){el.className='msg'+(cls?' '+cls:'');el.innerHTML=html}
+function kpi(el,items){el.innerHTML=items.map(([k,v,c])=>`<div class="${c||''}">${k}<b>${v}</b></div>`).join('')}
+
+/* ---------- warna & kanvas (mengikuti tema terang/gelap) ---------- */
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function hex2rgb(h){h=h.replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');return [0,2,4].map(i=>parseInt(h.substr(i,2),16))}
+const mixc=(a,b,t)=>a.map((v,i)=>Math.round(v+(b[i]-v)*t));
+function pal(){return {acc:cssv('--accent'),bad:cssv('--bad'),good:cssv('--good'),warn:cssv('--warn'),txt:cssv('--text'),mut:cssv('--muted'),bor:cssv('--border'),sur:cssv('--surface'),sur2:cssv('--surface-2')}}
+const REDRAW=[];
+function onRedraw(f){REDRAW.push(f);f()}
+function redrawAll(){REDRAW.forEach(f=>{try{f()}catch(e){console.error(e)}})}
+function prep(cv){
+  if(!cv._r)cv._r=cv.height/cv.width;
+  const dpr=Math.min(2,window.devicePixelRatio||1),W=cv.clientWidth||cv.width/dpr,H=Math.round(W*cv._r);
+  if(cv._w!==W||cv._dpr!==dpr){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.height=H+'px';cv._w=W;cv._dpr=dpr}
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+  return {ctx,W,H};
+}
+/* Bingkai grafik: mengembalikan fungsi konversi data -> piksel */
+function frame(ctx,W,H,xr,yr,o){
+  o=o||{};const m=Object.assign({l:44,r:14,t:12,b:34},o.m||{}),C=pal();
+  const X=x=>m.l+(x-xr[0])/(xr[1]-xr[0])*(W-m.l-m.r),Y=y=>H-m.b-(y-yr[0])/(yr[1]-yr[0])*(H-m.t-m.b);
+  ctx.font='11.5px system-ui,-apple-system,"Segoe UI",sans-serif';ctx.lineWidth=1;
+  (o.xt||[]).forEach(t=>{ctx.strokeStyle=C.bor;ctx.beginPath();ctx.moveTo(X(t),m.t);ctx.lineTo(X(t),H-m.b);ctx.stroke();
+    ctx.fillStyle=C.mut;ctx.textAlign='center';ctx.fillText((o.fx||String)(t),X(t),H-m.b+15)});
+  (o.yt||[]).forEach(t=>{ctx.strokeStyle=C.bor;ctx.beginPath();ctx.moveTo(m.l,Y(t));ctx.lineTo(W-m.r,Y(t));ctx.stroke();
+    ctx.fillStyle=C.mut;ctx.textAlign='right';ctx.fillText((o.fy||String)(t),m.l-6,Y(t)+4)});
+  ctx.strokeStyle=C.mut;ctx.lineWidth=1.4;ctx.beginPath();
+  if(yr[0]<0&&yr[1]>0){ctx.moveTo(m.l,Y(0));ctx.lineTo(W-m.r,Y(0))}
+  if(xr[0]<0&&xr[1]>0){ctx.moveTo(X(0),m.t);ctx.lineTo(X(0),H-m.b)}
+  ctx.stroke();
+  ctx.strokeStyle=C.mut;ctx.strokeRect(m.l,m.t,W-m.l-m.r,H-m.t-m.b);
+  if(o.xl){ctx.fillStyle=C.mut;ctx.textAlign='center';ctx.fillText(o.xl,(m.l+W-m.r)/2,H-3)}
+  return {X,Y,m,C};
+}
+function curve(ctx,f,xr,X,Y,color,w,dash,n,clip){
+  ctx.save();ctx.strokeStyle=color;ctx.lineWidth=w||2.4;ctx.setLineDash(dash||[]);ctx.beginPath();
+  if(clip){ctx.rect(clip[0],clip[1],clip[2],clip[3]);ctx.clip();ctx.beginPath()}
+  let first=true;n=n||240;
+  for(let i=0;i<=n;i++){const x=xr[0]+(xr[1]-xr[0])*i/n,y=f(x);if(!isFinite(y)){first=true;continue}
+    if(first){ctx.moveTo(X(x),Y(y));first=false}else ctx.lineTo(X(x),Y(y))}
+  ctx.stroke();ctx.restore();
+}
+function dot(ctx,x,y,r,fill,stroke){ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke()}}
+
+/* ---------- Sidebar, scrollspy, progres, tema, cetak ---------- */
+const sb=$('#sidebar');
+$('#menuBtn').onclick=()=>sb.classList.toggle('open');
+$$('#toc a').forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+const links=[...$$('#toc a')];
+const spy=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){links.forEach(l=>l.classList.toggle('active',l.hash==='#'+e.target.id))}
+}),{rootMargin:'-20% 0px -70% 0px'});
+$$('main section').forEach(s=>spy.observe(s));
+addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  $('#progress div').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+},{passive:true});
+$('#themeBtn').onclick=()=>{
+  const r=document.documentElement, dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme=dark?'light':'dark';
+  try{localStorage.setItem('rl-theme',r.dataset.theme)}catch(e){}
+  redrawAll();
+};
+try{const t=localStorage.getItem('rl-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>redrawAll());
+let _rz;addEventListener('resize',()=>{clearTimeout(_rz);_rz=setTimeout(redrawAll,120)});
+$('#printBtn').onclick=()=>window.print();
+
+
+
+/* ---------- Penyorot sintaks Python (+ penanda baris: #! merah, #+ hijau) ---------- */
+const PTOK=/(#.*$)|("""[^]*?"""|'''[^]*?'''|[fFrRbB]?"(?:[^"\\\n]|\\.)*"|[fFrRbB]?'(?:[^'\\\n]|\\.)*')|(@[\w.]+)|\b(and|as|assert|async|await|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|None|nonlocal|not|or|pass|raise|return|try|while|with|yield|True|False|self|cls)\b|\b(\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?)\b|\b([A-Z][A-Za-z0-9_]*)\b/g;
+function hlPy(src){
+  return src.replace(/\s+$/,'').split('\n').map(line=>{
+    let mark=null;const mm=line.match(/\s*#([!+])\s*$/);
+    if(mm){mark=mm[1];line=line.slice(0,mm.index)}
+    const h=esc(line).replace(PTOK,(x,c,s,a,k,n,t)=>c?`<span class="c">${c}</span>`:s?`<span class="s">${s}</span>`:a?`<span class="a">${a}</span>`:k?`<span class="k">${k}</span>`:n?`<span class="n">${n}</span>`:`<span class="t">${t}</span>`);
+    return mark?`<span class="ln ${mark==='!'?'bad':'good'}">${h||' '}</span>`:h;
+  }).join('\n');
+}
+$$('pre code.py').forEach(el=>{el.innerHTML=hlPy(el.textContent)});
+
+/* ================= Simulasi 1: neuron & aktivasi ================= */
+(function(){
+  let act='sigmoid';const A=['sigmoid','tanh','relu'],NM={sigmoid:'σ',tanh:'tanh',relu:'ReLU'};
+  const yr={sigmoid:[-0.1,1.1],tanh:[-1.25,1.25],relu:[-1.2,6.2]},yt={sigmoid:[0,0.25,0.5,0.75,1],tanh:[-1,-0.5,0,0.5,1],relu:[0,2,4,6]};
+  $('#s1Act').innerHTML=chipsHTML(['sigmoid','tanh','ReLU'],0);
+  const cv=$('#s1Cv');
+  function draw(){
+    const x1=val('s1x1'),x2=val('s1x2'),w1=val('s1w1'),w2=val('s1w2'),b=val('s1b');
+    const z=w1*x1+w2*x2+b,F=ACT[act],a=F.f(z),d=F.d(z,a);
+    const fnm=act==='sigmoid'?`σ(${dec(z,4)})`:act==='tanh'?`tanh(${dec(z,4)})`:`max(0; ${dec(z,4)})`;
+    $('#s1Eq').innerHTML=`z = w₁x₁ + w₂x₂ + b
+  = ${pn(w1,2)}·${pn(x1,2)} + ${pn(w2,2)}·${pn(x2,2)} + ${pn(b,2)} = <b>${dec(z,4)}</b>
+a = ${fnm} = <b>${dec(a,4)}</b>
+f′(z) = ${act==='sigmoid'?'a(1 − a)':act==='tanh'?'1 − a²':'1 bila z > 0, selain itu 0'} = <b>${dec(d,4)}</b>`;
+    kpi($('#s1Kpi'),[['z',dec(z,4)],['a = f(z)',dec(a,4),'okv'],['f′(z)',dec(d,4),d<0.05?'badv':'']]);
+    const {ctx,W,H}=prep(cv),xr=[-6,6],f=frame(ctx,W,H,xr,yr[act],{xt:[-6,-4,-2,0,2,4,6],yt:yt[act],fx:v=>dec(v,0),fy:v=>dec(v,2).replace(',00','').replace(/,(\d)0$/,',$1'),xl:'z'});
+    curve(ctx,t=>F.f(t),xr,f.X,f.Y,f.C.acc,2.8);
+    curve(ctx,t=>F.d(t,F.f(t)),xr,f.X,f.Y,f.C.bad,2,[6,5]);
+    const zc=Math.max(-6,Math.min(6,z));
+    ctx.strokeStyle=f.C.warn;ctx.lineWidth=1.6;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(f.X(zc),f.m.t);ctx.lineTo(f.X(zc),H-f.m.b);ctx.stroke();ctx.setLineDash([]);
+    dot(ctx,f.X(zc),f.Y(a),6,f.C.acc,f.C.sur);dot(ctx,f.X(zc),f.Y(d),5.5,f.C.bad,f.C.sur);
+  }
+  ['x1','x2','w1','w2','b'].forEach(k=>bindRange('s1'+k,'s1'+k+'v',v=>dec(v,1),draw));
+  onChips($('#s1Act'),i=>{act=A[i];$$('#s1Act .chip').forEach((c,j)=>c.classList.toggle('on',j===i));draw()});
+  onRedraw(draw);
+})();
+
+/* ================= Simulasi 2: penghitung parameter ================= */
+(function(){
+  const lab=['Masukan','Hidden 1','Hidden 2','Hidden 3','Keluaran'],def=[2,2,1,0,0];
+  $('#s2Ctl').innerHTML=lab.map((t,i)=>`<label>${t}:&nbsp;<input type="number" min="${i<2?1:0}" max="64" step="1" value="${def[i]}" data-i="${i}"></label>`).join('');
+  function calc(){
+    const n=[...$$('#s2Ctl input')].map(e=>Math.max(0,Math.min(64,Math.round(+e.value)||0))).filter((v,i)=>i<2||v>0);
+    if(n.length<2||n[0]<1){$('#s2Tbl').innerHTML='';return}
+    let rows='',tw=0,tb=0;
+    for(let l=1;l<n.length;l++){const w=n[l]*n[l-1],b=n[l];tw+=w;tb+=b;
+      rows+=`<tr><td>Lapisan ${l+1} ${l===n.length-1?'(keluaran)':'(hidden)'}</td><td class="num">W<sup>(${l+1})</sup>: ${n[l]} × ${n[l-1]}</td><td class="num">${w}</td><td class="num">${b}</td><td class="num"><b>${w+b}</b></td></tr>`}
+    $('#s2Tbl').innerHTML=`<tr><th>Lapisan</th><th class="num">Bentuk bobot (baris × kolom)</th><th class="num">Bobot</th><th class="num">Bias</th><th class="num">Parameter</th></tr>${rows}<tr class="hl"><td colspan="2"><b>Jaringan ${n.join(' – ')}</b></td><td class="num">${tw}</td><td class="num">${tb}</td><td class="num"><b>${tw+tb}</b></td></tr>`;
+    kpi($('#s2Kpi'),[['Jumlah lapisan',n.length],['Jumlah neuron',n.reduce((a,b)=>a+b,0)],['Total parameter',(tw+tb).toLocaleString('id-ID'),'okv']]);
+  }
+  $$('#s2Ctl input').forEach(e=>e.addEventListener('input',calc));calc();
+})();
+
+/* ================= Simulasi 3: apa jawaban jaringan? ================= */
+(function(){
+  const SRC=[{nm:'Bobot awal',p:P0},{nm:'Setelah 100 iterasi',p:trainP(P0,100)}];let k=0;
+  $('#s3Chips').innerHTML=chipsHTML(SRC.map(s=>s.nm),0);
+  const cv=$('#s3Cv'),R=4;
+  function out(p,a,b){const h=[0,1].map(j=>sg(p.W[j][0]*a+p.W[j][1]*b+p.b[j]));return sg(p.v[0]*h[0]+p.v[1]*h[1]+p.c)}
+  function draw(){
+    const p=SRC[k].p,x1=val('s3x1'),x2=val('s3x2'),pp=Object.assign({},p,{x:[x1,x2]}),r=hitung(pp);
+    $('#s3Eq').innerHTML=`z₁ = ${pn(p.W[0][0],4)}·${pn(x1,2)} + ${pn(p.W[0][1],4)}·${pn(x2,2)} + ${pn(p.b[0],4)} = ${dec(r.z[0],4)}  →  h₁ = <b>${dec(r.h[0],4)}</b>
+z₂ = ${pn(p.W[1][0],4)}·${pn(x1,2)} + ${pn(p.W[1][1],4)}·${pn(x2,2)} + ${pn(p.b[1],4)} = ${dec(r.z[1],4)}  →  h₂ = <b>${dec(r.h[1],4)}</b>
+u  = ${pn(p.v[0],4)}·${dec(r.h[0],4)} + ${pn(p.v[1],4)}·${dec(r.h[1],4)} + ${pn(p.c,4)} = ${dec(r.u,4)}
+ŷ  = σ(${dec(r.u,4)}) = <b>${dec(r.y,4)}</b>`;
+    const {ctx,W,H}=prep(cv),C=pal(),N=48,off=document.createElement('canvas');off.width=off.height=N;
+    const oc=off.getContext('2d'),img=oc.createImageData(N,N),cb=hex2rgb(C.bad),ca=hex2rgb(C.acc);
+    for(let i=0;i<N;i++)for(let j=0;j<N;j++){const a=-2+4*(j+0.5)/N,b=2-4*(i+0.5)/N,y=out(p,a,b),c=mixc(cb,ca,y),q=(i*N+j)*4;img.data[q]=c[0];img.data[q+1]=c[1];img.data[q+2]=c[2];img.data[q+3]=235}
+    oc.putImageData(img,0,0);ctx.imageSmoothingEnabled=true;ctx.drawImage(off,0,0,W,H);
+    const X=v=>(v+2)/4*W,Y=v=>(2-v)/4*H;
+    ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(X(0),0);ctx.lineTo(X(0),H);ctx.moveTo(0,Y(0));ctx.lineTo(W,Y(0));ctx.stroke();
+    ctx.fillStyle='#fff';ctx.font='11px system-ui,sans-serif';ctx.textAlign='left';ctx.fillText('x₁ →',W-34,Y(0)-4);ctx.fillText('x₂ ↑',X(0)+4,12);
+    ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.beginPath();ctx.arc(X(P0.x[0]),Y(P0.x[1]),5,0,7);ctx.stroke();       // contoh latih
+    ctx.fillStyle='#fff';ctx.fillText('contoh latih (t=1)',X(P0.x[0])-40,Y(P0.x[1])-10);
+    dot(ctx,X(x1),Y(x2),7,'#fff','#111');
+  }
+  ['x1','x2'].forEach(n=>bindRange('s3'+n,'s3'+n+'v',v=>dec(v,2),draw));
+  onChips($('#s3Chips'),i=>{k=i;$$('#s3Chips .chip').forEach((c,j)=>c.classList.toggle('on',j===i));draw()});
+  onRedraw(draw);
+})();
+
+/* ================= Simulasi 4: bentuk loss ================= */
+(function(){
+  let t=1;const cv=$('#s4Cv');
+  const mse=(y)=>0.5*(t-y)*(t-y),bce=y=>-(t*Math.log(y)+(1-t)*Math.log(1-y));
+  function draw(){
+    const y=val('s4y'),{ctx,W,H}=prep(cv),yr=[0,3],xr=[0,1],f=frame(ctx,W,H,xr,yr,{xt:[0,0.25,0.5,0.75,1],yt:[0,1,2,3],fx:v=>dec(v,2),fy:v=>dec(v,0),xl:'jawaban ŷ'});
+    curve(ctx,mse,[0.005,0.995],f.X,f.Y,f.C.acc,2.8,null,200,[f.m.l,f.m.t,W-f.m.l-f.m.r,H-f.m.t-f.m.b]);
+    curve(ctx,bce,[0.005,0.995],f.X,f.Y,f.C.bad,2.8,null,200,[f.m.l,f.m.t,W-f.m.l-f.m.r,H-f.m.t-f.m.b]);
+    ctx.strokeStyle=f.C.warn;ctx.lineWidth=1.6;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(f.X(y),f.m.t);ctx.lineTo(f.X(y),H-f.m.b);ctx.stroke();ctx.setLineDash([]);
+    ctx.strokeStyle=f.C.good;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(f.X(t),H-f.m.b);ctx.lineTo(f.X(t),H-f.m.b-14);ctx.stroke();
+    ctx.fillStyle=f.C.good;ctx.textAlign='center';ctx.fillText('target',f.X(t),H-f.m.b-18);
+    dot(ctx,f.X(y),f.Y(mse(y)),5.5,f.C.acc,f.C.sur);dot(ctx,f.X(y),Math.max(f.m.t+4,f.Y(Math.min(3,bce(y)))),5.5,f.C.bad,f.C.sur);
+    kpi($('#s4Kpi'),[['ŷ',dec(y,2)],['kuadrat selisih ½(t − ŷ)²',dec(mse(y),4)],['cross-entropy',dec(bce(y),4),bce(y)>mse(y)*3?'badv':'']]);
+  }
+  bindRange('s4y','s4yv',v=>dec(v,2),draw);
+  $('#s4T').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;t=+b.dataset.t;$$('#s4T button').forEach(x=>x.classList.toggle('on',x===b));draw()});
+  onRedraw(draw);
+})();
+
+/* ================= Simulasi 5: turun gunung 1D ================= */
+(function(){
+  const cv=$('#s5Cv'),f=w=>(w-3)*(w-3)+1,df=w=>2*(w-3);let hist=[0],timer=null;
+  function stop(){if(timer){clearInterval(timer);timer=null}$('#s5Auto').textContent='Auto ▶'}
+  function reset(){stop();hist=[val('s5w')];draw()}
+  function step(){const e=val('s5e'),w=hist[hist.length-1];hist.push(w-e*df(w));if(hist.length>400)hist.shift();draw()}
+  function draw(){
+    const e=val('s5e'),w=hist[hist.length-1],{ctx,W,H}=prep(cv),xr=[-2,8],yr=[0,27];
+    const fr=frame(ctx,W,H,xr,yr,{xt:[-2,0,2,3,4,6,8],yt:[0,5,10,15,20,25],fx:v=>dec(v,0),fy:v=>dec(v,0),xl:'w'}),clip=[fr.m.l,fr.m.t,W-fr.m.l-fr.m.r,H-fr.m.t-fr.m.b];
+    curve(ctx,f,xr,fr.X,fr.Y,fr.C.acc,2.8,null,240,clip);
+    ctx.save();ctx.beginPath();ctx.rect(...clip);ctx.clip();
+    ctx.strokeStyle=fr.C.warn;ctx.lineWidth=1.6;ctx.beginPath();
+    hist.forEach((h,i)=>{const px=fr.X(h),py=fr.Y(f(h));i?ctx.lineTo(px,py):ctx.moveTo(px,py)});ctx.stroke();
+    hist.forEach((h,i)=>{if(i<hist.length-1)dot(ctx,fr.X(h),fr.Y(f(h)),3.5,fr.C.warn)});
+    ctx.restore();
+    const last=Math.abs(w)<40?w:Math.sign(w)*40;if(last>=xr[0]&&last<=xr[1])dot(ctx,fr.X(last),fr.Y(Math.min(f(last),27)),7,fr.C.bad,fr.C.sur);
+    const fac=1-2*e;
+    kpi($('#s5Kpi'),[['langkah',hist.length-1],['w',Math.abs(w)<1e6?dec(w,4):sci(w)],['f(w)',f(w)<1e6?dec(f(w),4):sci(f(w))],["f′(w)",Math.abs(df(w))<1e6?dec(df(w),4):sci(df(w))],['faktor galat |1 − 2η|',dec(Math.abs(fac),2),Math.abs(fac)>=1?'badv':'okv']]);
+    const m=$('#s5Msg');
+    if(Math.abs(fac)<0.005)setMsg(m,'ok','η = 0,5 membuat faktor 1 − 2η = 0: tepat satu langkah sampai ke dasar (w = 3). Di jaringan sungguhan tidak ada η "ajaib" seperti ini karena kelengkungannya berbeda tiap arah.');
+    else if(fac>0)setMsg(m,'ok',`η kecil: tiap langkah, jarak ke dasar dikali ${dec(fac,2)}. Turun mulus dari satu sisi, tetapi makin kecil η makin lambat.`);
+    else if(fac>-0.995)setMsg(m,'wa',`η lebih dari 0,5: langkah melewati dasar dan bolak-balik, tetapi jaraknya dikali ${dec(fac,2)} (|·| < 1) sehingga akhirnya tetap konvergen.`);
+    else if(fac>-1.005)setMsg(m,'no','η ≈ 1: faktor ≈ −1, titik terus memantul antara dua sisi dengan tinggi yang sama dan tidak pernah turun.');
+    else setMsg(m,'no',`η terlalu besar: jarak ke dasar dikali ${dec(fac,2)} (|·| > 1) tiap langkah, jadi <b>makin jauh</b>. Loss meledak. Inilah mengapa learning rate harus dipilih hati-hati.`);
+  }
+  bindRange('s5e','s5ev',v=>dec(v,2),draw);bindRange('s5w','s5wv',v=>dec(v,1),reset);
+  $('#s5Step').onclick=step;$('#s5Reset').onclick=reset;
+  $('#s5Auto').onclick=()=>{if(timer){stop();return}$('#s5Auto').textContent='Berhenti ⏸';
+    timer=setInterval(()=>{step();const w=hist[hist.length-1];if(Math.abs(df(w))<1e-3||hist.length>120||Math.abs(w)>1e5)stop()},380)};
+  onRedraw(draw);
+})();
+
+/* ================= Simulasi 6: irisan permukaan loss ================= */
+(function(){
+  const PN=[['w₁₁',p=>p.W[0][0],(p,v)=>p.W[0][0]=v,r=>r.gW[0][0]],['w₁₂',p=>p.W[0][1],(p,v)=>p.W[0][1]=v,r=>r.gW[0][1]],['b₁',p=>p.b[0],(p,v)=>p.b[0]=v,r=>r.gb[0]],
+            ['w₂₁',p=>p.W[1][0],(p,v)=>p.W[1][0]=v,r=>r.gW[1][0]],['w₂₂',p=>p.W[1][1],(p,v)=>p.W[1][1]=v,r=>r.gW[1][1]],['b₂',p=>p.b[1],(p,v)=>p.b[1]=v,r=>r.gb[1]],
+            ['v₁',p=>p.v[0],(p,v)=>p.v[0]=v,r=>r.gv[0]],['v₂',p=>p.v[1],(p,v)=>p.v[1]=v,r=>r.gv[1]],['c',p=>p.c,(p,v)=>p.c=v,r=>r.gc]];
+  $('#s6P').innerHTML=PN.map((q,i)=>`<option value="${i}"${i===6?' selected':''}>${q[0]}</option>`).join('');
+  const cv=$('#s6Cv');let idx=6;
+  const mk=v=>{const p=clone(P0);PN[idx][2](p,v);return p};
+  const Lat=v=>lossP(mk(v));
+  function draw(){
+    const w=val('s6v'),p=mk(w),r=hitung(p),g=PN[idx][3](r),L=r.L,num=(Lat(w+1e-5)-Lat(w-1e-5))/2e-5;
+    const xr=[-4,4];let lo=Infinity,hi=-Infinity;for(let i=0;i<=160;i++){const y=Lat(xr[0]+8*i/160);lo=Math.min(lo,y);hi=Math.max(hi,y)}
+    const pad=(hi-lo)*0.1||0.01,yr=[Math.max(0,lo-pad),hi+pad];
+    const {ctx,W,H}=prep(cv),fr=frame(ctx,W,H,xr,yr,{xt:[-4,-3,-2,-1,0,1,2,3,4],yt:[0,yr[1]*0.25,yr[1]*0.5,yr[1]*0.75].map(v=>+v.toFixed(3)),fx:v=>dec(v,0),fy:v=>dec(v,3),xl:PN[idx][0]+' (parameter yang digeser; lainnya tetap)'});
+    const clip=[fr.m.l,fr.m.t,W-fr.m.l-fr.m.r,H-fr.m.t-fr.m.b];
+    curve(ctx,Lat,xr,fr.X,fr.Y,fr.C.warn,3,null,240,clip);
+    const dx=1.4;ctx.save();ctx.beginPath();ctx.rect(...clip);ctx.clip();ctx.strokeStyle=fr.C.bad;ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();
+    ctx.moveTo(fr.X(w-dx),fr.Y(L-g*dx));ctx.lineTo(fr.X(w+dx),fr.Y(L+g*dx));ctx.stroke();ctx.restore();
+    dot(ctx,fr.X(w),fr.Y(L),7,fr.C.bad,fr.C.sur);
+    kpi($('#s6Kpi'),[[PN[idx][0],dec(w,3)],['Loss L',dec(L,5)],['∂L/∂'+PN[idx][0]+' (backprop)',dec(g,5),'okv'],['beda hingga (cek)',dec(num,5)]]);
+    const m=$('#s6Msg');
+    if(Math.abs(g)<5e-4)setMsg(m,'wa','Gradien ≈ 0: kurva hampir datar (atau di dasar). Gradient descent nyaris tidak bergerak di sini.');
+    else setMsg(m,'',`Kemiringan ${dec(g,5)} ${g<0?'(negatif): menaikkan parameter menurunkan loss, jadi GD akan menaikkannya.':'(positif): menurunkan parameter menurunkan loss, jadi GD akan menurunkannya.'} Satu langkah dengan η = ${dec(val('s6e'),1)} menggeser parameter sebesar ${dec(-val('s6e')*g,4)}.`);
+  }
+  function setDefault(){const d=PN[idx][1](P0);$('#s6v').value=Math.max(-4,Math.min(4,d));$('#s6vv').textContent=dec(+$('#s6v').value,2)}
+  $('#s6P').onchange=e=>{idx=+e.target.value;setDefault();draw()};
+  bindRange('s6v','s6vv',v=>dec(v,2),draw);bindRange('s6e','s6ev',v=>dec(v,1),draw);
+  $('#s6Step').onclick=()=>{const w=val('s6v'),g=PN[idx][3](hitung(mk(w)));let nw=w-val('s6e')*g;nw=Math.max(-4,Math.min(4,nw));$('#s6v').value=nw;$('#s6vv').textContent=dec(nw,2);draw()};
+  $('#s6Reset').onclick=()=>{setDefault();draw()};
+  setDefault();onRedraw(draw);
+})();
+
+/* ================= Simulasi 7: roda gigi aturan rantai ================= */
+(function(){
+  function draw(){
+    const x=val('s7x'),w1=val('s7w1'),w2=val('s7w2'),t=val('s7t'),dl=val('s7d');
+    const Lf=ww1=>{const a=sg(ww1*x),y=sg(w2*a);return 0.5*(t-y)*(t-y)};
+    const z1=w1*x,a1=sg(z1),z2=w2*a1,y=sg(z2),L=0.5*(t-y)*(t-y);
+    const f=[y-t,y*(1-y),w2,a1*(1-a1),x],g=f.reduce((p,q)=>p*q,1);
+    const nm=['∂L/∂ŷ = ŷ − t','∂ŷ/∂z₂ = ŷ(1−ŷ)','∂z₂/∂a₁ = w₂','∂a₁/∂z₁ = a₁(1−a₁)','∂z₁/∂w₁ = x'];
+    $('#s7Gear').innerHTML=f.map((v,i)=>`<div>${nm[i]}<b>${dec(v,4)}</b></div>${i<4?'<div class="x">×</div>':'<div class="x">=</div>'}`).join('')+`<div class="res">∂L/∂w₁<b>${dec(g,5)}</b></div>`;
+    const L2=Lf(w1+dl),act=L2-L,pred=g*dl;
+    kpi($('#s7Kpi'),[['L sekarang',dec(L,5)],[`L bila w₁ + ${dec(dl,2)}`,dec(L2,5)],['perubahan sebenarnya ΔL',dec(act,6)],['perkiraan gradien × Δ',dec(pred,6),'okv'],['selisih',sci(act-pred)]]);
+    const m=$('#s7Msg'),rel=Math.abs(act)>1e-12?Math.abs(act-pred)/Math.abs(act):0;
+    if(Math.abs(dl)<1e-9)setMsg(m,'','Geser Δ (kotak di atas) untuk "mendorong" w₁.');
+    else if(rel<0.05)setMsg(m,'ok',`Cocok: gradien memperkirakan perubahan loss dengan galat ${dec(rel*100,1)}%. Untuk dorongan kecil, perubahan ≈ gradien × Δ.`);
+    else setMsg(m,'wa',`Perkiraan meleset ${dec(rel*100,0)}%: Δ terlalu besar sehingga kemiringan berubah di sepanjang jalan (kurvanya melengkung). Gradien hanya akurat untuk langkah <b>kecil</b>; itulah sebabnya learning rate tidak boleh terlalu besar.`);
+  }
+  bindRange('s7x','s7xv',v=>dec(v,2),draw);bindRange('s7w1','s7w1v',v=>dec(v,2),draw);bindRange('s7w2','s7w2v',v=>dec(v,2),draw);bindRange('s7t','s7tv',v=>dec(v,2),draw);bindRange('s7d','s7dv',v=>dec(v,2),draw);
+})();
+
+/* ================= Simulasi 8: simulator langkah demi langkah ================= */
+(function(){
+  const NAMES=['Siap','z hidden','h hidden','u','ŷ','Loss','δ keluaran','∇ keluaran','δ hidden','∇ hidden','Perbarui'];
+  const FIELDS=[['x₁',p=>p.x[0],(p,v)=>p.x[0]=v],['x₂',p=>p.x[1],(p,v)=>p.x[1]=v],['t',p=>p.t,(p,v)=>p.t=v],['η',p=>p.eta,(p,v)=>p.eta=v],
+    ['w₁₁',p=>p.W[0][0],(p,v)=>p.W[0][0]=v],['w₁₂',p=>p.W[0][1],(p,v)=>p.W[0][1]=v],['b₁',p=>p.b[0],(p,v)=>p.b[0]=v],
+    ['w₂₁',p=>p.W[1][0],(p,v)=>p.W[1][0]=v],['w₂₂',p=>p.W[1][1],(p,v)=>p.W[1][1]=v],['b₂',p=>p.b[1],(p,v)=>p.b[1]=v],
+    ['v₁',p=>p.v[0],(p,v)=>p.v[0]=v],['v₂',p=>p.v[1],(p,v)=>p.v[1]=v],['c',p=>p.c,(p,v)=>p.c=v]];
+  let S={p:clone(P0),stage:0,iter:0,hist:[],stack:[]};
+  $('#s8Inputs').innerHTML=FIELDS.map((f,i)=>`<label><b>${f[0]}</b><input type="number" step="any" data-i="${i}" aria-label="${f[0]}"></label>`).join('');
+  const inputs=[...$$('#s8Inputs input')];
+  function sync(){inputs.forEach((e,i)=>{e.value=+FIELDS[i][1](S.p).toFixed(6)})}
+  inputs.forEach(e=>e.addEventListener('input',()=>{const v=parseFloat(e.value);if(!isFinite(v))return;FIELDS[+e.dataset.i][2](S.p,v);S.hist=[];S.iter=0;S.stack=[];render()}));
+  $('#s8Bar').innerHTML=NAMES.map((n,i)=>`<span data-s="${i}" class="${i>=6&&i<=9?'b':i===10?'u':''}">${i?i+' · ':''}${n}</span>`).join('');
+  $('#s8Bar').addEventListener('click',e=>{const s=e.target.closest('span');if(!s)return;S.stage=+s.dataset.s;render()});
+
+  const N={x1:[70,110],x2:[70,270],h1:[300,110],h2:[300,270],o:[540,190]},RAD={x1:30,x2:30,h1:34,h2:34,o:38};
+  function seg(a,b){const [x1,y1]=N[a],[x2,y2]=N[b],dx=x2-x1,dy=y2-y1,d=Math.hypot(dx,dy),ra=RAD[a],rb=RAD[b];
+    return [x1+dx/d*ra,y1+dy/d*ra,x2-dx/d*rb,y2-dy/d*rb]}
+  const T=(x,y,s,cls,anc)=>`<text x="${x}" y="${y}" text-anchor="${anc||'middle'}"${cls?` class="${cls}"`:''}>${s}</text>`;
+
+  function svg(r,p,st){
+    const hotE={1:['w11','w12','w21','w22'],3:['v1','v2'],7:['v1','v2'],8:['v1','v2'],9:['w11','w12','w21','w22'],10:['w11','w12','w21','w22','v1','v2']}[st]||[];
+    const hotN={1:['h1','h2'],2:['h1','h2'],3:['o'],4:['o'],5:['o'],6:['o'],7:['h1','h2'],8:['h1','h2'],9:['x1','x2','h1','h2'],10:['h1','h2','o']}[st]||[];
+    const flow=st>=6&&st<=9?'flowB':st===10?'flowU':'flowF',fc=st>=6&&st<=9?'var(--bad)':st===10?'var(--good)':'var(--accent)';
+    const E=[['w11','x1','h1',p.W[0][0],[185,101],()=>r.gW[0][0],9],['w12','x2','h1',p.W[0][1],[140,226],()=>r.gW[0][1],9],
+             ['w21','x1','h2',p.W[1][0],[140,155],()=>r.gW[1][0],9],['w22','x2','h2',p.W[1][1],[185,262],()=>r.gW[1][1],9],
+             ['v1','h1','o',p.v[0],[430,150],()=>r.gv[0],7],['v2','h2','o',p.v[1],[430,226],()=>r.gv[1],7]];
+    const nw={w11:r.nw.W[0][0],w12:r.nw.W[0][1],w21:r.nw.W[1][0],w22:r.nw.W[1][1],v1:r.nw.v[0],v2:r.nw.v[1]};
+    const sub={w11:'w₁₁',w12:'w₁₂',w21:'w₂₁',w22:'w₂₂',v1:'v₁',v2:'v₂'};
+    let s='';
+    E.forEach(([k,a,b,w,lp,g,gs])=>{const [x1,y1,x2,y2]=seg(a,b),hot=hotE.includes(k),dim=st>0&&st<10&&!hot;
+      const wd=1.2+Math.min(1,Math.abs(w)/1.2)*4.5;
+      s+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--muted)" stroke-width="${wd}" stroke-linecap="round" opacity="${dim?0.22:0.55}"/>`;
+      if(hot)s+=`<line class="${flow}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${fc}" stroke-width="${Math.max(2.2,wd*0.55)}" stroke-linecap="round"/>`;
+      let lab=`${sub[k]} ${dec(w,4)}`,l2='';
+      if(st>=gs)l2=T(lp[0],lp[1]+14,`∇ ${dec(g(),4)}`,'eg');
+      if(st===10){lab=`${sub[k]} ${dec(nw[k],4)}`;l2=T(lp[0],lp[1]+14,`lama ${dec(w,4)}`,'nv')}
+      s+=T(lp[0],lp[1],lab,'ew')+l2;
+    });
+    s=s.replace(/class="ew"/g,'class="ew halo"').replace(/class="eg"/g,'class="eg halo"').replace(/class="nv"/g,'class="nv halo"');
+    const node=(k,nm,v,col,fill)=>{const [cx,cy]=N[k],hot=hotN.includes(k);return `<g class="${hot?'hot':''}"><circle cx="${cx}" cy="${cy}" r="${RAD[k]}" fill="${fill}" stroke="${col}" stroke-width="${hot?4:2.5}"/>${T(cx,cy-2,nm,'nm')}${T(cx,cy+13,v,'nv')}</g>`};
+    s+=node('x1','x₁',dec(p.x[0],2),'var(--good)','var(--surface)')+node('x2','x₂',dec(p.x[1],2),'var(--good)','var(--surface)');
+    s+=node('h1','h₁',st>=2?dec(r.h[0],4):'?','var(--accent)','var(--accent-soft)')+node('h2','h₂',st>=2?dec(r.h[1],4):'?','var(--accent)','var(--accent-soft)');
+    s+=node('o','ŷ',st>=4?dec(r.y,4):'?','var(--warn)','color-mix(in srgb,var(--warn) 14%,var(--surface))');
+    // anotasi
+    s+=T(300,62,`b₁ = ${dec(st===10?r.nw.b[0]:p.b[0],4)}`,'nv halo')+T(300,322,`b₂ = ${dec(st===10?r.nw.b[1]:p.b[1],4)}`,'nv halo')+T(540,138,`c = ${dec(st===10?r.nw.c:p.c,4)}`,'nv halo');
+    if(st>=1)s+=T(300,160,`z₁ = ${dec(r.z[0],4)}`,'nv halo')+T(300,227,`z₂ = ${dec(r.z[1],4)}`,'nv halo');
+    if(st>=3)s+=T(540,245,`u = ${dec(r.u,4)}`,'nv halo');
+    s+=T(540,263,`t = ${dec(p.t,2)}`,'nv halo');
+    if(st>=5)s+=T(540,282,`L = ${dec(r.L,4)}`,'nm halo');
+    if(st>=6)s+=T(540,120,`δ<tspan font-size="8" dy="3">o</tspan><tspan dy="-3"> = ${dec(r.dO,4)}</tspan>`,'dl halo');
+    if(st>=8)s+=T(300,46,`δ<tspan font-size="8" dy="3">1</tspan><tspan dy="-3"> = ${dec(r.d[0],4)}</tspan>`,'dl halo')+T(300,338,`δ<tspan font-size="8" dy="3">2</tspan><tspan dy="-3"> = ${dec(r.d[1],4)}</tspan>`,'dl halo');
+    s+=T(70,362,'Lapisan 1 · masukan','nv')+T(300,362,'Lapisan 2 · tersembunyi','nv')+T(540,362,'Lapisan 3 · keluaran','nv');
+    return s;
+  }
+
+  function note(r,p,st){
+    const x=p.x,F=v=>dec(v,4),P=v=>pn(v,4),calc=s=>`<div class="calc">${s}</div>`;
+    const h=(c,t)=>`<h5 class="${c}">${t}</h5>`;
+    switch(st){
+    case 0:return h('','Siap · iterasi '+(S.iter+1))+`<p>Data: <b>x = (${dec(x[0],2)}; ${dec(x[1],2)})</b>, target <b>t = ${dec(p.t,2)}</b>, learning rate <b>η = ${dec(p.eta,2)}</b>. Diagram menunjukkan 9 parameter saat ini; ketebalan garis = besar bobot.</p><p>Tekan <b>Langkah berikut ▶</b> untuk memulai <span class="fwd">forward pass</span> (maju), lalu <span class="bwd">backward pass</span> (mundur), dan terakhir <span class="upd">pembaruan</span>.</p>`+(S.iter>0?`<p class="muted">Loss iterasi sebelumnya ${F(S.hist[S.hist.length-1])} → sekarang ${F(r.L)}.</p>`:'');
+    case 1:return h('fwd','1 · Maju: jumlah berbobot hidden')+`<p>Tiap neuron hidden menjumlahkan masukan × bobot, ditambah bias.</p>`+calc(
+`z₁ = w₁₁·x₁ + w₁₂·x₂ + b₁
+   = ${P(p.W[0][0])}·${P(x[0])} + ${P(p.W[0][1])}·${P(x[1])} + ${P(p.b[0])}
+   = <b>${F(r.z[0])}</b>
+z₂ = w₂₁·x₁ + w₂₂·x₂ + b₂
+   = ${P(p.W[1][0])}·${P(x[0])} + ${P(p.W[1][1])}·${P(x[1])} + ${P(p.b[1])}
+   = <b>${F(r.z[1])}</b>`);
+    case 2:return h('fwd','2 · Maju: aktivasi hidden')+`<p>Sigmoid menekan <i>z</i> ke rentang (0, 1). Nilai <i>h</i> ini <b>disimpan</b> untuk backward pass.</p>`+calc(
+`h₁ = σ(z₁) = 1 / (1 + e^−(${F(r.z[0])})) = 1 / (1 + ${F(Math.exp(-r.z[0]))}) = <b>${F(r.h[0])}</b>
+h₂ = σ(z₂) = 1 / (1 + e^−(${F(r.z[1])})) = 1 / (1 + ${F(Math.exp(-r.z[1]))}) = <b>${F(r.h[1])}</b>`);
+    case 3:return h('fwd','3 · Maju: jumlah berbobot keluaran')+calc(
+`u = v₁·h₁ + v₂·h₂ + c
+  = ${P(p.v[0])}·${P(r.h[0])} + ${P(p.v[1])}·${P(r.h[1])} + ${P(p.c)}
+  = <b>${F(r.u)}</b>`);
+    case 4:return h('fwd','4 · Maju: keluaran jaringan')+calc(
+`ŷ = σ(u) = 1 / (1 + e^−(${F(r.u)})) = <b>${F(r.y)}</b>`)+`<p>Jaringan menjawab <b>${F(r.y)}</b> padahal target <b>${dec(p.t,2)}</b>: selisih ${F(p.t-r.y)}.</p>`;
+    case 5:return h('','5 · Loss: seberapa salah?')+calc(
+`L = ½·(t − ŷ)²
+  = ½·(${dec(p.t,4)} − ${F(r.y)})²
+  = ½·${F((p.t-r.y)*(p.t-r.y))}
+  = <b>${F(r.L)}</b>`)+`<p>Forward pass selesai. Mulai sekarang kita bergerak <b class="bwd">mundur</b>.</p>`;
+    case 6:return h('bwd','6 · Mundur: sinyal kesalahan keluaran δₒ')+`<p>Seberapa sensitif loss terhadap <i>u</i>? Kalikan turunan loss dengan turunan sigmoid.</p>`+calc(
+`∂L/∂ŷ = ŷ − t         = ${F(r.y)} − ${dec(p.t,4)} = ${F(r.dy)}
+σ′(u)  = ŷ(1 − ŷ)     = ${F(r.y)} × ${F(1-r.y)} = ${F(r.sp)}
+δₒ     = ∂L/∂ŷ × σ′(u) = ${P(r.dy)} × ${F(r.sp)} = <b>${F(r.dO)}</b>`)+`<p>${r.dO<0?'Negatif: menaikkan <i>u</i> menurunkan loss.':'Positif: menurunkan <i>u</i> menurunkan loss.'}</p>`;
+    case 7:return h('bwd','7 · Mundur: gradien bobot &amp; bias keluaran')+`<p>Gradien = δₒ × aktivasi yang masuk ke bobot itu.</p>`+calc(
+`∂L/∂v₁ = δₒ·h₁ = ${P(r.dO)} × ${F(r.h[0])} = <b>${F(r.gv[0])}</b>
+∂L/∂v₂ = δₒ·h₂ = ${P(r.dO)} × ${F(r.h[1])} = <b>${F(r.gv[1])}</b>
+∂L/∂c  = δₒ     = <b>${F(r.gc)}</b>`);
+    case 8:return h('bwd','8 · Mundur: sinyal kesalahan hidden δ₁, δ₂')+`<p>Kesalahan keluaran dikirim mundur lewat bobot <i>v</i> yang sama, lalu dikali turunan sigmoid hidden.</p>`+calc(
+`∂L/∂h₁ = v₁·δₒ = ${P(p.v[0])} × ${P(r.dO)} = ${F(r.dh[0])}
+σ′(z₁) = h₁(1 − h₁) = ${F(r.h[0])} × ${F(1-r.h[0])} = ${F(r.sph[0])}
+δ₁ = ${P(r.dh[0])} × ${F(r.sph[0])} = <b>${F(r.d[0])}</b>
+
+∂L/∂h₂ = v₂·δₒ = ${P(p.v[1])} × ${P(r.dO)} = ${F(r.dh[1])}
+σ′(z₂) = h₂(1 − h₂) = ${F(r.h[1])} × ${F(1-r.h[1])} = ${F(r.sph[1])}
+δ₂ = ${P(r.dh[1])} × ${F(r.sph[1])} = <b>${F(r.d[1])}</b>`);
+    case 9:return h('bwd','9 · Mundur: gradien bobot &amp; bias hidden')+`<p>Gradien = δ neuron tujuan × masukan yang lewat bobot itu.</p>`+calc(
+`∂L/∂w₁₁ = δ₁·x₁ = ${P(r.d[0])} × ${P(x[0])} = <b>${F(r.gW[0][0])}</b>
+∂L/∂w₁₂ = δ₁·x₂ = ${P(r.d[0])} × ${P(x[1])} = <b>${F(r.gW[0][1])}</b>
+∂L/∂b₁  = δ₁          = <b>${F(r.gb[0])}</b>
+∂L/∂w₂₁ = δ₂·x₁ = ${P(r.d[1])} × ${P(x[0])} = <b>${F(r.gW[1][0])}</b>
+∂L/∂w₂₂ = δ₂·x₂ = ${P(r.d[1])} × ${P(x[1])} = <b>${F(r.gW[1][1])}</b>
+∂L/∂b₂  = δ₂          = <b>${F(r.gb[1])}</b>`)+`<p>Sembilan gradien siap. Semuanya dihitung dari parameter <i>lama</i>.</p>`;
+    default:{const rows=[['w₁₁',p.W[0][0],r.gW[0][0],r.nw.W[0][0]],['w₁₂',p.W[0][1],r.gW[0][1],r.nw.W[0][1]],['b₁',p.b[0],r.gb[0],r.nw.b[0]],['w₂₁',p.W[1][0],r.gW[1][0],r.nw.W[1][0]],['w₂₂',p.W[1][1],r.gW[1][1],r.nw.W[1][1]],['b₂',p.b[1],r.gb[1],r.nw.b[1]],['v₁',p.v[0],r.gv[0],r.nw.v[0]],['v₂',p.v[1],r.gv[1],r.nw.v[1]],['c',p.c,r.gc,r.nw.c]];
+      const nl=dec(p.eta,2);
+      return h('upd','10 · Perbarui: θ ← θ − η·∂L/∂θ')+calc(rows.map(q=>`${q[0].padEnd(3)} ← ${P(q[1])} − ${nl}×${P(q[2])} = <b>${F(q[3])}</b>`).join('\n'))+`<p>Loss bila parameter baru dipakai: <b>${F(lossP(Object.assign(clone(p),{W:r.nw.W,b:r.nw.b,v:r.nw.v,c:r.nw.c})))}</b> (sebelumnya ${F(r.L)}). Tekan <b>Langkah berikut</b> untuk memulai iterasi baru dengan parameter ini.</p>`}
+    }
+  }
+
+  function render(){
+    const p=S.p,r=hitung(p),st=S.stage;
+    $('#s8Svg').innerHTML=svg(r,p,st);
+    $('#s8Note').innerHTML=note(r,p,st);
+    $$('#s8Bar span').forEach((e,i)=>{e.classList.toggle('done',i<st);e.classList.toggle('now',i===st)});
+    $('#s8Prev').disabled=(st===0&&!S.stack.length);
+    $('#s8Next').textContent=st===10?'Iterasi berikutnya ▶':'Langkah berikut ▶';
+    kpi($('#s8Kpi'),[['iterasi ke-',S.iter+1],['loss L',dec(r.L,4)],['jawaban ŷ',dec(r.y,4)],['target t',dec(p.t,2)]]);
+    const gs=(i)=>st>=(i<6?9:7)&&true;
+    const rows=[['w₁₁',p.W[0][0],r.gW[0][0],r.nw.W[0][0]],['w₁₂',p.W[0][1],r.gW[0][1],r.nw.W[0][1]],['b₁',p.b[0],r.gb[0],r.nw.b[0]],['w₂₁',p.W[1][0],r.gW[1][0],r.nw.W[1][0]],['w₂₂',p.W[1][1],r.gW[1][1],r.nw.W[1][1]],['b₂',p.b[1],r.gb[1],r.nw.b[1]],['v₁',p.v[0],r.gv[0],r.nw.v[0]],['v₂',p.v[1],r.gv[1],r.nw.v[1]],['c',p.c,r.gc,r.nw.c]];
+    $('#s8Tbl').innerHTML=`<tr><th>θ</th><th class="num">nilai</th><th class="num">∂L/∂θ</th><th class="num">baru</th></tr>`+rows.map((q,i)=>`<tr><td class="m">${q[0]}</td><td class="num">${dec(q[1],4)}</td><td class="num">${gs(i)?dec(q[2],4):'–'}</td><td class="num">${st>=10?dec(q[3],4):'–'}</td></tr>`).join('');
+    drawChart(r);
+  }
+  function drawChart(r){
+    const cv=$('#s8Cv'),{ctx,W,H}=prep(cv),pts=S.hist.concat([r.L]),n=pts.length-1,mx=Math.max(...pts,1e-9)*1.1;
+    const xt=[...new Set([0,Math.round(n/2),n])];
+    const f=frame(ctx,W,H,[0,Math.max(1,n)],[0,mx],{xt,yt:[0,mx/2,mx].map(v=>+v.toPrecision(2)),fx:v=>dec(v,0),fy:v=>dec(v,3),xl:'iterasi',m:{l:52,r:14,t:10,b:32}});
+    ctx.strokeStyle=f.C.acc;ctx.lineWidth=2.2;ctx.beginPath();pts.forEach((v,i)=>{const px=f.X(i),py=f.Y(v);i?ctx.lineTo(px,py):ctx.moveTo(px,py)});ctx.stroke();
+    if(n<=60)pts.forEach((v,i)=>dot(ctx,f.X(i),f.Y(v),3.2,f.C.acc));
+    dot(ctx,f.X(n),f.Y(pts[n]),6,f.C.bad,f.C.sur);
+  }
+  function commit(){const r=hitung(S.p);S.stack.push(clone(S.p));if(S.stack.length>500)S.stack.shift();S.hist.push(r.L);S.p=stepP(S.p);S.iter++;S.stage=0;sync()}
+  function run(n){for(let i=0;i<n;i++){const r=hitung(S.p);S.hist.push(r.L);S.p=stepP(S.p);S.iter++}S.stage=0;S.stack=[];sync();render()}
+  $('#s8Next').onclick=()=>{if(S.stage<10)S.stage++;else commit();render()};
+  $('#s8Prev').onclick=()=>{if(S.stage>0)S.stage--;else if(S.stack.length){S.p=S.stack.pop();S.hist.pop();S.iter--;S.stage=10;sync()}render()};
+  $('#s8Iter').onclick=()=>{S.stage=10;render()};
+  $('#s8Run10').onclick=()=>run(10);$('#s8Run100').onclick=()=>run(100);
+  $('#s8Preset').onclick=()=>{S={p:clone(P0),stage:0,iter:0,hist:[],stack:[]};sync();render()};
+  $('#s8Rand').onclick=()=>{const q=clone(P0),r=()=>Math.round((Math.random()*2-1)*100)/100;q.W=[[r(),r()],[r(),r()]];q.b=[r(),r()];q.v=[r(),r()];q.c=r();S={p:q,stage:0,iter:0,hist:[],stack:[]};sync();render()};
+  sync();onRedraw(render);
+})();
+
+/* ================= Simulasi 9: gradient checking ================= */
+(function(){
+  const NM=['w₁₁','w₁₂','b₁','w₂₁','w₂₂','b₂','v₁','v₂','c'];
+  const SET=[(p,s)=>p.W[0][0]+=s,(p,s)=>p.W[0][1]+=s,(p,s)=>p.b[0]+=s,(p,s)=>p.W[1][0]+=s,(p,s)=>p.W[1][1]+=s,(p,s)=>p.b[1]+=s,(p,s)=>p.v[0]+=s,(p,s)=>p.v[1]+=s,(p,s)=>p.c+=s];
+  function analytic(bug){
+    const p=P0,r=hitung(p);let dO=r.dO,d=r.d.slice(),gW=null;
+    if(bug===1)d=r.dh.slice();                                    // lupa turunan sigmoid hidden
+    if(bug===2){dO=-r.dO;d=d.map(v=>-v)}                          // tanda δ keluaran terbalik
+    if(bug===4){const v2=p.v.map((v,j)=>v-p.eta*dO*r.h[j]);d=[0,1].map(j=>v2[j]*dO*r.sph[j])}   // memakai v yang sudah diperbarui
+    gW=[0,1].map(j=>[0,1].map(k=>bug===3?d[j]:d[j]*p.x[k]));
+    return [gW[0][0],gW[0][1],d[0],gW[1][0],gW[1][1],d[1],dO*r.h[0],dO*r.h[1],dO];
+  }
+  function draw(){
+    const eps=parseFloat($('#s9E').value),method=$('#s9M').value,bug=+$('#s9B').value,an=analytic(bug);
+    let mx=0,rows='',bad=[];
+    NM.forEach((nm,i)=>{
+      const pp=clone(P0),pm=clone(P0);SET[i](pp,eps);SET[i](pm,-eps);
+      const nu=method==='c'?(lossP(pp)-lossP(pm))/(2*eps):(lossP(pp)-lossP(P0))/eps;
+      const den=Math.abs(an[i])+Math.abs(nu),re=den===0?0:Math.abs(an[i]-nu)/den;mx=Math.max(mx,re);
+      const cls=re<1e-7?'pass':re<1e-4?'':'fail';if(re>=1e-4)bad.push(nm);
+      rows+=`<tr><td class="m">${nm}</td><td class="num">${dec(an[i],8)}</td><td class="num">${dec(nu,8)}</td><td class="num ${cls}">${sci(re)}</td></tr>`;
+    });
+    $('#s9Tbl').innerHTML=`<tr><th>Parameter</th><th class="num">Backprop</th><th class="num">Numerik</th><th class="num">Galat relatif</th></tr>${rows}`;
+    const m=$('#s9Msg');
+    if(bug===0){
+      if(mx<1e-7)setMsg(m,'ok',`Galat relatif terbesar ${sci(mx)} (&lt; 10⁻⁷): <b>backprop benar</b>.`);
+      else if(eps>=0.01||method==='f')setMsg(m,'wa',`Galat terbesar ${sci(mx)}. Backprop sebenarnya benar; selisih ini adalah <b>galat pemotongan</b> karena ε ${eps>=0.01?'terlalu besar':'dan beda hingga maju hanya berorde-ε'} (beda terpusat memiliki galat berorde ε²). Perkecil ε atau pakai beda terpusat.`);
+      else setMsg(m,'wa',`Galat terbesar ${sci(mx)}. Backprop benar; ε terlalu kecil sehingga L(θ+ε) − L(θ−ε) tenggelam dalam <b>galat pembulatan</b> komputer (presisi ±10⁻¹⁶). Naikkan ε ke sekitar 10⁻⁵.`);
+    }else{
+      const lbl=['','lupa turunan sigmoid di lapisan hidden','salah tanda pada δ keluaran','lupa mengalikan x pada gradien w','memakai v yang sudah diperbarui'][bug];
+      if(mx>=1e-4)setMsg(m,'no',`<b>Bug terdeteksi</b> (${lbl}): galat relatif terbesar ${sci(mx)}, ditunjukkan oleh ${bad.join(', ')}. ${bug===3?'Perhatikan: <i>w₁₁</i> dan <i>w₂₁</i> lolos karena kebetulan <i>x₁</i> = 1 sehingga mengalikannya tak mengubah angka. Bug bisa bersembunyi di data yang "ramah"; pakai data acak saat memeriksa.':''}`);
+      else setMsg(m,'wa',`Dengan pengaturan ini bug (${lbl}) tidak terdeteksi (galat ${sci(mx)}). Coba ε dan metode yang lebih baik.`);
+    }
+  }
+  ['s9E','s9M','s9B'].forEach(id=>$('#'+id).addEventListener('change',draw));draw();
+})();
+
+/* ================= Simulasi 10: playground XOR ================= */
+const PLAY={seed:1};
+(function(){
+  const DATA={};
+  function makeData(kind){
+    const r=rngJS(11),X=[],Y=[];
+    if(kind==='xor'){for(let i=0;i<64;i++){const sx=i&1?1:-1,sy=i&2?1:-1;X.push([sx*0.55+(r()-0.5)*0.55,sy*0.55+(r()-0.5)*0.55]);Y.push([sx*sy>0?1:0])}}
+    else if(kind==='lingkaran'){while(X.length<90){const a=r()*2-1,b=r()*2-1,d=a*a+b*b;if(Math.abs(d-0.45)<0.06)continue;X.push([a,b]);Y.push([d<0.45?1:0])}}
+    else{while(X.length<60){const a=r()*2-1,b=r()*2-1,s=0.8*a+0.6*b;if(Math.abs(s)<0.15)continue;X.push([a,b]);Y.push([s>0?1:0])}}
+    return {X,Y};
+  }
+  const KINDS=['xor','lingkaran','linear'],KN=['XOR','Lingkaran','Dua kelompok (garis lurus)'];
+  KINDS.forEach(k=>DATA[k]=makeData(k));
+  $('#s10Data').innerHTML=chipsHTML(KN,0);
+  let kind='xor',net=null,epoch=0,hist=[],playing=false,raf=0;
+  const cv=$('#s10Cv'),cl=$('#s10Loss2');
+  const cfg=()=>({L:+$('#s10L').value,N:+$('#s10N').value,act:$('#s10A').value,loss:$('#s10Loss').value,init:$('#s10I').value,eta:Math.pow(10,+$('#s10E').value)});
+  function build(){
+    stop();const c=cfg();
+    net=mkNet([2,...Array(c.L).fill(c.N),1],[...Array(c.L).fill(c.act),'sigmoid'],c.init,rngJS(PLAY.seed*7919+13));
+    epoch=0;hist=[];draw();
+  }
+  function stop(){playing=false;cancelAnimationFrame(raf);$('#s10Play').textContent='▶ Latih'}
+  function run(n){const c=cfg(),D=DATA[kind];for(let i=0;i<n;i++){const l=batchStep(net,D.X,D.Y,c.loss,c.eta);epoch++;hist.push(l);if(!isFinite(l)){stop();break}}if(hist.length>40000)hist=hist.filter((_,i)=>i%2===0)}
+  function metrics(){const c=cfg(),D=DATA[kind];let L=0,ok=0;
+    D.X.forEach((x,i)=>{const y=fwd(net,x).A.at(-1);L+=lossVal(y,D.Y[i],c.loss);if((y[0]>0.5)===(D.Y[i][0]>0.5))ok++});
+    return {loss:L/D.X.length,acc:ok/D.X.length}}
+  function drawMap(){
+    const {ctx,W,H}=prep(cv),C=pal(),N=40,off=document.createElement('canvas');off.width=off.height=N;
+    const oc=off.getContext('2d'),img=oc.createImageData(N,N),cb=hex2rgb(C.bad),ca=hex2rgb(C.acc),R=1.25;
+    for(let i=0;i<N;i++)for(let j=0;j<N;j++){const a=-R+2*R*(j+0.5)/N,b=R-2*R*(i+0.5)/N,y=fwd(net,[a,b]).A.at(-1)[0],c=mixc(cb,ca,isFinite(y)?y:0.5),q=(i*N+j)*4;img.data[q]=c[0];img.data[q+1]=c[1];img.data[q+2]=c[2];img.data[q+3]=150}
+    oc.putImageData(img,0,0);ctx.fillStyle=C.sur;ctx.fillRect(0,0,W,H);ctx.imageSmoothingEnabled=true;ctx.drawImage(off,0,0,W,H);
+    const X=v=>(v+R)/(2*R)*W,Y=v=>(R-v)/(2*R)*H;
+    ctx.strokeStyle=C.mut;ctx.globalAlpha=0.5;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(X(0),0);ctx.lineTo(X(0),H);ctx.moveTo(0,Y(0));ctx.lineTo(W,Y(0));ctx.stroke();ctx.globalAlpha=1;
+    const D=DATA[kind];D.X.forEach((x,i)=>dot(ctx,X(x[0]),Y(x[1]),5,D.Y[i][0]>0.5?C.acc:C.bad,'#fff'));
+  }
+  function drawNet(){
+    const s=$('#s10Svg'),sz=net.sizes,C=pal(),W=520,H=280,colx=sz.map((_,i)=>46+i*(W-92)/(sz.length-1)),pos=sz.map((n,i)=>Array.from({length:n},(_,j)=>[colx[i],H/2-8+(j-(n-1)/2)*Math.min(44,190/Math.max(1,n-1))]));
+    let h='';
+    for(let l=0;l<net.W.length;l++)for(let j=0;j<net.W[l].length;j++)for(let k=0;k<net.W[l][j].length;k++){
+      const w=net.W[l][j][k],[x1,y1]=pos[l][k],[x2,y2]=pos[l+1][j];
+      h+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${w>=0?'var(--accent)':'var(--bad)'}" stroke-width="${(0.4+4*Math.min(1,Math.abs(w)/2)).toFixed(2)}" opacity="0.72" stroke-linecap="round"/>`}
+    pos.forEach((col,i)=>col.forEach(([x,y],j)=>{const nm=i===0?`x${j?'₂':'₁'}`:i===sz.length-1?'ŷ':'';
+      h+=`<circle cx="${x}" cy="${y}" r="14" fill="var(--surface)" stroke="${i===0?'var(--good)':i===sz.length-1?'var(--warn)':'var(--accent)'}" stroke-width="2.4"/>${nm?`<text x="${x}" y="${y+4}" text-anchor="middle" class="nm" style="font-size:11px">${nm}</text>`:''}`}));
+    const cap=['masukan',...Array(sz.length-2).fill(0).map((_,i)=>'tersembunyi '+(i+1)),'keluaran'];
+    cap.forEach((t,i)=>h+=`<text x="${colx[i]}" y="${H-6}" text-anchor="middle" class="nv">${t}</text>`);
+    s.innerHTML=h;
+  }
+  function drawLoss(){
+    const {ctx,W,H}=prep(cl),n=hist.length;
+    const top=Math.max(1,hist.length?Math.pow(10,Math.ceil(Math.log10(Math.max(...hist.slice(0,50))||1))):1),lo=-3,hi=Math.log10(top);
+    const f=frame(ctx,W,H,[0,Math.max(100,epoch)],[lo,hi],{xt:[...new Set([0,Math.round(Math.max(100,epoch)/2),Math.max(100,epoch)])],yt:[-3,-2,-1,0,1].filter(v=>v<=hi),fx:v=>dec(v,0),fy:v=>dec(Math.pow(10,v),Math.pow(10,v)<0.01?3:Math.pow(10,v)<0.1?2:1),xl:'epoch (skala y logaritmik)',m:{l:52,r:12,t:10,b:32}});
+    if(n<2)return;ctx.strokeStyle=f.C.acc;ctx.lineWidth=2.2;ctx.beginPath();
+    const step=Math.max(1,Math.floor(n/600));let first=true;
+    for(let i=0;i<n;i+=step){const v=Math.log10(Math.max(1e-3,hist[i])),px=f.X(i+1),py=f.Y(Math.max(lo,Math.min(hi,v)));first?ctx.moveTo(px,py):ctx.lineTo(px,py);first=false}
+    ctx.stroke();
+  }
+  function draw(){
+    if(!net)return;const c=cfg(),m=metrics();
+    $('#s10Ev').textContent=dec(c.eta,c.eta<0.1?3:2);
+    drawMap();drawNet();drawLoss();
+    const np=net.W.reduce((a,M,l)=>a+M.length*M[0].length+M.length,0);
+    kpi($('#s10Kpi'),[['epoch',epoch],['loss',isFinite(m.loss)?dec(m.loss,4):'NaN',isFinite(m.loss)?'':'badv'],['akurasi',dec(m.acc*100,0)+'%',m.acc===1?'okv':m.acc<0.8?'badv':''],['parameter',np]]);
+    const msg=$('#s10Msg');
+    const hid=net.W[0],sym=net.sizes[1]>1&&hid.every(r=>r.every((w,k)=>Math.abs(w-hid[0][k])<1e-9));
+    if(!isFinite(m.loss))setMsg(msg,'no','Loss menjadi NaN: η terlalu besar sehingga gradien meledak. Tekan Reset dan kecilkan η.');
+    else if(epoch>0&&c.init==='nol')setMsg(msg,'no','Semua bobot nol: δ hidden = v·δ<sub>o</sub> = 0 karena v = 0, jadi lapisan tersembunyi <b>tidak mendapat gradien sama sekali</b>; hanya bias keluaran yang belajar. Bobot awal tidak boleh nol.');
+    else if(epoch>0&&c.init==='sama'&&sym)setMsg(msg,'no','Semua bobot sama: neuron hidden menerima gradien yang persis sama, sehingga <b>selalu identik</b> (symmetry problem). Kapasitas jaringan terbuang. Gunakan inisialisasi acak.');
+    else if(epoch>0&&m.acc===1)setMsg(msg,'ok',`Semua titik terklasifikasi benar (epoch ${epoch}, loss ${dec(m.loss,4)}). Lihat bagaimana lapisan tersembunyi "melipat" ruang sehingga batas keputusan melengkung.`);
+    else if(epoch>=600&&m.acc<0.9)setMsg(msg,'wa','Belum berhasil. Kemungkinan: neuron terlalu sedikit untuk bentuk data ini, η kurang cocok, atau bobot awal jelek (terjebak di dataran). Coba tambah neuron/lapisan, atau tekan Reset untuk bobot awal acak lain.');
+    else setMsg(msg,'',epoch?'Pelatihan berjalan… perhatikan peta warna dan garis tebal di diagram berubah.':'Tekan <b>Latih</b>. Peta warna awal hampir acak karena bobot awal acak.');
+  }
+  function loop(){if(!playing)return;run(5);draw();if(epoch>=6000){stop();draw();return}raf=requestAnimationFrame(loop)}
+  $('#s10Play').onclick=()=>{if(playing){stop();return}playing=true;$('#s10Play').textContent='⏸ Jeda';loop()};
+  $('#s10Step').onclick=()=>{stop();run(1);draw()};
+  $('#s10Step100').onclick=()=>{stop();run(100);draw()};
+  $('#s10Reset').onclick=()=>{PLAY.seed++;build()};
+  ['s10L','s10N','s10A','s10Loss','s10I'].forEach(id=>$('#'+id).addEventListener('change',build));
+  $('#s10E').addEventListener('input',draw);
+  onChips($('#s10Data'),i=>{kind=KINDS[i];$$('#s10Data .chip').forEach((c,j)=>c.classList.toggle('on',j===i));build()});
+  build();onRedraw(draw);
+})();
+
+/* ================= Simulasi 11: MSE vs cross-entropy pada gradien keluaran ================= */
+(function(){
+  const cv=$('#s11Cv');
+  const dm=u=>{const y=sg(u);return Math.abs((y-1)*y*(1-y))},db=u=>Math.abs(sg(u)-1);
+  function draw(){
+    const u=val('s11u'),{ctx,W,H}=prep(cv),xr=[-8,8],f=frame(ctx,W,H,xr,[0,1.05],{xt:[-8,-6,-4,-2,0,2,4,6,8],yt:[0,0.25,0.5,0.75,1],fx:v=>dec(v,0),fy:v=>dec(v,2),xl:'u (sebelum sigmoid) · kiri = jaringan yakin salah'});
+    curve(ctx,dm,xr,f.X,f.Y,f.C.acc,2.8);curve(ctx,db,xr,f.X,f.Y,f.C.bad,2.8);
+    ctx.strokeStyle=f.C.warn;ctx.lineWidth=1.6;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(f.X(u),f.m.t);ctx.lineTo(f.X(u),H-f.m.b);ctx.stroke();ctx.setLineDash([]);
+    dot(ctx,f.X(u),f.Y(dm(u)),5.5,f.C.acc,f.C.sur);dot(ctx,f.X(u),f.Y(db(u)),5.5,f.C.bad,f.C.sur);
+    kpi($('#s11Kpi'),[['ŷ = σ(u)',dec(sg(u),4)],['|δₒ| kuadrat selisih',dec(dm(u),4),dm(u)<0.01?'badv':''],['|δₒ| cross-entropy',dec(db(u),4),'okv'],['rasio CE / MSE',dm(u)>1e-12?dec(db(u)/dm(u),1)+'×':'∞']]);
+    const m=$('#s11Msg');
+    if(u<-2)setMsg(m,'wa',`Jaringan yakin salah (ŷ = ${dec(sg(u),4)} padahal target 1). Dengan kuadrat selisih gradiennya hanya ${dec(dm(u),4)}: pembelajaran <b>macet justru saat paling salah</b>. Cross-entropy tetap memberi ${dec(db(u),3)} sehingga koreksinya kuat.`);
+    else if(u>2)setMsg(m,'ok','Jaringan hampir benar: gradien kedua loss mengecil, itu wajar karena tidak ada lagi banyak yang perlu diperbaiki.');
+    else setMsg(m,'','Di sekitar u = 0 kedua loss memberi gradien sebanding. Perbedaan besar muncul di sisi kiri (jawaban salah dengan yakin).');
+  }
+  bindRange('s11u','s11uv',v=>dec(v,1),draw);onRedraw(draw);
+})();
+
+/* ================= Simulasi 12: vanishing gradient ================= */
+(function(){
+  let act='sigmoid';const A=['sigmoid','tanh','relu'];
+  $('#s12A').innerHTML=chipsHTML(['sigmoid','tanh','ReLU'],0);
+  function grads(depth,act,seeds){
+    const out=new Array(depth+1).fill(0);
+    for(let s=0;s<seeds;s++){
+      const r=rngJS(1000+s*17),net=mkNet([2,...Array(depth).fill(8),1],[...Array(depth).fill(act),'linear'],'acak',r);
+      const x=[gauss(r),gauss(r)],g=bwd(net,fwd(net,x),[1],'mse');
+      for(let l=0;l<=depth;l++){let q=0;g.dW[l].forEach(row=>row.forEach(v=>q+=v*v));out[l]+=Math.sqrt(q)}
+    }
+    return out.map(v=>v/seeds);
+  }
+  function draw(){
+    const d=val('s12d'),g=grads(d,act,30),lo=-8,hi=1;
+    $('#s12Bars').innerHTML=g.map((v,i)=>{const fr=Math.max(0.01,Math.min(1,(Math.log10(Math.max(v,1e-12))-lo)/(hi-lo)));
+      return `<div class="vgrow"><span>${i===g.length-1?'keluaran':'lapisan '+(i+1)}</span><span class="t"><i style="width:${(fr*100).toFixed(1)}%;background:${v<1e-3?'var(--bad)':v<3e-2?'var(--warn)':'var(--accent)'}"></i></span><span>${sci(v)}</span></div>`}).join('');
+    const ratio=g[0]/g[g.length-1];
+    kpi($('#s12Kpi'),[['gradien lapisan 1',sci(g[0]),g[0]<1e-3?'badv':'okv'],['gradien lapisan terakhir',sci(g[g.length-1])],['rasio awal / akhir',sci(ratio),ratio<0.01?'badv':'okv']]);
+    const m=$('#s12Msg');
+    if(ratio<0.01)setMsg(m,'no',`Gradien di lapisan pertama <b>${sci(ratio)} kali</b> gradien lapisan terakhir: lapisan awal hampir tidak belajar (vanishing gradient). Setiap lapisan sigmoid mengalikan gradien dengan ≤ 0,25.`);
+    else if(ratio>100)setMsg(m,'wa',`Gradien lapisan pertama jauh lebih besar (${sci(ratio)}×): kecenderungan <i>exploding</i>.`);
+    else setMsg(m,'ok',`Gradien antarlapisan masih sebanding (rasio ${sci(ratio)}). ${act==='relu'?'ReLU memiliki turunan 1 di sisi positif sehingga gradien tidak menyusut dan inisialisasi He menjaga skalanya.':act==='tanh'?'Turunan tanh sampai 1 di sekitar nol dan inisialisasi Xavier menjaga skalanya, walau tanh tetap bisa jenuh pada jaringan yang jauh lebih dalam.':'Jaringan masih dangkal. Naikkan kedalaman.'}`);
+  }
+  bindRange('s12d','s12dv',v=>v,draw);
+  onChips($('#s12A'),i=>{act=A[i];$$('#s12A .chip').forEach((c,j)=>c.classList.toggle('on',j===i));draw()});
+  draw();
+})();
+
+/* ================= Simulasi 13: generator soal ================= */
+(function(){
+  let prob=null;
+  const ch=a=>a[Math.floor(Math.random()*a.length)];
+  const Q=[['h₁ =',r=>r.h[0]],['ŷ =',r=>r.y],['δₒ =',r=>r.dO],['∂L/∂v₁ =',r=>r.gv[0]],['δ₁ =',r=>r.d[0]],['∂L/∂w₁₂ =',r=>r.gW[0][1]]];
+  function gen(){
+    for(;;){
+      const p={x:[ch([1,0.5,-1,-0.5,2]),ch([1,0.5,-1,-0.5,2])],t:ch([0,1]),eta:0.5,W:[[ch([-1,-0.5,0.5,1]),ch([-1,-0.5,0.5,1])],[ch([-1,-0.5,0.5,1]),ch([-1,-0.5,0.5,1])]],b:[ch([-0.5,0,0.5]),ch([-0.5,0,0.5])],v:[ch([-1,-0.5,0.5,1,1.5]),ch([-1,-0.5,0.5,1,1.5])],c:ch([-0.5,0,0.5])};
+      const r=hitung(p);
+      if(Math.abs(r.dO)>0.03&&Math.abs(r.d[0])>0.01&&Math.abs(r.gv[0])>0.01&&Math.abs(r.gW[0][1])>0.01)return {p,r};
+    }
+  }
+  function show(){
+    const {p,r}=prob=gen(),f=v=>dec(v,2).replace(/,00$/,'').replace(/(,\d)0$/,'$1');
+    $('#s13Prob').innerHTML=`Masukan   x₁ = ${f(p.x[0])}, x₂ = ${f(p.x[1])}     target t = ${f(p.t)}
+Hidden    w₁₁ = ${f(p.W[0][0])}, w₁₂ = ${f(p.W[0][1])}, b₁ = ${f(p.b[0])}
+          w₂₁ = ${f(p.W[1][0])}, w₂₂ = ${f(p.W[1][1])}, b₂ = ${f(p.b[1])}
+Keluaran  v₁ = ${f(p.v[0])}, v₂ = ${f(p.v[1])}, c = ${f(p.c)}
+Sigmoid di hidden dan keluaran, L = ½(t − ŷ)².`;
+    $('#s13Rows').innerHTML=Q.map((q,i)=>`<div class="rowq"><span class="m">${q[0]}</span><input type="text" inputmode="decimal" autocomplete="off" data-i="${i}" aria-label="${q[0]}"><span class="st" data-i="${i}"></span></div>`).join('');
+    setMsg($('#s13Msg'),'','Isi minimal satu jawaban, lalu tekan Periksa.');
+  }
+  function check(){
+    let n=0,ok=0;
+    $$('#s13Rows input').forEach(e=>{const i=+e.dataset.i,st=$(`#s13Rows .st[data-i="${i}"]`),s=e.value.trim();
+      if(!s){st.textContent='';return}
+      const v=parseFloat(s.replace(',','.').replace('−','-'));n++;
+      if(isFinite(v)&&Math.abs(v-Q[i][1](prob.r))<=0.002){ok++;st.textContent='✓';st.className='st ok'}else{st.textContent='✗';st.className='st no'}});
+    if(!n)setMsg($('#s13Msg'),'wa','Belum ada jawaban yang diisi.');
+    else setMsg($('#s13Msg'),ok===n?'ok':'wa',`${ok} dari ${n} jawaban benar.${ok<n?' Periksa urutan: h₁ dari z₁, lalu u, ŷ, δₒ, baru gradien dan δ₁. Tanda minus dan turunan sigmoid adalah kesalahan paling umum.':' Bagus!'}`);
+  }
+  function showAns(){
+    const {p,r}=prob,F=v=>dec(v,4);
+    setMsg($('#s13Msg'),'',`<div class="mono" style="font-size:12.5px;line-height:1.7;text-align:left">z₁ = ${F(r.z[0])}, z₂ = ${F(r.z[1])} → h₁ = ${F(r.h[0])}, h₂ = ${F(r.h[1])}<br>u = ${F(r.u)} → ŷ = ${F(r.y)} → L = ${F(r.L)}<br>δₒ = (ŷ − t)·ŷ(1 − ŷ) = ${F(r.dy)} × ${F(r.sp)} = ${F(r.dO)}<br>∂L/∂v₁ = δₒ·h₁ = ${F(r.gv[0])}, ∂L/∂v₂ = ${F(r.gv[1])}, ∂L/∂c = ${F(r.gc)}<br>δ₁ = v₁δₒ·h₁(1 − h₁) = ${F(r.d[0])}, δ₂ = ${F(r.d[1])}<br>∂L/∂w₁₁ = ${F(r.gW[0][0])}, ∂L/∂w₁₂ = ${F(r.gW[0][1])}, ∂L/∂w₂₁ = ${F(r.gW[1][0])}, ∂L/∂w₂₂ = ${F(r.gW[1][1])}</div>`);
+  }
+  $('#s13Check').onclick=check;$('#s13Show').onclick=showAns;$('#s13New').onclick=show;show();
+  $('#s13Rows').addEventListener('keydown',e=>{if(e.key==='Enter')check()});
+})();
+
+/* ---------- Kuis ---------- */
+const QZ=[
+  {q:'Berapa jumlah parameter (bobot + bias) jaringan 2 – 2 – 1?',o:['6','9','7','12'],a:1,w:'Hidden: 2×(2+1) = 6. Keluaran: 1×(2+1) = 3. Total 9.'},
+  {q:'Turunan fungsi sigmoid σ′(z) sama dengan…',o:['σ(z)·(1 − σ(z))','1 − σ(z)²','σ(z)²','e^(−z)'],a:0,w:'σ′ = σ(1 − σ). Bila a = σ(z) sudah disimpan dari forward pass, turunannya tinggal a(1 − a). (1 − a² adalah turunan tanh.)'},
+  {q:'Berapa nilai maksimum σ′(z)?',o:['0,25','0,5','1','0,1'],a:0,w:'Maksimum di z = 0: 0,5 × 0,5 = 0,25. Karena itu tiap lapisan sigmoid menyusutkan gradien paling sedikit 4 kali.'},
+  {q:'Mengapa lapisan tersembunyi memerlukan fungsi aktivasi non-linear?',o:['Agar hitungan lebih cepat','Tanpanya tumpukan lapisan setara dengan satu lapisan linear saja','Agar bobot selalu positif','Agar loss selalu nol'],a:1,w:'Gabungan operasi linear tetap linear, sehingga tanpa non-linearitas lapisan tambahan tidak menambah kemampuan.'},
+  {q:'Apa yang dilakukan forward pass?',o:['Menghitung keluaran dari masukan, lapis demi lapis, dan menyimpan nilai antara','Menghitung gradien dari loss ke masukan','Memperbarui bobot','Mengacak data'],a:0,w:'Forward pass menghitung z, a, dan ŷ, dan nilai-nilai itu disimpan karena dipakai backward pass.'},
+  {q:'Untuk ŷ = 0,8 dan t = 1, berapa loss L = ½(t − ŷ)²?',o:['0,02','0,04','0,2','0,1'],a:0,w:'(1 − 0,8)² = 0,04; setengahnya 0,02.'},
+  {q:'∂L/∂w = −0,2, η = 0,5, dan w = 1. Berapa w setelah satu langkah gradient descent?',o:['0,9','1,1','1,2','0,8'],a:1,w:'w ← w − η·gradien = 1 − 0,5 × (−0,2) = 1 + 0,1 = 1,1.'},
+  {q:'Apa arti gradien ∂L/∂θ yang positif?',o:['Menaikkan θ akan menaikkan loss, jadi θ perlu diturunkan','Menaikkan θ akan menurunkan loss','θ sudah optimal','Loss pasti nol'],a:0,w:'Gradien positif berarti loss naik bersama θ. Gradient descent bergerak berlawanan arah gradien, sehingga θ turun.'},
+  {q:'Apa gejala learning rate yang terlalu besar?',o:['Loss turun mulus tetapi sangat lambat','Loss berosilasi atau meledak (bahkan nan)','Loss selalu tepat nol','Jaringan menjadi lebih kecil'],a:1,w:'Langkah terlalu besar melompati lembah; bila faktor |1 − 2η| (pada parabola) lebih dari 1, jaraknya makin jauh.'},
+  {q:'Menurut aturan rantai, pengaruh total sebuah bobot terhadap loss adalah…',o:['jumlah turunan lokal sepanjang rantai','hasil kali turunan lokal sepanjang rantai','turunan yang terbesar saja','rata-rata turunan lokal'],a:1,w:'Seperti roda gigi: rasio dikalikan. (Penjumlahan hanya dipakai untuk jalur yang berbeda-beda.)'},
+  {q:'Neuron keluaran sigmoid dengan loss kuadrat: ŷ = 0,5 dan t = 1. Berapa δₒ?',o:['−0,125','−0,5','−0,25','+0,125'],a:0,w:'δₒ = (ŷ − t)·ŷ(1 − ŷ) = (−0,5) × 0,25 = −0,125.'},
+  {q:'Bila lossnya binary cross-entropy dengan keluaran sigmoid, δₒ = …',o:['(ŷ − t)·ŷ(1 − ŷ)','ŷ − t','t − ŷ²','ŷ·t'],a:1,w:'Faktor ŷ(1 − ŷ) di turunan loss meniadakan turunan sigmoid, menyisakan δₒ = ŷ − t.'},
+  {q:'Gradien bobot v_j (dari hidden j ke keluaran) sama dengan…',o:['δₒ · h_j','δₒ · x_j','v_j · δₒ','h_j · ŷ'],a:0,w:'Gradien bobot = (δ di ujung tujuan) × (aktivasi di ujung asal) = δₒ·h_j.'},
+  {q:'Mengapa rumus δ hidden memuat v_j (δ_j = v_j·δₒ·h_j(1 − h_j))?',o:['Karena kesalahan keluaran mengalir mundur lewat bobot yang sama yang dipakai saat maju','Karena v_j adalah learning rate','Agar hasilnya selalu positif','Karena h_j tidak bisa diturunkan'],a:0,w:'Pengaruh h_j ke u adalah v_j; rantai dari L ke z_j melewati u sehingga memuat v_j.'},
+  {q:'v = 0,6; δₒ = −0,1; h = 0,5 (sigmoid). Berapa δ neuron hidden tersebut?',o:['−0,015','−0,06','0,015','−0,03'],a:0,w:'δ = v·δₒ·h(1 − h) = 0,6 × (−0,1) × 0,25 = −0,015.'},
+  {q:'Mengapa semua bobot awal tidak boleh sama?',o:['Neuron hidden akan menerima gradien yang sama sehingga selalu identik','Komputer menolak bobot yang sama','Loss menjadi negatif','Jaringan menjadi terlalu besar'],a:0,w:'Simetri tidak pernah pecah: semua neuron di satu lapisan berperilaku sama, jadi kapasitas jaringan terbuang. Inisialisasi acak memecahkan simetri.'},
+  {q:'Apa tujuan gradient checking?',o:['Mempercepat pelatihan','Memastikan implementasi backprop benar dengan membandingkannya dengan beda hingga','Menaikkan akurasi','Mengurangi jumlah parameter'],a:1,w:'Gradien analitik dibandingkan dengan (L(θ+ε) − L(θ−ε))/2ε. Selisih besar menandakan bug.'},
+  {q:'Galat relatif gradient check sebesar 10⁻² menandakan…',o:['Backprop sangat akurat','Hampir pasti ada bug pada backprop','ε terlalu kecil saja','Loss sudah minimum'],a:1,w:'Galat yang sehat < 10⁻⁷. Nilai > 10⁻³ hampir pasti bug (kecuali ε terlalu besar; periksa dengan terpusat dan ε ≈ 10⁻⁵).'},
+  {q:'Apa penyebab utama vanishing gradient pada jaringan sigmoid yang dalam?',o:['Gradien dikali σ′ ≤ 0,25 (dan bobot kecil) di setiap lapisan','Terlalu banyak data','Learning rate negatif','Kurangnya bias'],a:0,w:'Perkalian banyak faktor kecil menyusutkan gradien secara eksponensial terhadap kedalaman.'},
+  {q:'Neuron ReLU dengan z ≤ 0: berapa gradien yang melewatinya?',o:['0','1','0,25','Sama dengan z'],a:0,w:'ReLU′(z) = 0 bila z ≤ 0, jadi tidak ada kesalahan yang diteruskan lewat neuron itu pada contoh tersebut.'},
+  {q:'Matriks bobot W berukuran (n_keluar × n_masuk). Gradien ∂L/∂W harus berukuran…',o:['sama dengan W','(n_masuk × n_keluar)','(n_keluar × n_keluar)','(1 × 1)'],a:0,w:'Gradien selalu berbentuk sama dengan parameternya. Bila tidak, ada transpos yang terlewat.'},
+  {q:'Pada BP2, δ dikirim mundur dengan mengalikan transpos bobot (Wᵀδ). Mengapa transpos?',o:['Agar angka lebih kecil','Karena kesalahan dari tiap neuron tujuan dibagikan kembali ke neuron-neuron asal yang menyumbang padanya','Karena W selalu simetris','Hanya konvensi tanpa alasan'],a:1,w:'Maju: neuron tujuan menjumlahkan dari asal. Mundur: tiap neuron asal menjumlahkan kontribusi dari semua tujuan, yaitu perkalian dengan transpos.'},
+  {q:'Berapa parameter jaringan 4 – 5 – 3 – 2?',o:['51','40','45','60'],a:0,w:'5×(4+1) + 3×(5+1) + 2×(3+1) = 25 + 18 + 8 = 51.'},
+  {q:'Apa itu satu epoch?',o:['Satu pembaruan bobot','Satu putaran penuh melewati seluruh data latih','Satu neuron','Satu lapisan'],a:1,w:'Epoch = seluruh data latih dilihat sekali. Pada full-batch satu epoch = satu iterasi; pada mini-batch satu epoch berisi banyak iterasi.'},
+  {q:'Mengapa semua gradien dihitung lebih dulu, baru semua parameter diperbarui?',o:['Karena gradien lapisan sebelumnya memakai bobot yang masih lama','Agar hasil lebih cantik','Karena komputer tidak bisa menulis dua kali','Tidak ada alasan khusus'],a:0,w:'δ hidden memakai v lama. Memperbarui v sebelum δ hidden dihitung memberi gradien yang salah (bug nomor 4 di Simulasi 9).'},
+  {q:'Jaringan punya 1 juta parameter. Berapa kali forward pass yang dibutuhkan beda hingga terpusat untuk satu gradien lengkap?',o:['1','2 juta','1 juta','Sekitar 3'],a:1,w:'Dua forward pass per parameter = 2 juta. Backprop menyelesaikannya dengan sekitar satu maju dan satu mundur.'},
+  {q:'Mengapa XOR memerlukan lapisan tersembunyi?',o:['Kedua kelas tidak dapat dipisahkan oleh satu garis lurus','XOR terlalu banyak data','Karena XOR hanya punya satu masukan','Karena sigmoid tidak bisa dipakai'],a:0,w:'Satu neuron hanya membuat batas lurus. Lapisan tersembunyi membentuk ruang baru yang bisa dipisahkan secara linear.'},
+  {q:'Apa beda backprop dengan gradient descent?',o:['Backprop menghitung gradien; gradient descent memakai gradien itu untuk memperbarui parameter','Keduanya sama','Backprop memperbarui bobot; gradient descent menghitung gradien','Backprop hanya untuk lapisan terakhir'],a:0,w:'Backprop = cara efisien mendapatkan ∂L/∂θ untuk semua θ. Gradient descent (atau Adam, dll.) = aturan memakainya untuk memperbarui θ.'},
+  {q:'Cross-entropy lebih disukai daripada kuadrat selisih untuk keluaran sigmoid karena…',o:['Gradiennya tidak mengecil saat jaringan yakin tetapi salah','Nilainya selalu lebih kecil','Tidak memerlukan bobot','Selalu menghasilkan akurasi 100%'],a:0,w:'Dengan MSE, δₒ ikut dikali σ′ yang ≈ 0 bila jenuh; cross-entropy meniadakan faktor itu sehingga δₒ = ŷ − t tetap besar.'}
+];
+QZ.forEach((x,i)=>{const r=rngJS(i*31+7),idx=x.o.map((_,j)=>j);               // acak urutan pilihan (tetap per soal)
+  for(let j=idx.length-1;j>0;j--){const k=Math.floor(r()*(j+1));[idx[j],idx[k]]=[idx[k],idx[j]]}
+  x.o=idx.map(j=>x.o[j]);x.a=idx.indexOf(x.a)});
+const answered={};
+$('#quiz').innerHTML=QZ.map((x,i)=>`<div class="q" data-i="${i}"><p>${i+1}. ${x.q}</p>${x.o.map((o,j)=>`<button data-j="${j}">${o}</button>`).join('')}<div class="why"></div></div>`).join('');
+$$('#quiz .q button').forEach(b=>b.onclick=()=>{
+  const box=b.closest('.q'),i=box.dataset.i,x=QZ[i];
+  box.querySelectorAll('button').forEach(o=>o.classList.remove('right','wrong'));
+  b.classList.add(+b.dataset.j===x.a?'right':'wrong');
+  box.querySelector(`[data-j="${x.a}"]`).classList.add('right');
+  const w=box.querySelector('.why');w.style.display='block';w.innerHTML=(+b.dataset.j===x.a?'Benar. ':'Belum tepat. ')+x.w;
+  if(!(i in answered))answered[i]=+b.dataset.j===x.a;
+  const n=Object.keys(answered).length,ok=Object.values(answered).filter(Boolean).length;
+  $('#qScore').textContent=n<QZ.length?`Terjawab ${n} dari ${QZ.length} · benar ${ok} (jawaban pertama yang dihitung)`:`Skor akhir: ${ok} dari ${QZ.length}. ${ok===QZ.length?'Sempurna! 🎉':ok>=Math.ceil(QZ.length*.7)?'Bagus sekali, ulangi bagian yang masih meleset.':'Baca ulang bagian yang berkaitan, lalu coba lagi.'}`;
+});
+
+</script>
+</body>
+</html>
