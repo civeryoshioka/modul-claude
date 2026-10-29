@@ -111,13 +111,15 @@ const G=[
     {id:'adv',c:'--warn',tag:'Advanced',title:'Reinforcement Learning: Lanjut',href:'reinforcement-learning/03-advanced.html',time:'± 3,5 jam',demo:2,quiz:6,
      desc:'Policy gradient, actor-critic, PPO, SAC, offline RL, sampai RLHF, DPO, dan GRPO.'}
    ]},
-  {id:'srv',title:'🚀 Menyajikan Model AI',note:'2 modul berurutan',
-   sub:'Dari model di notebook menjadi layanan web yang aman dan siap produksi. Ikuti urutan: FastAPI untuk model klasik dulu, lalu serving deep learning (PyTorch dan ONNX) yang memakai semua konsep modul pertama.',
+  {id:'srv',title:'🚀 Menyajikan Model AI',note:'2 modul berurutan + 1 pendamping',
+   sub:'Dari model di notebook menjadi layanan web yang aman dan siap produksi. Ikuti urutan: FastAPI untuk model klasik dulu, lalu serving deep learning (PyTorch dan ONNX) yang memakai semua konsep modul pertama. Modul pendamping membedah CNN angka yang dipakai di modul kedua, langkah demi langkah dengan hitungan dan simulasi.',
    items:[
     {id:'fastapi',c:'--accent',tag:'Python',title:'Memahami FastAPI untuk AI/ML',href:'fastapi/01-fastapi-untuk-ai-ml.html',time:'± 4 jam',demo:12,quiz:25,
      desc:'HTTP, Pydantic, memuat model sekali, async vs def, dependency injection, streaming ala LLM, dynamic batching, keamanan, testing, deployment, dan studi kasus API sentimen.'},
     {id:'fastapidl',c:'--violet',tag:'PyTorch',title:'Serving Model Deep Learning dengan FastAPI',href:'fastapi/02-serving-deep-learning.html',time:'± 4,5 jam',demo:13,quiz:25,
-     desc:'Praproses dan train–serve skew (dengan CNN sungguhan di browser), format model yang aman, PyTorch vs ONNX Runtime dengan angka nyata, kuantisasi, cold start, batching, model generatif, memori GPU, drift, dan autoscaling.'}
+     desc:'Praproses dan train–serve skew (dengan CNN sungguhan di browser), format model yang aman, PyTorch vs ONNX Runtime dengan angka nyata, kuantisasi, cold start, batching, model generatif, memori GPU, drift, dan autoscaling.'},
+    {id:'cnnangka',c:'--good',tag:'Pendamping',title:'Membedah CNN Angka: Hitungan dan Simulasi',href:'deep-learning/02-cnn-angka-langkah-demi-langkah.html',time:'± 4 jam',demo:13,quiz:28,
+     desc:'Pendamping modul Serving: konvolusi, ReLU, pooling, linear, softmax, dan loss dihitung dengan bobot nyata, lengkap dengan backpropagation, pelatihan CNN langsung di browser, matriks konfusi, oklusi, dan uji geser.'}
    ]},
   {id:'ca',title:'📐 Kalkulus',note:'4 modul berurutan',
    sub:'Setiap modul memakai konsep dari modul sebelumnya. Studi kasus anggaran menggabungkan ketiganya.',

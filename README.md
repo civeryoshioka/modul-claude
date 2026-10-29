@@ -27,12 +27,13 @@ Kumpulan modul belajar interaktif berbentuk HTML (cukup buka file di browser, ta
 
 ## Menyajikan Model AI
 
-Ikuti urutan bernomor: **1 FastAPI untuk AI/ML → 2 Serving Deep Learning**.
+Ikuti urutan bernomor: **1 FastAPI untuk AI/ML → 2 Serving Deep Learning**. Modul pendamping (boleh dibaca kapan saja setelah modul 2, atau saat ingin memahami isi CNN-nya): **Membedah CNN Angka**.
 
 | Modul | File | Status |
 |---|---|---|
 | 1 · Memahami FastAPI untuk AI/ML (HTTP, Pydantic, memuat model sekali, async vs def, dependency injection, streaming ala LLM, dynamic batching, keamanan, testing, deployment, studi kasus API sentimen; 12 simulasi dan kode Python yang sudah dijalankan) | [`fastapi/01-fastapi-untuk-ai-ml.html`](fastapi/01-fastapi-untuk-ai-ml.html) | ✅ Selesai |
 | 2 · Serving Model Deep Learning dengan FastAPI (praproses dan train–serve skew, format artifact yang aman, PyTorch vs ONNX Runtime, kuantisasi, cold start, batching, model generatif, memori GPU, drift, autoscaling; 13 simulasi, sebagian menjalankan CNN sungguhan di browser; kode dijalankan dengan PyTorch 2.14 dan ONNX Runtime 1.31) | [`fastapi/02-serving-deep-learning.html`](fastapi/02-serving-deep-learning.html) | ✅ Selesai |
+| Pendamping · Membedah CNN Angka: Hitungan dan Simulasi (CNN angka dari modul 2 dibedah: piksel → konvolusi → ReLU → pooling → linear → softmax → loss dengan bobot nyata, backpropagation dengan angka, melatih CNN langsung di browser, matriks konfusi, oklusi, dan uji geser; 13 simulasi dan kode NumPy yang dicocokkan dengan PyTorch) | [`deep-learning/02-cnn-angka-langkah-demi-langkah.html`](deep-learning/02-cnn-angka-langkah-demi-langkah.html) | ✅ Selesai |
 
 ## Kalkulus
 
