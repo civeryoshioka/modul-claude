@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OSINT Etis &amp; Anti-Doxing</title>
+<style>
+:root{
+  --bg:#f7f8fa;--surface:#ffffff;--surface-2:#f0f2f6;--text:#1c2230;--muted:#5b6474;
+  --border:#e1e5ec;--accent:#3a6df0;--accent-soft:#e6edff;--good:#1f9d63;--bad:#d64545;--warn:#c98a12;--violet:#7c4dff;
+  --code-bg:#f3f5f9;--sidebar-w:280px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+    --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--violet:#a98bff;--code-bg:#1d222b;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+  --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--violet:#a98bff;--code-bg:#1d222b;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+/* Sidebar */
+#sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);
+  overflow-y:auto;padding:22px 16px;z-index:20;transition:transform .25s}
+#sidebar .brand{font-weight:700;font-size:17px;margin:0 8px 2px}
+#sidebar .level{display:inline-block;margin:0 8px 16px;font-size:12px;padding:2px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar ol{list-style:none;margin:0;padding:0;counter-reset:toc}
+#sidebar li a{display:flex;gap:10px;padding:7px 10px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:14.5px;line-height:1.4}
+#sidebar li a::before{counter-increment:toc;content:counter(toc);min-width:20px;height:20px;border-radius:50%;background:var(--surface-2);
+  font-size:11.5px;display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+#sidebar li a:hover{background:var(--surface-2);color:var(--text)}
+#sidebar li a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar li a.active::before{background:var(--accent);color:#fff}
+#progress{height:4px;background:var(--surface-2);border-radius:4px;margin:0 8px 18px;overflow:hidden}
+#progress div{height:100%;width:0;background:var(--accent);transition:width .1s}
+#menuBtn{display:none;position:fixed;top:12px;left:12px;z-index:30;border:1px solid var(--border);background:var(--surface);color:var(--text);
+  border-radius:8px;padding:6px 12px;font-size:15px;cursor:pointer}
+.sbtns{display:flex;flex-wrap:wrap;gap:8px;margin:18px 8px 0}
+/* Main */
+main{margin-left:var(--sidebar-w);padding:40px 48px 80px;max-width:calc(var(--sidebar-w) + 920px)}
+main>*{max-width:880px}
+header.hero{padding:8px 0 24px;border-bottom:1px solid var(--border);margin-bottom:12px}
+header.hero h1{font-size:34px;line-height:1.2;margin:0 0 8px;text-wrap:balance}
+header.hero p{color:var(--muted);margin:0}
+section{padding-top:28px}
+h2{font-size:25px;margin:16px 0 10px;padding-top:8px;text-wrap:balance}
+h3{font-size:18.5px;margin:26px 0 6px;text-wrap:balance}
+p,li{color:var(--text)}
+main p,main li,.box{text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+.card span{text-align:left}
+.muted{color:var(--muted)}
+.box{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:16px 20px;margin:16px 0}
+.box.tip{border-left:4px solid var(--good)}
+.box.note{border-left:4px solid var(--accent)}
+.box.warn{border-left:4px solid var(--warn)}
+.box.bad{border-left:4px solid var(--bad)}
+.box>strong:first-child{display:block;margin-bottom:4px}
+.box ul,.box ol{margin:6px 0 0;padding-left:22px}
+.box p{margin:6px 0 0}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;background:var(--code-bg);padding:1px 6px;border-radius:5px}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-size:13.5px;line-height:1.55;margin:14px 0}
+pre code{background:none;padding:0;font-size:inherit}
+.c{color:var(--muted);font-style:italic} .k{color:var(--accent);font-weight:600} .s{color:var(--good)} .n{color:var(--warn)} .t{color:var(--violet)} .a{color:var(--warn)}
+/* Blok kode */
+.codewrap{margin:14px 0}
+.codewrap pre{margin:0;border-radius:0 0 10px 10px}
+.codecap{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font:600 12.5px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  background:var(--surface-2);border:1px solid var(--border);border-bottom:0;border-radius:10px 10px 0 0;padding:6px 14px;color:var(--muted)}
+.codecap.bad{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,var(--border))}
+.codecap.good{color:var(--good);border-color:color-mix(in srgb,var(--good) 40%,var(--border))}
+.codecap span:last-child{opacity:.75;font-weight:500}
+.ln{display:inline-block;min-width:calc(100% + 32px);margin:0 -16px;padding:0 16px}
+.ln.bad{background:color-mix(in srgb,var(--bad) 15%,transparent);box-shadow:inset 3px 0 var(--bad)}
+.ln.good{background:color-mix(in srgb,var(--good) 15%,transparent);box-shadow:inset 3px 0 var(--good)}
+.outwrap{margin:-6px 0 16px}
+.outwrap .codecap{border-radius:0;border-top:0;background:var(--surface);font-size:11.5px;padding:3px 14px}
+.outwrap pre{margin:0;border-radius:0 0 10px 10px;background:#10141c;color:#d7e3f4;border-color:#10141c;font-size:13px;padding:10px 16px}
+:root[data-theme="dark"] .outwrap pre{background:#0b0e13}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .outwrap pre{background:#0b0e13}}
+.tbl{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{border:1px solid var(--border);padding:7px 11px;text-align:left;vertical-align:top}
+th{background:var(--surface-2)}
+td.c2,th.c2{text-align:center}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin:14px 0}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:14px 0}
+.card{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 16px;min-width:0}
+.card b{display:block;margin-bottom:2px}
+.card span{color:var(--muted);font-size:14.5px;display:block}
+.card .ic{font-size:26px;line-height:1;display:block;margin-bottom:6px}
+.card.s{border-top:4px solid var(--accent)}.card.o{border-top:4px solid var(--good)}.card.l{border-top:4px solid var(--warn)}
+.card.i{border-top:4px solid var(--violet)}.card.d{border-top:4px solid var(--bad)}
+.pill{display:inline-block;font-size:11.5px;font-weight:700;padding:0 8px;border-radius:99px;margin-right:6px;vertical-align:1px;color:#fff}
+.pill.s{background:var(--accent)}.pill.o{background:var(--good)}.pill.l{background:var(--warn)}.pill.i{background:var(--violet)}.pill.d{background:var(--bad)}
+.vs{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:0 16px;align-items:start}
+.vs>div{min-width:0}
+/* Demo widgets */
+.demo{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:18px;margin:18px 0}
+.demo h4{margin:0 0 4px;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent)}
+.demo>p{margin:4px 0 8px;font-size:15px}
+.controls{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:10px 0}
+select.btn{max-width:100%;text-overflow:ellipsis}
+button.btn,select.btn,a.btn{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:8px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer;text-decoration:none;display:inline-block}
+button.btn:hover,select.btn:hover,a.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.btn.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+button.btn.danger{border-color:var(--bad);color:var(--bad)}
+button.btn:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+label.range{display:flex;align-items:center;gap:8px;font-size:14px;flex-wrap:wrap}
+label.range b{min-width:3.6em;font-variant-numeric:tabular-nums}
+label.chk{display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer}
+input[type=range]{accent-color:var(--accent);max-width:200px}
+input[type=checkbox],input[type=radio]{accent-color:var(--accent);width:16px;height:16px}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+.seg button{border:0;border-right:1px solid var(--border);background:var(--surface-2);color:var(--text);padding:7px 14px;font:inherit;font-size:14px;cursor:pointer}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--accent);color:#fff;font-weight:600}
+.kpi{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.kpi div{border:1px solid var(--border);background:var(--surface-2);border-radius:8px;padding:6px 12px;font-size:13px;color:var(--muted);min-width:0}
+.kpi b{display:block;font-size:17px;color:var(--text);font-variant-numeric:tabular-nums}
+.kpi .okv b{color:var(--good)} .kpi .badv b{color:var(--bad)}
+.msg{font-size:14px;margin:8px 0 0;padding:8px 12px;border-radius:8px;background:var(--accent-soft);color:var(--text);text-align:left}
+.msg.ok{background:color-mix(in srgb,var(--good) 15%,transparent)}
+.msg.no{background:color-mix(in srgb,var(--bad) 15%,transparent)}
+.msg.wa{background:color-mix(in srgb,var(--warn) 18%,transparent)}
+.console{background:#10141c;color:#d7e3f4;border-radius:10px;padding:10px 14px;font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;min-height:84px;max-height:200px;overflow:auto;white-space:pre-wrap}
+.console .e{color:#ff8f8f}.console .g{color:#7be3a4}.console .m{color:#8fa3bf}
+.cap{font-size:12.5px;color:var(--muted);margin:4px 2px 0;text-align:left}
+.legend{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:6px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.bar{height:10px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.mtr{display:grid;grid-template-columns:minmax(150px,1.2fr) 2fr 3.2em;gap:6px 10px;align-items:center;font-size:13.5px;margin:6px 0}
+.mtr span:last-child{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+/* Diagram */
+.diagram{overflow-x:auto;margin:16px 0}
+.diagram svg{display:block;width:100%;min-width:520px;max-width:760px;margin:0 auto}
+.diagram.fit svg{min-width:0;max-width:none}
+.diagram.narrow svg{min-width:300px;max-width:420px}
+.diagram text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.gnode{cursor:pointer}
+.gnode rect{transition:fill .15s,stroke .15s}
+.gnode:hover rect{stroke:var(--accent)}
+/* Steps */
+.steps{counter-reset:st;list-style:none;padding:0}
+.steps li{counter-increment:st;position:relative;padding:4px 0 10px 42px}
+.steps li::before{content:counter(st);position:absolute;left:0;top:4px;width:28px;height:28px;border-radius:50%;background:var(--accent-soft);
+  color:var(--accent);font-weight:700;display:grid;place-items:center;font-size:14px}
+/* Quiz */
+.q{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 18px;margin:12px 0}
+.q p{margin:0 0 8px;font-weight:600;text-align:left}
+.q pre{font-weight:400;margin:6px 0 10px;font-size:13px}
+.q button{display:block;width:100%;text-align:left;margin:6px 0;border:1px solid var(--border);background:var(--surface-2);color:var(--text);
+  border-radius:8px;padding:8px 12px;font:inherit;font-size:14.5px;cursor:pointer}
+.q button:hover{border-color:var(--accent)}
+.q button.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 15%,transparent)}
+.q button.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,transparent)}
+.q .why{font-size:14px;color:var(--muted);display:none;margin-top:6px}
+#qScore,.score{font-size:14px;color:var(--muted)}
+details.sol{border:1px solid var(--border);border-radius:10px;background:var(--surface);margin:10px 0;padding:0}
+details.sol>summary{cursor:pointer;padding:9px 14px;font-weight:600;font-size:14.5px}
+details.sol>div{padding:0 14px 12px}
+.nav-mod{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px}
+footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:14px}
+@media (max-width:900px){
+  #sidebar{transform:translateX(-100%);box-shadow:0 0 30px rgba(0,0,0,.2)}
+  #sidebar.open{transform:none}
+  #menuBtn{display:block}
+  main{margin-left:0;padding:60px 16px 60px}
+  header.hero h1{font-size:27px}
+}
+@media (max-width:620px){
+  main p,main li,.box{text-align:left}
+  .vs{grid-template-columns:minmax(0,1fr)}
+  .mtr{grid-template-columns:1fr 3em}
+  .mtr .bar{grid-column:1/-1;grid-row:2}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.bar>i,.gnode rect{transition:none}}
+@media print{
+  #sidebar,#menuBtn,.controls,.sbtns{display:none!important}
+  main{margin:0;padding:0;max-width:none}
+  body{background:#fff;color:#000;font-size:12pt}
+  .demo,.box,.card,.q{break-inside:avoid}
+  pre{white-space:pre-wrap;word-break:break-word}
+  section{break-before:auto}
+}
+
+/* ===== Khusus modul OSINT Etis ===== */
+.analog{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 14px;margin-top:8px}
+.analog b{color:var(--accent)}
+.analog span{text-align:justify}
+.tl{list-style:none;padding:0;margin:10px 0;border-left:3px solid var(--border)}
+.tl li{position:relative;padding:4px 0 10px 18px;font-size:14.5px}
+.tl li::before{content:"";position:absolute;left:-8px;top:10px;width:13px;height:13px;border-radius:50%;background:var(--accent)}
+.tl li b{display:inline-block;min-width:4.5em;font-variant-numeric:tabular-nums}
+.tagl{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 9px;border-radius:99px;vertical-align:1px;margin-right:4px;color:#fff}
+.tagl.ok{background:var(--good)}.tagl.wa{background:var(--warn)}.tagl.no{background:var(--bad)}.tagl.in{background:var(--accent)}
+.scn{border:1px solid var(--border);background:var(--surface-2);border-radius:10px;padding:12px 14px;margin:10px 0;font-size:15px;text-align:left}
+.scn .n{font-size:12.5px;color:var(--muted);font-weight:600}
+.choice{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}
+.phase{margin-top:10px;border:1px solid var(--border);border-radius:10px;padding:12px 16px;background:var(--surface-2);min-height:120px}
+.phase h5{margin:0 0 4px;font-size:15.5px;color:var(--accent)}
+.phase p{margin:4px 0;font-size:14.5px}
+.mosaic{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:12px 0}
+.tile{border:1px solid var(--border);background:var(--surface-2);border-radius:10px;padding:9px 10px;font-size:13.5px;line-height:1.35;cursor:pointer;text-align:left;color:var(--text);font-family:inherit;transition:background .15s,border-color .15s}
+.tile .ic{font-size:20px;display:block;margin-bottom:3px}
+.tile .ct{display:block;font-size:11px;color:var(--muted);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.tile.on{background:color-mix(in srgb,var(--warn) 16%,transparent);border-color:var(--warn)}
+.tile.on.hot{background:color-mix(in srgb,var(--bad) 18%,transparent);border-color:var(--bad)}
+.meter{height:14px;border-radius:99px;background:var(--surface-2);overflow:hidden;border:1px solid var(--border)}
+.meter i{display:block;height:100%;width:0;transition:width .35s,background .35s}
+.combo{list-style:none;padding:0;margin:8px 0 0}
+.combo li{font-size:14px;padding:7px 10px;border-radius:8px;margin:6px 0;background:color-mix(in srgb,var(--bad) 12%,transparent);border-left:3px solid var(--bad);text-align:left}
+.combo li.fix{background:color-mix(in srgb,var(--good) 12%,transparent);border-left-color:var(--good)}
+.checklist{list-style:none;padding:0;margin:10px 0}
+.checklist li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:4px 10px;padding:9px 4px;border-top:1px solid var(--border);align-items:start}
+.checklist li:first-child{border-top:0}
+.checklist li input{margin-top:4px}
+.checklist li.done span>b{text-decoration:line-through;color:var(--muted)}
+.checklist li span small{display:block;color:var(--muted);font-size:13.5px;margin-top:2px;text-align:justify}
+.drop{border:2px dashed var(--border);border-radius:12px;padding:18px;text-align:center;color:var(--muted);font-size:14.5px;cursor:pointer}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.kv{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 14px;font-size:14px;margin:10px 0}
+.kv b{color:var(--muted);font-weight:600}
+.kv span{word-break:break-word;font-variant-numeric:tabular-nums}
+.kv .bad{color:var(--bad);font-weight:700}
+.hash{font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;word-break:break-all;background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin:6px 0}
+.hash .df{background:color-mix(in srgb,var(--bad) 25%,transparent);border-radius:2px}
+textarea.inp,input.inp{width:100%;font:inherit;font-size:14.5px;color:var(--text);background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
+textarea.inp{min-height:70px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px}
+.rule{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin:12px 0}
+.rule>div{border:1px solid var(--border);border-radius:10px;padding:10px 14px;background:var(--surface)}
+.rule>div.in{border-top:4px solid var(--good)}.rule>div.out{border-top:4px solid var(--bad)}
+.rule ul{margin:4px 0 0;padding-left:20px;font-size:14px}
+.find{border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:8px 0;background:var(--surface-2)}
+.find p{margin:0 0 6px;font-size:14.5px;text-align:left}
+.find .res{font-size:13.5px;margin-top:6px;display:none;text-align:left}
+.find.ok{border-color:var(--good)}.find.no{border-color:var(--bad)}
+.find select{max-width:100%}
+.pledge{border:2px solid var(--text);border-radius:6px;padding:18px 22px;margin:16px 0;background:var(--surface)}
+.pledge h4{margin:0 0 8px;text-align:center;font-size:17px}
+.pledge ol{padding-left:22px}
+.pledge .sign{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin-top:22px;font-size:14px}
+.pledge .sign div{border-top:1px solid var(--text);padding-top:4px}
+.gl{display:grid;grid-template-columns:minmax(140px,max-content) minmax(0,1fr);gap:6px 16px;font-size:14.5px}
+.gl dt{font-weight:700}
+.gl dd{margin:0;text-align:justify}
+@media (max-width:620px){
+  .analog,.kv,.gl{grid-template-columns:minmax(0,1fr)}
+  .analog b,.gl dt{margin-top:6px}
+  .analog span,.gl dd,.checklist li span small{text-align:left}
+}
+@media print{
+  .pledge{break-inside:avoid;border-color:#000}
+  .tile,.find{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<button id="menuBtn" aria-label="Buka daftar isi">☰ Daftar Isi</button>
+
+<nav id="sidebar" aria-label="Daftar isi">
+  <a class="home-link" href="../index.html" style="display:block;margin:0 8px 12px;font-size:13px;text-decoration:none">← Beranda semua modul</a>
+  <div class="brand">OSINT Etis &amp; Anti-Doxing</div>
+  <span class="level">Keamanan Informasi · Lengkap</span>
+  <div id="progress"><div></div></div>
+  <ol id="toc">
+    <li><a href="#pengantar">Pengantar &amp; Peta Belajar</a></li>
+    <li><a href="#apa-osint">Apa Itu OSINT</a></li>
+    <li><a href="#garis-batas">OSINT vs Doxing: Garis Batas</a></li>
+    <li><a href="#hukum">Hukum &amp; Etika di Indonesia</a></li>
+    <li><a href="#siklus">Siklus Intelijen</a></li>
+    <li><a href="#sumber">Peta Sumber Informasi</a></li>
+    <li><a href="#verifikasi">Verifikasi &amp; Analisis</a></li>
+    <li><a href="#bukti">Dokumentasi &amp; Chain of Custody</a></li>
+    <li><a href="#opsec">OPSEC &amp; Kesejahteraan Peneliti</a></li>
+    <li><a href="#lab-jejak">Lab 1: Audit Jejak Digital Diri</a></li>
+    <li><a href="#lab-org">Lab 2: Recon Organisasi Berizin</a></li>
+    <li><a href="#mosaik">Doxing dari Sisi Korban</a></li>
+    <li><a href="#lindungi">Pencegahan &amp; Respons</a></li>
+    <li><a href="#kasus">Studi Kasus &amp; Diskusi</a></li>
+    <li><a href="#rps">Rencana Pembelajaran &amp; Rubrik</a></li>
+    <li><a href="#kuis">Glosarium</a></li>
+  </ol>
+  <div class="sbtns">
+    <button class="btn" id="themeBtn">🌓 Ganti tema</button>
+    <button class="btn" id="printBtn">🖨 Cetak / PDF</button>
+  </div>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>OSINT Etis &amp; Anti-Doxing: Panduan Mengajar dan Praktik yang Bertanggung Jawab</h1>
+  <p>Modul ini membahas <i>Open Source Intelligence</i> (OSINT) sebagai disiplin yang sah: cara berpikirnya, siklus kerjanya, verifikasi, dokumentasi bukti, dan batas hukum serta etikanya di Indonesia. Kita juga membahas <b>doxing</b> dari sisi yang paling penting untuk diajarkan, yaitu bagaimana mengenali, mencegah, dan merespons ketika seseorang menjadi korban. Praktiknya dibatasi pada dua sasaran yang aman: <b>jejak digital diri sendiri</b> dan <b>aset organisasi dalam engagement yang berizin</b>. Dilengkapi analogi, diagram, dua lab siap pakai, rencana pembelajaran per pertemuan, rubrik, pakta etika, dan glosarium.</p>
+</header>
+
+<!-- ============ 1. PENGANTAR ============ -->
+<section id="pengantar">
+<h2>1. Pengantar &amp; Peta Belajar</h2>
+<p>Hampir semua serangan siber yang terarah dimulai dari tahap yang sama: mengumpulkan informasi yang tersedia secara terbuka. Phishing yang meyakinkan memakai nama atasan yang benar, jabatan yang benar, dan gaya bahasa yang mirip email internal. Semua itu bisa didapat dari situs resmi, LinkedIn, atau unggahan media sosial. Karena itu, orang yang bertugas melindungi sistem perlu memahami cara berpikir pengumpul informasi, persis seperti ahli kunci yang perlu memahami cara kerja alat pembobol untuk merancang kunci yang lebih baik.</p>
+<p>Namun pengetahuan ini punya sisi gelap. Teknik yang sama, bila diarahkan ke seorang individu tanpa izin lalu hasilnya disebarkan, menjadi <b>doxing</b>: tindakan yang bisa berujung pada pelecehan, ancaman, bahkan kekerasan fisik. Modul ini sengaja disusun agar mahasiswa memahami <b>mengapa</b> dan <b>bagaimana</b> informasi terbuka bisa berbahaya, tanpa menjadikan mereka mampu atau terdorong untuk menyasar orang lain.</p>
+
+<div class="box tip"><strong>🔎 Analogi: pustakawan detektif</strong>
+<div class="analog">
+<b>Perpustakaan</b><span>Internet dan sumber publik lain. Isinya terbuka untuk siapa saja, tetapi tersebar di jutaan rak.</span>
+<b>Pertanyaan</b><span>Setiap penelusuran yang baik dimulai dari pertanyaan yang jelas dan sah: "Aset apa milik kampus kita yang terlihat dari internet?", bukan "Siapa orang ini dan di mana rumahnya?"</span>
+<b>Kartu katalog</b><span>Metodologi: tahu sumber mana yang relevan, bagaimana menilai keandalannya, dan bagaimana mencatat temuan.</span>
+<b>Kode etik</b><span>Pustakawan tidak membocorkan siapa meminjam buku apa. Analis OSINT pun punya batas: tidak semua yang bisa ditemukan boleh dikumpulkan, apalagi disebarkan.</span>
+</div></div>
+
+<h3>Capaian pembelajaran</h3>
+<p>Setelah menyelesaikan modul ini, mahasiswa diharapkan mampu:</p>
+<ol class="steps">
+<li>Menjelaskan konsep OSINT, siklus intelijen, dan perannya dalam keamanan informasi, jurnalisme, serta riset.</li>
+<li>Membedakan OSINT yang sah dengan doxing menggunakan empat uji: tujuan, dasar hukum, proporsionalitas, dan dampak.</li>
+<li>Menjelaskan ketentuan UU PDP, UU ITE, dan UU TPKS yang relevan dengan pengumpulan dan penyebaran data pribadi.</li>
+<li>Menilai keandalan sumber dan informasi, serta mendokumentasikan temuan dengan prinsip <i>chain of custody</i>.</li>
+<li>Melakukan audit jejak digital diri sendiri dan menyusun rencana mitigasinya.</li>
+<li>Melakukan <i>passive reconnaissance</i> terhadap aset organisasi dalam batas <i>scope</i> dan <i>Rules of Engagement</i>, lalu menulis laporan yang bertanggung jawab.</li>
+<li>Mengenali efek mosaik, mencegah doxing, dan membantu korban mengambil langkah respons yang tepat.</li>
+</ol>
+
+<div class="box note"><strong>🧭 Peta modul</strong>
+<p>Bagian 2 sampai 4 adalah <b>fondasi konsep dan batas</b>. Jangan dilewati: tanpa pemahaman ini, bagian teknis berisiko disalahgunakan. Bagian 5 sampai 9 adalah <b>metodologi</b> (siklus, sumber, verifikasi, dokumentasi, OPSEC). Bagian 10 dan 11 adalah <b>lab praktik</b> dengan sasaran yang aman. Bagian 12 sampai 14 membahas <b>doxing dari sisi korban dan pencegahan</b>. Bagian 15 berisi rencana pembelajaran dan rubrik untuk dosen.</p>
+</div>
+
+<div class="box warn"><strong>⚠️ Catatan untuk dosen</strong>
+<p>Sebelum lab dimulai, minta mahasiswa membaca dan menandatangani <a href="#pakta">Pakta Etika Praktikum</a> di bagian 15. Tegaskan bahwa mencari, mengumpulkan, atau menyebarkan data pribadi orang lain (termasuk teman sekelas, dosen, atau tokoh publik) <b>bukan</b> bagian dari tugas. Sediakan juga alternatif persona fiktif untuk mahasiswa yang tidak nyaman mengaudit jejak digitalnya sendiri.</p>
+</div>
+</section>
+
+<!-- ============ 2. APA ITU OSINT ============ -->
+<section id="apa-osint">
+<h2>2. Apa Itu OSINT</h2>
+<p><b>Open Source Intelligence</b> adalah intelijen yang dihasilkan dari informasi yang tersedia untuk publik, lalu dikumpulkan, diolah, dan disampaikan kepada pihak yang tepat untuk menjawab kebutuhan informasi tertentu. Kata kuncinya ada dua. Pertama, <b>sumber terbuka</b>: informasi yang bisa diakses secara sah tanpa meretas, mencuri, atau menipu. Kedua, <b>intelijen</b>: bukan sekadar tumpukan data, tetapi hasil analisis yang menjawab pertanyaan.</p>
+<p>Istilah "open source" di sini tidak ada hubungannya dengan perangkat lunak <i>open source</i>. Ia merujuk pada sumber informasi yang terbuka, sebagai lawan dari sumber rahasia.</p>
+
+<h3>Data, informasi, intelijen</h3>
+<div class="grid3">
+<div class="card s"><span class="ic">🧱</span><b>Data</b><span>Fakta mentah tanpa konteks. Contoh: daftar 40 subdomain milik kampus.</span></div>
+<div class="card o"><span class="ic">🧩</span><b>Informasi</b><span>Data yang sudah diolah dan diberi konteks. Contoh: 3 dari 40 subdomain itu adalah server pengembangan yang terbuka ke internet.</span></div>
+<div class="card l"><span class="ic">💡</span><b>Intelijen</b><span>Informasi yang dianalisis untuk mendukung keputusan. Contoh: server pengembangan itu memakai versi aplikasi lama dan perlu ditutup minggu ini.</span></div>
+</div>
+
+<h3>Keluarga "INT"</h3>
+<p>Dalam dunia intelijen, OSINT adalah salah satu dari beberapa disiplin pengumpulan. Memahami perbedaannya membantu mahasiswa melihat bahwa OSINT dibatasi oleh sifat sumbernya:</p>
+<div class="tbl"><table>
+<tr><th>Disiplin</th><th>Sumber</th><th>Contoh</th></tr>
+<tr><td><b>OSINT</b></td><td>Informasi publik</td><td>Situs web, berita, dokumen pemerintah, publikasi ilmiah, data DNS, citra satelit komersial</td></tr>
+<tr><td><b>HUMINT</b></td><td>Manusia</td><td>Wawancara, informan</td></tr>
+<tr><td><b>SIGINT</b></td><td>Sinyal elektronik</td><td>Intersepsi komunikasi (hanya oleh lembaga berwenang)</td></tr>
+<tr><td><b>GEOINT</b></td><td>Data geospasial</td><td>Citra satelit, peta, analisis lokasi</td></tr>
+<tr><td><b>TECHINT</b></td><td>Peralatan dan teknologi</td><td>Analisis perangkat keras atau senjata</td></tr>
+</table></div>
+
+<h3>Sejarah singkat</h3>
+<ul class="tl">
+<li><b>1941</b> Amerika Serikat membentuk Foreign Broadcast Monitoring Service untuk memantau siaran radio asing. Ini sering disebut sebagai awal OSINT modern.</li>
+<li><b>1990-an</b> Internet membuat volume informasi publik meledak. Komunitas keamanan mulai memakai istilah <i>footprinting</i> untuk tahap pengumpulan informasi sebelum pengujian sistem.</li>
+<li><b>2005</b> Badan intelijen AS membentuk Open Source Center, tanda bahwa OSINT diakui sebagai disiplin tersendiri.</li>
+<li><b>2014</b> Bellingcat dan jurnalis warga lainnya menunjukkan bahwa OSINT bisa dipakai untuk investigasi kepentingan publik, misalnya penembakan pesawat MH17.</li>
+<li><b>Kini</b> OSINT dipakai luas oleh tim keamanan (<i>threat intelligence</i>, <i>attack surface management</i>), jurnalis (verifikasi berita), peneliti HAM, auditor kepatuhan, dan peneliti sosial.</li>
+</ul>
+
+<h3>Siapa yang memakai OSINT secara sah?</h3>
+<div class="grid2">
+<div class="card s"><b>🛡 Tim keamanan organisasi</b><span>Memetakan aset yang terekspos, memantau kebocoran kredensial milik organisasi, dan memahami ancaman yang relevan.</span></div>
+<div class="card o"><b>📰 Jurnalis &amp; pemeriksa fakta</b><span>Memverifikasi keaslian foto dan video, melacak asal hoaks, dan menyelidiki isu kepentingan publik.</span></div>
+<div class="card l"><b>⚖️ Peneliti HAM &amp; hukum</b><span>Mengumpulkan bukti pelanggaran yang tersebar di media sosial dengan standar yang bisa diterima pengadilan.</span></div>
+<div class="card i"><b>🎓 Peneliti akademik</b><span>Menganalisis wacana publik atau tren, dengan persetujuan komite etik dan anonimisasi data.</span></div>
+</div>
+
+<div class="box warn"><strong>🪟 Analogi: jendela tanpa gorden</strong>
+<p>Rumah dengan jendela tanpa gorden memang bisa dilihat dari jalan. Orang yang lewat dan sekilas melihat ke dalam tidak melakukan kesalahan. Tetapi orang yang berdiri di depan jendela setiap hari, mencatat kapan penghuninya pulang, memotret isinya, lalu mengirimkannya ke sebuah grup, jelas sedang menguntit. <b>Informasi yang bisa dilihat publik tidak otomatis boleh dikumpulkan, digabungkan, dan disebarkan.</b> Prinsip ini akan terus kembali di sepanjang modul.</p>
+</div>
+</section>
+
+<!-- ============ 3. GARIS BATAS ============ -->
+<section id="garis-batas">
+<h2>3. OSINT vs Doxing: Garis Batas</h2>
+<p><b>Doxing</b> (dari <i>dropping docs</i>, "menjatuhkan dokumen", istilah dari budaya peretas tahun 1990-an) adalah tindakan mengumpulkan lalu mengungkap informasi pribadi seseorang ke publik tanpa persetujuannya, biasanya dengan tujuan mempermalukan, mengintimidasi, menghukum, atau membuka jalan bagi pelecehan. Informasi yang diungkap bisa berupa nama asli di balik akun anonim, alamat rumah, nomor telepon, tempat kerja, sekolah anak, atau foto keluarga.</p>
+<p>Filsuf David M. Douglas (2016) membedakan tiga bentuk doxing berdasarkan apa yang dirusak:</p>
+<div class="grid3">
+<div class="card d"><b>Deanonymizing</b><span>Membongkar identitas asli di balik akun anonim atau nama samaran. Yang rusak: anonimitas, yang sering menjadi pelindung bagi pelapor atau korban kekerasan.</span></div>
+<div class="card d"><b>Targeting</b><span>Mengungkap informasi yang memungkinkan orang menemukan korban secara fisik: alamat, rutinitas, lokasi. Yang rusak: rasa aman dan keselamatan fisik.</span></div>
+<div class="card d"><b>Delegitimizing</b><span>Menyebarkan informasi pribadi yang memalukan untuk merusak kredibilitas atau reputasi. Yang rusak: martabat dan kehidupan sosial korban.</span></div>
+</div>
+
+<h3>Spektrum: dari riset sah sampai doxing</h3>
+<p>Teknik pencarian yang dipakai kadang mirip. Yang membedakan adalah <b>sasaran, tujuan, izin, dan apa yang dilakukan dengan hasilnya</b>.</p>
+<div class="diagram">
+<svg viewBox="0 0 760 210" role="img" aria-label="Spektrum dari OSINT etis ke doxing">
+  <defs><linearGradient id="gSpec" x1="0" x2="1"><stop offset="0" stop-color="var(--good)"/><stop offset=".5" stop-color="var(--warn)"/><stop offset="1" stop-color="var(--bad)"/></linearGradient></defs>
+  <rect x="20" y="70" width="720" height="16" rx="8" fill="url(#gSpec)"/>
+  <text x="20" y="58" font-size="14" font-weight="700" fill="var(--good)">OSINT etis</text>
+  <text x="380" y="58" font-size="14" font-weight="700" fill="var(--warn)" text-anchor="middle">Wilayah abu-abu</text>
+  <text x="740" y="58" font-size="14" font-weight="700" fill="var(--bad)" text-anchor="end">Doxing</text>
+  <g font-size="12.5" fill="var(--text)">
+    <circle cx="70" cy="78" r="6" fill="var(--surface)" stroke="var(--text)" stroke-width="2"/>
+    <text x="20" y="112">• Audit jejak</text><text x="20" y="128">  digital diri</text>
+    <circle cx="200" cy="78" r="6" fill="var(--surface)" stroke="var(--text)" stroke-width="2"/>
+    <text x="140" y="112">• Recon aset kampus</text><text x="140" y="128">  dengan surat tugas</text>
+    <circle cx="330" cy="78" r="6" fill="var(--surface)" stroke="var(--text)" stroke-width="2"/>
+    <text x="280" y="152">• HR melihat profil</text><text x="280" y="168">  profesional kandidat</text>
+    <circle cx="450" cy="78" r="6" fill="var(--surface)" stroke="var(--text)" stroke-width="2"/>
+    <text x="400" y="112">• "Penasaran" menelusuri</text><text x="400" y="128">  orang tanpa alasan sah</text>
+    <circle cx="580" cy="78" r="6" fill="var(--surface)" stroke="var(--text)" stroke-width="2"/>
+    <text x="530" y="152">• Mengumpulkan alamat</text><text x="530" y="168">  dan rutinitas seseorang</text>
+    <circle cx="700" cy="78" r="6" fill="var(--surface)" stroke="var(--text)" stroke-width="2"/>
+    <text x="740" y="112" text-anchor="end">• Menyebarkan data</text><text x="740" y="128" text-anchor="end">pribadi ke publik</text>
+  </g>
+  <text x="20" y="200" font-size="12" fill="var(--muted)">Sasaran: diri sendiri / aset organisasi berizin</text>
+  <text x="740" y="200" font-size="12" fill="var(--muted)" text-anchor="end">Sasaran: individu tanpa persetujuan</text>
+</svg>
+</div>
+
+<h3>Empat uji sebelum mencari</h3>
+<p>Ajarkan mahasiswa untuk berhenti sejenak dan menjawab empat pertanyaan ini sebelum memulai penelusuran apa pun. Bila satu saja jawabannya meragukan, penelusuran tidak boleh dilanjutkan sampai ada kejelasan.</p>
+<div class="grid2">
+<div class="card s"><b>1 · Tujuan</b><span>Apakah ada tujuan yang sah dan spesifik? "Memetakan aset kampus yang terekspos" adalah tujuan; "penasaran" atau "memberi pelajaran" bukan.</span></div>
+<div class="card o"><b>2 · Dasar &amp; izin</b><span>Apakah ada dasar hukum, mandat, kontrak, atau persetujuan dari pemilik aset atau orang yang bersangkutan?</span></div>
+<div class="card l"><b>3 · Proporsionalitas</b><span>Apakah data yang dikumpulkan sebatas yang dibutuhkan? Kebutuhan memetakan server tidak membenarkan mengumpulkan foto keluarga karyawan.</span></div>
+<div class="card d"><b>4 · Dampak</b><span>Siapa yang bisa dirugikan bila hasilnya bocor, salah, atau disalahgunakan? Apakah ada risiko salah orang?</span></div>
+</div>
+
+</section>
+
+<!-- ============ 4. HUKUM ============ -->
+<section id="hukum">
+<h2>4. Hukum &amp; Etika di Indonesia</h2>
+<p>Mahasiswa perlu tahu bahwa batas OSINT bukan hanya soal moral, tetapi juga soal hukum. Ringkasan di bawah ini disusun untuk keperluan pendidikan dan bukan nasihat hukum. Bunyi pasal lengkap dan perubahan terbaru selalu perlu dicek di naskah resmi (misalnya JDIH atau peraturan.go.id).</p>
+
+<h3>UU No. 27 Tahun 2022 tentang Pelindungan Data Pribadi (UU PDP)</h3>
+<p>UU PDP mulai berlaku penuh setelah masa transisi dua tahun berakhir pada Oktober 2024. Undang-undang ini membedakan <b>data pribadi umum</b> (nama lengkap, jenis kelamin, kewarganegaraan, agama, status perkawinan, dan data yang dikombinasikan untuk mengidentifikasi seseorang) dan <b>data pribadi spesifik</b> (kesehatan, biometrik, genetika, catatan kejahatan, data anak, keuangan pribadi, dan lainnya). Yang paling relevan untuk topik ini adalah larangan dalam Pasal 65 beserta ancaman pidananya di Pasal 67:</p>
+<div class="tbl"><table>
+<tr><th>Perbuatan yang dilarang (secara melawan hukum)</th><th>Ancaman maksimal</th></tr>
+<tr><td>Memperoleh atau mengumpulkan data pribadi yang bukan miliknya dengan maksud menguntungkan diri sendiri atau orang lain yang dapat merugikan subjek data</td><td>5 tahun penjara dan/atau denda Rp5 miliar</td></tr>
+<tr><td>Mengungkapkan data pribadi yang bukan miliknya</td><td>4 tahun penjara dan/atau denda Rp4 miliar</td></tr>
+<tr><td>Menggunakan data pribadi yang bukan miliknya</td><td>5 tahun penjara dan/atau denda Rp5 miliar</td></tr>
+</table></div>
+<p>Perhatikan bahwa ketiga perbuatan itu (mengumpulkan, mengungkapkan, menggunakan) adalah persis tahapan doxing. Kata "data yang dikombinasikan untuk mengidentifikasi seseorang" juga penting: potongan informasi yang masing-masing tampak remeh bisa menjadi data pribadi ketika digabungkan.</p>
+
+<h3>UU ITE (UU No. 11 Tahun 2008 beserta perubahannya, terakhir UU No. 1 Tahun 2024)</h3>
+<ul>
+<li><b>Pasal 26</b>: penggunaan informasi melalui media elektronik yang menyangkut data pribadi seseorang harus dilakukan atas persetujuan orang yang bersangkutan, kecuali ditentukan lain oleh peraturan. Orang yang haknya dilanggar dapat mengajukan gugatan.</li>
+<li><b>Pasal 30</b>: larangan mengakses komputer atau sistem elektronik milik orang lain secara tanpa hak. Ini batas yang memisahkan OSINT dari peretasan: begitu penelusuran melibatkan menebak kata sandi, memakai kredensial bocoran, atau melewati kontrol akses, itu bukan lagi sumber terbuka.</li>
+<li><b>Pasal 29</b>: larangan mengirimkan informasi elektronik yang berisi ancaman kekerasan atau menakut-nakuti yang ditujukan secara pribadi. Doxing sering diikuti ancaman semacam ini.</li>
+</ul>
+
+<h3>UU No. 12 Tahun 2022 tentang Tindak Pidana Kekerasan Seksual (UU TPKS)</h3>
+<p>Pasal 14 mengatur <b>kekerasan seksual berbasis elektronik</b>, termasuk menguntit atau melacak seseorang menggunakan sistem elektronik untuk tujuan seksual dan menyebarkan konten bermuatan seksual tanpa persetujuan. Doxing yang menyasar perempuan sering beririsan dengan kategori ini, yang dalam literatur disebut KBGO (kekerasan berbasis gender online).</p>
+
+<div class="box bad"><strong>🚫 Yang perlu ditegaskan ke mahasiswa</strong>
+<ul>
+<li>"Datanya kan publik" bukan pembelaan. UU PDP melarang pengumpulan dan pengungkapan yang melawan hukum, terlepas dari dari mana data itu diperoleh.</li>
+<li>Menyebarkan ulang (<i>repost</i>, meneruskan di grup) data pribadi hasil doxing orang lain juga bisa termasuk "mengungkapkan".</li>
+<li>Niat baik ("membantu polisi", "menegakkan keadilan") tidak menghapus risiko salah orang, yang dampaknya sangat berat bagi korban yang tidak bersalah.</li>
+</ul></div>
+
+<h3>Prinsip etika investigasi sumber terbuka</h3>
+<p><i>Berkeley Protocol on Digital Open Source Investigations</i>, yang disusun oleh Kantor Komisioner Tinggi HAM PBB (OHCHR) bersama Human Rights Center UC Berkeley, merumuskan prinsip-prinsip yang berguna sebagai kerangka mengajar:</p>
+<div class="grid3">
+<div class="card s"><b>Profesional</b><span><i>Accountability</i> (bisa mempertanggungjawabkan setiap langkah), <i>competence</i> (hanya melakukan yang dikuasai), <i>objectivity</i> (sadar akan bias).</span></div>
+<div class="card o"><b>Metodologis</b><span><i>Accuracy</i> (verifikasi sebelum menyimpulkan), <i>data minimization</i> (kumpulkan seperlunya), <i>preservation</i> (simpan bukti dengan benar), <i>security</i> (lindungi data dan diri).</span></div>
+<div class="card l"><b>Etis</b><span><i>Dignity</i> (hormati martabat orang dalam data), <i>humility</i> (akui batas pengetahuan), <i>inclusivity</i>, <i>independence</i>, <i>transparency</i>.</span></div>
+</div>
+<p>Dua prinsip yang paling sering dilanggar oleh pemula adalah <b>data minimization</b> dan <b>accuracy</b>. Pemula cenderung mengumpulkan semua yang bisa ditemukan "siapa tahu berguna", lalu terlalu cepat menyimpulkan dari kecocokan yang kebetulan. Keduanya adalah resep doxing yang salah sasaran.</p>
+</section>
+
+<!-- ============ 5. SIKLUS ============ -->
+<section id="siklus">
+<h2>5. Siklus Intelijen</h2>
+<p>OSINT yang profesional tidak dimulai dengan membuka mesin pencari, tetapi dengan <b>merumuskan pertanyaan</b>. Siklus intelijen adalah kerangka klasik yang memastikan setiap penelusuran punya arah, batas, dan akhir yang jelas. Siklus ini terdiri atas enam fase yang berulang: <i>planning &amp; direction</i>, <i>collection</i>, <i>processing</i>, <i>analysis</i>, <i>dissemination</i>, dan <i>feedback</i>. Analogi berikut menggambarkan urutannya.</p>
+<div class="box tip"><strong>🍳 Analogi: memasak untuk tamu</strong>
+<p>Kamu tidak berbelanja dulu baru memikirkan menu. Kamu bertanya siapa tamunya dan apa yang mereka butuhkan (<i>planning</i>), membeli bahan seperlunya (<i>collection</i>), mencuci dan memotong (<i>processing</i>), memasak (<i>analysis</i>), menyajikan (<i>dissemination</i>), lalu bertanya apakah tamunya puas (<i>feedback</i>). Belanja tanpa menu menghasilkan kulkas penuh bahan yang membusuk, sama seperti penelusuran tanpa pertanyaan menghasilkan tumpukan data pribadi yang tidak perlu dan berisiko.</p>
+</div>
+</section>
+
+<!-- ============ 6. SUMBER ============ -->
+<section id="sumber">
+<h2>6. Peta Sumber Informasi</h2>
+<p>Bagian ini memetakan <b>kategori</b> sumber terbuka beserta penggunaannya yang sah. Dalam modul ini, sumber teknis dan organisasi dipraktikkan di Lab 2, sedangkan sumber yang menyangkut individu hanya dipraktikkan pada diri sendiri (Lab 1).</p>
+<div class="tbl"><table>
+<tr><th>Kategori</th><th>Contoh</th><th>Penggunaan sah yang umum</th><th>Sasaran di modul ini</th></tr>
+<tr><td><b>Infrastruktur internet</b></td><td>DNS, WHOIS/RDAP, log <i>Certificate Transparency</i>, rentang IP</td><td>Memetakan <i>attack surface</i> organisasi</td><td><span class="tagl in">Lab 2</span> aset berizin</td></tr>
+<tr><td><b>Situs &amp; dokumen organisasi</b></td><td>Situs resmi, laporan tahunan, dokumen yang terindeks mesin pencari, <code>security.txt</code></td><td>Menemukan kebocoran informasi dan dokumen yang tidak seharusnya publik</td><td><span class="tagl in">Lab 2</span> aset berizin</td></tr>
+<tr><td><b>Perangkat terekspos</b></td><td>Mesin pencari perangkat yang terhubung internet</td><td>Menemukan layanan milik organisasi yang terbuka tanpa sengaja</td><td><span class="tagl in">Lab 2</span> aset berizin</td></tr>
+<tr><td><b>Media &amp; publikasi</b></td><td>Berita, siaran pers, jurnal ilmiah, arsip web</td><td>Riset, verifikasi fakta, konteks</td><td>Studi kasus</td></tr>
+<tr><td><b>Data geospasial</b></td><td>Peta, citra satelit, foto jalanan</td><td>Verifikasi lokasi peristiwa (jurnalisme, HAM)</td><td>Konsep saja</td></tr>
+<tr><td><b>Media sosial &amp; profil</b></td><td>Akun publik, unggahan, foto</td><td>Verifikasi konten viral; audit jejak diri</td><td><span class="tagl ok">Lab 1</span> diri sendiri</td></tr>
+<tr><td><b>Data kebocoran</b></td><td>Layanan pemberitahuan kebocoran</td><td>Mengecek apakah <b>akun sendiri</b> atau <b>domain organisasi sendiri</b> pernah bocor</td><td><span class="tagl ok">Lab 1</span> diri sendiri</td></tr>
+</table></div>
+
+<div class="box bad"><strong>🚫 Bukan sumber terbuka</strong>
+<p>Isi basis data hasil kebocoran (bukan sekadar pemberitahuan "akunmu pernah bocor"), data yang dijual di forum gelap, akun yang diakses dengan kata sandi orang lain, grup tertutup yang dimasuki dengan identitas palsu, dan data yang diperoleh dengan menipu petugas layanan pelanggan <b>bukan OSINT</b>. Memakai sumber semacam itu berisiko melanggar UU ITE dan UU PDP, dan mencemari integritas temuan.</p>
+</div>
+
+<h3>Pasif vs aktif</h3>
+<p>Dalam pengujian keamanan, pengumpulan informasi dibagi dua. <b>Passive reconnaissance</b> tidak berinteraksi langsung dengan sistem target: kita membaca catatan publik tentang target (DNS publik, log sertifikat, hasil mesin pencari). <b>Active reconnaissance</b> mengirim lalu lintas ke sistem target, misalnya pemindaian port. Aktif selalu memerlukan izin tertulis yang eksplisit, karena bisa terdeteksi sebagai serangan, mengganggu layanan, dan secara hukum bisa dianggap akses tanpa hak.</p>
+<div class="diagram">
+<svg viewBox="0 0 760 150" role="img" aria-label="Pasif dan aktif reconnaissance">
+  <rect x="10" y="20" width="350" height="110" rx="12" fill="color-mix(in srgb,var(--good) 12%,transparent)" stroke="var(--good)"/>
+  <text x="185" y="44" text-anchor="middle" font-size="14" font-weight="700" fill="var(--good)">Passive reconnaissance</text>
+  <text x="185" y="68" text-anchor="middle" font-size="12.5" fill="var(--text)">Membaca catatan publik tentang target</text>
+  <text x="185" y="88" text-anchor="middle" font-size="12.5" fill="var(--text)">DNS publik · log sertifikat · mesin pencari</text>
+  <text x="185" y="112" text-anchor="middle" font-size="12" fill="var(--muted)">Tetap perlu scope dan tujuan yang sah</text>
+  <rect x="400" y="20" width="350" height="110" rx="12" fill="color-mix(in srgb,var(--warn) 12%,transparent)" stroke="var(--warn)"/>
+  <text x="575" y="44" text-anchor="middle" font-size="14" font-weight="700" fill="var(--warn)">Active reconnaissance</text>
+  <text x="575" y="68" text-anchor="middle" font-size="12.5" fill="var(--text)">Mengirim lalu lintas ke sistem target</text>
+  <text x="575" y="88" text-anchor="middle" font-size="12.5" fill="var(--text)">Pemindaian port · probing layanan</text>
+  <text x="575" y="112" text-anchor="middle" font-size="12" fill="var(--muted)">Wajib izin tertulis eksplisit + jadwal</text>
+  <line x1="380" y1="14" x2="380" y2="140" stroke="var(--bad)" stroke-width="2" stroke-dasharray="6 4"/>
+</svg>
+</div>
+</section>
+
+<!-- ============ 7. VERIFIKASI ============ -->
+<section id="verifikasi">
+<h2>7. Verifikasi &amp; Analisis</h2>
+<p>Kesalahan terbesar dalam OSINT bukan gagal menemukan informasi, tetapi <b>yakin pada informasi yang salah</b>. Di dunia doxing, kesalahan ini berarti orang tak bersalah diburu massa. Di dunia keamanan, berarti laporan yang menyesatkan dan keputusan yang salah. Karena itu, setiap temuan harus dinilai dari dua sisi secara terpisah: <b>siapa sumbernya</b> dan <b>seberapa kuat isinya</b>.</p>
+
+<h3>Admiralty Code (Sistem NATO)</h3>
+<p>Sistem ini menilai sumber dengan huruf A sampai F dan informasi dengan angka 1 sampai 6. Kekuatannya ada pada pemisahan itu: sumber yang biasanya andal bisa saja keliru kali ini, dan sumber yang tidak dikenal bisa saja menyampaikan informasi yang terbukti benar.</p>
+<div class="vs">
+<div class="tbl"><table>
+<tr><th colspan="2">Keandalan sumber</th></tr>
+<tr><td><b>A</b></td><td>Sepenuhnya andal</td></tr>
+<tr><td><b>B</b></td><td>Biasanya andal</td></tr>
+<tr><td><b>C</b></td><td>Cukup andal</td></tr>
+<tr><td><b>D</b></td><td>Biasanya tidak andal</td></tr>
+<tr><td><b>E</b></td><td>Tidak andal</td></tr>
+<tr><td><b>F</b></td><td>Tidak dapat dinilai</td></tr>
+</table></div>
+<div class="tbl"><table>
+<tr><th colspan="2">Kredibilitas informasi</th></tr>
+<tr><td><b>1</b></td><td>Dikonfirmasi sumber lain yang independen</td></tr>
+<tr><td><b>2</b></td><td>Kemungkinan besar benar</td></tr>
+<tr><td><b>3</b></td><td>Mungkin benar</td></tr>
+<tr><td><b>4</b></td><td>Diragukan</td></tr>
+<tr><td><b>5</b></td><td>Kemungkinan besar tidak benar</td></tr>
+<tr><td><b>6</b></td><td>Tidak dapat dinilai</td></tr>
+</table></div>
+</div>
+<div class="box tip"><strong>📱 Analogi: pesan di grup WhatsApp keluarga</strong>
+<p>"Kata teman Om yang kerja di rumah sakit, besok ada razia besar." Siapa teman Om itu? Tidak jelas (sumber F). Apakah isinya cocok dengan pengumuman resmi? Belum ada (informasi 6, atau 4 bila bertentangan dengan informasi lain). Bandingkan dengan pengumuman resmi dari akun terverifikasi instansi yang juga diberitakan oleh beberapa media (A atau B, informasi 1). Mahasiswa biasanya langsung paham ketika logika ini diterapkan pada pesan berantai.</p>
+</div>
+
+
+<h3>Bias yang menjebak analis</h3>
+<div class="grid2">
+<div class="card d"><b>Confirmation bias</b><span>Hanya mencari bukti yang mendukung dugaan awal. Penawar: secara sengaja cari bukti yang membantah.</span></div>
+<div class="card d"><b>Kemiripan dianggap identitas</b><span>Username sama, foto mirip, atau nama sama tidak membuktikan orang yang sama. Banyak orang bernama sama, dan username bisa dipakai siapa saja.</span></div>
+<div class="card d"><b>Anchoring</b><span>Terpaku pada informasi pertama yang ditemukan, sehingga temuan berikutnya ditafsirkan agar cocok.</span></div>
+<div class="card d"><b>Groupthink &amp; tekanan massa</b><span>Di media sosial, dugaan yang diulang ribuan kali terasa seperti fakta. Volume bukan verifikasi.</span></div>
+</div>
+
+<h3>Analysis of Competing Hypotheses (ACH)</h3>
+<p>Teknik dari Richards J. Heuer ini memaksa analis menuliskan beberapa hipotesis sekaligus, lalu menilai setiap bukti terhadap semua hipotesis. Fokusnya bukan mencari bukti yang paling mendukung, tetapi bukti yang paling <b>membantah</b>. Contoh dalam konteks keamanan: sebuah subdomain mencurigakan ditemukan di log sertifikat.</p>
+<div class="tbl"><table>
+<tr><th>Bukti</th><th class="c2">H1: Server resmi kampus yang terlupakan</th><th class="c2">H2: Domain phishing yang meniru kampus</th><th class="c2">H3: Layanan milik vendor</th></tr>
+<tr><td>Nama: <code>siakad-dev.kampus.example</code></td><td class="c2">Konsisten</td><td class="c2">Konsisten</td><td class="c2">Konsisten</td></tr>
+<tr><td>Berada di bawah domain resmi kampus (bukan domain mirip)</td><td class="c2">Konsisten</td><td class="c2"><b>Tidak konsisten</b></td><td class="c2">Konsisten</td></tr>
+<tr><td>IP berada di rentang milik kampus</td><td class="c2">Konsisten</td><td class="c2">Tidak konsisten</td><td class="c2"><b>Tidak konsisten</b></td></tr>
+<tr><td><b>Kesimpulan sementara</b></td><td class="c2"><b>Paling kuat</b></td><td class="c2">Lemah</td><td class="c2">Lemah</td></tr>
+</table></div>
+<p>Bukti pertama tidak membantu sama sekali karena konsisten dengan semua hipotesis, meskipun terasa paling "mencolok". Inilah pelajaran utama ACH: bukti yang mencolok belum tentu bukti yang membedakan.</p>
+</section>
+
+<!-- ============ 8. BUKTI ============ -->
+<section id="bukti">
+<h2>8. Dokumentasi &amp; Chain of Custody</h2>
+<p>Informasi online mudah berubah dan hilang: halaman diperbarui, unggahan dihapus, akun ditutup. Temuan yang tidak didokumentasikan dengan baik tidak bisa diverifikasi ulang, tidak bisa dipertanggungjawabkan, dan tidak bernilai sebagai bukti. <b>Chain of custody</b> adalah catatan yang menunjukkan siapa mengambil bukti, kapan, bagaimana, dan bahwa bukti itu tidak diubah sejak diambil.</p>
+<div class="diagram">
+<svg viewBox="0 0 760 120" role="img" aria-label="Alur chain of custody">
+  <g font-size="12.5" text-anchor="middle">
+    <g><rect x="5" y="25" width="110" height="60" rx="10" fill="var(--accent-soft)" stroke="var(--accent)"/><text x="60" y="51" font-weight="700" fill="var(--text)">1 · Temukan</text><text x="60" y="70" fill="var(--muted)" font-size="11.5">URL + waktu</text></g>
+    <g><rect x="133" y="25" width="110" height="60" rx="10" fill="var(--accent-soft)" stroke="var(--accent)"/><text x="188" y="51" font-weight="700" fill="var(--text)">2 · Tangkap</text><text x="188" y="70" fill="var(--muted)" font-size="11.5">screenshot, arsip</text></g>
+    <g><rect x="261" y="25" width="110" height="60" rx="10" fill="var(--accent-soft)" stroke="var(--accent)"/><text x="316" y="51" font-weight="700" fill="var(--text)">3 · Hash</text><text x="316" y="70" fill="var(--muted)" font-size="11.5">SHA-256</text></g>
+    <g><rect x="389" y="25" width="110" height="60" rx="10" fill="var(--accent-soft)" stroke="var(--accent)"/><text x="444" y="51" font-weight="700" fill="var(--text)">4 · Catat</text><text x="444" y="70" fill="var(--muted)" font-size="11.5">log temuan</text></g>
+    <g><rect x="517" y="25" width="110" height="60" rx="10" fill="var(--accent-soft)" stroke="var(--accent)"/><text x="572" y="51" font-weight="700" fill="var(--text)">5 · Simpan</text><text x="572" y="70" fill="var(--muted)" font-size="11.5">terenkripsi</text></g>
+    <g><rect x="645" y="25" width="110" height="60" rx="10" fill="color-mix(in srgb,var(--good) 15%,transparent)" stroke="var(--good)"/><text x="700" y="51" font-weight="700" fill="var(--text)">6 · Verifikasi</text><text x="700" y="70" fill="var(--muted)" font-size="11.5">hash cocok?</text></g>
+  </g>
+  <g stroke="var(--muted)" stroke-width="2" marker-end="url(#ar)"><line x1="116" y1="55" x2="130" y2="55"/><line x1="244" y1="55" x2="258" y2="55"/><line x1="372" y1="55" x2="386" y2="55"/><line x1="500" y1="55" x2="514" y2="55"/><line x1="628" y1="55" x2="642" y2="55"/></g>
+  <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>
+</svg>
+</div>
+<div class="box tip"><strong>🗳 Analogi: segel kotak suara</strong>
+<p>Kotak suara pemilu disegel dan setiap perpindahannya dicatat dalam berita acara. Bila segel rusak atau ada celah dalam catatan, isinya diragukan, walaupun mungkin sebenarnya tidak diubah. <b>Hash</b> berperan sebagai segel digital: ia adalah "sidik jari" file. Mengubah satu huruf saja menghasilkan sidik jari yang sama sekali berbeda.</p>
+</div>
+
+
+<h3>Format log temuan</h3>
+<p>Setiap temuan dicatat dalam satu baris log. Format sederhana berikut cukup untuk tugas kuliah, dan bisa dipakai dengan spreadsheet:</p>
+<div class="tbl"><table>
+<tr><th>ID</th><th>Waktu (WIB)</th><th>Sumber / URL</th><th>Metode</th><th>File bukti</th><th>SHA-256</th><th>Nilai</th><th>Catatan</th></tr>
+<tr><td>T-03</td><td>2026-03-12 09:41</td><td>crt.sh, kueri domain kampus</td><td>Pasif, browser</td><td>T03.png</td><td><code>9f2c…e41a</code></td><td>B2</td><td>Subdomain dev, perlu konfirmasi pemilik</td></tr>
+</table></div>
+<p>Kolom <b>Nilai</b> memakai Admiralty Code dari bagian sebelumnya. Untuk sumber yang tidak andal, tulis apa yang perlu dilakukan untuk memverifikasinya.</p>
+</section>
+
+<!-- ============ 9. OPSEC ============ -->
+<section id="opsec">
+<h2>9. OPSEC &amp; Kesejahteraan Peneliti</h2>
+<p><b>OPSEC</b> (<i>operational security</i>) adalah kebiasaan menjaga agar aktivitas penelusuran tidak membocorkan informasi tentang diri peneliti, organisasinya, atau penelusuran itu sendiri. Dalam konteks kuliah, OPSEC lebih banyak soal kebersihan kerja dan tanggung jawab daripada penyamaran.</p>
+<div class="grid2">
+<div class="card s"><b>🧪 Lingkungan kerja terpisah</b><span>Gunakan profil browser khusus praktikum, tanpa login ke akun pribadi, agar riwayat dan rekomendasi tidak tercampur.</span></div>
+<div class="card s"><b>🤐 Tidak berinteraksi</b><span>Penelusuran pasif berarti tidak mengikuti, menyukai, mengirim pesan, atau mendaftar ke layanan milik target. Interaksi bisa memberi tahu target dan mengubah perilakunya.</span></div>
+<div class="card s"><b>🔒 Amankan hasil</b><span>Simpan log dan bukti di penyimpanan terenkripsi. Hapus data yang tidak lagi diperlukan setelah tugas dinilai.</span></div>
+<div class="card s"><b>📋 Catat setiap langkah</b><span>Log kerja melindungi peneliti: ia membuktikan bahwa penelusuran tetap dalam batas izin.</span></div>
+</div>
+<div class="box warn"><strong>🎭 Tentang akun palsu (sock puppet)</strong>
+<p>Sebagian investigator profesional memakai akun samaran untuk mengamati sumber yang hanya terlihat setelah login. Untuk konteks perkuliahan, <b>jangan</b> memakai akun palsu. Selain sering melanggar ketentuan layanan platform, menyamar untuk mengakses kelompok tertutup menimbulkan masalah etika penelitian (penipuan terhadap subjek), dan dalam pengujian keamanan hanya boleh dilakukan bila tercantum eksplisit di <i>Rules of Engagement</i>.</p>
+</div>
+<h3>Kesejahteraan peneliti</h3>
+<p>Investigasi sumber terbuka bisa membuat peneliti terpapar konten yang mengganggu: kekerasan, ujaran kebencian, atau penderitaan korban. Paparan berulang dapat menimbulkan <i>vicarious trauma</i>. Dosen sebaiknya memilih bahan kasus yang tidak grafis, memberi peringatan konten, mengizinkan mahasiswa berhenti, dan mengingatkan bahwa layanan konseling kampus tersedia.</p>
+</section>
+
+<!-- ============ 10. LAB 1 ============ -->
+<section id="lab-jejak">
+<h2>10. Lab 1: Audit Jejak Digital Diri Sendiri</h2>
+<p>Lab ini adalah cara paling aman dan paling berkesan untuk mengajarkan OSINT: mahasiswa menjadi analis sekaligus subjek. Mereka melihat sendiri seberapa banyak yang bisa diketahui orang asing tentang dirinya, lalu memperbaikinya. Sasaran lab ini <b>hanya diri sendiri</b>.</p>
+<div class="box warn"><strong>🔐 Aturan pelaporan</strong>
+<p>Laporan yang dikumpulkan ke dosen <b>tidak boleh berisi data pribadi mentah</b> (alamat, nomor telepon, tangkapan layar profil). Laporan cukup memuat <b>kategori</b> temuan, tingkat risiko, dan tindakan yang diambil. Contoh: "Ditemukan: foto yang memperlihatkan nomor rumah (risiko tinggi). Tindakan: diarsipkan." Dengan begitu mahasiswa tidak perlu membuka privasinya kepada dosen atau teman sekelas.</p>
+</div>
+
+
+<h3>Metadata foto: informasi yang tidak terlihat</h3>
+<p>Foto digital dari kamera ponsel biasanya menyimpan <b>EXIF</b>: merek dan model ponsel, tanggal dan jam pengambilan, dan bila izin lokasi kamera aktif, <b>koordinat GPS</b> yang cukup akurat untuk menunjuk sebuah rumah. Sebagian besar media sosial menghapus EXIF saat foto diunggah, tetapi tidak semua jalur demikian: mengirim foto sebagai <i>file/dokumen</i> di aplikasi pesan, mengunggah ke penyimpanan awan lalu membagikan tautannya, atau mengunggah ke situs pribadi bisa mempertahankan metadata aslinya.</p>
+
+
+<h3>Template laporan Lab 1</h3>
+<div class="tbl"><table>
+<tr><th>Kategori temuan</th><th>Platform</th><th>Risiko</th><th>Alasan</th><th>Tindakan</th><th>Status</th></tr>
+<tr><td>Foto memperlihatkan nomor rumah</td><td>Media sosial A</td><td><span class="tagl no">Tinggi</span></td><td>Menunjukkan lokasi tinggal</td><td>Arsipkan, ubah ke teman dekat</td><td>Selesai</td></tr>
+<tr><td>Email pribadi pernah bocor di 2 insiden</td><td>Layanan cek kebocoran</td><td><span class="tagl wa">Sedang</span></td><td>Kata sandi lama mungkin dipakai ulang</td><td>Ganti kata sandi, aktifkan 2FA</td><td>Selesai</td></tr>
+<tr><td>Username sama di 6 platform</td><td>Berbagai</td><td><span class="tagl wa">Sedang</span></td><td>Akun mudah dihubungkan satu sama lain</td><td>Bedakan username akun pribadi</td><td>Sebagian</td></tr>
+</table></div>
+<p>Tutup laporan dengan refleksi singkat: temuan apa yang paling mengejutkan, dan kebiasaan apa yang akan diubah. Bagian refleksi ini sering menjadi bagian paling bernilai dari lab.</p>
+</section>
+
+<!-- ============ 11. LAB 2 ============ -->
+<section id="lab-org">
+<h2>11. Lab 2: Recon Organisasi Berizin</h2>
+<p>Lab ini meniru tahap <i>intelligence gathering</i> dalam pengujian penetrasi profesional (misalnya seperti dalam PTES dan NIST SP 800-115), dengan sasaran <b>aset organisasi</b>, bukan individu. Ada dua cara menjalankannya: memakai skenario fiktif <code>kampus.example</code> dengan scope di bawah sebagai latihan di atas kertas (tidak memerlukan izin apa pun), atau memakai domain sungguhan yang <b>dimiliki sendiri</b> atau yang pengelolanya sudah memberi izin tertulis, misalnya kerja sama dengan unit TI kampus.</p>
+
+<h3>Scope &amp; Rules of Engagement</h3>
+<p>Sebelum satu perintah pun dijalankan, pengujian profesional selalu diawali dokumen yang menyatakan <b>apa</b> yang boleh diuji, <b>bagaimana</b>, <b>kapan</b>, dan <b>siapa yang dihubungi</b> bila menemukan hal kritis.</p>
+<div class="box tip"><strong>🔧 Analogi: tukang ledeng</strong>
+<p>Tukang ledeng yang dipanggil memperbaiki pipa dapur boleh membuka lemari di bawah wastafel. Ia tidak boleh membuka lemari pakaian di kamar tidur, walaupun pintunya tidak dikunci dan ia "hanya ingin memeriksa". Bila ia menemukan pipa gas bocor, ia berhenti dan segera memberi tahu pemilik rumah, bukan memperbaikinya diam-diam atau menyalakan korek untuk memastikan. Scope dan RoE bekerja persis seperti itu.</p>
+</div>
+<div class="rule">
+<div class="in"><b>✅ Dalam scope (contoh skenario)</b>
+<ul>
+<li>Domain <code>kampus.example</code> dan semua subdomainnya yang dikelola kampus</li>
+<li>Rentang IP <code>192.0.2.0/24</code> milik kampus</li>
+<li>Metode: <b>pasif saja</b> (DNS publik, log sertifikat, mesin pencari)</li>
+<li>Waktu: 10–24 Maret 2026</li>
+<li>Kontak darurat: Kepala Unit Keamanan TI</li>
+</ul></div>
+<div class="out"><b>⛔ Di luar scope</b>
+<ul>
+<li>Layanan milik pihak ketiga (SaaS, vendor), walau memakai nama kampus</li>
+<li>Akun pribadi dosen, staf, dan mahasiswa</li>
+<li>Social engineering dalam bentuk apa pun</li>
+<li>Pemindaian aktif, login, atau pengunduhan data sensitif</li>
+<li>Menyimpan data pribadi yang ditemukan secara tidak sengaja</li>
+</ul></div>
+</div>
+
+<h3>Perintah dasar (untuk domain milik sendiri atau berizin)</h3>
+<p>Perintah-perintah ini membaca catatan publik dan termasuk passive reconnaissance. Meski begitu, jalankan hanya pada domain dalam scope. Ganti <code>domainmu.example</code> dengan domain yang diizinkan.</p>
+<div class="codewrap"><div class="codecap"><span>bash · DNS &amp; registrasi</span><span>pasif</span></div><pre><code><span class="c"># Data pendaftaran domain (registrar, tanggal, name server)</span>
+whois domainmu.example
+
+<span class="c"># Catatan DNS utama</span>
+dig +short domainmu.example A
+dig +short domainmu.example MX
+dig +short domainmu.example NS
+dig +short domainmu.example TXT
+
+<span class="c"># Kebijakan email: SPF ada di TXT domain, DMARC di _dmarc</span>
+dig +short TXT _dmarc.domainmu.example</code></pre></div>
+<div class="codewrap"><div class="codecap"><span>bash · Certificate Transparency &amp; security.txt</span><span>pasif</span></div><pre><code><span class="c"># Setiap sertifikat TLS publik tercatat di log CT; nama subdomain ikut terlihat</span>
+curl -s <span class="s">"https://crt.sh/?q=%25.domainmu.example&amp;output=json"</span> \
+  | jq -r <span class="s">'.[].name_value'</span> | sort -u
+
+<span class="c"># Kanal resmi pelaporan kerentanan (RFC 9116)</span>
+curl -s https://domainmu.example/.well-known/security.txt</code></pre></div>
+<p>Untuk mesin pencari, operator seperti <code>site:domainmu.example filetype:pdf</code> membantu menemukan dokumen milik organisasi yang terindeks dan mungkin tidak seharusnya publik. Bila menemukan dokumen yang tampak sensitif, <b>jangan diunduh</b>: catat URL-nya dan laporkan.</p>
+
+
+<h3>Menulis laporan yang bertanggung jawab</h3>
+<ol class="steps">
+<li><b>Ringkasan eksekutif</b>: tiga sampai lima temuan terpenting dan dampaknya, dalam bahasa yang dipahami pimpinan.</li>
+<li><b>Scope &amp; metode</b>: apa yang diuji, kapan, dengan cara apa, dan apa yang sengaja tidak diuji.</li>
+<li><b>Temuan</b>: setiap temuan dengan bukti (URL, waktu, hash), tingkat risiko, dan rekomendasi perbaikan yang konkret.</li>
+<li><b>Data pribadi</b>: bila ada data pribadi yang terlihat (misalnya di dokumen bocor), sebutkan jenisnya saja dan sensor isinya.</li>
+<li><b>Penanganan data</b>: nyatakan bahwa data hasil recon akan dihapus setelah laporan diterima, sesuai kesepakatan.</li>
+</ol>
+</section>
+
+<!-- ============ 12. MOSAIK ============ -->
+<section id="mosaik">
+<h2>12. Doxing dari Sisi Korban: Efek Mosaik</h2>
+<p>Kebanyakan korban doxing tidak pernah mengunggah alamat rumahnya. Yang mereka unggah adalah potongan-potongan kecil yang masing-masing tampak tidak berbahaya: foto di depan pagar, story olahraga pagi, foto kartu mahasiswa baru, ucapan ulang tahun. Bahayanya muncul ketika potongan itu <b>digabungkan</b>. Fenomena ini disebut <b>efek mosaik</b>.</p>
+<div class="box tip"><strong>🧩 Analogi: puzzle 1.000 keping</strong>
+<p>Satu keping puzzle hanya menunjukkan warna biru. Dua puluh keping yang tepat sudah membentuk langit dan sebagian atap rumah. Doxer bekerja seperti orang yang menyusun puzzle dari keping-keping yang kita jatuhkan di berbagai tempat. Pertahanan terbaik bukan menyembunyikan semua keping (itu mustahil), tetapi <b>tidak menjatuhkan keping kunci</b> dan <b>tidak menjatuhkannya di tempat yang sama</b>.</p>
+</div>
+
+<p>Pelajaran utama untuk mahasiswa: risiko terbesar hampir selalu datang dari <b>kombinasi lokasi dengan rutinitas</b>, dan dari <b>identitas yang sama dipakai di mana-mana</b> sehingga keping dari platform yang berbeda mudah disatukan.</p>
+</section>
+
+<!-- ============ 13. LINDUNGI ============ -->
+<section id="lindungi">
+<h2>13. Pencegahan &amp; Respons</h2>
+<h3>Pencegahan: kurangi keping kunci</h3>
+<div class="grid2">
+<div class="card o"><b>📍 Lokasi</b><span>Matikan izin lokasi untuk kamera. Unggah story lokasi setelah meninggalkan tempat, bukan saat masih di sana. Periksa latar foto: nomor rumah, plat kendaraan, nama jalan, seragam.</span></div>
+<div class="card o"><b>🪪 Identitas</b><span>Jangan unggah KTP, KTM, boarding pass, atau dokumen dengan barcode/QR, walaupun sebagian disensor. Bedakan username akun pribadi dan akun publik.</span></div>
+<div class="card o"><b>🔐 Akun</b><span>Kata sandi unik dengan password manager, autentikasi dua faktor (utamakan aplikasi authenticator atau kunci keamanan daripada SMS), dan jangan memakai jawaban pertanyaan keamanan yang bisa ditebak dari unggahan.</span></div>
+<div class="card o"><b>👀 Visibilitas</b><span>Atur siapa yang bisa melihat daftar teman, menandai (tag) kamu, dan menemukanmu lewat nomor telepon atau email. Tinjau ulang setiap beberapa bulan karena platform sering mengubah pengaturan.</span></div>
+</div>
+
+<h3>Respons: bila menjadi korban doxing</h3>
+<div class="diagram">
+<svg viewBox="0 0 760 150" role="img" aria-label="Lima langkah respons doxing">
+  <g font-size="12.5" text-anchor="middle">
+    <rect x="5" y="20" width="140" height="110" rx="12" fill="color-mix(in srgb,var(--bad) 12%,transparent)" stroke="var(--bad)"/>
+    <text x="75" y="46" font-weight="700" fill="var(--text)">1 · Amankan diri</text><text x="75" y="70" fill="var(--muted)" font-size="11.5">Bila ada ancaman fisik,</text><text x="75" y="86" fill="var(--muted)" font-size="11.5">hubungi 110 dan</text><text x="75" y="102" fill="var(--muted)" font-size="11.5">orang terdekat</text>
+    <rect x="158" y="20" width="140" height="110" rx="12" fill="var(--accent-soft)" stroke="var(--accent)"/>
+    <text x="228" y="46" font-weight="700" fill="var(--text)">2 · Dokumentasi</text><text x="228" y="70" fill="var(--muted)" font-size="11.5">Screenshot + URL +</text><text x="228" y="86" fill="var(--muted)" font-size="11.5">waktu, sebelum konten</text><text x="228" y="102" fill="var(--muted)" font-size="11.5">dihapus</text>
+    <rect x="311" y="20" width="140" height="110" rx="12" fill="var(--accent-soft)" stroke="var(--accent)"/>
+    <text x="381" y="46" font-weight="700" fill="var(--text)">3 · Laporkan</text><text x="381" y="70" fill="var(--muted)" font-size="11.5">Platform, aduan</text><text x="381" y="86" fill="var(--muted)" font-size="11.5">konten, kepolisian</text><text x="381" y="102" fill="var(--muted)" font-size="11.5">siber</text>
+    <rect x="464" y="20" width="140" height="110" rx="12" fill="var(--accent-soft)" stroke="var(--accent)"/>
+    <text x="534" y="46" font-weight="700" fill="var(--text)">4 · Kunci akun</text><text x="534" y="70" fill="var(--muted)" font-size="11.5">Ganti sandi, 2FA,</text><text x="534" y="86" fill="var(--muted)" font-size="11.5">privat sementara,</text><text x="534" y="102" fill="var(--muted)" font-size="11.5">cek sesi aktif</text>
+    <rect x="617" y="20" width="138" height="110" rx="12" fill="color-mix(in srgb,var(--good) 14%,transparent)" stroke="var(--good)"/>
+    <text x="686" y="46" font-weight="700" fill="var(--text)">5 · Cari dukungan</text><text x="686" y="70" fill="var(--muted)" font-size="11.5">Pendamping,</text><text x="686" y="86" fill="var(--muted)" font-size="11.5">konseling, bantuan</text><text x="686" y="102" fill="var(--muted)" font-size="11.5">hukum</text>
+  </g>
+</svg>
+</div>
+<div class="tbl"><table>
+<tr><th>Saluran</th><th>Gunanya</th></tr>
+<tr><td>Fitur pelaporan di platform</td><td>Hampir semua platform besar melarang publikasi informasi pribadi tanpa izin. Pilih kategori "informasi pribadi" atau "pelecehan".</td></tr>
+<tr><td>Aduan konten Kementerian Komunikasi dan Digital (Komdigi)</td><td>Permintaan penanganan konten yang melanggar hukum di internet.</td></tr>
+<tr><td>Patroli Siber / Direktorat Tindak Pidana Siber Bareskrim Polri, atau Polda setempat</td><td>Pelaporan pidana, terutama bila ada ancaman, pemerasan, atau penyebaran konten intim.</td></tr>
+<tr><td>Penghapusan hasil mesin pencari</td><td>Beberapa mesin pencari menyediakan formulir untuk meminta penghapusan hasil yang memuat alamat, nomor telepon, atau email pribadi.</td></tr>
+<tr><td>Satgas PPKPT di kampus (dahulu Satgas PPKS)</td><td>Bila pelaku atau korban adalah sivitas akademika, termasuk kasus KBGO.</td></tr>
+<tr><td>Organisasi pendamping (misalnya SAFEnet, LBH, Komnas Perempuan untuk KBGO)</td><td>Pendampingan, saran keamanan digital, dan rujukan bantuan hukum.</td></tr>
+</table></div>
+<div class="box note"><strong>🤝 Untuk teman korban</strong>
+<p>Jangan menyebarkan ulang unggahan doxing, termasuk dengan niat "membela" atau "memberi tahu", karena setiap repost memperluas penyebaran data korban. Laporkan unggahannya, tawarkan bantuan mendokumentasikan, dan dengarkan. Korban doxing sering merasa malu dan disalahkan; yang mereka butuhkan adalah dukungan, bukan ceramah tentang apa yang seharusnya tidak mereka unggah.</p>
+</div>
+</section>
+
+<!-- ============ 14. KASUS ============ -->
+<section id="kasus">
+<h2>14. Studi Kasus &amp; Diskusi</h2>
+<p>Tiga kasus nyata berikut dipilih karena masing-masing menggambarkan satu pelajaran utama: bahaya kesimpulan massa, kebocoran tanpa sengaja di level organisasi, dan OSINT yang dikerjakan dengan metodologi yang ketat. Kasus keempat adalah skenario fiktif untuk diskusi kelas.</p>
+
+<h3>Kasus A · Bom Maraton Boston (2013): ketika massa menjadi detektif</h3>
+<p>Setelah pengeboman Maraton Boston, ribuan pengguna forum daring dan media sosial beramai-ramai menganalisis foto-foto lokasi untuk "menemukan pelaku". Mereka keliru menunjuk beberapa orang yang tidak bersalah, termasuk seorang mahasiswa yang dilaporkan hilang. Nama dan foto mereka menyebar luas, dan keluarga mereka menerima gelombang pesan dan pelecehan. Pelaku sebenarnya diidentifikasi oleh penyidik. Forum yang bersangkutan kemudian meminta maaf secara terbuka.</p>
+<p class="muted"><b>Pelajaran:</b> kemiripan bukan identitas; volume bukan verifikasi; niat baik tidak mencegah kerugian. Ini adalah contoh nyata doxing yang salah sasaran.</p>
+
+<h3>Kasus B · Peta panas aplikasi olahraga (2018): kebocoran di level organisasi</h3>
+<p>Sebuah aplikasi pelacak olahraga merilis peta panas global yang menggabungkan rute lari dan bersepeda penggunanya. Seorang mahasiswa di Australia menyadari bahwa peta itu memperlihatkan pola rute di lokasi-lokasi terpencil yang ternyata adalah pangkalan militer, karena personel yang bertugas di sana memakai aplikasi tersebut saat berolahraga. Tidak ada satu orang pun yang "membocorkan" informasi; kebocoran muncul dari agregasi data yang masing-masing tampak tidak berbahaya.</p>
+<p class="muted"><b>Pelajaran:</b> efek mosaik juga berlaku untuk organisasi. Kebijakan keamanan perlu mencakup perangkat dan aplikasi pribadi yang dipakai di lingkungan kerja.</p>
+
+<h3>Kasus C · Investigasi MH17 (2014): OSINT dengan metodologi ketat</h3>
+<p>Setelah pesawat Malaysia Airlines MH17 ditembak jatuh di Ukraina timur, kelompok investigasi Bellingcat menelusuri foto dan video yang diunggah warga untuk melacak pergerakan sistem rudal yang diduga terlibat. Setiap foto diverifikasi lokasinya dengan mencocokkan bangunan dan lanskap dengan citra satelit, dan setiap langkah dipublikasikan sehingga bisa diperiksa ulang. Temuan mereka sejalan dengan kesimpulan tim investigasi gabungan resmi.</p>
+<p class="muted"><b>Pelajaran:</b> OSINT bernilai ketika transparan, terverifikasi, dan diarahkan pada pertanyaan kepentingan publik, bukan pada kehidupan pribadi individu.</p>
+
+<h3>Kasus D · Skenario fiktif untuk diskusi kelas</h3>
+<div class="scn"><p style="margin:0">Sebuah video viral memperlihatkan seorang pengendara motor memaki petugas parkir. Wajah pengendara tidak jelas, tetapi plat nomornya terbaca. Di kolom komentar, akun-akun mulai mengunggah "temuan": nama yang diduga pemilik kendaraan, akun media sosialnya, tempat kerjanya, dan foto rumahnya. Seorang mahasiswa di kelasmu berkata, "Saya bisa cari lebih lengkap, Pak. Kan buat pelajaran dia."</p></div>
+<p>Pertanyaan diskusi:</p>
+<ol>
+<li>Terapkan empat uji (tujuan, dasar dan izin, proporsionalitas, dampak). Di uji mana tindakan netizen itu gagal?</li>
+<li>Pemilik kendaraan belum tentu pengendaranya. Hipotesis apa saja yang mungkin? Bagaimana ACH membantu melihat lemahnya kesimpulan netizen?</li>
+<li>Pasal mana dalam UU PDP dan UU ITE yang mungkin relevan bagi orang yang mengunggah foto rumah tersebut? Bagaimana dengan orang yang hanya me-repost?</li>
+<li>Bila kamu adalah petugas parkir dalam video, saluran apa yang tepat untuk mencari keadilan?</li>
+<li>Bagaimana kamu menanggapi mahasiswa tadi dengan cara yang tidak mempermalukannya, tetapi tegas?</li>
+</ol>
+</section>
+
+<!-- ============ 15. RPS ============ -->
+<section id="rps">
+<h2>15. Rencana Pembelajaran &amp; Rubrik</h2>
+<p>Modul ini bisa diajarkan dalam enam pertemuan (masing-masing sekitar 100 sampai 150 menit) sebagai bagian dari mata kuliah Keamanan Informasi, Etika Profesi TI, atau Forensik Digital. Urutan bisa dipadatkan menjadi tiga pertemuan dengan menggabungkan pertemuan 1–2, 3–4, dan 5–6.</p>
+<div class="tbl"><table>
+<tr><th class="c2">#</th><th>Topik</th><th>Aktivitas</th><th>Bagian modul</th><th>Luaran</th></tr>
+<tr><td class="c2">1</td><td>Konsep OSINT &amp; garis batas</td><td>Ceramah singkat, menilai skenario dengan empat uji dalam kelompok, diskusi jendela tanpa gorden</td><td>1–3</td><td>Pakta etika ditandatangani</td></tr>
+<tr><td class="c2">2</td><td>Hukum, etika, siklus intelijen</td><td>Bedah pasal UU PDP/ITE/TPKS, menyusun pertanyaan intelijen yang sah</td><td>4–5</td><td>Rumusan pertanyaan + batasan</td></tr>
+<tr><td class="c2">3</td><td>Sumber, verifikasi, dokumentasi</td><td>Latihan Admiralty Code dan ACH, menyusun log temuan</td><td>6–9</td><td>Log temuan contoh</td></tr>
+<tr><td class="c2">4</td><td>Lab 1: audit jejak digital diri</td><td>Audit mandiri, refleksi</td><td>10</td><td>Laporan Lab 1 (tanpa data mentah)</td></tr>
+<tr><td class="c2">5</td><td>Lab 2: recon organisasi berizin</td><td>Skenario kampus.example, atau domain berizin bersama unit TI; menulis laporan</td><td>11</td><td>Laporan Lab 2</td></tr>
+<tr><td class="c2">6</td><td>Doxing, pencegahan, respons, studi kasus</td><td>Diskusi efek mosaik dan Kasus A–D</td><td>12–14, 16</td><td>Ringkasan diskusi</td></tr>
+</table></div>
+
+<h3>Rubrik laporan lab</h3>
+<div class="tbl"><table>
+<tr><th>Kriteria</th><th class="c2">Bobot</th><th>Sangat baik (4)</th><th>Cukup (2)</th><th>Kurang (0–1)</th></tr>
+<tr><td><b>Etika &amp; kepatuhan scope</b></td><td class="c2">30%</td><td>Seluruh aktivitas dalam scope; tidak ada data pribadi mentah; penanganan data dijelaskan</td><td>Dalam scope, tetapi penanganan data kurang jelas</td><td>Ada aktivitas di luar scope atau data pribadi orang lain. <b>Nilai lab 0 dan dibahas secara pribadi</b></td></tr>
+<tr><td><b>Metodologi</b></td><td class="c2">25%</td><td>Pertanyaan jelas, langkah sistematis mengikuti siklus intelijen</td><td>Langkah ada tetapi kurang terarah</td><td>Penelusuran acak tanpa tujuan</td></tr>
+<tr><td><b>Verifikasi &amp; dokumentasi</b></td><td class="c2">25%</td><td>Setiap temuan punya bukti, waktu, hash, dan nilai Admiralty yang beralasan</td><td>Bukti ada tetapi tidak lengkap</td><td>Temuan tanpa bukti atau tanpa penilaian</td></tr>
+<tr><td><b>Rekomendasi &amp; refleksi</b></td><td class="c2">20%</td><td>Rekomendasi konkret dan diprioritaskan; refleksi jujur</td><td>Rekomendasi umum</td><td>Tidak ada rekomendasi</td></tr>
+</table></div>
+
+<h3 id="pakta">Pakta Etika Praktikum OSINT</h3>
+<p>Cetak bagian ini (tombol "Cetak / PDF" di sidebar) atau salin ke dokumen kelas.</p>
+<div class="pledge">
+<h4>PAKTA ETIKA PRAKTIKUM OSINT</h4>
+<p>Saya yang bertanda tangan di bawah ini memahami bahwa materi OSINT diajarkan untuk tujuan pertahanan, dan menyatakan bahwa:</p>
+<ol>
+<li>Saya hanya akan melakukan penelusuran terhadap diri saya sendiri, persona fiktif yang disediakan, atau aset organisasi yang tercantum dalam scope tertulis dari dosen.</li>
+<li>Saya tidak akan mencari, mengumpulkan, menyimpan, atau menyebarkan data pribadi orang lain, termasuk teman, dosen, tokoh publik, atau orang yang sedang viral.</li>
+<li>Saya tidak akan memakai akun palsu, kredensial orang lain, data hasil kebocoran, atau cara apa pun yang melewati kontrol akses.</li>
+<li>Bila secara tidak sengaja menemukan data pribadi atau informasi sensitif, saya akan berhenti, tidak mengunduhnya, dan melaporkannya kepada dosen.</li>
+<li>Saya memahami bahwa pelanggaran pakta ini dapat dikenai sanksi akademik dan dapat melanggar UU PDP, UU ITE, maupun UU TPKS.</li>
+</ol>
+<div class="sign"><div>Nama &amp; NIM</div><div>Tanda tangan</div><div>Tanggal</div></div>
+</div>
+</section>
+
+<!-- ============ 16. KUIS ============ -->
+<section id="kuis">
+<h2>16. Glosarium</h2>
+<dl class="gl">
+<dt>Attack surface</dt><dd>Seluruh titik di mana sistem organisasi bisa diakses atau diserang dari luar: domain, server, layanan, akun, dan informasi yang terekspos.</dd>
+<dt>Chain of custody</dt><dd>Catatan yang membuktikan siapa mengambil bukti, kapan, bagaimana, dan bahwa bukti tidak diubah sejak diambil.</dd>
+<dt>Certificate Transparency (CT)</dt><dd>Sistem log publik yang mencatat setiap sertifikat TLS yang diterbitkan. Berguna untuk menemukan subdomain milik organisasi.</dd>
+<dt>Data minimization</dt><dd>Prinsip mengumpulkan data sebatas yang diperlukan untuk tujuan yang sah.</dd>
+<dt>DMARC / SPF</dt><dd>Mekanisme di DNS yang membantu server email menolak email palsu yang mengatasnamakan domain organisasi.</dd>
+<dt>Doxing</dt><dd>Mengumpulkan dan mengungkap informasi pribadi seseorang tanpa persetujuannya, biasanya untuk mempermalukan, mengintimidasi, atau membuka jalan bagi pelecehan.</dd>
+<dt>Efek mosaik</dt><dd>Potongan informasi yang masing-masing tidak berbahaya menjadi berbahaya ketika digabungkan.</dd>
+<dt>EXIF</dt><dd>Metadata dalam file foto: model kamera, waktu, dan kadang koordinat GPS.</dd>
+<dt>Footprinting</dt><dd>Tahap awal pengujian keamanan untuk memetakan informasi tentang organisasi target.</dd>
+<dt>Hash (SHA-256)</dt><dd>Fungsi yang menghasilkan "sidik jari" unik dari data; perubahan sekecil apa pun menghasilkan hash yang berbeda.</dd>
+<dt>KBGO</dt><dd>Kekerasan berbasis gender online, termasuk doxing, penguntitan, dan penyebaran konten intim tanpa persetujuan.</dd>
+<dt>OPSEC</dt><dd>Kebiasaan menjaga agar aktivitas tidak membocorkan informasi tentang pelaku, organisasi, atau aktivitas itu sendiri.</dd>
+<dt>OSINT</dt><dd>Intelijen yang dihasilkan dari informasi publik yang dikumpulkan, diolah, dan dianalisis untuk menjawab kebutuhan tertentu.</dd>
+<dt>Passive / active recon</dt><dd>Pasif membaca catatan publik tentang target; aktif berinteraksi langsung dengan sistem target dan wajib izin tertulis.</dd>
+<dt>Rules of Engagement (RoE)</dt><dd>Aturan pelaksanaan pengujian: metode yang diizinkan, waktu, kontak darurat, dan larangan.</dd>
+<dt>Scope</dt><dd>Daftar aset yang boleh diuji. Segala yang tidak tercantum dianggap di luar scope.</dd>
+<dt>Sock puppet</dt><dd>Akun samaran yang dipakai investigator untuk mengamati sumber. Tidak dipakai dalam praktikum modul ini.</dd>
+</dl>
+
+<div class="nav-mod"><a class="btn" href="../index.html">← Beranda</a><a class="btn" href="#pengantar">Ulangi dari awal ↑</a><a class="btn" href="#pakta">Ke pakta etika →</a></div>
+</section>
+
+<footer>
+<p><b>Rujukan utama:</b> UU No. 27 Tahun 2022 tentang Pelindungan Data Pribadi · UU No. 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik beserta perubahannya (UU No. 19 Tahun 2016 dan UU No. 1 Tahun 2024) · UU No. 12 Tahun 2022 tentang Tindak Pidana Kekerasan Seksual · OHCHR &amp; Human Rights Center UC Berkeley, <i>Berkeley Protocol on Digital Open Source Investigations</i> · Douglas, D. M. (2016). Doxing: a conceptual analysis. <i>Ethics and Information Technology</i>, 18(3) · Heuer, R. J. (1999). <i>Psychology of Intelligence Analysis</i>. CIA Center for the Study of Intelligence · NIST SP 800-115, <i>Technical Guide to Information Security Testing and Assessment</i> · Penetration Testing Execution Standard (PTES) · RFC 9116, <i>A File Format to Aid in Security Vulnerability Disclosure</i> · Silverman, C. (ed.), <i>Verification Handbook</i>, European Journalism Centre.</p>
+<p>Domain <code>kampus.example</code>, alamat IP <code>192.0.2.0/24</code>, dan semua data dalam contoh adalah fiktif (memakai domain dan rentang IP yang dicadangkan untuk dokumentasi). Ringkasan peraturan disusun untuk pendidikan dan bukan nasihat hukum; cek naskah resmi dan perubahan terbaru.</p>
+</footer>
+</main>
+<script>
+const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
+/* ---------- Sidebar, scrollspy, progres, tema, cetak ---------- */
+const sb=$('#sidebar');
+$('#menuBtn').onclick=()=>sb.classList.toggle('open');
+$$('#toc a').forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+const links=[...$$('#toc a')];
+const spy=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){links.forEach(l=>l.classList.toggle('active',l.hash==='#'+e.target.id))}
+}),{rootMargin:'-20% 0px -70% 0px'});
+$$('main section').forEach(s=>spy.observe(s));
+addEventListener('scroll',()=>{const h=document.documentElement;
+  $('#progress div').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%'},{passive:true});
+$('#themeBtn').onclick=()=>{const r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme=dark?'light':'dark';try{localStorage.setItem('rl-theme',r.dataset.theme)}catch(e){}};
+try{const t=localStorage.getItem('rl-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+$('#printBtn').onclick=()=>window.print();
+</script>
+</body>
+</html>
