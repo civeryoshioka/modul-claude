@@ -72,8 +72,8 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
 <header>
   <div>
     <h1>Modul Belajar Interaktif</h1>
-    <p class="lead">Kumpulan modul berbahasa Indonesia tentang AI (Reinforcement Learning dan Deep Learning), menyajikan model AI sebagai layanan (FastAPI untuk model klasik dan deep learning), Kalkulus, Pemrosesan Sinyal, desain OOP (SOLID dan Design Pattern), serta menulis artikel ilmiah untuk jurnal bereputasi.
-    Setiap modul dilengkapi demo interaktif, contoh hitung manual langkah demi langkah, kode Python/Java yang sudah diuji, dan kuis.</p>
+    <p class="lead">Kumpulan modul berbahasa Indonesia tentang AI (Reinforcement Learning dan Deep Learning), menyajikan model AI sebagai layanan (FastAPI untuk model klasik dan deep learning), Kalkulus, Pemrosesan Sinyal, desain OOP (SOLID dan Design Pattern), menulis artikel ilmiah untuk jurnal bereputasi, serta keamanan informasi (OSINT etis dan anti-doxing).
+    Sebagian besar modul dilengkapi demo interaktif, contoh hitung manual langkah demi langkah, kode Python/Java yang sudah diuji, dan kuis.</p>
   </div>
   <button class="btn" id="themeBtn">🌓 Ganti tema</button>
 </header>
@@ -91,7 +91,7 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color
   </ul>
 </div>
 
-<footer>Referensi utama: Sutton &amp; Barto, <i>Reinforcement Learning: An Introduction</i> (2018); Goodfellow dkk., <i>Deep Learning</i> (2016); Vaswani dkk., <i>Attention Is All You Need</i> (2017); Thompson, <i>Calculus Made Easy</i> (1910); Strang, <i>Calculus</i> (MIT OCW); Martin, <i>Agile Software Development</i> (2002); Gamma dkk., <i>Design Patterns</i> (1994); dokumentasi FastAPI, Pydantic, PyTorch, dan ONNX Runtime; Huyen, <i>Designing Machine Learning Systems</i> (2022); Zinkevich, <i>Rules of Machine Learning</i>; Swales, <i>Genre Analysis</i> (1990); pedoman COPE dan ICMJE.</footer>
+<footer>Referensi utama: Sutton &amp; Barto, <i>Reinforcement Learning: An Introduction</i> (2018); Goodfellow dkk., <i>Deep Learning</i> (2016); Vaswani dkk., <i>Attention Is All You Need</i> (2017); Thompson, <i>Calculus Made Easy</i> (1910); Strang, <i>Calculus</i> (MIT OCW); Martin, <i>Agile Software Development</i> (2002); Gamma dkk., <i>Design Patterns</i> (1994); dokumentasi FastAPI, Pydantic, PyTorch, dan ONNX Runtime; Huyen, <i>Designing Machine Learning Systems</i> (2022); Zinkevich, <i>Rules of Machine Learning</i>; Swales, <i>Genre Analysis</i> (1990); pedoman COPE dan ICMJE; UU PDP dan UU ITE; <i>Berkeley Protocol on Digital Open Source Investigations</i>; Heuer, <i>Psychology of Intelligence Analysis</i> (1999).</footer>
 </div>
 
 <script>
@@ -153,6 +153,12 @@ const G=[
     {id:'jurnalq1',c:'--good',tag:'Publikasi',title:'Menulis Jurnal sampai Lolos Q1',href:'menulis-ilmiah/01-menulis-jurnal-q1.html',time:'± 5 jam',demo:12,quiz:24,
      desc:'Kuartil Q1–Q4, state of the art, research gap, dan novelty; tujuh tuas menaikkan riset dan judul dari Q4 ke Q1 dengan empat studi kasus; judul, abstrak, model CARS, metode, pembahasan, bahasa akademik, memilih jurnal, menghindari jurnal predator, menjawab reviewer, serta etika dan AI.'}
    ]},
+  {id:'sec',title:'🛡 Keamanan Informasi',note:'mandiri',free:true,
+   sub:'OSINT sebagai disiplin yang sah beserta batas hukum dan etikanya, serta doxing dari sisi pencegahan dan respons. Tidak bergantung pada kelompok lain; cocok untuk mata kuliah Keamanan Informasi, Etika Profesi TI, atau Forensik Digital.',
+   items:[
+    {id:'osint',c:'--bad',tag:'Etika &amp; hukum',title:'OSINT Etis &amp; Anti-Doxing',href:'keamanan-informasi/01-osint-etis-anti-doxing.html',time:'± 3 jam',demo:0,quiz:0,
+     desc:'Garis batas OSINT dan doxing, UU PDP, UU ITE, dan UU TPKS, siklus intelijen, Admiralty Code dan ACH, chain of custody, lab audit jejak digital diri dan recon organisasi berizin, efek mosaik, respons korban, studi kasus, rencana 6 pertemuan, rubrik, dan pakta etika praktikum.'}
+   ]},
   {id:'sp',title:'📡 Pemrosesan Sinyal',note:'mandiri',free:true,
    sub:'Matematika di balik audio, gambar, dan sensor. Tidak bergantung pada kelompok lain.',
    items:[
@@ -170,7 +176,7 @@ function row(m,i,free){const d=done[m.id];
   return `<li class="row ${d?'done':''}">
     <span class="num ${free?'free':''}" aria-label="${free?'mandiri':'urutan '+(i+1)}">${d?'✓':free?'–':i+1}</span>
     <div class="info"><a href="${m.href}">${m.title}</a>${m.tag?`<span class="tag" style="--c:var(${m.c})">${m.tag}</span>`:''}<p class="desc">${m.desc}</p></div>
-    <span class="meta">⏱ ${m.time} · ${m.demo} demo · ${m.quiz} kuis</span>
+    <span class="meta">⏱ ${[m.time,m.demo&&m.demo+' demo',m.quiz&&m.quiz+' kuis'].filter(Boolean).join(' · ')}</span>
     <label class="chk" title="Tandai sudah selesai"><input type="checkbox" data-id="${m.id}" ${d?'checked':''} aria-label="${m.title.replace(/&amp;/g,'&')} sudah selesai"></label></li>`}
 function render(){
   $('#groups').innerHTML=G.map(g=>`<section><h2>${g.title}<small>${g.note}</small></h2><p class="sub">${g.sub}</p>

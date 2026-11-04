@@ -61,3 +61,9 @@ Ikuti urutan bernomor: **1 SOLID → 2 Design Pattern**.
 | Modul | File | Status |
 |---|---|---|
 | Menulis Jurnal sampai Lolos Q1 (kuartil SJR/JCR, state of the art, research gap, novelty, benang merah SOTA → gap → novelty, tujuh tuas menaikkan riset dan judul dari Q4 ke Q1 dengan empat studi kasus lintas bidang, pengukur level riset, judul, abstrak, model CARS, metode dan pedoman pelaporan, pembahasan, bahasa akademik, memilih jurnal dan menghindari jurnal predator/hijacked, cover letter, menjawab reviewer, etika dan AI, rencana kerja; 12 simulasi dan 24 soal kuis) | [`menulis-ilmiah/01-menulis-jurnal-q1.html`](menulis-ilmiah/01-menulis-jurnal-q1.html) | ✅ Selesai |
+
+## Keamanan Informasi
+
+| Modul | File | Status |
+|---|---|---|
+| OSINT Etis & Anti-Doxing (garis batas OSINT dan doxing, UU PDP/ITE/TPKS, siklus intelijen, Admiralty Code dan ACH, chain of custody, OPSEC, lab audit jejak digital diri, lab recon organisasi berizin, efek mosaik, pencegahan dan respons doxing, studi kasus, rencana 6 pertemuan, rubrik, pakta etika praktikum, glosarium) | [`keamanan-informasi/01-osint-etis-anti-doxing.html`](keamanan-informasi/01-osint-etis-anti-doxing.html) | ✅ Teks lengkap · tanpa simulasi interaktif dan kuis |
