@@ -55,3 +55,9 @@ Ikuti urutan bernomor: **1 SOLID → 2 Design Pattern**.
 |---|---|---|
 | 1 · Memahami SOLID dari Nol (SRP, OCP, LSP, ISP, DIP dengan contoh Java, simulasi, dan studi kasus refactoring) | [`oop/01-solid.html`](oop/01-solid.html) | ✅ Selesai |
 | 2 · Memahami Design Pattern dari Nol (15 pattern GoF dengan analogi, diagram kelas, 15 simulasi, contoh Java, dan studi kasus aplikasi pesan-antar) | [`oop/02-design-pattern.html`](oop/02-design-pattern.html) | ✅ Selesai |
+
+## Menulis & Publikasi Ilmiah
+
+| Modul | File | Status |
+|---|---|---|
+| Menulis Jurnal sampai Lolos Q1 (kuartil SJR/JCR, state of the art, research gap, novelty, benang merah SOTA → gap → novelty, tujuh tuas menaikkan riset dan judul dari Q4 ke Q1 dengan empat studi kasus lintas bidang, pengukur level riset, judul, abstrak, model CARS, metode dan pedoman pelaporan, pembahasan, bahasa akademik, memilih jurnal dan menghindari jurnal predator/hijacked, cover letter, menjawab reviewer, etika dan AI, rencana kerja; 12 simulasi dan 24 soal kuis) | [`menulis-ilmiah/01-menulis-jurnal-q1.html`](menulis-ilmiah/01-menulis-jurnal-q1.html) | ✅ Selesai |

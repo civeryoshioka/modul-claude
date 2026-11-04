@@ -1,0 +1,1821 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Menulis Jurnal Q1</title>
+<style>
+:root{
+  --bg:#f7f8fa;--surface:#ffffff;--surface-2:#f0f2f6;--text:#1c2230;--muted:#5b6474;
+  --border:#e1e5ec;--accent:#3a6df0;--accent-soft:#e6edff;--good:#1f9d63;--bad:#d64545;--warn:#c98a12;--violet:#7c4dff;
+  --code-bg:#f3f5f9;--sidebar-w:280px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+    --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--violet:#a98bff;--code-bg:#1d222b;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141a;--surface:#181c24;--surface-2:#20252f;--text:#e4e8ef;--muted:#9aa3b2;
+  --border:#2b313d;--accent:#7a9cff;--accent-soft:#1f2a47;--good:#3fc488;--bad:#f07070;--warn:#e8b04a;--violet:#a98bff;--code-bg:#1d222b;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+/* Sidebar */
+#sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);
+  overflow-y:auto;padding:22px 16px;z-index:20;transition:transform .25s}
+#sidebar .brand{font-weight:700;font-size:17px;margin:0 8px 2px}
+#sidebar .level{display:inline-block;margin:0 8px 16px;font-size:12px;padding:2px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar ol{list-style:none;margin:0;padding:0;counter-reset:toc}
+#sidebar li a{display:flex;gap:10px;padding:7px 10px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:14.5px;line-height:1.4}
+#sidebar li a::before{counter-increment:toc;content:counter(toc);min-width:20px;height:20px;border-radius:50%;background:var(--surface-2);
+  font-size:11.5px;display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+#sidebar li a:hover{background:var(--surface-2);color:var(--text)}
+#sidebar li a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+#sidebar li a.active::before{background:var(--accent);color:#fff}
+#progress{height:4px;background:var(--surface-2);border-radius:4px;margin:0 8px 18px;overflow:hidden}
+#progress div{height:100%;width:0;background:var(--accent);transition:width .1s}
+#menuBtn{display:none;position:fixed;top:12px;left:12px;z-index:30;border:1px solid var(--border);background:var(--surface);color:var(--text);
+  border-radius:8px;padding:6px 12px;font-size:15px;cursor:pointer}
+.sbtns{display:flex;flex-wrap:wrap;gap:8px;margin:18px 8px 0}
+/* Main */
+main{margin-left:var(--sidebar-w);padding:40px 48px 80px;max-width:calc(var(--sidebar-w) + 920px)}
+main>*{max-width:880px}
+header.hero{padding:8px 0 24px;border-bottom:1px solid var(--border);margin-bottom:12px}
+header.hero h1{font-size:34px;line-height:1.2;margin:0 0 8px;text-wrap:balance}
+header.hero p{color:var(--muted);margin:0}
+section{padding-top:28px}
+h2{font-size:25px;margin:16px 0 10px;padding-top:8px;text-wrap:balance}
+h3{font-size:18.5px;margin:26px 0 6px;text-wrap:balance}
+p,li{color:var(--text)}
+main p,main li,.box{text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+.card span{text-align:left}
+.muted{color:var(--muted)}
+.box{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:16px 20px;margin:16px 0}
+.box.tip{border-left:4px solid var(--good)}
+.box.note{border-left:4px solid var(--accent)}
+.box.warn{border-left:4px solid var(--warn)}
+.box.bad{border-left:4px solid var(--bad)}
+.box>strong:first-child{display:block;margin-bottom:4px}
+.box ul,.box ol{margin:6px 0 0;padding-left:22px}
+.box p{margin:6px 0 0}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;background:var(--code-bg);padding:1px 6px;border-radius:5px}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-size:13.5px;line-height:1.55;margin:14px 0}
+pre code{background:none;padding:0;font-size:inherit}
+.c{color:var(--muted);font-style:italic} .k{color:var(--accent);font-weight:600} .s{color:var(--good)} .n{color:var(--warn)} .t{color:var(--violet)} .a{color:var(--warn)}
+/* Blok kode */
+.codewrap{margin:14px 0}
+.codewrap pre{margin:0;border-radius:0 0 10px 10px}
+.codecap{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font:600 12.5px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  background:var(--surface-2);border:1px solid var(--border);border-bottom:0;border-radius:10px 10px 0 0;padding:6px 14px;color:var(--muted)}
+.codecap.bad{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,var(--border))}
+.codecap.good{color:var(--good);border-color:color-mix(in srgb,var(--good) 40%,var(--border))}
+.codecap span:last-child{opacity:.75;font-weight:500}
+.ln{display:inline-block;min-width:calc(100% + 32px);margin:0 -16px;padding:0 16px}
+.ln.bad{background:color-mix(in srgb,var(--bad) 15%,transparent);box-shadow:inset 3px 0 var(--bad)}
+.ln.good{background:color-mix(in srgb,var(--good) 15%,transparent);box-shadow:inset 3px 0 var(--good)}
+.outwrap{margin:-6px 0 16px}
+.outwrap .codecap{border-radius:0;border-top:0;background:var(--surface);font-size:11.5px;padding:3px 14px}
+.outwrap pre{margin:0;border-radius:0 0 10px 10px;background:#10141c;color:#d7e3f4;border-color:#10141c;font-size:13px;padding:10px 16px}
+:root[data-theme="dark"] .outwrap pre{background:#0b0e13}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .outwrap pre{background:#0b0e13}}
+.tbl{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{border:1px solid var(--border);padding:7px 11px;text-align:left;vertical-align:top}
+th{background:var(--surface-2)}
+td.c2,th.c2{text-align:center}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin:14px 0}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:14px 0}
+.card{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 16px;min-width:0}
+.card b{display:block;margin-bottom:2px}
+.card span{color:var(--muted);font-size:14.5px;display:block}
+.card .ic{font-size:26px;line-height:1;display:block;margin-bottom:6px}
+.card.s{border-top:4px solid var(--accent)}.card.o{border-top:4px solid var(--good)}.card.l{border-top:4px solid var(--warn)}
+.card.i{border-top:4px solid var(--violet)}.card.d{border-top:4px solid var(--bad)}
+.pill{display:inline-block;font-size:11.5px;font-weight:700;padding:0 8px;border-radius:99px;margin-right:6px;vertical-align:1px;color:#fff}
+.pill.s{background:var(--accent)}.pill.o{background:var(--good)}.pill.l{background:var(--warn)}.pill.i{background:var(--violet)}.pill.d{background:var(--bad)}
+.vs{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:0 16px;align-items:start}
+.vs>div{min-width:0}
+/* Demo widgets */
+.demo{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:18px;margin:18px 0}
+.demo h4{margin:0 0 4px;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent)}
+.demo>p{margin:4px 0 8px;font-size:15px}
+.controls{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:10px 0}
+select.btn{max-width:100%;text-overflow:ellipsis}
+button.btn,select.btn,a.btn{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:8px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer;text-decoration:none;display:inline-block}
+button.btn:hover,select.btn:hover,a.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.btn.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+button.btn.danger{border-color:var(--bad);color:var(--bad)}
+button.btn:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+label.range{display:flex;align-items:center;gap:8px;font-size:14px;flex-wrap:wrap}
+label.range b{min-width:3.6em;font-variant-numeric:tabular-nums}
+label.chk{display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer}
+input[type=range]{accent-color:var(--accent);max-width:200px}
+input[type=checkbox],input[type=radio]{accent-color:var(--accent);width:16px;height:16px}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+.seg button{border:0;border-right:1px solid var(--border);background:var(--surface-2);color:var(--text);padding:7px 14px;font:inherit;font-size:14px;cursor:pointer}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--accent);color:#fff;font-weight:600}
+.kpi{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.kpi div{border:1px solid var(--border);background:var(--surface-2);border-radius:8px;padding:6px 12px;font-size:13px;color:var(--muted);min-width:0}
+.kpi b{display:block;font-size:17px;color:var(--text);font-variant-numeric:tabular-nums}
+.kpi .okv b{color:var(--good)} .kpi .badv b{color:var(--bad)}
+.msg{font-size:14px;margin:8px 0 0;padding:8px 12px;border-radius:8px;background:var(--accent-soft);color:var(--text);text-align:left}
+.msg.ok{background:color-mix(in srgb,var(--good) 15%,transparent)}
+.msg.no{background:color-mix(in srgb,var(--bad) 15%,transparent)}
+.msg.wa{background:color-mix(in srgb,var(--warn) 18%,transparent)}
+.console{background:#10141c;color:#d7e3f4;border-radius:10px;padding:10px 14px;font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;min-height:84px;max-height:200px;overflow:auto;white-space:pre-wrap}
+.console .e{color:#ff8f8f}.console .g{color:#7be3a4}.console .m{color:#8fa3bf}
+.cap{font-size:12.5px;color:var(--muted);margin:4px 2px 0;text-align:left}
+.legend{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:6px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.bar{height:10px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.mtr{display:grid;grid-template-columns:minmax(150px,1.2fr) 2fr 3.2em;gap:6px 10px;align-items:center;font-size:13.5px;margin:6px 0}
+.mtr span:last-child{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+/* Diagram */
+.diagram{overflow-x:auto;margin:16px 0}
+.diagram svg{display:block;width:100%;min-width:520px;max-width:760px;margin:0 auto}
+.diagram.fit svg{min-width:0;max-width:none}
+.diagram.narrow svg{min-width:300px;max-width:420px}
+.diagram text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.gnode{cursor:pointer}
+.gnode rect{transition:fill .15s,stroke .15s}
+.gnode:hover rect{stroke:var(--accent)}
+/* Steps */
+.steps{counter-reset:st;list-style:none;padding:0}
+.steps li{counter-increment:st;position:relative;padding:4px 0 10px 42px}
+.steps li::before{content:counter(st);position:absolute;left:0;top:4px;width:28px;height:28px;border-radius:50%;background:var(--accent-soft);
+  color:var(--accent);font-weight:700;display:grid;place-items:center;font-size:14px}
+/* Quiz */
+.q{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px 18px;margin:12px 0}
+.q p{margin:0 0 8px;font-weight:600;text-align:left}
+.q pre{font-weight:400;margin:6px 0 10px;font-size:13px}
+.q button{display:block;width:100%;text-align:left;margin:6px 0;border:1px solid var(--border);background:var(--surface-2);color:var(--text);
+  border-radius:8px;padding:8px 12px;font:inherit;font-size:14.5px;cursor:pointer}
+.q button:hover{border-color:var(--accent)}
+.q button.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 15%,transparent)}
+.q button.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,transparent)}
+.q .why{font-size:14px;color:var(--muted);display:none;margin-top:6px}
+#qScore,.score{font-size:14px;color:var(--muted)}
+details.sol{border:1px solid var(--border);border-radius:10px;background:var(--surface);margin:10px 0;padding:0}
+details.sol>summary{cursor:pointer;padding:9px 14px;font-weight:600;font-size:14.5px}
+details.sol>div{padding:0 14px 12px}
+.nav-mod{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px}
+footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:14px}
+@media (max-width:900px){
+  #sidebar{transform:translateX(-100%);box-shadow:0 0 30px rgba(0,0,0,.2)}
+  #sidebar.open{transform:none}
+  #menuBtn{display:block}
+  main{margin-left:0;padding:60px 16px 60px}
+  header.hero h1{font-size:27px}
+}
+@media (max-width:620px){
+  main p,main li,.box{text-align:left}
+  .vs{grid-template-columns:minmax(0,1fr)}
+  .mtr{grid-template-columns:1fr 3em}
+  .mtr .bar{grid-column:1/-1;grid-row:2}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.bar>i,.gnode rect{transition:none}}
+@media print{
+  #sidebar,#menuBtn,.controls,.sbtns{display:none!important}
+  main{margin:0;padding:0;max-width:none}
+  body{background:#fff;color:#000;font-size:12pt}
+  .demo,.box,.card,.q{break-inside:avoid}
+  pre{white-space:pre-wrap;word-break:break-word}
+  section{break-before:auto}
+}
+
+/* ===== Khusus modul Menulis Jurnal Q1 ===== */
+.seg{flex-wrap:wrap;max-width:100%}
+.seg button{border-bottom:1px solid var(--border)}
+.q1{color:var(--good)}.q2{color:var(--accent)}.q3{color:var(--warn)}.q4{color:var(--bad)}
+.qb{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 9px;border-radius:99px;color:#fff;vertical-align:1px;margin-right:4px}
+.qb.q1{background:var(--good)}.qb.q2{background:var(--accent)}.qb.q3{background:var(--warn)}.qb.q4{background:var(--bad)}
+.badge{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 8px;border-radius:99px;color:#fff;vertical-align:1px;margin-right:4px}
+.badge.g{background:var(--good)}.badge.b{background:var(--accent)}.badge.w{background:var(--warn)}.badge.r{background:var(--bad)}.badge.v{background:var(--violet)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;align-items:start}
+.two>div{min-width:0}
+.analog{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:start;font-size:14.5px;margin:8px 0}
+.analog b{color:var(--accent);white-space:nowrap}
+.analog span{text-align:left}
+.ex{border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:10px 0;background:var(--surface);font-size:14.5px}
+.ex.bad{border-left:4px solid var(--bad)}.ex.good{border-left:4px solid var(--good)}.ex.mid{border-left:4px solid var(--warn)}
+.ex>b:first-child{display:block;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+.ex.bad>b:first-child{color:var(--bad)}.ex.good>b:first-child{color:var(--good)}.ex.mid>b:first-child{color:var(--warn)}
+.ex p{margin:4px 0}
+.ex i.en{font-family:Georgia,"Times New Roman",serif;font-style:italic}
+.tpl{font:14px/1.75 Georgia,"Times New Roman",serif;background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin:10px 0;text-align:left!important}
+.tpl mark,.out mark{background:color-mix(in srgb,var(--warn) 25%,transparent);color:var(--text);border-radius:4px;padding:0 3px}
+.tpl .slot{background:var(--accent-soft);color:var(--accent);border-radius:4px;padding:0 4px;font-family:system-ui,sans-serif;font-size:.86em;font-style:normal;font-weight:600}
+input[type=number],input[type=text],input[type=date],textarea,select.inp{font:inherit;font-size:14px;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:8px;padding:6px 9px;min-width:0}
+textarea{width:100%;resize:vertical;line-height:1.5}
+input[type=text]{width:100%}
+input[type=number]{width:6em;font-variant-numeric:tabular-nums}
+.form{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin:8px 0}
+.form label{display:block;font-size:13.5px;color:var(--muted);text-align:left}
+.form label b{color:var(--text);font-weight:600}
+.out{border:1px solid var(--border);background:var(--surface-2);border-radius:10px;padding:12px 16px;margin:10px 0;font:14.5px/1.75 Georgia,"Times New Roman",serif;text-align:left!important}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.chip{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:99px;padding:3px 11px;font:inherit;font-size:13px;cursor:pointer}
+.chip:hover{border-color:var(--accent)}
+.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+/* Gap matrix */
+.gm{border-collapse:separate;border-spacing:0;font-size:13.5px;width:100%}
+.gm th,.gm td{border:1px solid var(--border);padding:6px 8px;text-align:center;vertical-align:middle}
+.gm th{background:var(--surface-2);font-weight:600;font-size:12.5px}
+.gm td:first-child,.gm th:first-child{text-align:left}
+.gm td.cell{cursor:pointer;font-size:16px;user-select:none;min-width:46px}
+.gm td.cell:hover{outline:2px solid var(--accent);outline-offset:-2px}
+.gm td.yes{background:color-mix(in srgb,var(--good) 18%,transparent)}
+.gm th.gapcol{background:color-mix(in srgb,var(--warn) 25%,transparent);color:var(--text)}
+.gm td.gapcell{background:color-mix(in srgb,var(--warn) 10%,transparent)}
+/* Level-up stepper */
+.ladder{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:10px 0}
+.ladder button{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:10px;padding:8px 6px;font:inherit;font-size:13.5px;cursor:pointer;font-weight:600}
+.ladder button.on{color:#fff}
+.ladder button.on.l4{background:var(--bad);border-color:var(--bad)}.ladder button.on.l3{background:var(--warn);border-color:var(--warn)}
+.ladder button.on.l2{background:var(--accent);border-color:var(--accent)}.ladder button.on.l1{background:var(--good);border-color:var(--good)}
+.ttl{font:600 17px/1.5 Georgia,"Times New Roman",serif;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:12px 16px;margin:8px 0;text-align:left!important}
+.ttl small{display:block;font:400 13px/1.5 system-ui,sans-serif;color:var(--muted);margin-top:4px}
+.diff{display:grid;grid-template-columns:minmax(120px,170px) 1fr;gap:4px 12px;font-size:14px;margin:8px 0}
+.diff dt{font-weight:700;color:var(--muted);font-size:13px;text-align:left}
+.diff dd{margin:0;text-align:left}
+.diff dd .up{color:var(--good);font-weight:600}
+/* Pengukur */
+.meter-q{border:1px solid var(--border);border-radius:10px;padding:8px 12px;margin:6px 0;background:var(--surface)}
+.meter-q>b{display:block;font-size:14px;margin-bottom:4px;text-align:left}
+.meter-q .opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:6px}
+.meter-q .opts button{text-align:left;border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:8px;padding:6px 9px;font:inherit;font-size:13px;line-height:1.35;cursor:pointer}
+.meter-q .opts button.on{border-color:var(--accent);background:var(--accent-soft);color:var(--text);box-shadow:inset 3px 0 var(--accent)}
+.res-big{font-size:28px;font-weight:800;line-height:1.1}
+.radar{display:block;width:100%;max-width:380px;margin:0 auto}
+.radar text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.risk{height:14px;border-radius:99px;background:linear-gradient(90deg,var(--good),var(--warn),var(--bad));position:relative;margin:14px 4px 6px}
+.risk i{position:absolute;top:-5px;width:4px;height:24px;background:var(--text);border-radius:2px;transition:left .3s;transform:translateX(-2px)}
+.cklist label{display:flex;gap:9px;align-items:flex-start;font-size:14.5px;padding:5px 2px;cursor:pointer;text-align:left}
+.cklist label input{margin-top:4px;flex-shrink:0}
+.cklist label small{color:var(--muted)}
+.sorter .sent{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:9px 12px;margin:8px 0}
+.sorter .sent p{margin:0 0 6px;font:14.5px/1.6 Georgia,"Times New Roman",serif;text-align:left}
+.sorter .sent .r{font-size:13px;margin-top:6px;text-align:left}
+.sorter .sent.ok{border-color:var(--good)}.sorter .sent.no{border-color:var(--bad)}
+.wc{font-size:12px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.wc.over{color:var(--bad);font-weight:700}
+.tl{list-style:none;padding:0;margin:10px 0;border-left:3px solid var(--border)}
+.tl li{position:relative;padding:4px 0 10px 18px;font-size:14.5px;text-align:left}
+.tl li::before{content:"";position:absolute;left:-8px;top:10px;width:13px;height:13px;border-radius:50%;background:var(--accent)}
+.tl li b{display:inline-block;min-width:8.5em;font-variant-numeric:tabular-nums}
+.tl li.past::before{background:var(--bad)}
+.hl-title{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.hl-title span{font-size:13px;border-radius:7px;padding:3px 9px;border:1px solid var(--border);background:var(--surface-2)}
+.hl-title span.ok{border-color:var(--good);background:color-mix(in srgb,var(--good) 14%,transparent)}
+.hl-title span.no{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.hl-title span.wa{border-color:var(--warn);background:color-mix(in srgb,var(--warn) 15%,transparent)}
+.kbd{font:600 12px ui-monospace,monospace;border:1px solid var(--border);border-bottom-width:2px;border-radius:5px;padding:0 5px;background:var(--surface-2)}
+@media (max-width:620px){
+  .ladder{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .diff{grid-template-columns:minmax(0,1fr)}
+  .diff dt{margin-top:6px}
+  .analog{grid-template-columns:minmax(0,1fr)}
+  .analog b{margin-top:6px}
+  .gm{font-size:12px}
+}
+</style>
+</head>
+<body>
+<button id="menuBtn" aria-label="Buka daftar isi">☰ Daftar Isi</button>
+
+<nav id="sidebar" aria-label="Daftar isi">
+  <a class="home-link" href="../index.html" style="display:block;margin:0 8px 12px;font-size:13px;text-decoration:none">← Beranda semua modul</a>
+  <div class="brand">Menulis Jurnal Q1</div>
+  <span class="level">Publikasi ilmiah · Lengkap</span>
+  <div id="progress"><div></div></div>
+  <ol id="toc">
+    <li><a href="#gambaran">Gambaran &amp; Peta Belajar</a></li>
+    <li><a href="#kuartil">Memahami Q1 sampai Q4</a></li>
+    <li><a href="#standar">Apa yang Dicari Jurnal Q1</a></li>
+    <li><a href="#sota">State of the Art</a></li>
+    <li><a href="#gap">Research Gap</a></li>
+    <li><a href="#novelty">Novelty &amp; Kontribusi</a></li>
+    <li><a href="#benang">Benang Merah: SOTA → Gap → Novelty</a></li>
+    <li><a href="#levelup">Strategi Naik Level Q4 → Q1</a></li>
+    <li><a href="#studikasus">Studi Kasus Naik Level Judul</a></li>
+    <li><a href="#pengukur">Pengukur Level Riset</a></li>
+    <li><a href="#judul">Merumuskan Judul</a></li>
+    <li><a href="#imrad">Anatomi Naskah (IMRaD)</a></li>
+    <li><a href="#abstrak">Abstract &amp; Keywords</a></li>
+    <li><a href="#intro">Introduction (Model CARS)</a></li>
+    <li><a href="#metode">Methods</a></li>
+    <li><a href="#hasil">Results &amp; Discussion</a></li>
+    <li><a href="#penutup">Conclusion, Gambar &amp; Referensi</a></li>
+    <li><a href="#bahasa">Bahasa &amp; Gaya Akademik</a></li>
+    <li><a href="#jurnal">Memilih Jurnal &amp; Menghindari Predator</a></li>
+    <li><a href="#submit">Submission &amp; Cover Letter</a></li>
+    <li><a href="#review">Peer Review &amp; Revisi</a></li>
+    <li><a href="#etika">Etika Publikasi &amp; AI</a></li>
+    <li><a href="#roadmap">Rencana Kerja 6–12 Bulan</a></li>
+    <li><a href="#kuis">Kuis &amp; Cheat Sheet</a></li>
+  </ol>
+  <div class="sbtns">
+    <button class="btn" id="themeBtn">🌓 Ganti tema</button>
+    <button class="btn" id="printBtn">🖨 Cetak / PDF</button>
+  </div>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Menulis Jurnal Ilmiah sampai Lolos Q1: Dari State of the Art, Research Gap, dan Novelty sampai Revisi</h1>
+  <p>Modul ini adalah panduan lengkap menulis artikel untuk jurnal bereputasi tinggi (kuartil Q1). Kita mulai dari hal yang paling menentukan nasib naskah, yaitu <b>kualitas ide riset</b>: <i>state of the art</i>, <i>research gap</i>, dan <i>novelty</i>. Setelah itu kita bahas strategi <b>menaikkan level judul dan riset</b> dari kelas Q4 ke Q1, lalu cara menulis setiap bagian naskah, memilih jurnal, menghadapi reviewer, dan menjaga etika. Ada 12 simulasi interaktif, banyak contoh kalimat siap pakai, dan kuis di akhir.</p>
+</header>
+
+<!-- ============ 1. GAMBARAN ============ -->
+<section id="gambaran">
+<h2>1. Gambaran &amp; Peta Belajar</h2>
+<p>Banyak orang mengira naskah ditolak jurnal Q1 karena bahasa Inggrisnya kurang bagus. Itu memang bisa jadi masalah, tetapi jarang menjadi penyebab utama. Penyebab yang jauh lebih sering adalah <b>kontribusinya tidak cukup besar</b> atau <b>tidak dijelaskan dengan meyakinkan</b>: editor membaca judul, abstrak, dan pendahuluan, lalu bertanya, "Apa yang baru di sini, dan mengapa pembaca jurnal kami perlu peduli?" Bila jawabannya kabur, naskah dikembalikan tanpa dikirim ke reviewer (<i>desk rejection</i>), sebagus apa pun bahasanya.</p>
+<p>Karena itu, modul ini disusun dengan urutan yang sama dengan cara editor menilai naskah: <b>ide dulu, baru tulisan</b>. Nasib sebuah naskah Q1 sebagian besar sudah ditentukan saat kamu merancang penelitian, jauh sebelum kalimat pertama ditulis.</p>
+
+<div class="box tip"><strong>🏠 Analogi: membangun rumah</strong>
+<div class="analog">
+<b>Fondasi</b><span>Ide riset: <i>state of the art</i>, <i>research gap</i>, <i>novelty</i>. Fondasi yang retak tidak bisa ditambal dengan cat.</span>
+<b>Struktur</b><span>Desain dan metode penelitian: data, analisis, validasi. Inilah yang diuji reviewer.</span>
+<b>Denah</b><span>Struktur naskah (IMRaD): setiap ruang punya fungsi, alurnya logis dari pintu depan sampai belakang.</span>
+<b>Finishing</b><span>Bahasa, gambar, format. Penting untuk kesan pertama, tetapi tidak menyelamatkan bangunan yang lemah.</span>
+</div></div>
+
+<div class="diagram" aria-label="Alur dari ide sampai terbit">
+<svg viewBox="0 0 760 212" role="img">
+  <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>
+  <g font-size="12" text-anchor="middle">
+    <rect x="4" y="30" width="138" height="100" rx="12" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="73" y="58" font-size="20">💡</text><text x="73" y="80" font-weight="700" fill="var(--accent)" font-size="13.5">1 · Ide</text><text x="73" y="98" fill="var(--text)">SOTA → gap</text><text x="73" y="114" fill="var(--text)">→ novelty</text>
+    <rect x="156" y="30" width="138" height="100" rx="12" fill="var(--surface)" stroke="var(--violet)" stroke-width="2"/>
+    <text x="225" y="58" font-size="20">🧪</text><text x="225" y="80" font-weight="700" fill="var(--violet)" font-size="13.5">2 · Desain</text><text x="225" y="98" fill="var(--text)">metode, data,</text><text x="225" y="114" fill="var(--text)">validasi</text>
+    <rect x="308" y="30" width="138" height="100" rx="12" fill="var(--surface)" stroke="var(--warn)" stroke-width="2"/>
+    <text x="377" y="58" font-size="20">✍️</text><text x="377" y="80" font-weight="700" fill="var(--warn)" font-size="13.5">3 · Menulis</text><text x="377" y="98" fill="var(--text)">IMRaD, judul,</text><text x="377" y="114" fill="var(--text)">abstrak</text>
+    <rect x="460" y="30" width="138" height="100" rx="12" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="529" y="58" font-size="20">📮</text><text x="529" y="80" font-weight="700" fill="var(--accent)" font-size="13.5">4 · Submit</text><text x="529" y="98" fill="var(--text)">pilih jurnal,</text><text x="529" y="114" fill="var(--text)">cover letter</text>
+    <rect x="612" y="30" width="144" height="100" rx="12" fill="color-mix(in srgb,var(--good) 12%,transparent)" stroke="var(--good)" stroke-width="2"/>
+    <text x="684" y="58" font-size="20">🔁</text><text x="684" y="80" font-weight="700" fill="var(--good)" font-size="13.5">5 · Review</text><text x="684" y="98" fill="var(--text)">revisi, respons,</text><text x="684" y="114" fill="var(--text)">terbit</text>
+    <g stroke="var(--muted)" stroke-width="1.6" marker-end="url(#ah)"><line x1="142" y1="80" x2="154" y2="80"/><line x1="294" y1="80" x2="306" y2="80"/><line x1="446" y1="80" x2="458" y2="80"/><line x1="598" y1="80" x2="610" y2="80"/></g>
+    <path d="M 684 132 C 684 180, 377 186, 377 134" fill="none" stroke="var(--bad)" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#ah)"/>
+    <text x="530" y="204" fill="var(--bad)" font-size="11.5">ditolak? perbaiki, kirim ke jurnal lain</text>
+    <text x="150" y="160" fill="var(--muted)" font-size="11.5">Tahap 1–2 menentukan sebagian besar peluang Q1</text>
+    <line x1="4" y1="146" x2="294" y2="146" stroke="var(--accent)" stroke-width="3"/>
+  </g>
+</svg></div>
+
+<h3>Peta modul</h3>
+<div class="grid2">
+  <div class="card s"><span class="ic">🧭</span><b>A · Fondasi ide (bagian 2–7)</b><span>Apa itu kuartil, standar jurnal Q1, cara membangun <i>state of the art</i>, menemukan <i>research gap</i> yang bernilai, dan merumuskan <i>novelty</i>.</span></div>
+  <div class="card o"><span class="ic">📈</span><b>B · Naik level (bagian 8–10)</b><span>Tujuh tuas untuk menaikkan riset dari kelas Q4 ke Q1, empat studi kasus judul lintas bidang, dan pengukur level riset kamu sendiri.</span></div>
+  <div class="card l"><span class="ic">✍️</span><b>C · Menulis naskah (bagian 11–18)</b><span>Judul, abstrak, pendahuluan dengan model CARS, metode, hasil dan pembahasan, kesimpulan, referensi, serta bahasa akademik.</span></div>
+  <div class="card i"><span class="ic">📮</span><b>D · Publikasi (bagian 19–23)</b><span>Memilih jurnal, menghindari jurnal predator dan <i>hijacked</i>, <i>cover letter</i>, menjawab reviewer, etika dan penggunaan AI, serta rencana kerja.</span></div>
+</div>
+<div class="box note"><strong>📌 Cara memakai modul</strong>
+<ul>
+<li>Bila kamu sudah punya draf, langsung coba <a href="#pengukur">Pengukur Level Riset</a> (bagian 10) untuk melihat tuas mana yang paling lemah, lalu kembali ke bagian yang relevan.</li>
+<li>Bila kamu baru akan memulai riset, baca berurutan. Bagian 4–7 adalah jantung modul ini.</li>
+<li>Istilah seperti <i>state of the art</i>, <i>research gap</i>, <i>novelty</i>, <i>desk rejection</i>, dan <i>peer review</i> sengaja dibiarkan dalam bahasa Inggris karena itulah istilah yang dipakai editor, reviewer, dan pedoman jurnal.</li>
+</ul></div>
+</section>
+
+<!-- ============ 2. KUARTIL ============ -->
+<section id="kuartil">
+<h2>2. Memahami Q1 sampai Q4</h2>
+<p>"Q1" adalah singkatan <b>kuartil pertama</b>. Jurnal-jurnal dalam satu <b>kategori subjek</b> (misalnya <i>Computer Science Applications</i> atau <i>Public Health</i>) diurutkan berdasarkan sebuah metrik sitasi, lalu dibagi menjadi empat kelompok yang sama besar. Seperempat teratas disebut Q1, berikutnya Q2, lalu Q3, dan seperempat terbawah Q4.</p>
+
+<div class="diagram" aria-label="Pembagian kuartil">
+<svg viewBox="0 0 760 130" role="img">
+  <g font-size="13" text-anchor="middle">
+    <rect x="10" y="30" width="185" height="44" fill="color-mix(in srgb,var(--good) 22%,transparent)" stroke="var(--good)" stroke-width="2" rx="8"/>
+    <rect x="195" y="30" width="185" height="44" fill="color-mix(in srgb,var(--accent) 18%,transparent)" stroke="var(--accent)" stroke-width="2" rx="8"/>
+    <rect x="380" y="30" width="185" height="44" fill="color-mix(in srgb,var(--warn) 20%,transparent)" stroke="var(--warn)" stroke-width="2" rx="8"/>
+    <rect x="565" y="30" width="185" height="44" fill="color-mix(in srgb,var(--bad) 16%,transparent)" stroke="var(--bad)" stroke-width="2" rx="8"/>
+    <text x="102" y="57" font-weight="700" fill="var(--good)">Q1 · 25% teratas</text>
+    <text x="287" y="57" font-weight="700" fill="var(--accent)">Q2 · 25–50%</text>
+    <text x="472" y="57" font-weight="700" fill="var(--warn)">Q3 · 50–75%</text>
+    <text x="657" y="57" font-weight="700" fill="var(--bad)">Q4 · 25% terbawah</text>
+    <text x="20" y="20" text-anchor="start" fill="var(--muted)" font-size="11.5">metrik tertinggi</text>
+    <text x="740" y="20" text-anchor="end" fill="var(--muted)" font-size="11.5">metrik terendah</text>
+    <text x="380" y="104" fill="var(--muted)" font-size="12">Peringkat dihitung terpisah untuk setiap kategori subjek dan setiap tahun</text>
+  </g>
+</svg></div>
+
+<h3>Tiga sumber kuartil yang sering tertukar</h3>
+<div class="tbl"><table>
+<tr><th>Sumber</th><th>Basis data</th><th>Metrik pengurut</th><th>Catatan</th></tr>
+<tr><td><b>SJR</b> (SCImago Journal &amp; Country Rank)</td><td>Scopus</td><td>SJR (sitasi berbobot: sitasi dari jurnal bergengsi bernilai lebih)</td><td>Gratis di scimagojr.com. Paling sering dipakai di Indonesia saat orang menyebut "Q1 Scopus".</td></tr>
+<tr><td><b>CiteScore</b> (Scopus)</td><td>Scopus</td><td>Rata-rata sitasi per dokumen dalam jendela beberapa tahun</td><td>Scopus menampilkan persentil per kategori. Q1 versi CiteScore bisa berbeda dari Q1 versi SJR.</td></tr>
+<tr><td><b>JCR</b> (Clarivate Journal Citation Reports)</td><td>Web of Science</td><td>Journal Impact Factor (JIF)</td><td>Berlangganan. Disebut "Q1 WoS" atau "Q1 JCR". Kategorinya berbeda dengan kategori Scopus.</td></tr>
+</table></div>
+
+<div class="box warn"><strong>⚠️ Empat jebakan memahami kuartil</strong>
+<ol>
+<li><b>Kuartil melekat pada kategori, bukan pada jurnal.</b> Satu jurnal bisa Q1 di satu kategori dan Q2 di kategori lain. Saat orang bilang "jurnal ini Q1", biasanya yang dimaksud adalah kuartil terbaiknya.</li>
+<li><b>Kuartil berubah setiap tahun.</b> Jurnal yang Q1 tahun lalu bisa turun ke Q2 tahun ini. Bila status Q1 penting untukmu (misalnya untuk kenaikan jabatan, beasiswa, atau syarat lulus), cek aturan yang berlaku: apakah dihitung saat submit, saat terbit, atau tahun terakhir yang tersedia.</li>
+<li><b>Q1 versi SJR, CiteScore, dan JCR tidak selalu sama.</b> Sebutkan sumbernya.</li>
+<li><b>Q1 adalah ukuran jurnal, bukan ukuran setiap artikel.</b> Artikel di jurnal Q1 bisa jarang disitasi, dan artikel di jurnal Q3 bisa sangat berpengaruh. Kuartil adalah sinyal reputasi, bukan jaminan kualitas.</li>
+</ol></div>
+
+<div class="demo" id="d1">
+<h4>Simulasi 1 · Kalkulator kuartil</h4>
+<p>Atur jumlah jurnal dalam satu kategori dan peringkat sebuah jurnal. Lalu lihat bagaimana jurnal fiktif yang sama mendapat kuartil berbeda di tiga kategori.</p>
+<div class="controls">
+  <label class="range">Jurnal dalam kategori <input type="range" id="d1N" min="20" max="600" value="240"><b id="d1Nv">240</b></label>
+  <label class="range">Peringkat jurnal <input type="range" id="d1R" min="1" max="240" value="58"><b id="d1Rv">58</b></label>
+</div>
+<svg id="d1Svg" viewBox="0 0 700 70" style="width:100%;display:block" role="img" aria-label="Posisi jurnal dalam kuartil"></svg>
+<div class="msg" id="d1Msg"></div>
+<h4 style="margin-top:16px">Satu jurnal, tiga kategori</h4>
+<div class="tbl"><table id="d1Tbl"></table></div>
+<p class="cap">Data fiktif untuk ilustrasi. Untuk jurnal sungguhan, buka profil jurnal di scimagojr.com dan lihat tabel kuartil per kategori per tahun.</p>
+</div>
+
+<div class="box note"><strong>🇮🇩 Bagaimana dengan SINTA?</strong>
+<p>SINTA (Science and Technology Index) adalah sistem akreditasi jurnal nasional Indonesia dengan peringkat S1 (tertinggi) sampai S6. Peringkat SINTA tidak sama dengan kuartil Scopus. Prinsip menulis di modul ini tetap berlaku untuk jurnal SINTA, hanya standar kontribusi dan cakupan pembacanya berbeda. Untuk keperluan administrasi (angka kredit dosen, syarat kelulusan, hibah), selalu rujuk pedoman terbaru dari institusi atau kementerian, karena aturannya berubah dari waktu ke waktu.</p></div>
+</section>
+
+<!-- ============ 3. STANDAR Q1 ============ -->
+<section id="standar">
+<h2>3. Apa yang Dicari Jurnal Q1</h2>
+<p>Jurnal Q1 disitasi banyak orang karena artikelnya <b>mengubah cara pembaca berpikir atau bekerja</b>. Jurnal seperti ini menerima naskah jauh lebih banyak dari yang bisa diterbitkan, sehingga editor harus memilih. Banyak jurnal top menolak sebagian besar naskah di tahap editor, bahkan sebelum peer review. Supaya lolos, naskah harus kuat di empat pilar sekaligus.</p>
+
+<div class="grid2">
+  <div class="card s"><span class="ic">🎯</span><b>1 · Kontribusi yang signifikan</b><span>Menjawab pertanyaan yang penting bagi komunitas ilmiah internasional, bukan hanya bagi satu instansi atau satu kota. Hasilnya menambah, mengoreksi, atau memperluas pengetahuan yang ada.</span></div>
+  <div class="card o"><span class="ic">🔬</span><b>2 · Rigor metodologis</b><span>Desain yang tepat untuk pertanyaannya, data yang memadai, pembanding yang adil, analisis yang benar, dan klaim yang tidak melampaui bukti.</span></div>
+  <div class="card l"><span class="ic">🧭</span><b>3 · Positioning yang tajam</b><span>Naskah tahu persis di mana ia berdiri dalam percakapan ilmiah terkini: siapa yang sudah melakukan apa, apa yang masih kurang, dan bagaimana kontribusinya mengisi kekurangan itu.</span></div>
+  <div class="card i"><span class="ic">📝</span><b>4 · Kejelasan &amp; kepatuhan</b><span>Alur logis, bahasa jelas, gambar informatif, format sesuai pedoman penulis (<i>guide for authors</i>), dan transparansi data serta etika.</span></div>
+</div>
+
+<h3>Lima pertanyaan editor di lima menit pertama</h3>
+<ol class="steps">
+<li><b>Sesuai scope?</b> Apakah topik ini masuk dalam <i>aims and scope</i> jurnal dan relevan bagi pembacanya?</li>
+<li><b>Apa kontribusinya?</b> Bisakah editor merangkum kebaruan naskah dalam satu kalimat setelah membaca abstrak?</li>
+<li><b>Seberapa luas dampaknya?</b> Apakah temuan berlaku di luar kasus spesifik yang diteliti?</li>
+<li><b>Apakah metodenya meyakinkan?</b> Apakah ada kelemahan fatal yang langsung terlihat (sampel terlalu kecil, tidak ada pembanding, desain tidak cocok)?</li>
+<li><b>Apakah naskahnya profesional?</b> Format, bahasa, gambar, dan referensi menunjukkan penulis serius dan memahami jurnal ini.</li>
+</ol>
+
+<h3>Perbedaan naskah kelas Q4 dan Q1</h3>
+<div class="tbl"><table>
+<tr><th>Aspek</th><th><span class="qb q4">Q4</span> kecenderungan</th><th><span class="qb q1">Q1</span> kecenderungan</th></tr>
+<tr><td>Pertanyaan riset</td><td>"Apa" dan "berapa": mendeskripsikan kondisi atau menerapkan metode</td><td>"Mengapa", "bagaimana", "kapan berlaku": menjelaskan mekanisme dan batas berlakunya</td></tr>
+<tr><td>Cakupan</td><td>Satu instansi, satu kota, satu dataset kecil</td><td>Fenomena umum; konteks spesifik dipakai sebagai jendela untuk menjawab pertanyaan umum</td></tr>
+<tr><td>Kontribusi</td><td>Praktis dan lokal</td><td>Teoretis, metodologis, atau empiris yang relevan secara global, plus implikasi praktis</td></tr>
+<tr><td>Posisi terhadap literatur</td><td>Tinjauan pustaka berupa daftar ringkasan; referensi lama atau sedikit</td><td><i>State of the art</i> yang sintetis dan kritis; referensi mutakhir dari jurnal bereputasi</td></tr>
+<tr><td>Metode</td><td>Standar, tanpa pembanding atau validasi</td><td>Pembanding mutakhir, uji ketahanan, validasi eksternal, analisis sensitivitas</td></tr>
+<tr><td>Pembahasan</td><td>Mengulang hasil</td><td>Menafsirkan, membandingkan dengan studi lain, menjelaskan perbedaan, dan menarik implikasi</td></tr>
+<tr><td>Klaim kebaruan</td><td>"Belum pernah diteliti di daerah X"</td><td>"Studi terdahulu mengasumsikan A; kami menunjukkan bahwa A tidak berlaku ketika B, dan menjelaskan mengapa"</td></tr>
+</table></div>
+
+<div class="box tip"><strong>⚽ Analogi: liga sepak bola</strong>
+<p>Jurnal Q4 sampai Q1 mirip divisi liga. Aturan mainnya sama (sebelas pemain, satu bola), tetapi lawannya makin kuat dan wasitnya makin teliti. Pemain yang bagus di liga lokal belum tentu siap di liga utama, bukan karena tekniknya salah, tetapi karena kecepatan, stamina, dan taktiknya belum di level itu. Begitu juga naskah: struktur IMRaD sama di semua kuartil, tetapi <b>besarnya kontribusi dan ketatnya pembuktian</b> yang membedakan.</p></div>
+
+<div class="box bad"><strong>🚫 Yang bukan syarat Q1</strong>
+<ul>
+<li><b>Topik "canggih".</b> Riset tentang AI atau blockchain tidak otomatis Q1. Riset tentang topik sederhana bisa Q1 bila kontribusinya jelas dan pembuktiannya ketat.</li>
+<li><b>Panjang naskah.</b> Naskah yang lebih panjang tidak lebih meyakinkan. Ikuti batas kata jurnal.</li>
+<li><b>Metode statistik yang rumit.</b> Rumit tanpa alasan malah mencurigakan. Pilih metode yang paling tepat untuk pertanyaanmu.</li>
+<li><b>Data dari luar negeri.</b> Konteks Indonesia sangat bisa masuk Q1, asalkan dipakai untuk menjawab pertanyaan yang penting secara umum (lihat <a href="#levelup">bagian 8</a>).</li>
+</ul></div>
+</section>
+
+<!-- ============ 4. STATE OF THE ART ============ -->
+<section id="sota">
+<h2>4. State of the Art</h2>
+<p><b><i>State of the art</i></b> (SOTA) adalah gambaran kondisi terdepan pengetahuan tentang sebuah topik: apa yang sudah diketahui, dengan pendekatan apa, sampai sejauh mana keberhasilannya, dan di mana batasnya. Istilah ini dipakai dalam dua makna yang saling berkaitan.</p>
+<div class="two">
+<div class="ex good"><b>Makna umum (semua bidang)</b><p>Garis depan pengetahuan. "SOTA tentang literasi digital UMKM" berarti peta temuan, teori, dan metode terkini tentang topik itu, termasuk perdebatan yang belum selesai.</p></div>
+<div class="ex mid"><b>Makna teknis (informatika, teknik)</b><p>Metode dengan kinerja terbaik saat ini pada sebuah tugas atau <i>benchmark</i>. "Model kami melampaui SOTA" berarti lebih baik dari metode terbaik yang dipublikasikan, pada data dan metrik yang sama.</p></div>
+</div>
+<p>Di dalam naskah, SOTA biasanya muncul di pendahuluan dan tinjauan pustaka (<i>related work</i>), dan menjadi tempat berpijak untuk menunjukkan <i>research gap</i>. Tanpa SOTA yang kuat, klaim "belum ada yang meneliti" tidak bisa dipercaya, karena editor tidak tahu apakah kamu benar-benar sudah membaca literaturnya.</p>
+
+<div class="box tip"><strong>🗺️ Analogi: peta jalur pendakian</strong>
+<p>Bayangkan sebuah gunung dengan banyak jalur. SOTA adalah peta terbaru yang menunjukkan jalur mana yang sudah didaki, sampai ketinggian berapa, dan di titik mana para pendaki terhenti (jurang, cuaca, peralatan kurang). <b>Research gap</b> adalah titik yang belum dicapai siapa pun dan layak dicapai. <b>Novelty</b> adalah jalur atau peralatan baru yang kamu bawa untuk sampai ke sana. Pendaki yang memakai peta lama bisa dengan bangga "menemukan" puncak yang sudah dicapai orang lima tahun lalu.</p></div>
+
+<h3>Tinjauan pustaka biasa vs SOTA yang sintetis</h3>
+<p>Kesalahan paling umum adalah menulis tinjauan pustaka seperti <b>daftar ringkasan</b>: satu paragraf per artikel, "Penulis A (2020) meneliti… Penulis B (2021) meneliti…". Pembaca harus menyimpulkan sendiri apa artinya. SOTA yang baik justru <b>mengelompokkan artikel berdasarkan gagasan</b>, membandingkannya, dan menilai kekuatan serta kelemahannya.</p>
+<div class="two">
+<div class="ex bad"><b>Daftar ringkasan (kesan Q4)</b><p><i class="en">Smith (2019) used SVM to classify rice diseases and achieved 89% accuracy. Lee (2020) used CNN and got 95% accuracy. Kumar (2021) used ResNet50 with 97% accuracy. Wang (2022) used MobileNet and achieved 96%.</i></p></div>
+<div class="ex good"><b>Sintesis kritis (kesan Q1)</b><p><i class="en">Deep CNNs now exceed 95% accuracy on rice-leaf benchmarks [3–7]. However, almost all of these results come from images captured under controlled backgrounds and lighting, such as the widely used laboratory datasets [3, 5]. When the same models are tested on field images, accuracy drops sharply [8, 9], yet few studies quantify this drop or propose remedies that work without labelled field data.</i></p></div>
+</div>
+<p>Perhatikan bahwa versi kedua melakukan tiga hal sekaligus: <b>merangkum konsensus</b> (CNN sudah sangat akurat), <b>mengkritik asumsi tersembunyi</b> (datanya dari laboratorium), dan <b>mengarahkan ke celah</b> (kinerja di lapangan belum terpecahkan). Kalimat terakhirnya sudah menjadi pintu masuk ke <i>research gap</i>.</p>
+
+<h3>Delapan langkah membangun SOTA</h3>
+<ol class="steps">
+<li><b>Rumuskan kata kunci dan sinonimnya.</b> Gunakan operator Boolean, misalnya <code>("rice" OR "paddy") AND ("leaf disease") AND ("deep learning" OR "CNN")</code>. Catat string pencarian supaya bisa diulang.</li>
+<li><b>Cari di basis data yang tepat.</b> Scopus dan Web of Science untuk cakupan bereputasi; Google Scholar dan Semantic Scholar untuk cakupan luas; basis data bidang seperti PubMed, IEEE Xplore, ERIC, atau SSRN.</li>
+<li><b>Mulai dari artikel review terbaru.</b> <i>Systematic review</i> atau <i>survey</i> dua sampai tiga tahun terakhir memberi peta cepat dan biasanya berisi agenda riset ke depan.</li>
+<li><b>Lakukan <i>snowballing</i>.</b> <i>Backward</i>: telusuri daftar pustaka artikel kunci. <i>Forward</i>: lihat siapa yang mengutip artikel kunci itu belakangan (fitur "Cited by"). Langkah <i>forward</i> sangat penting untuk memastikan gap-mu belum diisi orang lain.</li>
+<li><b>Saring dengan kriteria yang jelas.</b> Relevansi dengan pertanyaanmu, kualitas sumber, dan kebaruan. Simpan semua di <i>reference manager</i> (Zotero, Mendeley, EndNote).</li>
+<li><b>Ekstrak ke matriks.</b> Satu baris per artikel, kolom untuk tujuan, metode, data, temuan, dan keterbatasan (contoh di bawah).</li>
+<li><b>Kelompokkan berdasarkan tema atau pendekatan,</b> bukan berdasarkan penulis atau tahun.</li>
+<li><b>Nilai secara kritis dan tulis sebagai sintesis.</b> Untuk setiap kelompok: apa yang disepakati, apa yang diperdebatkan, apa asumsi yang dipakai, dan apa yang belum terjawab.</li>
+</ol>
+
+<h3>Contoh matriks SOTA</h3>
+<div class="tbl"><table>
+<tr><th>Studi</th><th>Pendekatan</th><th>Data</th><th>Temuan utama</th><th>Keterbatasan</th></tr>
+<tr><td>Studi A (2021)</td><td>CNN dari nol</td><td>Gambar lab, 1 negara</td><td>Akurasi 96%</td><td>Tidak diuji di lapangan</td></tr>
+<tr><td>Studi B (2022)</td><td>Transfer learning ResNet</td><td>Gambar lab</td><td>Akurasi 98%</td><td>Model besar, lambat di ponsel</td></tr>
+<tr><td>Studi C (2023)</td><td>MobileNet ringan</td><td>Gambar lab + sedikit lapangan</td><td>Akurasi turun 20 poin di lapangan</td><td>Hanya melaporkan, tidak memperbaiki</td></tr>
+<tr><td>Studi D (2024)</td><td>Domain adaptation</td><td>Gambar lapangan berlabel</td><td>Penurunan berkurang</td><td>Butuh label lapangan yang mahal</td></tr>
+</table></div>
+<p class="cap">Data ilustratif. Kolom "Keterbatasan" adalah tambang emas untuk research gap: perhatikan pola yang berulang di banyak baris.</p>
+
+<div class="diagram" aria-label="Evolusi pendekatan menuju gap">
+<svg viewBox="0 0 760 170" role="img">
+  <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>
+  <line x1="20" y1="70" x2="740" y2="70" stroke="var(--border)" stroke-width="4"/>
+  <g font-size="11.5" text-anchor="middle">
+    <circle cx="80" cy="70" r="9" fill="var(--muted)"/><text x="80" y="40" font-weight="700" fill="var(--text)">Fitur manual</text><text x="80" y="54" fill="var(--muted)">+ SVM</text><text x="80" y="100" fill="var(--bad)">akurasi terbatas</text>
+    <circle cx="230" cy="70" r="9" fill="var(--accent)"/><text x="230" y="40" font-weight="700" fill="var(--text)">CNN</text><text x="230" y="54" fill="var(--muted)">gambar lab</text><text x="230" y="100" fill="var(--bad)">butuh data banyak</text>
+    <circle cx="380" cy="70" r="9" fill="var(--accent)"/><text x="380" y="40" font-weight="700" fill="var(--text)">Transfer learning</text><text x="380" y="54" fill="var(--muted)">model besar</text><text x="380" y="100" fill="var(--bad)">berat di ponsel</text>
+    <circle cx="530" cy="70" r="9" fill="var(--accent)"/><text x="530" y="40" font-weight="700" fill="var(--text)">Model ringan</text><text x="530" y="54" fill="var(--muted)">MobileNet dkk.</text><text x="530" y="100" fill="var(--bad)">jatuh di lapangan</text>
+    <circle cx="680" cy="70" r="12" fill="none" stroke="var(--warn)" stroke-width="3" stroke-dasharray="4 3"/><text x="680" y="40" font-weight="700" fill="var(--warn)">GAP</text><text x="680" y="54" fill="var(--warn)">tangguh di lapangan</text><text x="680" y="100" fill="var(--warn)">tanpa label lapangan?</text>
+    <text x="380" y="140" fill="var(--muted)" font-size="12">Setiap generasi menyelesaikan masalah generasi sebelumnya dan memunculkan keterbatasan baru</text>
+  </g>
+</svg></div>
+
+<div class="box note"><strong>📅 Soal kebaruan referensi</strong>
+<p>Tidak ada angka baku, tetapi editor Q1 akan curiga bila hampir semua referensi berusia lebih dari lima sampai sepuluh tahun, terutama di bidang yang cepat berkembang. Gabungkan <b>karya klasik (seminal)</b> yang meletakkan dasar teori dengan <b>karya mutakhir</b> satu sampai tiga tahun terakhir yang menunjukkan kamu mengikuti perkembangan. Bila kamu tidak menemukan artikel relevan dari dua tahun terakhir, curigai kata kuncimu, bukan menyimpulkan bahwa topikmu belum pernah diteliti.</p></div>
+</section>
+
+<!-- ============ 5. RESEARCH GAP ============ -->
+<section id="gap">
+<h2>5. Research Gap</h2>
+<p><b><i>Research gap</i></b> adalah celah antara apa yang sudah diketahui (SOTA) dan apa yang <b>perlu</b> diketahui. Kata "perlu" sangat penting. Ada tak terhingga hal yang belum diteliti, tetapi hanya sebagian kecil yang penting untuk diteliti. Jurnal Q1 hanya tertarik pada celah yang, bila diisi, mengubah pemahaman atau praktik di bidangnya.</p>
+
+<div class="box tip"><strong>🧩 Analogi: puzzle yang belum lengkap</strong>
+<p>Sebuah puzzle besar yang dikerjakan bersama oleh komunitas ilmuwan. Ada banyak kepingan yang hilang. Kepingan di pojok langit yang serba biru memang hilang, tetapi tidak ada yang peduli. Kepingan di tengah gambar, yang menentukan apakah itu wajah manusia atau patung, membuat semua orang penasaran. <b>Gap kelas Q1 adalah kepingan di tengah gambar.</b></p></div>
+
+<h3>Tujuh jenis research gap</h3>
+<p>Miles (2017) merangkum tujuh jenis gap yang sering dipakai untuk membantu peneliti mengidentifikasi celah secara sistematis.</p>
+<div class="tbl"><table>
+<tr><th>Jenis</th><th>Artinya</th><th>Contoh kalimat</th></tr>
+<tr><td><b>Evidence gap</b><br><small class="muted">kontradiksi</small></td><td>Hasil studi-studi terdahulu saling bertentangan</td><td>"Sebagian studi melaporkan efek positif, sebagian lain efek nol atau negatif, tanpa penjelasan yang memadai."</td></tr>
+<tr><td><b>Knowledge gap</b></td><td>Pengetahuan tentang suatu hal memang belum ada</td><td>"Belum diketahui bagaimana X memengaruhi Y dalam jangka panjang."</td></tr>
+<tr><td><b>Practical-knowledge gap</b></td><td>Praktik di lapangan berbeda dari yang diprediksi teori</td><td>"Teori memprediksi A, tetapi praktisi justru melakukan B."</td></tr>
+<tr><td><b>Methodological gap</b></td><td>Metode yang dipakai selama ini terbatas atau bias</td><td>"Hampir semua studi memakai data cross-sectional sehingga arah sebab-akibat belum jelas."</td></tr>
+<tr><td><b>Empirical gap</b></td><td>Klaim atau proposisi belum diuji secara empiris</td><td>"Model konseptual ini banyak dikutip, tetapi belum diuji dengan data."</td></tr>
+<tr><td><b>Theoretical gap</b></td><td>Teori yang ada tidak mampu menjelaskan fenomena</td><td>"Teori X tidak menjelaskan mengapa efeknya hilang pada kelompok Z."</td></tr>
+<tr><td><b>Population gap</b></td><td>Kelompok atau konteks tertentu kurang terwakili</td><td>"Bukti hampir seluruhnya dari negara berpendapatan tinggi."</td></tr>
+</table></div>
+
+<div class="box warn"><strong>⚠️ Population gap adalah yang paling lemah bila berdiri sendiri</strong>
+<p>"Belum pernah diteliti di Indonesia" atau "di Kota X" adalah gap yang paling sering dipakai dan paling sering ditolak jurnal Q1. Alasannya: editor bertanya, <b>"Lalu apa yang kita pelajari dari konteks itu yang tidak kita ketahui sebelumnya?"</b> Population gap baru kuat bila kamu bisa menjelaskan <b>mengapa konteks itu secara teoretis berbeda</b>, sehingga hasilnya berpotensi menantang atau memperluas teori. Contoh: "Teori adopsi teknologi dikembangkan di pasar dengan infrastruktur stabil; di wilayah dengan konektivitas tidak menentu, asumsi <i>perceived ease of use</i> mungkin tidak berlaku. Indonesia, dengan variasi konektivitas yang ekstrem antarwilayah, adalah laboratorium alami untuk menguji batas teori ini."</p></div>
+
+<h3>Gap-spotting vs problematization</h3>
+<p>Sandberg dan Alvesson (2011) membedakan dua cara membangun pertanyaan riset. <b><i>Gap-spotting</i></b> mencari bagian yang kosong dalam literatur: ada yang membingungkan (<i>confusion spotting</i>), ada yang terabaikan (<i>neglect spotting</i>), atau ada teori yang belum diterapkan di area baru (<i>application spotting</i>). Cara ini aman dan umum, tetapi cenderung menghasilkan kontribusi yang bertahap. <b><i>Problematization</i></b> lebih berani: mengidentifikasi <b>asumsi</b> yang mendasari literatur, lalu menantangnya. Riset yang menantang asumsi cenderung dianggap lebih menarik, sejalan dengan argumen klasik Davis (1971) bahwa teori yang "menarik" adalah teori yang menyangkal sebagian asumsi pembacanya.</p>
+<div class="two">
+<div class="ex mid"><b>Gap-spotting</b><p>"Belum ada studi yang menguji model kepuasan pelanggan pada UMKM kuliner daring."</p></div>
+<div class="ex good"><b>Problematization</b><p>"Literatur mengasumsikan bahwa kualitas layanan selalu meningkatkan loyalitas. Kami menunjukkan bahwa pada pasar dengan biaya berpindah yang hampir nol, kualitas layanan menjadi syarat minimum, bukan pembeda, sehingga hubungannya melemah."</p></div>
+</div>
+
+<h3>Uji empat lapis untuk setiap calon gap</h3>
+<div class="grid2">
+<div class="card s"><b>1 · Nyata</b><span>Ada bukti dari literatur, bukan perasaan. Bisakah kamu menunjuk minimal beberapa artikel mutakhir yang menunjukkan celah itu, misalnya di bagian <i>limitations</i> atau <i>future research</i>?</span></div>
+<div class="card o"><b>2 · Penting (uji "so what?")</b><span>Apa yang salah atau hilang bila celah ini dibiarkan? Keputusan apa yang keliru, teori mana yang tidak lengkap, biaya apa yang timbul?</span></div>
+<div class="card l"><b>3 · Belum diisi</b><span>Sudah dicek dengan <i>forward snowballing</i> dan preprint terbaru? Celah yang sudah ditutup orang lain enam bulan lalu bukan celah lagi.</span></div>
+<div class="card i"><b>4 · Bisa kamu isi</b><span>Data, waktu, keahlian, dan biaya realistis. Gap yang hebat tetapi mustahil dikerjakan hanya akan menjadi proposal abadi.</span></div>
+</div>
+
+<h3>Di mana mencari gap?</h3>
+<ul>
+<li><b>Bagian <i>limitations</i> dan <i>future research</i></b> dari artikel Q1 terbaru di topikmu. Penulisnya sendiri memberi tahu apa yang belum selesai.</li>
+<li><b>Artikel review dan editorial</b> yang menyusun agenda riset.</li>
+<li><b>Hasil yang bertentangan</b> di matriks SOTA. Kontradiksi adalah undangan untuk menjelaskan.</li>
+<li><b>Data, alat, atau kebijakan baru</b> yang memungkinkan pertanyaan lama dijawab dengan cara yang dulu mustahil.</li>
+<li><b>Masalah nyata di lapangan</b> yang tidak bisa dijelaskan oleh teori yang ada.</li>
+</ul>
+
+<div class="demo" id="d2">
+<h4>Simulasi 2 · Matriks konsep untuk menemukan gap</h4>
+<p>Matriks konsep (gagasan Webster &amp; Watson, 2002) memetakan studi terdahulu terhadap dimensi-dimensi penting topikmu. Klik sel untuk mengubah ✓/kosong. Kolom yang jarang tersentuh disorot sebagai calon gap, lalu alat ini menanyakan uji "so what?". Pilih skenario atau ubah sendiri.</p>
+<div class="controls"><select class="btn" id="d2Sc"></select><button class="btn" id="d2Reset">Kembalikan skenario</button></div>
+<div class="tbl"><table class="gm" id="d2Tbl"></table></div>
+<div id="d2Out"></div>
+</div>
+
+<h3>Kalimat siap pakai untuk menyatakan gap</h3>
+<div class="tpl">
+<p>• <i>Despite growing interest in <span class="slot">topik</span>, little is known about <span class="slot">aspek yang belum diketahui</span>.</i></p>
+<p>• <i>Previous studies have focused mainly on <span class="slot">A</span>, leaving <span class="slot">B</span> largely unexplored.</i></p>
+<p>• <i>Findings on <span class="slot">hubungan X–Y</span> remain inconsistent: some studies report <span class="slot">…</span> whereas others report <span class="slot">…</span>.</i></p>
+<p>• <i>Most existing approaches assume <span class="slot">asumsi</span>; however, this assumption rarely holds in <span class="slot">kondisi</span>.</i></p>
+<p>• <i>To date, no study has <span class="slot">tindakan spesifik</span> using <span class="slot">data/metode</span>, which limits our ability to <span class="slot">konsekuensi</span>.</i></p>
+</div>
+<p class="cap">Hati-hati dengan "no study has…". Klaim ini harus benar-benar dicek, karena reviewer sering langsung menyebut studi yang terlewat. Bila ragu, pakai bentuk yang lebih aman: "few studies have…" atau "to our knowledge, …".</p>
+</section>
+
+<!-- ============ 6. NOVELTY ============ -->
+<section id="novelty">
+<h2>6. Novelty &amp; Kontribusi</h2>
+<p><b><i>Novelty</i></b> adalah unsur baru yang kamu bawa untuk mengisi gap. Tiga istilah ini sering tertukar, padahal berbeda:</p>
+<div class="grid3">
+<div class="card l"><b>Research gap</b><span>Lubangnya. <i>Apa yang belum diketahui dan penting.</i></span></div>
+<div class="card s"><b>Novelty</b><span>Cara barumu mengisi lubang itu. <i>Apa yang berbeda dari yang sudah ada.</i></span></div>
+<div class="card o"><b>Contribution</b><span>Nilai yang didapat bidangmu. <i>Apa yang sekarang bisa diketahui atau dilakukan orang lain berkat studimu.</i></span></div>
+</div>
+<p>Novelty tanpa gap adalah "baru tetapi tidak dibutuhkan". Gap tanpa novelty adalah "masalah penting tetapi solusinya sama saja dengan yang sudah gagal". Kontribusi adalah alasan editor menerbitkan naskahmu.</p>
+
+<h3>Tujuh jenis novelty</h3>
+<div class="tbl"><table>
+<tr><th>Jenis</th><th>Bentuknya</th><th>Contoh</th></tr>
+<tr><td><b>Teoretis / konseptual</b></td><td>Konstruk, model, mekanisme, atau batas berlakunya teori yang baru</td><td>Menunjukkan bahwa efek X terhadap Y bergantung pada kondisi Z yang selama ini diabaikan</td></tr>
+<tr><td><b>Metodologis</b></td><td>Metode, algoritma, desain, atau instrumen ukur baru atau yang diperbaiki</td><td>Metode adaptasi domain yang tidak memerlukan label data lapangan</td></tr>
+<tr><td><b>Empiris</b></td><td>Bukti baru yang mengubah pemahaman, misalnya data longitudinal, eksperimen, data skala besar</td><td>Bukti kausal pertama dari eksperimen lapangan, menggantikan bukti korelasional</td></tr>
+<tr><td><b>Lintas domain</b></td><td>Membawa konsep dari bidang lain dengan alasan yang kuat</td><td>Memakai model epidemiologi untuk memprediksi penyebaran hoaks</td></tr>
+<tr><td><b>Integrasi / sintesis</b></td><td>Menyatukan aliran literatur yang terpisah menjadi kerangka baru</td><td>Kerangka yang menggabungkan teori adopsi teknologi dan teori modal sosial</td></tr>
+<tr><td><b>Artefak</b></td><td>Dataset, benchmark, perangkat lunak, atau protokol yang bisa dipakai ulang</td><td>Dataset terbuka citra lapangan multi-negara dengan label ahli</td></tr>
+<tr><td><b>Replikasi dengan perluasan</b></td><td>Menguji ulang temuan penting dengan data lebih kuat dan memperluasnya</td><td>Replikasi pra-registrasi yang juga menguji kondisi batas</td></tr>
+</table></div>
+
+<h3>Kerangka Whetten: apa, bagaimana, mengapa, siapa–di mana–kapan</h3>
+<p>Whetten (1989) menjelaskan bahwa kontribusi teoretis menyangkut <b>apa</b> (faktor yang terlibat), <b>bagaimana</b> (hubungan antarfaktor), <b>mengapa</b> (logika atau mekanisme yang menjelaskan hubungan itu), dan <b>siapa, di mana, kapan</b> (batas berlakunya). Pesannya yang paling relevan untuk kita: <b>sekadar memindahkan konteks (siapa, di mana, kapan) jarang cukup</b>. Konteks baru menjadi kontribusi bila ia memaksa kita mengubah penjelasan "mengapa".</p>
+
+<h3>Peta originalitas dan kegunaan</h3>
+<p>Corley dan Gioia (2011) memetakan kontribusi pada dua sumbu: <b>originalitas</b> (dari bertahap sampai mengungkap hal yang mengejutkan) dan <b>kegunaan</b> (ilmiah dan praktis). Jurnal Q1 umumnya mencari kombinasi originalitas yang jelas dengan kegunaan yang nyata.</p>
+<div class="diagram narrow" aria-label="Matriks originalitas dan kegunaan">
+<svg viewBox="0 0 420 330" role="img">
+  <g font-size="12" text-anchor="middle">
+    <rect x="60" y="20" width="170" height="130" fill="color-mix(in srgb,var(--accent) 10%,transparent)" stroke="var(--border)"/>
+    <rect x="230" y="20" width="170" height="130" fill="color-mix(in srgb,var(--good) 22%,transparent)" stroke="var(--good)" stroke-width="2"/>
+    <rect x="60" y="150" width="170" height="130" fill="color-mix(in srgb,var(--bad) 10%,transparent)" stroke="var(--border)"/>
+    <rect x="230" y="150" width="170" height="130" fill="color-mix(in srgb,var(--warn) 14%,transparent)" stroke="var(--border)"/>
+    <text x="145" y="72" font-weight="700" fill="var(--accent)">Perbaikan berguna</text><text x="145" y="90" fill="var(--text)">bertahap tetapi</text><text x="145" y="106" fill="var(--text)">dibutuhkan</text><text x="145" y="128" fill="var(--muted)" font-size="11">Q2–Q1 bila rigor</text>
+    <text x="315" y="72" font-weight="700" fill="var(--good)">Zona Q1</text><text x="315" y="90" fill="var(--text)">mengubah cara pikir</text><text x="315" y="106" fill="var(--text)">dan bisa dipakai</text><text x="315" y="128" fill="var(--muted)" font-size="11">target utama</text>
+    <text x="145" y="202" font-weight="700" fill="var(--bad)">Pengulangan</text><text x="145" y="220" fill="var(--text)">sedikit baru,</text><text x="145" y="236" fill="var(--text)">sedikit guna</text><text x="145" y="258" fill="var(--muted)" font-size="11">kecenderungan Q4</text>
+    <text x="315" y="202" font-weight="700" fill="var(--warn)">Menarik tetapi…</text><text x="315" y="220" fill="var(--text)">baru, namun belum</text><text x="315" y="236" fill="var(--text)">jelas gunanya</text><text x="315" y="258" fill="var(--muted)" font-size="11">perlu jembatan</text>
+    <text x="230" y="306" fill="var(--muted)">Originalitas: bertahap → mengungkap ▶</text>
+    <text x="22" y="150" fill="var(--muted)" transform="rotate(-90 22 150)">Kegunaan: rendah → tinggi ▶</text>
+  </g>
+</svg></div>
+
+<h3>Tangga kekuatan klaim novelty</h3>
+<div class="tbl"><table>
+<tr><th>Level</th><th>Bentuk klaim</th><th>Kesan editor</th></tr>
+<tr><td><span class="qb q4">lemah</span></td><td>"Penelitian ini belum pernah dilakukan di Kabupaten X."</td><td>Lalu apa yang berbeda dari studi di tempat lain?</td></tr>
+<tr><td><span class="qb q3">sedang</span></td><td>"Kami menggabungkan metode A dan B yang belum pernah digabungkan."</td><td>Mengapa harus digabung? Apa masalah yang terpecahkan?</td></tr>
+<tr><td><span class="qb q2">kuat</span></td><td>"Metode yang ada gagal ketika C. Kami mengusulkan D yang mengatasi C, dan menunjukkan perbaikannya pada tiga dataset."</td><td>Jelas masalah dan buktinya. Tinggal soal besar kontribusinya.</td></tr>
+<tr><td><span class="qb q1">sangat kuat</span></td><td>"Literatur mengasumsikan E. Kami menunjukkan E tidak berlaku pada kondisi F, menjelaskan mekanismenya, dan mengusulkan kerangka yang memprediksi kapan E berlaku."</td><td>Mengubah cara bidang ini berpikir. Layak didiskusikan.</td></tr>
+</table></div>
+
+<div class="box bad"><strong>🚫 Lima jebakan klaim novelty</strong>
+<ol>
+<li><b>"Yang pertama di Indonesia"</b> tanpa alasan teoretis mengapa Indonesia berbeda.</li>
+<li><b>"Menambahkan variabel baru"</b> ke model yang sudah ada tanpa teori yang menjelaskan mengapa variabel itu seharusnya berperan.</li>
+<li><b>"Menggabungkan dua metode"</b> hanya karena belum ada yang menggabungkannya. Belum dicoba bukan berarti perlu dicoba.</li>
+<li><b>"Menggunakan metode terbaru"</b> padahal pertanyaannya sudah terjawab dengan metode lama.</li>
+<li><b>Klaim berlebihan</b> seperti "revolutionary" atau "for the first time ever" yang mudah dibantah reviewer dengan satu referensi.</li>
+</ol></div>
+
+<div class="demo" id="d3">
+<h4>Simulasi 3 · Penyusun pernyataan novelty &amp; pendeteksi klaim lemah</h4>
+<p>Isi kotak di bawah (boleh campur Indonesia dan Inggris). Alat ini menyusun paragraf novelty dengan pola "yang diketahui → keterbatasan → yang kami lakukan → kontribusi", lalu memberi tanda bila menemukan pola klaim yang lemah.</p>
+<div class="controls"><select class="btn" id="d3Ex"><option value="">Isi contoh…</option><option value="ml">Contoh: penyakit daun padi</option><option value="mn">Contoh: loyalitas UMKM</option><option value="lemah">Contoh: klaim lemah</option></select></div>
+<div class="form">
+<label><b>1. Yang sudah diketahui (SOTA)</b><input type="text" id="d3a" placeholder="mis. deep CNNs achieve over 95% accuracy on laboratory images of rice leaf diseases"></label>
+<label><b>2. Keterbatasan / gap</b><input type="text" id="d3b" placeholder="mis. accuracy drops sharply on field images, and existing remedies require costly field labels"></label>
+<label><b>3. Yang kamu lakukan (novelty)</b><input type="text" id="d3c" placeholder="mis. propose a self-supervised domain adaptation method that needs no field labels"></label>
+<label><b>4. Bukti yang kamu berikan</b><input type="text" id="d3d" placeholder="mis. evaluate it on field images from three countries against five state-of-the-art baselines"></label>
+<label><b>5. Kontribusi bagi bidang</b><input type="text" id="d3e" placeholder="mis. show that domain shift, not model capacity, is the main barrier to field deployment"></label>
+</div>
+<div class="out" id="d3Out"></div>
+<div id="d3Flags"></div>
+</div>
+</section>
+
+<!-- ============ 7. BENANG MERAH ============ -->
+<section id="benang">
+<h2>7. Benang Merah: SOTA → Gap → Novelty</h2>
+<p>Naskah Q1 terasa "rapat" karena ada satu <b>benang merah</b> (<i>golden thread</i>) yang menghubungkan semua bagiannya. SOTA menunjukkan apa yang diketahui, gap menunjukkan apa yang kurang dan mengapa penting, pertanyaan riset merumuskan gap menjadi sesuatu yang bisa dijawab, novelty menjelaskan cara barumu menjawab, dan kontribusi menyatakan apa yang didapat bidang ini. Bila satu mata rantai putus, reviewer akan merasakannya, meski kadang tidak bisa menunjuk persis di mana.</p>
+
+<div class="diagram" aria-label="Rantai SOTA ke kontribusi">
+<svg viewBox="0 0 760 150" role="img">
+  <defs><marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>
+  <g font-size="12" text-anchor="middle">
+    <rect x="4" y="24" width="140" height="74" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/><text x="74" y="50" font-weight="700" fill="var(--accent)">SOTA</text><text x="74" y="68" fill="var(--text)">yang sudah</text><text x="74" y="84" fill="var(--text)">diketahui</text>
+    <rect x="158" y="24" width="140" height="74" rx="10" fill="var(--surface)" stroke="var(--warn)" stroke-width="2"/><text x="228" y="50" font-weight="700" fill="var(--warn)">Gap</text><text x="228" y="68" fill="var(--text)">yang kurang +</text><text x="228" y="84" fill="var(--text)">mengapa penting</text>
+    <rect x="312" y="24" width="140" height="74" rx="10" fill="var(--surface)" stroke="var(--violet)" stroke-width="2"/><text x="382" y="50" font-weight="700" fill="var(--violet)">Pertanyaan</text><text x="382" y="68" fill="var(--text)">gap yang bisa</text><text x="382" y="84" fill="var(--text)">dijawab</text>
+    <rect x="466" y="24" width="140" height="74" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/><text x="536" y="50" font-weight="700" fill="var(--accent)">Novelty</text><text x="536" y="68" fill="var(--text)">cara baru</text><text x="536" y="84" fill="var(--text)">menjawabnya</text>
+    <rect x="620" y="24" width="136" height="74" rx="10" fill="color-mix(in srgb,var(--good) 14%,transparent)" stroke="var(--good)" stroke-width="2"/><text x="688" y="50" font-weight="700" fill="var(--good)">Kontribusi</text><text x="688" y="68" fill="var(--text)">yang didapat</text><text x="688" y="84" fill="var(--text)">bidang ini</text>
+    <g stroke="var(--muted)" stroke-width="1.6" marker-end="url(#ah3)"><line x1="144" y1="61" x2="156" y2="61"/><line x1="298" y1="61" x2="310" y2="61"/><line x1="452" y1="61" x2="464" y2="61"/><line x1="606" y1="61" x2="618" y2="61"/></g>
+    <text x="380" y="130" fill="var(--muted)">Setiap kotak harus muncul konsisten di judul, abstrak, pendahuluan, pembahasan, dan kesimpulan</text>
+  </g>
+</svg></div>
+
+<h3>Rumus elevator pitch enam kalimat</h3>
+<p>Sebelum menulis naskah, uji benang merahmu dengan menjelaskannya dalam enam kalimat. Bila kamu tidak bisa, naskahnya juga tidak akan bisa.</p>
+<div class="tpl">
+<p><b>1.</b> Kita tahu bahwa <span class="slot">SOTA</span>.</p>
+<p><b>2.</b> Namun, kita belum tahu <span class="slot">gap</span>,</p>
+<p><b>3.</b> padahal ini penting karena <span class="slot">konsekuensi bila gap dibiarkan</span>.</p>
+<p><b>4.</b> Studi ini <span class="slot">novelty: apa yang dilakukan secara berbeda</span>,</p>
+<p><b>5.</b> dan menemukan bahwa <span class="slot">temuan utama</span>,</p>
+<p><b>6.</b> yang berarti <span class="slot">kontribusi bagi teori/praktik</span>.</p>
+</div>
+<div class="ex good"><b>Contoh terisi</b>
+<p>Kita tahu bahwa CNN mencapai akurasi di atas 95% untuk mengenali penyakit daun padi pada gambar laboratorium. Namun, kita belum tahu bagaimana mempertahankan akurasi itu pada gambar lapangan tanpa label lapangan yang mahal, padahal petani memotret di lapangan dengan latar dan cahaya yang tidak terkendali. Studi ini mengusulkan adaptasi domain berbasis <i>self-supervised learning</i> yang hanya memerlukan gambar lapangan tanpa label, dan menemukan bahwa penurunan akurasi di lapangan berkurang lebih dari separuh pada data dari tiga negara. Ini menunjukkan bahwa pergeseran domain, bukan kapasitas model, adalah penghambat utama penerapan di lapangan.</p>
+<p class="cap">Angka dalam contoh ini ilustratif.</p></div>
+
+<h3>Di mana setiap mata rantai muncul dalam naskah</h3>
+<div class="tbl"><table>
+<tr><th>Bagian naskah</th><th>SOTA</th><th>Gap</th><th>Novelty</th><th>Kontribusi</th></tr>
+<tr><td>Judul</td><td class="c2"></td><td class="c2">○</td><td class="c2">●</td><td class="c2">○</td></tr>
+<tr><td>Abstrak</td><td class="c2">●</td><td class="c2">●</td><td class="c2">●</td><td class="c2">●</td></tr>
+<tr><td>Pendahuluan</td><td class="c2">●</td><td class="c2">●</td><td class="c2">●</td><td class="c2">●</td></tr>
+<tr><td>Metode</td><td class="c2"></td><td class="c2"></td><td class="c2">●</td><td class="c2"></td></tr>
+<tr><td>Pembahasan</td><td class="c2">●</td><td class="c2">○</td><td class="c2">○</td><td class="c2">●</td></tr>
+<tr><td>Kesimpulan</td><td class="c2"></td><td class="c2">○</td><td class="c2">●</td><td class="c2">●</td></tr>
+</table></div>
+<p class="cap">● wajib jelas · ○ disinggung. Tes cepat: baca hanya judul, abstrak, paragraf terakhir pendahuluan, dan kesimpulan. Apakah keempatnya menceritakan novelty dan kontribusi yang sama persis?</p>
+</section>
+
+<!-- ============ 8. LEVEL UP ============ -->
+<section id="levelup">
+<h2>8. Strategi Naik Level Q4 → Q1</h2>
+<p>Prinsip pertama dan terpenting: <b>judul adalah cermin riset</b>. Menaikkan level judul berarti menaikkan level risetnya, lalu judul mengikuti. Mengganti kata-kata judul agar terdengar "internasional" tanpa mengubah isi riset ibarat memakai jas mahal di atas kaus yang robek: editor akan membuka jasnya di halaman kedua. Strategi di bagian ini dipakai saat <b>merancang</b> riset, atau saat <b>merombak</b> riset yang datanya masih bisa diperluas.</p>
+
+<div class="diagram" aria-label="Tangga level riset">
+<svg viewBox="0 0 760 250" role="img">
+  <g font-size="12">
+    <rect x="10" y="180" width="180" height="60" rx="8" fill="color-mix(in srgb,var(--bad) 14%,transparent)" stroke="var(--bad)" stroke-width="2"/>
+    <rect x="195" y="130" width="180" height="110" rx="8" fill="color-mix(in srgb,var(--warn) 14%,transparent)" stroke="var(--warn)" stroke-width="2"/>
+    <rect x="380" y="80" width="180" height="160" rx="8" fill="color-mix(in srgb,var(--accent) 12%,transparent)" stroke="var(--accent)" stroke-width="2"/>
+    <rect x="565" y="30" width="185" height="210" rx="8" fill="color-mix(in srgb,var(--good) 16%,transparent)" stroke="var(--good)" stroke-width="2"/>
+    <g text-anchor="middle">
+    <text x="100" y="202" font-weight="700" fill="var(--bad)" font-size="13.5">Q4 · Deskriptif-lokal</text><text x="100" y="222" fill="var(--text)">"apa yang terjadi di sini"</text>
+    <text x="285" y="152" font-weight="700" fill="var(--warn)" font-size="13.5">Q3 · Analitis</text><text x="285" y="172" fill="var(--text)">"apa yang berhubungan,</text><text x="285" y="188" fill="var(--text)">mana yang lebih baik"</text>
+    <text x="470" y="102" font-weight="700" fill="var(--accent)" font-size="13.5">Q2 · Eksplanatif</text><text x="470" y="122" fill="var(--text)">"mengapa dan bagaimana,</text><text x="470" y="138" fill="var(--text)">berlaku lebih luas"</text>
+    <text x="657" y="52" font-weight="700" fill="var(--good)" font-size="13.5">Q1 · Transformatif</text><text x="657" y="72" fill="var(--text)">"mengubah cara bidang</text><text x="657" y="88" fill="var(--text)">memahami atau</text><text x="657" y="104" fill="var(--text)">mengerjakan sesuatu"</text>
+    </g>
+  </g>
+</svg></div>
+<p class="cap">Pemetaan ini adalah kecenderungan umum untuk membantu berpikir, bukan aturan. Ada artikel deskriptif yang terbit di Q1 (misalnya dataset nasional berskala besar yang belum pernah ada) dan artikel eksplanatif yang terbit di Q3.</p>
+
+<h3>Langkah 1: bedah (breakdown) judulmu menjadi komponen</h3>
+<p>Sebelum menaikkan level, pecah judul dan rencana riset menjadi enam komponen. Setiap komponen adalah tuas yang bisa dinaikkan secara terpisah.</p>
+<div class="tbl"><table>
+<tr><th>Komponen</th><th>Pertanyaan bedah</th><th>Contoh (judul Q4: "Pengaruh Kualitas Pelayanan terhadap Kepuasan Pelanggan di Toko Kue X")</th></tr>
+<tr><td><b>Fenomena</b></td><td>Fenomena umum apa yang sebenarnya diteliti?</td><td>Hubungan kualitas layanan dengan sikap pelanggan</td></tr>
+<tr><td><b>Pertanyaan</b></td><td>Apa, mengapa, atau kapan?</td><td>"Apakah berpengaruh" (apa)</td></tr>
+<tr><td><b>Mekanisme</b></td><td>Lewat jalur apa dan dalam kondisi apa?</td><td>Tidak ada</td></tr>
+<tr><td><b>Konteks</b></td><td>Mengapa konteks ini menarik secara teoretis?</td><td>Satu toko; tidak ada alasan teoretis</td></tr>
+<tr><td><b>Metode &amp; data</b></td><td>Seberapa kuat buktinya?</td><td>Kuesioner, satu waktu, ~100 responden, regresi sederhana</td></tr>
+<tr><td><b>Kontribusi</b></td><td>Siapa di luar konteks ini yang belajar sesuatu?</td><td>Pemilik toko X</td></tr>
+</table></div>
+
+<h3>Langkah 2: tarik tujuh tuas</h3>
+<div class="tbl"><table>
+<tr><th>#</th><th>Tuas</th><th>Dari (kelas bawah)</th><th>Ke (kelas atas)</th><th>Pertanyaan pemicu</th></tr>
+<tr><td>1</td><td><b>Pertanyaan</b></td><td>Apa / berapa / apakah berpengaruh</td><td>Mengapa / bagaimana / kapan berlaku</td><td>"Kalau hasilnya positif, lalu mengapa? Kapan hasil ini <i>tidak</i> akan berlaku?"</td></tr>
+<tr><td>2</td><td><b>Cakupan</b></td><td>Satu instansi atau kota sebagai tujuan</td><td>Fenomena umum; konteks sebagai jendela</td><td>"Kelompok mana di dunia yang menghadapi masalah yang sama?"</td></tr>
+<tr><td>3</td><td><b>Mekanisme</b></td><td>Hubungan langsung X → Y</td><td>Mediasi, moderasi, kondisi batas, proses</td><td>"Lewat jalur apa X memengaruhi Y? Apa yang memperkuat atau melemahkannya?"</td></tr>
+<tr><td>4</td><td><b>Jenis kontribusi</b></td><td>Menerapkan metode atau teori yang ada</td><td>Memperluas, mengoreksi, atau mengusulkan teori/metode</td><td>"Apa yang orang lain bisa pakai dari studi ini di tempat lain?"</td></tr>
+<tr><td>5</td><td><b>Data</b></td><td>Kecil, satu sumber, satu waktu</td><td>Multi-sumber, multi-lokasi, longitudinal, data publik/benchmark, data terbuka</td><td>"Data apa yang akan membuat skeptis pun yakin?"</td></tr>
+<tr><td>6</td><td><b>Rigor &amp; validasi</b></td><td>Satu analisis, tanpa pembanding</td><td>Pembanding SOTA, ablation, uji ketahanan, validasi eksternal, identifikasi kausal</td><td>"Penjelasan alternatif apa yang bisa membantah hasilku, dan bagaimana aku menyingkirkannya?"</td></tr>
+<tr><td>7</td><td><b>Positioning</b></td><td>"Pertama di daerah X"</td><td>Menjawab perdebatan atau limitasi yang dikenali komunitas global</td><td>"Percakapan ilmiah mana yang akan berubah karena studiku?"</td></tr>
+</table></div>
+
+<h3>Teknik "zoom out, lalu zoom in"</h3>
+<div class="two">
+<div><ol class="steps">
+<li><b>Zoom out.</b> Lepaskan nama tempat dan instansi. Tanyakan: fenomena umum apa ini? "Kepuasan pelanggan toko kue X" menjadi "loyalitas pelanggan usaha mikro di pasar daring".</li>
+<li><b>Temukan ketegangan.</b> Cari di literatur global: apa yang belum jelas atau diperdebatkan tentang fenomena umum itu? Misalnya, "Mengapa kualitas layanan kadang tidak menghasilkan loyalitas?"</li>
+<li><b>Zoom in.</b> Kembali ke konteksmu dan tunjukkan mengapa konteks itu ideal untuk menjawab ketegangan tersebut. "Pasar daring Indonesia dengan biaya berpindah hampir nol adalah kondisi ekstrem untuk menguji batas teori loyalitas."</li>
+</ol></div>
+<div class="box tip" style="margin-top:4px"><strong>🔭 Analogi: teleskop dan mikroskop</strong>
+<p>Naskah Q4 sering hanya memakai mikroskop: melihat satu kasus dengan detail. Naskah Q1 memakai keduanya. Teleskop untuk menunjukkan bahwa kasus ini bagian dari gambaran besar, mikroskop untuk menunjukkan bukti yang tajam. Kasus lokal tidak dibuang, tetapi <b>diberi peran baru</b>: dari tujuan menjadi bukti.</p></div>
+</div>
+
+<h3>Langkah 3: susun ulang judul dari komponen yang sudah naik</h3>
+<p>Setelah tuas-tuas dinaikkan, judul baru disusun dari komponen yang paling kuat: biasanya <b>fenomena umum + mekanisme atau temuan utama + konteks atau desain sebagai penanda bukti</b>. Lihat empat contoh lengkap di <a href="#studikasus">bagian berikutnya</a>.</p>
+
+<h3>Memecah satu proyek besar menjadi beberapa artikel (secara etis)</h3>
+<p>Proyek riset yang besar (disertasi, hibah multi-tahun) sering menghasilkan beberapa artikel. Ini sah <b>bila setiap artikel menjawab pertanyaan yang berbeda dan berdiri sendiri</b>. Yang tidak sah adalah <i>salami slicing</i>: memotong satu temuan menjadi beberapa artikel kecil agar jumlah publikasi bertambah (lihat <a href="#etika">bagian 22</a>).</p>
+<div class="tbl"><table>
+<tr><th>Artikel</th><th>Pertanyaan</th><th>Target realistis</th></tr>
+<tr><td>A · Review sistematis</td><td>Apa yang sudah diketahui dan apa agenda riset ke depan?</td><td>Q1–Q2 bila sistematis dan menghasilkan kerangka baru</td></tr>
+<tr><td>B · Dataset / instrumen</td><td>Bagaimana mengukur fenomena ini dengan valid?</td><td>Q2–Q1 (jurnal data atau metodologi)</td></tr>
+<tr><td>C · Studi utama</td><td>Mengapa dan kapan X memengaruhi Y?</td><td>Q1 (inti kontribusi)</td></tr>
+<tr><td>D · Studi terapan</td><td>Bagaimana temuan C diterapkan di praktik?</td><td>Q2–Q3 atau jurnal praktisi</td></tr>
+</table></div>
+
+<div class="box note"><strong>🎯 Strategi portofolio yang realistis</strong>
+<p>Tidak semua riset harus atau bisa menjadi Q1, dan itu wajar. Riset skripsi dengan data terbatas mungkin paling cocok untuk jurnal SINTA atau Q3–Q4 yang baik. Yang penting adalah <b>memilih target sesuai level riset yang sebenarnya</b>, sambil merancang riset berikutnya dengan tuas yang lebih tinggi. Mengirim riset level Q4 ke jurnal Q1 hanya menghabiskan waktu berbulan-bulan untuk penolakan.</p></div>
+</section>
+
+<!-- ============ 9. STUDI KASUS ============ -->
+<section id="studikasus">
+<h2>9. Studi Kasus Naik Level Judul</h2>
+<p>Empat contoh dari bidang berbeda, masing-masing naik dari kelas Q4 sampai Q1. Perhatikan bahwa yang berubah bukan hanya kata-kata judul, tetapi <b>pertanyaan, cakupan, data, metode, dan kontribusinya</b>. Judul-judul ini contoh rekaan untuk latihan, bukan judul artikel yang sudah terbit.</p>
+
+<div class="demo" id="d4">
+<h4>Simulasi 4 · Tangga judul langkah demi langkah</h4>
+<p>Pilih kasus, lalu naiki tangganya. Setiap anak tangga menunjukkan judul, perubahan dibanding level sebelumnya, dan tuas yang ditarik.</p>
+<div class="seg" id="d4Case" role="tablist"></div>
+<div class="ladder" id="d4Lv"></div>
+<div id="d4Body"></div>
+<div class="controls"><button class="btn" id="d4Prev">← Turun</button><button class="btn primary" id="d4Next">Naik level →</button></div>
+</div>
+
+<div class="box tip"><strong>🔎 Pola yang berulang di keempat kasus</strong>
+<ul>
+<li><b>Nama instansi hilang</b> dari judul di level atas, digantikan oleh fenomena umum dan konteks yang punya alasan teoretis.</li>
+<li><b>Kata kerja berubah</b> dari "analisis", "pengaruh", "pengembangan" menjadi kata yang menunjukkan temuan atau mekanisme.</li>
+<li><b>Desain menguat</b>: dari satu lokasi satu waktu menjadi multi-lokasi, longitudinal, eksperimen, atau benchmark publik.</li>
+<li><b>Kontribusi bergeser</b> dari "bermanfaat bagi instansi X" menjadi "mengubah pemahaman tentang kapan dan mengapa sesuatu terjadi".</li>
+</ul></div>
+</section>
+
+<!-- ============ 10. PENGUKUR ============ -->
+<section id="pengukur">
+<h2>10. Pengukur Level Riset</h2>
+<p>Gunakan alat ini untuk menilai riset atau draf naskahmu sendiri secara jujur. Hasilnya bukan prediksi diterima atau tidak, tetapi <b>peta tuas mana yang paling lemah</b> dan perlu diperbaiki lebih dulu. Jawab berdasarkan kondisi riset saat ini, bukan rencana.</p>
+<div class="demo" id="d5">
+<h4>Simulasi 5 · Pengukur level riset (delapan dimensi)</h4>
+<div id="d5Qs"></div>
+<div class="two" style="margin-top:12px">
+<div><svg class="radar" id="d5Radar" viewBox="-30 0 440 340" role="img" aria-label="Diagram radar delapan dimensi"></svg></div>
+<div id="d5Res"></div>
+</div>
+<div class="controls"><button class="btn" id="d5Reset">Ulangi</button></div>
+<p class="cap">Heuristik buatan modul ini untuk refleksi diri. Standar sebenarnya berbeda antarbidang dan antarjurnal.</p>
+</div>
+</section>
+
+<!-- ============ 11. JUDUL ============ -->
+<section id="judul">
+<h2>11. Merumuskan Judul</h2>
+<p>Judul punya dua pembaca: <b>manusia</b> (editor, reviewer, peneliti yang menelusuri hasil pencarian) dan <b>mesin</b> (Scopus, Google Scholar, mesin pencari). Judul yang baik membuat keduanya langsung paham apa yang diteliti dan apa yang baru. Judul juga adalah janji: isinya harus menepati apa yang dijanjikan judul.</p>
+
+<h3>Empat bentuk judul</h3>
+<div class="tbl"><table>
+<tr><th>Bentuk</th><th>Contoh</th><th>Cocok untuk</th></tr>
+<tr><td><b>Deskriptif</b></td><td><i class="en">Effects of digital literacy on customer loyalty in micro-enterprises</i></td><td>Paling umum dan aman</td></tr>
+<tr><td><b>Deklaratif</b> (menyatakan temuan)</td><td><i class="en">Digital literacy, not service quality, drives loyalty in online micro-enterprises</i></td><td>Temuan tunggal yang tegas; umum di jurnal sains dan kedokteran</td></tr>
+<tr><td><b>Pertanyaan</b></td><td><i class="en">Does service quality still matter when switching costs are zero?</i></td><td>Menantang asumsi; perhatikan apakah jurnal mengizinkan</td></tr>
+<tr><td><b>Judul + subjudul</b></td><td><i class="en">When quality is not enough: boundary conditions of service-driven loyalty in online micro-enterprises</i></td><td>Pesan utama di depan, rincian di belakang</td></tr>
+</table></div>
+
+<h3>Aturan praktis</h3>
+<div class="two">
+<ul>
+<li><b>Spesifik.</b> Sebutkan fenomena, variabel atau metode kunci, dan konteks atau desain bila penting.</li>
+<li><b>Ringkas.</b> Banyak judul artikel berkisar 10–20 kata. Selalu cek batas di <i>guide for authors</i>.</li>
+<li><b>Kata kunci di depan.</b> Mesin pencari dan pembaca memindai awal judul.</li>
+<li><b>Hindari singkatan</b> yang tidak umum. "CNN" boleh di jurnal informatika; "KPLP" tidak.</li>
+</ul>
+<ul>
+<li><b>Buang kata pengisi:</b> <i class="en">A study of, An analysis of, An investigation into, Some aspects of</i>.</li>
+<li><b>Hati-hati dengan "novel"</b> dan "new": biarkan isinya yang membuktikan.</li>
+<li><b>Nama tempat</b> hanya bila konteks itu inti kontribusi. "Evidence from Indonesia" sebagai subjudul lebih baik daripada "di Kabupaten X" di depan.</li>
+<li><b>Konsisten</b> dengan abstrak dan kesimpulan.</li>
+</ul>
+</div>
+
+<div class="ex bad"><b>Sebelum</b><p>Analisis Sistem Informasi Akademik Berbasis Web Menggunakan Metode Waterfall di SMK Y</p></div>
+<div class="ex good"><b>Sesudah (setelah risetnya juga dinaikkan)</b><p><i class="en">Why do school information systems go unused? A multi-school study of teacher adoption barriers in resource-constrained settings</i></p></div>
+
+<div class="demo" id="d6">
+<h4>Simulasi 6 · Penganalisis judul</h4>
+<p>Ketik judulmu (Indonesia atau Inggris). Alat ini memeriksa panjang, kata pengisi, nama tempat, singkatan, dan unsur-unsur yang biasanya ada di judul kelas atas.</p>
+<input type="text" id="d6In" value="Analisis Pengaruh Kualitas Pelayanan terhadap Kepuasan Pelanggan pada PT ABC Kota Malang">
+<div class="chips" id="d6Ex"></div>
+<div class="hl-title" id="d6Tags"></div>
+<div id="d6Out"></div>
+</div>
+</section>
+
+<!-- ============ 12. IMRAD ============ -->
+<section id="imrad">
+<h2>12. Anatomi Naskah (IMRaD)</h2>
+<p>Sebagian besar artikel empiris memakai struktur <b>IMRaD</b>: <i>Introduction, Methods, Results, and Discussion</i>, biasanya ditutup <i>Conclusion</i>. Bentuknya seperti <b>jam pasir</b>: mulai luas (masalah umum), menyempit ke pertanyaan riset dan metode yang spesifik, lalu melebar lagi ke makna dan implikasi temuan.</p>
+<div class="diagram narrow" aria-label="Bentuk jam pasir IMRaD">
+<svg viewBox="0 0 420 330" role="img">
+  <g font-size="12.5" text-anchor="middle">
+    <path d="M30 20 L390 20 L250 120 L170 120 Z" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
+    <rect x="170" y="124" width="80" height="40" fill="color-mix(in srgb,var(--violet) 16%,transparent)" stroke="var(--violet)" stroke-width="2"/>
+    <rect x="170" y="168" width="80" height="40" fill="color-mix(in srgb,var(--warn) 16%,transparent)" stroke="var(--warn)" stroke-width="2"/>
+    <path d="M170 212 L250 212 L390 312 L30 312 Z" fill="color-mix(in srgb,var(--good) 14%,transparent)" stroke="var(--good)" stroke-width="2"/>
+    <text x="210" y="48" font-weight="700" fill="var(--accent)">Introduction</text><text x="210" y="66" fill="var(--text)" font-size="11.5">masalah luas → SOTA → gap</text><text x="210" y="82" fill="var(--text)" font-size="11.5">→ tujuan &amp; kontribusi</text>
+    <text x="210" y="149" font-weight="700" fill="var(--violet)">Methods</text>
+    <text x="210" y="193" font-weight="700" fill="var(--warn)">Results</text>
+    <text x="210" y="250" font-weight="700" fill="var(--good)">Discussion</text><text x="210" y="268" fill="var(--text)" font-size="11.5">temuan → perbandingan → makna</text><text x="210" y="284" fill="var(--text)" font-size="11.5">→ implikasi → limitasi</text>
+    <text x="340" y="149" fill="var(--muted)" font-size="11">spesifik:</text><text x="340" y="165" fill="var(--muted)" font-size="11">studi ini saja</text>
+  </g>
+</svg></div>
+
+<div class="tbl"><table>
+<tr><th>Bagian</th><th>Menjawab pertanyaan</th><th>Proporsi kasar</th></tr>
+<tr><td><b>Title, Abstract, Keywords</b></td><td>Apa intinya, dalam sekali pandang?</td><td>—</td></tr>
+<tr><td><b>Introduction</b> (+ Literature review / Related work)</td><td>Mengapa studi ini perlu, dan apa yang baru?</td><td>15–25%</td></tr>
+<tr><td><b>Methods</b></td><td>Bagaimana kamu melakukannya, cukup rinci untuk diulang?</td><td>15–25%</td></tr>
+<tr><td><b>Results</b></td><td>Apa yang kamu temukan (tanpa tafsiran panjang)?</td><td>20–30%</td></tr>
+<tr><td><b>Discussion</b></td><td>Apa artinya, dibanding apa yang sudah diketahui?</td><td>20–30%</td></tr>
+<tr><td><b>Conclusion</b></td><td>Apa yang harus diingat pembaca?</td><td>3–5%</td></tr>
+</table></div>
+<p class="cap">Proporsi bervariasi antarbidang. Ilmu sosial sering punya bagian teori dan hipotesis tersendiri; informatika sering menggabungkan Methods dengan "Proposed method" dan Results dengan "Experiments".</p>
+
+<div class="box tip"><strong>✍️ Urutan menulis yang disarankan (berbeda dari urutan membaca)</strong>
+<ol>
+<li><b>Gambar dan tabel utama</b> lebih dulu: inilah cerita riset.</li>
+<li><b>Methods</b>: paling mudah karena tinggal mencatat yang sudah dilakukan.</li>
+<li><b>Results</b>: jelaskan gambar dan tabel.</li>
+<li><b>Discussion</b>: tafsirkan dan bandingkan.</li>
+<li><b>Introduction</b>: sekarang kamu tahu persis cerita apa yang harus dibuka.</li>
+<li><b>Conclusion, Abstract, Title</b> paling akhir, karena ketiganya meringkas semuanya.</li>
+</ol></div>
+
+<div class="box note"><strong>📐 Struktur paragraf: satu paragraf, satu gagasan</strong>
+<p>Setiap paragraf dibuka <b>kalimat topik</b> yang menyatakan gagasan utamanya, diikuti kalimat pendukung (bukti, data, rujukan), lalu ditutup kalimat yang menghubungkan ke paragraf berikutnya. Tes cepat: bacalah hanya kalimat pertama setiap paragraf di bagian Introduction. Bila alur argumennya sudah tertangkap, strukturmu baik.</p></div>
+</section>
+
+<!-- ============ 13. ABSTRAK ============ -->
+<section id="abstrak">
+<h2>13. Abstract &amp; Keywords</h2>
+<p>Abstrak adalah bagian yang paling banyak dibaca, dan sering satu-satunya yang dibaca. Editor memakai abstrak untuk memutuskan desk rejection, dan calon reviewer memakai abstrak untuk memutuskan mau mereview atau tidak. Abstrak yang baik bisa dipahami <b>tanpa membaca naskahnya</b>.</p>
+
+<h3>Lima langkah abstrak</h3>
+<div class="tbl"><table>
+<tr><th>Langkah</th><th>Isi</th><th>Contoh kalimat pembuka</th></tr>
+<tr><td><b>1 · Konteks &amp; gap</b></td><td>Masalah dan apa yang belum diketahui (1–2 kalimat)</td><td><i class="en">Although…, it remains unclear whether…</i></td></tr>
+<tr><td><b>2 · Tujuan</b></td><td>Apa yang dilakukan studi ini (1 kalimat)</td><td><i class="en">This study examines / proposes / tests…</i></td></tr>
+<tr><td><b>3 · Metode</b></td><td>Desain, data, analisis inti (1–2 kalimat)</td><td><i class="en">Using panel data from…, we…</i></td></tr>
+<tr><td><b>4 · Hasil</b></td><td>Temuan utama, <b>dengan angka</b> bila ada (2–3 kalimat)</td><td><i class="en">The results show that… (β = 0.32, p &lt; 0.01)</i></td></tr>
+<tr><td><b>5 · Kontribusi &amp; implikasi</b></td><td>Apa artinya bagi teori dan praktik (1–2 kalimat)</td><td><i class="en">These findings challenge… and suggest that…</i></td></tr>
+</table></div>
+<div class="box warn"><strong>⚠️ Kesalahan abstrak yang paling sering</strong>
+<ul>
+<li>Terlalu banyak latar belakang, hasil hanya satu kalimat samar ("hasil menunjukkan adanya pengaruh signifikan").</li>
+<li>Tidak menyebut angka atau ukuran efek sama sekali.</li>
+<li>Tidak ada kalimat kontribusi: pembaca tidak tahu apa yang baru.</li>
+<li>Memuat singkatan yang tidak dijelaskan, kutipan pustaka, atau klaim yang tidak ada di naskah.</li>
+<li>Melebihi batas kata jurnal (sering 150–300 kata) atau tidak mengikuti format terstruktur yang diminta.</li>
+</ul></div>
+
+<div class="demo" id="d7">
+<h4>Simulasi 7 · Penyusun abstrak lima langkah</h4>
+<p>Tulis tiap bagian. Penghitung kata menunjukkan keseimbangan, dan alat ini memeriksa apakah hasil memuat angka serta apakah ada kalimat kontribusi.</p>
+<div class="controls"><label class="range">Batas kata jurnal <input type="number" id="d7Lim" value="250" min="80" max="500"></label><button class="btn" id="d7Ex">Isi contoh</button><button class="btn" id="d7Clr">Kosongkan</button></div>
+<div class="form" id="d7Form"></div>
+<div class="out" id="d7Out"></div>
+<div id="d7Chk"></div>
+</div>
+
+<h3>Keywords</h3>
+<ul>
+<li>Pilih 4–6 kata kunci (cek aturan jurnal) yang <b>dipakai orang saat mencari</b>, termasuk sinonim yang tidak ada di judul. Kata di judul sudah terindeks, jadi kata kunci adalah kesempatan menambah jangkauan.</li>
+<li>Gunakan frasa dua sampai tiga kata yang spesifik ("domain adaptation", "customer loyalty"), bukan kata terlalu umum ("analysis", "Indonesia").</li>
+<li>Cek kata kunci yang dipakai artikel-artikel kunci di SOTA-mu. Di bidang kesehatan, pertimbangkan istilah MeSH.</li>
+</ul>
+</section>
+
+<!-- ============ 14. INTRODUCTION ============ -->
+<section id="intro">
+<h2>14. Introduction (Model CARS)</h2>
+<p>Pendahuluan yang paling banyak dipakai di artikel internasional mengikuti pola yang dirumuskan John Swales (1990), yang dikenal sebagai model <b>CARS</b> (<i>Create A Research Space</i>). Idenya: penulis "membuat ruang" untuk risetnya di tengah literatur yang sudah padat, melalui tiga gerakan (<i>moves</i>).</p>
+
+<div class="diagram" aria-label="Tiga gerakan model CARS">
+<svg viewBox="0 0 760 200" role="img">
+  <g font-size="12.5" text-anchor="middle">
+    <path d="M10 20 L750 20 L620 70 L140 70 Z" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M140 76 L620 76 L520 126 L240 126 Z" fill="color-mix(in srgb,var(--warn) 18%,transparent)" stroke="var(--warn)" stroke-width="2"/>
+    <path d="M240 132 L520 132 L460 182 L300 182 Z" fill="color-mix(in srgb,var(--good) 18%,transparent)" stroke="var(--good)" stroke-width="2"/>
+    <text x="380" y="42" font-weight="700" fill="var(--accent)">Move 1 · Establishing a territory</text><text x="380" y="60" fill="var(--text)" font-size="11.5">topik ini penting · apa yang sudah diketahui (SOTA)</text>
+    <text x="380" y="98" font-weight="700" fill="var(--warn)">Move 2 · Establishing a niche</text><text x="380" y="116" fill="var(--text)" font-size="11.5">tetapi ada celah / kontradiksi / asumsi lemah</text>
+    <text x="380" y="154" font-weight="700" fill="var(--good)">Move 3 · Occupying the niche</text><text x="380" y="172" fill="var(--text)" font-size="11.5">studi ini · kontribusi · struktur</text>
+  </g>
+</svg></div>
+
+<div class="tbl"><table>
+<tr><th>Gerakan</th><th>Langkah di dalamnya</th><th>Kalimat contoh</th></tr>
+<tr><td><b>Move 1</b><br>Wilayah</td><td>Menegaskan pentingnya topik; merangkum penelitian terdahulu</td><td><i class="en">Plant diseases cause substantial yield losses worldwide [1]. Deep learning has become the dominant approach for automated diagnosis [2–5].</i></td></tr>
+<tr><td><b>Move 2</b><br>Celah</td><td>Menunjukkan gap, kontradiksi, atau keterbatasan; atau melanjutkan tradisi dengan alasan</td><td><i class="en">However, most models are trained and tested on laboratory images, and their performance in the field remains poorly understood.</i></td></tr>
+<tr><td><b>Move 3</b><br>Mengisi celah</td><td>Tujuan atau pertanyaan; apa yang dilakukan; kontribusi (sering dalam butir); struktur naskah</td><td><i class="en">This study addresses this gap by… Our contributions are threefold: (1)… (2)… (3)… The remainder of this paper is organized as follows.</i></td></tr>
+</table></div>
+
+<div class="box tip"><strong>💡 Daftar kontribusi bernomor di akhir pendahuluan</strong>
+<p>Banyak jurnal Q1 (terutama sains, teknik, dan informatika) menyukai paragraf kontribusi eksplisit: <i class="en">"The main contributions of this paper are as follows: (1) we identify…; (2) we propose…; (3) we demonstrate…"</i>. Paragraf ini memudahkan editor merangkum naskahmu, dan memaksamu jujur tentang apa yang benar-benar baru. Setiap butir kontribusi harus dibuktikan di bagian Results.</p></div>
+
+<div class="demo sorter" id="d8">
+<h4>Simulasi 8 · Pilah kalimat ke dalam gerakan CARS</h4>
+<p>Untuk setiap kalimat, tentukan gerakannya. Latihan ini melatih "telinga" untuk membaca pendahuluan artikel Q1.</p>
+<div id="d8List"></div>
+<div class="msg" id="d8Msg">Pilih jawaban untuk setiap kalimat.</div>
+</div>
+
+<h3>Panjang dan kesalahan umum</h3>
+<ul>
+<li><b>Terlalu panjang di Move 1.</b> Halaman-halaman tentang pentingnya topik ("Di era globalisasi…") tanpa segera masuk ke literatur. Editor ingin melihat gap dalam satu sampai dua halaman pertama.</li>
+<li><b>Move 2 yang lemah.</b> Gap hanya berupa "belum ada yang meneliti di sini". Kembali ke <a href="#gap">bagian 5</a>.</li>
+<li><b>Move 3 yang kabur.</b> Tujuan tidak dinyatakan dengan kalimat yang jelas, atau kontribusi tidak disebut.</li>
+<li><b>Tujuan tidak cocok dengan hasil.</b> Pendahuluan menjanjikan tiga hal, hasil hanya membuktikan satu.</li>
+</ul>
+</section>
+
+<!-- ============ 15. METHODS ============ -->
+<section id="metode">
+<h2>15. Methods</h2>
+<p>Bagian metode punya satu tugas: membuat pembaca <b>percaya pada hasilmu</b> dan, idealnya, <b>bisa mengulang</b> penelitianmu. Reviewer Q1 membaca bagian ini dengan sangat teliti, karena di sinilah kelemahan fatal biasanya ditemukan.</p>
+
+<div class="grid2">
+<div class="card s"><b>📋 Isi minimum</b><span>Desain penelitian dan alasannya · populasi, sampel, dan cara pengambilannya · instrumen atau alat dan validitasnya · prosedur · analisis (termasuk perangkat lunak dan versinya) · etika (persetujuan komite etik, <i>informed consent</i>) bila melibatkan manusia atau hewan.</span></div>
+<div class="card o"><b>🧱 Prinsip</b><span>Rinci tetapi efisien · gunakan subjudul · jelaskan <b>mengapa</b> memilih metode itu, bukan hanya apa · rujuk metode standar alih-alih menjelaskan ulang · kode dan data dibagikan bila memungkinkan.</span></div>
+</div>
+
+<h3>Ikuti pedoman pelaporan (<i>reporting guidelines</i>)</h3>
+<p>Banyak jurnal Q1, terutama di bidang kesehatan, mewajibkan penulis mengikuti pedoman pelaporan sesuai desain studi dan melampirkan <i>checklist</i>-nya. Kumpulan lengkapnya ada di situs <b>EQUATOR Network</b>. Meski jurnalmu tidak mewajibkan, mengikutinya membuat naskah tampak profesional.</p>
+<div class="tbl"><table>
+<tr><th>Desain studi</th><th>Pedoman</th></tr>
+<tr><td>Uji klinis acak (RCT)</td><td>CONSORT</td></tr>
+<tr><td>Review sistematis dan meta-analisis</td><td>PRISMA 2020</td></tr>
+<tr><td>Studi observasional (kohort, kasus-kontrol, potong lintang)</td><td>STROBE</td></tr>
+<tr><td>Penelitian kualitatif</td><td>COREQ, SRQR</td></tr>
+<tr><td>Model prediksi diagnostik/prognostik, termasuk berbasis AI</td><td>TRIPOD (dan TRIPOD+AI)</td></tr>
+<tr><td>Eksperimen hewan</td><td>ARRIVE</td></tr>
+<tr><td>Laporan kasus klinis</td><td>CARE</td></tr>
+</table></div>
+
+<h3>Daftar periksa rigor sesuai jenis riset</h3>
+<div class="tbl"><table>
+<tr><th>Jenis riset</th><th>Yang dicari reviewer Q1</th></tr>
+<tr><td><b>Kuantitatif / survei</b></td><td>Justifikasi ukuran sampel (analisis daya), validitas dan reliabilitas instrumen, uji <i>common method bias</i>, penanganan data hilang, kontrol variabel pengganggu, ukuran efek dan interval kepercayaan, bukan hanya nilai p.</td></tr>
+<tr><td><b>Eksperimen / kausal</b></td><td>Randomisasi, kelompok kontrol, <i>blinding</i> bila mungkin, pra-registrasi, strategi identifikasi kausal (misalnya <i>difference-in-differences</i>, variabel instrumen, <i>regression discontinuity</i>) untuk data observasional.</td></tr>
+<tr><td><b>Kualitatif</b></td><td>Alasan pemilihan partisipan, kejenuhan data, prosedur pengodean, triangulasi, refleksivitas peneliti, jejak audit, kutipan yang mewakili.</td></tr>
+<tr><td><b>Machine learning / komputasi</b></td><td>Pembanding SOTA yang adil (data dan setelan sama), pemisahan data latih/validasi/uji yang benar tanpa kebocoran data, beberapa <i>random seed</i> dengan simpangan baku, <i>ablation study</i>, uji statistik perbedaan, dataset publik atau eksternal, biaya komputasi, kode yang dibagikan.</td></tr>
+<tr><td><b>Teknik / eksperimen lab</b></td><td>Kalibrasi alat, jumlah ulangan, analisis ketidakpastian, standar pengujian (ASTM, ISO, SNI), validasi dengan model atau data lain.</td></tr>
+</table></div>
+<div class="box bad"><strong>🚫 Kelemahan fatal yang sering membuat naskah ditolak</strong>
+<ul>
+<li>Sampel terlalu kecil atau tidak representatif untuk klaim yang dibuat.</li>
+<li>Klaim kausal ("X menyebabkan Y") dari data potong lintang tanpa strategi identifikasi.</li>
+<li>Tidak ada pembanding, atau pembandingnya usang dan lemah ("<i>straw man</i>").</li>
+<li>Kebocoran data pada machine learning (data uji ikut terlihat saat pelatihan atau pemilihan model).</li>
+<li>Metode tidak cukup rinci untuk diulang.</li>
+</ul></div>
+</section>
+
+<!-- ============ 16. RESULTS & DISCUSSION ============ -->
+<section id="hasil">
+<h2>16. Results &amp; Discussion</h2>
+<div class="two">
+<div class="card s"><b>Results: "apa yang ditemukan"</b><span>Disajikan dengan urutan logis (biasanya mengikuti pertanyaan atau hipotesis). Teks menyorot pola terpenting, tidak mengulang semua angka di tabel. Laporkan ukuran efek, interval kepercayaan, dan hasil yang tidak sesuai harapan juga.</span></div>
+<div class="card o"><b>Discussion: "apa artinya"</b><span>Menafsirkan hasil, membandingkan dengan studi lain, menjelaskan mekanisme, menyatakan implikasi, dan mengakui keterbatasan. Di sinilah kontribusi dibuktikan secara argumentatif.</span></div>
+</div>
+
+<h3>Lima langkah pembahasan</h3>
+<ol class="steps">
+<li><b>Nyatakan ulang temuan utama</b> dalam satu sampai dua kalimat, dikaitkan dengan pertanyaan riset. Jangan mengulang angka-angka.</li>
+<li><b>Bandingkan dengan SOTA.</b> Sejalan dengan siapa, bertentangan dengan siapa, dan <b>mengapa</b> berbeda (data, konteks, metode, mekanisme).</li>
+<li><b>Jelaskan mekanismenya.</b> Mengapa hasil ini terjadi? Ajukan penjelasan dan, bila bisa, tunjukkan bukti pendukung dari analisis tambahan.</li>
+<li><b>Implikasi teoretis dan praktis.</b> Apa yang berubah dalam teori? Apa yang sebaiknya dilakukan praktisi atau pembuat kebijakan?</li>
+<li><b>Keterbatasan dan arah riset lanjutan.</b> Jujur, spesifik, dan disertai dampaknya terhadap tafsiran hasil.</li>
+</ol>
+<div class="two">
+<div class="ex bad"><b>Pembahasan yang mengulang hasil</b><p><i class="en">The results show that digital literacy has a significant effect on loyalty (β = 0.32). This means digital literacy affects loyalty. This is in line with Smith (2020).</i></p></div>
+<div class="ex good"><b>Pembahasan yang menafsirkan</b><p><i class="en">Digital literacy emerged as a stronger predictor of loyalty than service quality, contrary to the service-quality-centred view [4, 7]. One explanation is that in low-switching-cost markets, digitally literate customers use the platform's features (e.g., saved carts, chat) that create habitual repurchase, whereas service quality becomes a baseline expectation. Supporting this interpretation, the effect was strongest among frequent users (Table 5).</i></p></div>
+</div>
+
+<div class="box note"><strong>🎚️ Kalibrasi kekuatan klaim (hedging)</strong>
+<p>Klaim harus sekuat buktinya, tidak lebih dan tidak kurang. Klaim berlebihan membuat reviewer curiga; klaim terlalu lemah membuat kontribusi tidak terlihat. Gunakan simulasi berikut untuk melatih rasa ini.</p></div>
+<div class="demo" id="d9">
+<h4>Simulasi 9 · Kalibrator klaim</h4>
+<p>Pilih jenis bukti yang kamu miliki. Alat ini menyarankan kata kerja dan pola kalimat yang sesuai, serta contoh klaim yang berlebihan untuk bukti itu.</p>
+<div class="seg" id="d9Seg"></div>
+<div id="d9Out"></div>
+</div>
+
+<h3>Menulis keterbatasan tanpa menjatuhkan diri</h3>
+<div class="tpl">
+<p><i>First, <span class="slot">keterbatasan</span>, which may <span class="slot">dampaknya terhadap hasil</span>. We mitigated this by <span class="slot">langkah mitigasi</span>, and the results were robust to <span class="slot">uji ketahanan</span>. Future studies could <span class="slot">saran spesifik</span>.</i></p>
+</div>
+<p class="cap">Pola: akui → jelaskan dampak → tunjukkan mitigasi → beri arah riset. Keterbatasan yang dijelaskan dengan baik justru menambah kepercayaan reviewer.</p>
+</section>
+
+<!-- ============ 17. PENUTUP, GAMBAR, REFERENSI ============ -->
+<section id="penutup">
+<h2>17. Conclusion, Gambar &amp; Referensi</h2>
+<h3>Conclusion</h3>
+<p>Kesimpulan bukan ringkasan ulang semua hasil. Isinya: <b>jawaban atas pertanyaan riset</b>, <b>kontribusi utama</b> (selaras dengan daftar kontribusi di pendahuluan), dan <b>pesan yang perlu diingat</b>. Jangan memasukkan hasil atau rujukan baru, dan jangan mengklaim hal yang tidak dibuktikan.</p>
+
+<h3>Gambar dan tabel</h3>
+<ul>
+<li><b>Gambar adalah argumen.</b> Setiap gambar harus menjawab satu pertanyaan. Gambar 1 sering berupa kerangka konseptual atau arsitektur metode yang membuat pembaca langsung paham kontribusimu.</li>
+<li><b>Bisa dibaca sendiri.</b> Keterangan (<i>caption</i>) menjelaskan apa yang ditampilkan, singkatan, dan satuan, tanpa harus membaca teks.</li>
+<li><b>Kualitas teknis.</b> Resolusi sesuai ketentuan jurnal, huruf terbaca saat diperkecil, warna aman untuk buta warna, sumbu berlabel dengan satuan.</li>
+<li><b>Tabel vs gambar.</b> Tabel untuk angka yang perlu dibaca persis; gambar untuk pola, tren, dan perbandingan.</li>
+<li><b>Tidak ada duplikasi</b> data yang sama di tabel dan gambar.</li>
+</ul>
+
+<h3>Referensi</h3>
+<ul>
+<li><b>Gunakan reference manager</b> (Zotero, Mendeley, EndNote) sejak awal. Ganti gaya sitasi dengan satu klik saat pindah jurnal.</li>
+<li><b>Utamakan sumber primer bereputasi:</b> artikel jurnal dan prosiding bereputasi. Batasi sumber yang tidak ditelaah sejawat; hindari blog atau situs tanpa otoritas.</li>
+<li><b>Seimbangkan klasik dan mutakhir</b> (lihat <a href="#sota">bagian 4</a>).</li>
+<li><b>Kutip yang benar-benar kamu baca</b>, dan pastikan kutipanmu sesuai isi sumber.</li>
+<li><b>Rujuk artikel relevan dari jurnal target</b> bila memang relevan. Ini menunjukkan naskahmu bagian dari percakapan di jurnal itu. Jangan menambahkan rujukan yang tidak relevan hanya untuk menyenangkan editor.</li>
+<li><b>Cek retraksi.</b> Pastikan tidak ada rujukan yang sudah ditarik (Retraction Watch Database, kini terintegrasi di Crossref). Banyak <i>reference manager</i> memberi tanda otomatis.</li>
+<li><b>Jumlah</b> bergantung pada jenis artikel dan bidang. Lihat artikel sejenis di jurnal target sebagai patokan.</li>
+</ul>
+</section>
+
+<!-- ============ 18. BAHASA ============ -->
+<section id="bahasa">
+<h2>18. Bahasa &amp; Gaya Akademik</h2>
+<p>Bahasa yang baik tidak membuat riset lemah menjadi kuat, tetapi bahasa yang buruk bisa membuat riset kuat tampak lemah, atau membuat editor lelah sebelum sampai pada kontribusinya. Tujuan bahasa akademik adalah <b>jelas, tepat, dan ringkas</b>, bukan rumit.</p>
+
+<div class="grid2">
+<div class="card s"><b>Jelas</b><span>Satu kalimat, satu gagasan. Kalimat rata-rata sekitar 15–25 kata. Subjek dan kata kerja berdekatan.</span></div>
+<div class="card o"><b>Tepat</b><span>Istilah konsisten (jangan berganti-ganti "respondents", "participants", "subjects" untuk hal yang sama). Klaim sesuai bukti.</span></div>
+<div class="card l"><b>Ringkas</b><span>Buang kata yang tidak menambah makna: <i class="en">in order to → to; due to the fact that → because; it is important to note that → (hapus)</i>.</span></div>
+<div class="card i"><b>Aktif bila wajar</b><span>Banyak jurnal kini menerima "we" dan kalimat aktif: <i class="en">We collected data…</i> lebih jelas daripada <i class="en">Data were collected by the researchers…</i>. Ikuti kebiasaan jurnal target.</span></div>
+</div>
+
+<h3>Kesalahan khas penulis Indonesia dalam bahasa Inggris</h3>
+<div class="tbl"><table>
+<tr><th>Kurang tepat</th><th>Lebih baik</th><th>Catatan</th></tr>
+<tr><td><i class="en">In this globalization era, …</i></td><td>Langsung ke masalah</td><td>Pembuka klise; editor melewatinya</td></tr>
+<tr><td><i class="en">researches, informations, datas, evidences</i></td><td><i class="en">studies / research, information, data, evidence</i></td><td>Kata benda tak terhitung</td></tr>
+<tr><td><i class="en">discuss about, mention about</i></td><td><i class="en">discuss, mention</i></td><td>Tidak perlu "about"</td></tr>
+<tr><td><i class="en">make a research, do a research</i></td><td><i class="en">conduct research / conduct a study</i></td><td>Kolokasi</td></tr>
+<tr><td><i class="en">Although …, but …</i></td><td><i class="en">Although …, …</i></td><td>Pengaruh "meskipun…, tetapi…"</td></tr>
+<tr><td><i class="en">consist from, depend of</i></td><td><i class="en">consist of, depend on</i></td><td>Preposisi</td></tr>
+<tr><td><i class="en">The result shows significant influence</i></td><td><i class="en">The results show a significant effect (β = …)</i></td><td>Jamak, artikel, dan angka</td></tr>
+<tr><td><i class="en">This research was aimed to</i></td><td><i class="en">This study aimed to / This study examines</i></td><td>Struktur pasif yang janggal</td></tr>
+<tr><td><i class="en">Based on the results above, it can be concluded that</i></td><td><i class="en">These results indicate that</i></td><td>Lebih ringkas</td></tr>
+<tr><td><i class="en">very significant, highly significant</i></td><td><i class="en">significant (p &lt; 0.001), large effect</i></td><td>Signifikansi bukan besarnya efek</td></tr>
+<tr><td>Kalimat 50+ kata dengan banyak "which"</td><td>Pecah menjadi dua sampai tiga kalimat</td><td>Terjemahan langsung dari kalimat Indonesia yang panjang</td></tr>
+</table></div>
+
+<h3>Bank frasa akademik</h3>
+<div class="tbl"><table>
+<tr><th>Fungsi</th><th>Frasa</th></tr>
+<tr><td>Menyatakan pentingnya</td><td><i class="en">X plays a central role in…; X has attracted considerable attention…</i></td></tr>
+<tr><td>Merujuk literatur</td><td><i class="en">Prior research has shown…; Building on [5], …; Consistent with…</i></td></tr>
+<tr><td>Menunjukkan gap</td><td><i class="en">However, little is known about…; remains unclear; has been largely overlooked</i></td></tr>
+<tr><td>Menyatakan tujuan</td><td><i class="en">This study aims to…; We address this gap by…</i></td></tr>
+<tr><td>Membandingkan</td><td><i class="en">In contrast to…; Similarly…; This finding diverges from…</i></td></tr>
+<tr><td>Menafsirkan</td><td><i class="en">One plausible explanation is…; This suggests that…</i></td></tr>
+<tr><td>Membatasi klaim</td><td><i class="en">may, might, appears to, is likely to, to some extent</i></td></tr>
+</table></div>
+
+<div class="box tip"><strong>🛠️ Alat bantu bahasa</strong>
+<p>Pemeriksa tata bahasa dan alat AI generatif bisa membantu merapikan bahasa, tetapi kamu tetap bertanggung jawab atas setiap kalimat. Periksa ulang istilah teknis yang sering diubah alat secara keliru, dan ikuti kebijakan jurnal tentang pengungkapan penggunaan AI (lihat <a href="#etika">bagian 22</a>). Untuk naskah Q1, pertimbangkan <i>proofreading</i> oleh penutur asli atau layanan penyuntingan profesional, terutama bila reviewer sebelumnya mengeluhkan bahasa.</p></div>
+</section>
+
+<!-- ============ 19. JURNAL ============ -->
+<section id="jurnal">
+<h2>19. Memilih Jurnal &amp; Menghindari Predator</h2>
+<p>Banyak naskah yang sebenarnya bagus ditolak hanya karena dikirim ke jurnal yang salah. Memilih jurnal sebaiknya dilakukan <b>sebelum menulis</b>, karena gaya, panjang, struktur, dan penekanan naskah perlu disesuaikan dengan jurnal target.</p>
+
+<h3>Tujuh kriteria memilih jurnal</h3>
+<ol class="steps">
+<li><b>Kecocokan scope.</b> Baca <i>aims and scope</i>, lalu yang lebih penting, baca judul dan abstrak artikel yang terbit satu sampai dua tahun terakhir. Apakah naskahmu "terasa" seperti salah satunya?</li>
+<li><b>Pembaca.</b> Siapa yang membaca jurnal ini: teoretisi, praktisi, peneliti metode? Kontribusimu harus penting bagi mereka.</li>
+<li><b>Jenis artikel.</b> <i>Research article</i>, <i>review</i>, <i>short communication</i>, <i>data paper</i>; masing-masing punya batas kata dan format.</li>
+<li><b>Reputasi dan indeks.</b> Cek langsung di Scopus Sources, SCImago, atau JCR: kuartil per kategori, status aktif, dan riwayat beberapa tahun.</li>
+<li><b>Biaya.</b> Jurnal langganan biasanya tanpa biaya terbit; jurnal <i>open access</i> sering memungut APC (<i>article processing charge</i>); jurnal <i>diamond open access</i> tanpa biaya bagi penulis maupun pembaca. Cek juga apakah institusimu punya perjanjian dengan penerbit.</li>
+<li><b>Waktu.</b> Sebagian jurnal mencantumkan rata-rata waktu sampai keputusan pertama. Pertimbangkan tenggat pribadimu (kelulusan, laporan hibah).</li>
+<li><b>Kebijakan.</b> Preprint, berbagi data, penggunaan AI, dan lisensi.</li>
+</ol>
+<div class="box tip"><strong>🧰 Alat bantu</strong>
+<p>Beberapa penerbit menyediakan pencari jurnal yang mencocokkan judul dan abstrakmu dengan jurnal mereka, misalnya Elsevier JournalFinder, Springer Nature Journal Suggester, Wiley Journal Finder, dan IEEE Publication Recommender. Gunakan sebagai titik awal, lalu verifikasi sendiri dengan membaca artikel-artikel jurnalnya.</p></div>
+
+<h3>Strategi tiga tingkat</h3>
+<div class="grid3">
+<div class="card o"><b>🚀 Ambisius</b><span>Satu atau dua jurnal di atas perkiraan level naskahmu. Coba lebih dulu bila waktumu cukup longgar.</span></div>
+<div class="card s"><b>🎯 Target</b><span>Dua atau tiga jurnal yang paling cocok dengan level dan scope naskahmu.</span></div>
+<div class="card l"><b>🛟 Aman</b><span>Jurnal bereputasi yang cocok dan peluang diterimanya lebih tinggi, untuk tenggat yang ketat.</span></div>
+</div>
+<p>Siapkan daftar ini sejak awal. Bila ditolak, kamu tinggal memperbaiki dan pindah ke jurnal berikutnya dalam hitungan hari, bukan bulan.</p>
+
+<h3>Jurnal predator dan jurnal <i>hijacked</i></h3>
+<div class="two">
+<div class="ex bad"><b>Jurnal predator</b><p>Jurnal yang memungut biaya tetapi tidak menjalankan peer review dan penyuntingan yang layak. Tujuannya uang, bukan ilmu. Artikel di sana sering tidak diakui dan sulit "ditarik" kembali.</p></div>
+<div class="ex bad"><b>Jurnal hijacked (dibajak)</b><p>Situs palsu yang meniru jurnal sah yang terindeks Scopus, memakai nama dan ISSN yang sama. Penulis mengira mengirim ke jurnal Q1/Q2, padahal ke penipu. Kasus ini cukup sering menimpa peneliti di berbagai negara, termasuk Indonesia.</p></div>
+</div>
+
+<div class="demo" id="d11">
+<h4>Simulasi 10 · Pemeriksa kewajaran jurnal</h4>
+<p>Centang tanda-tanda yang kamu temukan pada jurnal yang sedang kamu pertimbangkan.</p>
+<div class="cklist" id="d11List"></div>
+<div class="risk"><i id="d11Mk" style="left:0%"></i></div>
+<div class="msg" id="d11Msg"></div>
+</div>
+<div class="box note"><strong>🔐 Cara verifikasi yang benar</strong>
+<ul>
+<li>Cari jurnal di <b>Scopus Sources</b> (atau Web of Science Master Journal List). Cek statusnya masih aktif dan tidak termasuk daftar <i>discontinued titles</i>.</li>
+<li>Buka situs jurnal <b>melalui tautan resmi</b> dari profil Scopus, SCImago, atau penerbit, bukan dari email atau hasil pencarian.</li>
+<li>Periksa di <b>Retraction Watch Hijacked Journal Checker</b>.</li>
+<li>Untuk jurnal open access, cek keanggotaan di <b>DOAJ</b>, dan gunakan daftar periksa <b>Think. Check. Submit.</b></li>
+<li>Bila ragu, tanyakan pustakawan atau kantor riset kampusmu.</li>
+</ul></div>
+</section>
+
+<!-- ============ 20. SUBMISSION ============ -->
+<section id="submit">
+<h2>20. Submission &amp; Cover Letter</h2>
+<h3>Berkas yang biasanya diminta</h3>
+<div class="grid2">
+<ul>
+<li>Naskah utama sesuai template (dan versi anonim bila <i>double-blind</i>)</li>
+<li>Halaman judul: penulis, afiliasi, ORCID, penulis korespondensi</li>
+<li><i>Cover letter</i></li>
+<li><i>Highlights</i> (3–5 butir singkat) dan/atau <i>graphical abstract</i> bila diminta</li>
+</ul>
+<ul>
+<li>Pernyataan konflik kepentingan, pendanaan, dan kontribusi penulis (misalnya CRediT)</li>
+<li>Pernyataan ketersediaan data dan kode</li>
+<li>Persetujuan etik dan <i>checklist</i> pedoman pelaporan bila relevan</li>
+<li>Usulan reviewer (bila diminta)</li>
+</ul>
+</div>
+
+<div class="demo" id="d10">
+<h4>Simulasi 11 · Pengukur risiko desk rejection</h4>
+<p>Centang yang sudah benar pada naskahmu. Butir dengan bobot besar adalah alasan paling umum editor menolak tanpa review.</p>
+<div class="cklist" id="d10List"></div>
+<div class="risk"><i id="d10Mk" style="left:100%"></i></div>
+<div class="msg" id="d10Msg"></div>
+</div>
+
+<h3>Cover letter</h3>
+<p><i>Cover letter</i> adalah surat singkat untuk editor: satu halaman, profesional, dan langsung ke inti. Isinya <b>bukan</b> pengulangan abstrak, tetapi argumen <b>mengapa naskah ini cocok untuk jurnal ini sekarang</b>.</p>
+<div class="tpl">
+<p>Dear Dr. <span class="slot">nama editor</span>,</p>
+<p>We are pleased to submit our manuscript entitled "<span class="slot">judul</span>" for consideration as a <span class="slot">jenis artikel</span> in <span class="slot">nama jurnal</span>.</p>
+<p><span class="slot">1–2 kalimat gap</span>. In this study, we <span class="slot">apa yang dilakukan</span>. We found that <span class="slot">temuan utama</span>.</p>
+<p>We believe this manuscript is well suited to <span class="slot">nama jurnal</span> because <span class="slot">kaitan dengan scope atau percakapan di jurnal, misalnya artikel terkait yang pernah terbit</span>. The findings will interest readers working on <span class="slot">komunitas pembaca</span>.</p>
+<p>This manuscript has not been published and is not under consideration elsewhere. All authors have approved the submission and declare no conflicts of interest. <span class="slot">pernyataan preprint, data, atau AI bila perlu</span></p>
+<p>Sincerely,<br><span class="slot">nama, afiliasi, email</span></p>
+</div>
+<div class="box warn"><strong>⚠️ Usulan reviewer</strong>
+<p>Bila jurnal meminta usulan reviewer, usulkan pakar independen yang relevan dari institusi berbeda, tanpa konflik kepentingan (bukan pembimbing, rekan satu proyek, atau rekan penulis dalam beberapa tahun terakhir). Jangan pernah memberikan alamat email palsu atau email yang kamu kendalikan: praktik ini pernah menjadi penyebab penarikan massal artikel.</p></div>
+</section>
+
+<!-- ============ 21. PEER REVIEW ============ -->
+<section id="review">
+<h2>21. Peer Review &amp; Revisi</h2>
+<div class="diagram" aria-label="Alur peer review">
+<svg viewBox="0 0 760 230" role="img">
+  <defs><marker id="ah4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>
+  <g font-size="12" text-anchor="middle">
+    <rect x="4" y="40" width="104" height="50" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/><text x="56" y="62" font-weight="700" fill="var(--accent)">Submit</text><text x="56" y="78" fill="var(--muted)" font-size="11">cek teknis</text>
+    <rect x="128" y="40" width="114" height="50" rx="10" fill="var(--surface)" stroke="var(--violet)" stroke-width="2"/><text x="185" y="62" font-weight="700" fill="var(--violet)">Editor</text><text x="185" y="78" fill="var(--muted)" font-size="11">scope &amp; kontribusi</text>
+    <rect x="262" y="40" width="120" height="50" rx="10" fill="var(--surface)" stroke="var(--warn)" stroke-width="2"/><text x="322" y="62" font-weight="700" fill="var(--warn)">Peer review</text><text x="322" y="78" fill="var(--muted)" font-size="11">2–3 reviewer</text>
+    <rect x="402" y="40" width="110" height="50" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/><text x="457" y="62" font-weight="700" fill="var(--accent)">Keputusan</text><text x="457" y="78" fill="var(--muted)" font-size="11">editor</text>
+    <rect x="610" y="8" width="146" height="34" rx="9" fill="color-mix(in srgb,var(--good) 16%,transparent)" stroke="var(--good)" stroke-width="2"/><text x="683" y="30" font-weight="700" fill="var(--good)">Accept</text>
+    <rect x="610" y="50" width="146" height="34" rx="9" fill="color-mix(in srgb,var(--accent) 12%,transparent)" stroke="var(--accent)" stroke-width="2"/><text x="683" y="72" font-weight="700" fill="var(--accent)">Minor revision</text>
+    <rect x="610" y="92" width="146" height="34" rx="9" fill="color-mix(in srgb,var(--warn) 14%,transparent)" stroke="var(--warn)" stroke-width="2"/><text x="683" y="114" font-weight="700" fill="var(--warn)">Major revision</text>
+    <rect x="610" y="134" width="146" height="34" rx="9" fill="color-mix(in srgb,var(--bad) 12%,transparent)" stroke="var(--bad)" stroke-width="2"/><text x="683" y="156" font-weight="700" fill="var(--bad)">Reject</text>
+    <g stroke="var(--muted)" stroke-width="1.6" fill="none" marker-end="url(#ah4)">
+      <line x1="108" y1="65" x2="126" y2="65"/><line x1="242" y1="65" x2="260" y2="65"/><line x1="382" y1="65" x2="400" y2="65"/>
+      <path d="M512 60 L560 60 L560 25 L608 25"/><path d="M512 65 L608 67"/><path d="M512 70 L560 70 L560 109 L608 109"/><path d="M512 75 L548 75 L548 151 L608 151"/>
+      <path d="M185 90 L185 190 L683 190 L683 172"/>
+      <path d="M440 90 L440 134 L330 134 L330 94"/>
+    </g>
+    <text x="300" y="206" fill="var(--bad)" font-size="11.5">desk rejection (tanpa review)</text>
+    <text x="400" y="152" fill="var(--warn)" font-size="11.5">revisi + surat respons → review ulang</text>
+  </g>
+</svg></div>
+<p>Waktu sampai keputusan pertama sangat bervariasi: dari beberapa minggu sampai beberapa bulan, tergantung bidang dan jurnal. <i>Major revision</i> bukan kabar buruk; di jurnal Q1, itu sering berarti editor melihat potensi dan memberimu kesempatan. Perlakukan setiap komentar dengan serius.</p>
+
+<h3>Prinsip menjawab reviewer</h3>
+<ol class="steps">
+<li><b>Tenangkan diri dulu.</b> Baca komentar, tunggu satu sampai dua hari, lalu baca lagi. Komentar yang terasa menyerang sering berisi masukan yang berguna.</li>
+<li><b>Jawab setiap komentar, satu per satu.</b> Salin komentar, beri nomor (R1.1, R1.2, R2.1…), tulis tanggapan, dan sebutkan perubahan beserta lokasinya (halaman, baris, bagian).</li>
+<li><b>Lakukan perubahan nyata.</b> Reviewer ingin melihat naskah berubah, bukan hanya penjelasan di surat.</li>
+<li><b>Boleh tidak setuju, dengan sopan dan bukti.</b> Akui sudut pandang reviewer, jelaskan alasanmu dengan data atau rujukan, dan tawarkan jalan tengah (misalnya menambah pembahasan sebagai keterbatasan).</li>
+<li><b>Tandai perubahan</b> di naskah (warna atau <i>track changes</i>) sesuai permintaan jurnal.</li>
+<li><b>Patuhi tenggat revisi.</b> Bila butuh waktu lebih, minta perpanjangan sebelum tenggat.</li>
+</ol>
+
+<h3>Contoh surat respons</h3>
+<div class="tbl"><table>
+<tr><th style="width:32%">Komentar reviewer</th><th>Respons</th></tr>
+<tr><td><b>R1.1</b> <i class="en">The novelty of the proposed method is unclear compared with [12].</i></td><td><i class="en">Thank you for this important comment. We agree that the distinction was not sufficiently explained. Unlike [12], which requires labelled target-domain images, our method uses only unlabelled field images. We have added a comparison table (Table 2) and a paragraph clarifying this difference (Section 2.3, p. 6, lines 140–155). We also added [12] as a baseline; our method outperforms it by 6.1 points (Table 4).</i></td></tr>
+<tr><td><b>R2.3</b> <i class="en">The authors should collect data from more provinces.</i></td><td><i class="en">We appreciate this suggestion. Collecting new data is not feasible within the revision period; however, we have (a) added a robustness analysis using the national survey subset covering 34 provinces (Appendix C), which yields consistent results, and (b) acknowledged this limitation explicitly (Section 6, p. 18).</i></td></tr>
+</table></div>
+<p class="cap">Contoh rekaan. Perhatikan pola: terima kasih → akui → jelaskan perubahan → tunjukkan lokasi → beri bukti. Pada contoh kedua, permintaan yang tidak bisa dipenuhi tetap dijawab dengan alternatif yang serius.</p>
+
+<div class="box note"><strong>💔 Bila ditolak</strong>
+<p>Penolakan adalah bagian normal dari karier peneliti, bahkan bagi peneliti senior. Ambil manfaat dari komentar reviewer (itu masukan gratis dari pakar), perbaiki naskah, sesuaikan dengan jurnal berikutnya di daftar tiga tingkatmu, dan kirim lagi. Jangan mengirim naskah yang sama persis tanpa perbaikan; reviewer yang sama mungkin diundang lagi. Beberapa penerbit juga menawarkan layanan transfer naskah ke jurnal lain di grupnya, kadang beserta komentar review sebelumnya.</p></div>
+</section>
+
+<!-- ============ 22. ETIKA ============ -->
+<section id="etika">
+<h2>22. Etika Publikasi &amp; AI</h2>
+<p>Pelanggaran etika bisa membuat artikel ditarik (<i>retracted</i>) bertahun-tahun setelah terbit, dan merusak reputasi penulis serta institusinya. Pedoman yang banyak dirujuk jurnal adalah dari <b>COPE</b> (Committee on Publication Ethics) dan, untuk bidang kedokteran, <b>ICMJE</b>.</p>
+
+<div class="tbl"><table>
+<tr><th>Pelanggaran</th><th>Artinya</th><th>Cara menghindari</th></tr>
+<tr><td><b>Plagiarisme</b></td><td>Memakai kata, gagasan, data, atau gambar orang lain tanpa atribusi</td><td>Kutip sumber; parafrase dengan memahami lalu menulis ulang dengan struktur sendiri, bukan sekadar mengganti sinonim</td></tr>
+<tr><td><b>Daur ulang teks / self-plagiarism</b></td><td>Memakai ulang teks dari publikasimu sendiri tanpa pengungkapan</td><td>Tulis ulang; kutip publikasi sebelumnya; ungkapkan bila ada tumpang tindih (misalnya dari prosiding)</td></tr>
+<tr><td><b>Submisi ganda</b></td><td>Mengirim naskah yang sama ke dua jurnal sekaligus</td><td>Satu naskah, satu jurnal, sampai ada keputusan atau penarikan resmi</td></tr>
+<tr><td><b>Salami slicing</b></td><td>Memecah satu studi menjadi beberapa artikel tipis</td><td>Setiap artikel menjawab pertanyaan berbeda; ungkapkan artikel terkait kepada editor</td></tr>
+<tr><td><b>Fabrikasi &amp; falsifikasi</b></td><td>Mengarang data, atau memanipulasi data/gambar agar sesuai harapan</td><td>Simpan data mentah dan catatan analisis; laporkan hasil apa adanya</td></tr>
+<tr><td><b>Kepengarangan tidak sah</b></td><td><i>Gift authorship</i> (memasukkan yang tidak berkontribusi), <i>ghost authorship</i>, atau membeli posisi penulis</td><td>Gunakan kriteria ICMJE dan pernyataan CRediT; sepakati urutan penulis sejak awal</td></tr>
+<tr><td><b>Manipulasi sitasi</b></td><td>Saling mengutip berlebihan (<i>citation ring</i>) atau memaksa pengutipan</td><td>Kutip hanya karena relevan</td></tr>
+<tr><td><b>Paper mill</b></td><td>"Pabrik" yang menjual naskah atau posisi penulis</td><td>Jangan pernah membeli naskah atau slot penulis; tawaran seperti ini adalah tanda bahaya</td></tr>
+</table></div>
+
+<div class="box note"><strong>🧾 Soal skor similarity</strong>
+<p>Jurnal biasanya memeriksa naskah dengan iThenticate (Crossref Similarity Check). Tidak ada angka "aman" yang berlaku umum. Editor melihat <b>dari mana kemiripan itu berasal</b>: kemiripan di daftar pustaka atau istilah baku berbeda maknanya dengan satu paragraf utuh yang sama dengan artikel lain. Tujuannya bukan "menurunkan persentase", tetapi menulis dengan kata-katamu sendiri dan mengutip dengan benar.</p></div>
+
+<h3>Kepengarangan: kriteria ICMJE</h3>
+<p>Menurut ICMJE, seseorang layak menjadi penulis bila memenuhi <b>keempat</b> kriteria: (1) berkontribusi substansial pada konsep, desain, atau pengumpulan, analisis, dan interpretasi data; (2) menulis draf atau merevisinya secara kritis; (3) menyetujui versi akhir; (4) bersedia bertanggung jawab atas seluruh aspek pekerjaan. Kontributor lain cukup disebut di <i>acknowledgements</i>. Banyak jurnal juga meminta pernyataan peran setiap penulis dengan taksonomi <b>CRediT</b> (misalnya <i>Conceptualization, Methodology, Software, Formal analysis, Writing – original draft</i>).</p>
+
+<h3>Penggunaan AI generatif</h3>
+<div class="grid2">
+<div class="card o"><b>✅ Umumnya diperbolehkan (dengan pengungkapan sesuai kebijakan jurnal)</b><span>Merapikan bahasa dan tata bahasa · membantu <i>brainstorming</i> · membantu menulis atau memeriksa kode analisis yang kamu pahami dan verifikasi · meringkas bacaan untuk dirimu sendiri (lalu tetap membaca sumber aslinya).</span></div>
+<div class="card d"><b>⛔ Umumnya dilarang atau sangat berisiko</b><span>Mencantumkan AI sebagai penulis · menghasilkan data, hasil, atau gambar penelitian · menyerahkan penulisan argumen inti tanpa kontrol · menyalin rujukan dari AI tanpa memeriksanya (AI bisa mengarang rujukan) · mengunggah naskah orang lain yang sedang kamu review ke layanan AI.</span></div>
+</div>
+<div class="box warn"><strong>⚠️ Prinsip yang dipegang banyak penerbit</strong>
+<p>COPE dan banyak penerbit besar menyatakan bahwa alat AI <b>tidak dapat menjadi penulis</b>, karena tidak dapat bertanggung jawab atas karya. Penulis manusia bertanggung jawab penuh atas seluruh isi, termasuk bagian yang dibantu AI. Penggunaan AI biasanya harus diungkapkan, misalnya di bagian metode atau <i>acknowledgements</i>. Kebijakan berbeda antarjurnal dan terus diperbarui, jadi selalu baca kebijakan jurnal targetmu.</p></div>
+</section>
+
+<!-- ============ 23. ROADMAP ============ -->
+<section id="roadmap">
+<h2>23. Rencana Kerja 6–12 Bulan</h2>
+<p>Artikel Q1 jarang selesai dalam hitungan minggu. Berikut contoh rencana untuk satu artikel empiris dari nol sampai submit. Sesuaikan dengan bidang dan kondisimu; bila data sudah ada, fase awal bisa jauh lebih singkat.</p>
+<div class="tbl"><table>
+<tr><th>Fase</th><th>Kegiatan utama</th><th>Hasil (deliverable)</th></tr>
+<tr><td><b>1 · SOTA &amp; gap</b></td><td>Pencarian sistematis, snowballing, matriks SOTA, uji empat lapis gap</td><td>Matriks SOTA; pernyataan gap; elevator pitch enam kalimat</td></tr>
+<tr><td><b>2 · Desain</b></td><td>Pertanyaan riset, hipotesis, desain, rencana analisis; pilih jurnal target; bila perlu pra-registrasi dan izin etik</td><td>Proposal singkat; daftar tiga tingkat jurnal</td></tr>
+<tr><td><b>3 · Data</b></td><td>Pengumpulan data, eksperimen, atau pengembangan metode</td><td>Data bersih, terdokumentasi</td></tr>
+<tr><td><b>4 · Analisis</b></td><td>Analisis utama, uji ketahanan, pembanding, ablation</td><td>Gambar dan tabel utama</td></tr>
+<tr><td><b>5 · Menulis</b></td><td>Urutan: gambar → metode → hasil → pembahasan → pendahuluan → kesimpulan → abstrak → judul</td><td>Draf lengkap</td></tr>
+<tr><td><b>6 · Review internal</b></td><td>Minta masukan pembimbing, kolega dari bidang lain, dan bila perlu penyunting bahasa</td><td>Draf final; cover letter</td></tr>
+<tr><td><b>7 · Submit</b></td><td>Format sesuai jurnal, cek desk-rejection, kirim</td><td>Naskah terkirim</td></tr>
+</table></div>
+
+<div class="demo" id="d12">
+<h4>Simulasi 12 · Perencana mundur dari tanggal submit</h4>
+<p>Tentukan target tanggal submit dan proporsi waktu setiap fase. Alat ini menghitung tanggal mulai setiap fase dan memberi tahu bila jadwalnya sudah lewat.</p>
+<div class="controls">
+<label class="range">Target submit <input type="date" id="d12Date"></label>
+<label class="range">Data sudah tersedia? <select class="btn" id="d12Data"><option value="0">Belum</option><option value="1">Sudah</option></select></label>
+</div>
+<ul class="tl" id="d12Tl"></ul>
+<div class="msg" id="d12Msg"></div>
+</div>
+
+<div class="box tip"><strong>⏱️ Kebiasaan yang membedakan penulis produktif</strong>
+<ul>
+<li><b>Menulis rutin dalam blok pendek</b> (misalnya 45–60 menit setiap hari kerja) lebih efektif daripada menunggu "waktu luang" berhari-hari.</li>
+<li><b>Pisahkan menulis dan menyunting.</b> Tulis draf kasar dulu tanpa berhenti untuk memoles.</li>
+<li><b>Simpan versi</b> dengan nama yang jelas dan cadangan otomatis.</li>
+<li><b>Minta masukan lebih awal.</b> Satu halaman elevator pitch yang dibaca pembimbing di minggu pertama bisa menghemat berbulan-bulan.</li>
+<li><b>Baca artikel Q1 sebagai penulis</b>, bukan hanya sebagai pembaca: perhatikan bagaimana mereka membuka, menyatakan gap, dan menulis kontribusi.</li>
+</ul></div>
+</section>
+
+<!-- ============ 24. KUIS ============ -->
+<section id="kuis">
+<h2>24. Kuis &amp; Cheat Sheet</h2>
+<p id="qScore">Jawab semua soal. Jawaban pertama yang dihitung.</p>
+<div id="quiz"></div>
+
+<h3>Cheat sheet: satu halaman untuk ditempel</h3>
+<div class="grid2">
+<div class="card s"><b>🧭 Fondasi</b><span>SOTA = apa yang sudah diketahui, ditulis sebagai sintesis kritis per tema. Gap = celah yang nyata, penting, belum diisi, dan bisa kamu isi. Novelty = cara barumu mengisi gap. Kontribusi = nilai bagi bidangmu.</span></div>
+<div class="card o"><b>📈 Tujuh tuas naik level</b><span>Pertanyaan (apa → mengapa) · Cakupan (kasus → fenomena) · Mekanisme (X→Y → mediasi/moderasi) · Kontribusi (aplikasi → teori/metode) · Data (kecil → multi-sumber) · Rigor (tanpa pembanding → SOTA + robustness) · Positioning (pertama di X → menjawab perdebatan global).</span></div>
+<div class="card l"><b>✍️ Naskah</b><span>Judul spesifik tanpa kata pengisi · Abstrak lima langkah dengan angka · Pendahuluan CARS + daftar kontribusi · Metode bisa diulang + pedoman pelaporan · Pembahasan: tafsir, bandingkan, mekanisme, implikasi, limitasi · Kesimpulan menjawab pertanyaan.</span></div>
+<div class="card i"><b>📮 Publikasi</b><span>Pilih jurnal sebelum menulis · Daftar tiga tingkat · Verifikasi lewat Scopus/SJR, bukan email · Cover letter: mengapa cocok di jurnal ini · Jawab reviewer poin per poin dengan lokasi perubahan · AI bukan penulis; ungkapkan penggunaannya.</span></div>
+</div>
+<div class="nav-mod"><a class="btn" href="../index.html">← Beranda</a><a class="btn" href="#gambaran">Ulangi dari awal ↑</a><a class="btn" href="#pengukur">Ukur level risetmu →</a></div>
+</section>
+
+<footer>
+<p><b>Rujukan utama:</b> Swales, J. M. (1990). <i>Genre Analysis: English in Academic and Research Settings</i>. Cambridge University Press · Miles, D. A. (2017). A taxonomy of research gaps: Identifying and defining the seven research gaps · Sandberg, J., &amp; Alvesson, M. (2011). Ways of constructing research questions: Gap-spotting or problematization? <i>Organization</i>, 18(1) · Whetten, D. A. (1989). What constitutes a theoretical contribution? <i>Academy of Management Review</i>, 14(4) · Corley, K. G., &amp; Gioia, D. A. (2011). Building theory about theory building: What constitutes a theoretical contribution? <i>Academy of Management Review</i>, 36(1) · Davis, M. S. (1971). That's interesting! <i>Philosophy of the Social Sciences</i>, 1(4) · Webster, J., &amp; Watson, R. T. (2002). Analyzing the past to prepare for the future: Writing a literature review. <i>MIS Quarterly</i>, 26(2) · Wohlin, C. (2014). Guidelines for snowballing in systematic literature studies. <i>EASE '14</i> · Pedoman COPE, ICMJE, EQUATOR Network, SCImago Journal &amp; Country Rank, dan Clarivate Journal Citation Reports.</p>
+<p>Judul, angka, dan nama studi dalam contoh dan simulasi adalah rekaan untuk latihan. Aturan jurnal, kebijakan AI, dan regulasi publikasi berubah dari waktu ke waktu; selalu cek pedoman terbaru jurnal target dan institusimu.</p>
+</footer>
+</main>
+<script>
+const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const words=s=>(s.trim().match(/\S+/g)||[]).length;
+const setMsg=(el,cls,html)=>{el.className='msg'+(cls?' '+cls:'');el.innerHTML=html};
+const QC=['--good','--accent','--warn','--bad'];
+
+/* ---------- Simulasi 1 · Kuartil ---------- */
+(function(){
+  const N=$('#d1N'),R=$('#d1R');
+  const q=(r,n)=>Math.max(1,Math.min(4,Math.ceil(r/n*4)));
+  function draw(){
+    const n=+N.value;R.max=n;if(+R.value>n)R.value=n;const r=+R.value,Q=q(r,n);
+    $('#d1Nv').textContent=n;$('#d1Rv').textContent=r;
+    const x=10+(r-.5)/n*680;
+    let s='';for(let i=0;i<4;i++)s+=`<rect x="${10+i*170}" y="20" width="170" height="26" fill="color-mix(in srgb,var(${QC[i]}) ${i===Q-1?32:12}%,transparent)" stroke="var(${QC[i]})" stroke-width="${i===Q-1?2.5:1}"/><text x="${95+i*170}" y="38" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(${QC[i]})">Q${i+1}</text>`;
+    s+=`<path d="M${x} 16 l-6 -10 h12 z" fill="var(--text)"/><line x1="${x}" y1="18" x2="${x}" y2="50" stroke="var(--text)" stroke-width="2"/><text x="${Math.min(640,Math.max(60,x))}" y="64" text-anchor="middle" font-size="12" fill="var(--text)">peringkat ${r}</text>`;
+    $('#d1Svg').innerHTML=s;
+    const b1=Math.floor(n/4),b2=Math.floor(n/2),b3=Math.floor(3*n/4);
+    setMsg($('#d1Msg'),Q===1?'ok':Q===4?'no':'wa',`Peringkat <b>${r}</b> dari <b>${n}</b> jurnal = ${(r/n*100).toFixed(1).replace('.',',')}% teratas → <b>Q${Q}</b>. Di kategori ini, kira-kira Q1 = peringkat 1–${b1}, Q2 = ${b1+1}–${b2}, Q3 = ${b2+1}–${b3}, Q4 = ${b3+1}–${n}. Di kategori yang berisi lebih sedikit jurnal, satu langkah peringkat menggeser persentil lebih jauh.`);
+  }
+  N.oninput=draw;R.oninput=draw;draw();
+  const C=[['Food Science',41,380],['Agronomy and Crop Science',160,420],['Applied Microbiology and Biotechnology',70,120]];
+  $('#d1Tbl').innerHTML='<tr><th>Kategori (Jurnal Contoh Pangan Tropis, fiktif)</th><th class="c2">Peringkat</th><th class="c2">Persentil</th><th class="c2">Kuartil</th></tr>'+
+    C.map(([c,r,n])=>{const Q=q(r,n);return `<tr><td>${c}</td><td class="c2">${r} / ${n}</td><td class="c2">${(r/n*100).toFixed(0)}%</td><td class="c2"><span class="qb q${Q}">Q${Q}</span></td></tr>`}).join('')+
+    '<tr><td colspan="4" class="muted" style="font-size:13.5px">Jurnal yang sama: Q1, Q2, dan Q3 sekaligus. Bila pedomanmu meminta "Q1", tanyakan apakah yang dihitung kuartil terbaik atau kuartil kategori yang sesuai dengan bidangmu.</td></tr>';
+})();
+
+/* ---------- Simulasi 2 · Matriks konsep ---------- */
+(function(){
+  const SC={
+    padi:{name:'Penyakit daun padi (informatika)',cols:['Gambar lapangan','Model ringan (ponsel)','Uji lintas negara','Tanpa label lapangan','Penjelasan (explainability)'],
+      why:['Petani memotret di lapangan; akurasi lab tidak menjamin kinerja nyata.','Tanpa model ringan, aplikasi tidak bisa dipakai di ponsel murah atau tanpa internet.','Tanpa uji lintas negara, kita tidak tahu apakah model hanya menghafal kondisi satu wilayah.','Label lapangan mahal dan butuh ahli; metode yang memerlukannya sulit diterapkan luas.','Petugas penyuluh perlu tahu mengapa model memberi diagnosis agar bisa mempercayainya.'],
+      rows:[['Studi A (2020)',[0,0,0,0,0]],['Studi B (2021)',[0,1,0,0,0]],['Studi C (2021)',[0,0,0,0,1]],['Studi D (2022)',[1,0,0,0,0]],['Studi E (2023)',[0,1,0,0,1]],['Studi F (2023)',[1,0,1,0,0]],['Studi G (2024)',[1,1,0,0,0]]]},
+    umkm:{name:'Loyalitas pelanggan UMKM (manajemen)',cols:['Data longitudinal','Konteks pasar daring','Moderator literasi digital','Multi-negara','Data perilaku (bukan survei)'],
+      why:['Data satu waktu tidak bisa memisahkan sebab dan akibat atau melihat apakah loyalitas bertahan.','Di pasar daring, pelanggan berpindah dengan satu klik; teori lama mungkin tidak berlaku.','Bila efek bergantung pada literasi digital, strategi yang sama bisa gagal di segmen berbeda.','Tanpa pembanding lintas negara, sulit memisahkan efek budaya dari efek pasar.','Niat setia (survei) sering berbeda dengan pembelian ulang yang sebenarnya.'],
+      rows:[['Studi A (2019)',[0,0,0,0,0]],['Studi B (2020)',[0,1,0,0,0]],['Studi C (2021)',[1,0,0,0,0]],['Studi D (2022)',[0,1,1,0,0]],['Studi E (2022)',[0,0,0,1,0]],['Studi F (2023)',[0,1,0,0,0]],['Studi G (2024)',[0,1,1,0,0]]]},
+    stunting:{name:'Stunting (kesehatan masyarakat)',cols:['Desain kausal','Data nasional multilevel','Faktor sanitasi','Intervensi berbasis komunitas','Analisis biaya-efektivitas'],
+      why:['Studi korelasional tidak bisa menjawab apakah program benar-benar menurunkan stunting.','Data nasional memungkinkan memisahkan faktor rumah tangga dan komunitas.','Bukti global tentang peran sanitasi terhadap pertumbuhan anak masih diperdebatkan.','Kebijakan nasional banyak berbasis komunitas; buktinya perlu kuat.','Pemerintah perlu tahu intervensi mana yang paling efisien untuk anggaran terbatas.'],
+      rows:[['Studi A (2019)',[0,0,0,0,0]],['Studi B (2020)',[0,0,1,0,0]],['Studi C (2021)',[0,1,1,0,0]],['Studi D (2021)',[0,1,0,0,0]],['Studi E (2022)',[1,0,0,1,0]],['Studi F (2023)',[0,0,1,0,0]],['Studi G (2024)',[0,1,1,0,0]]]}
+  };
+  let cur,M;
+  const sel=$('#d2Sc');sel.innerHTML=Object.entries(SC).map(([k,v])=>`<option value="${k}">${v.name}</option>`).join('');
+  function load(){cur=SC[sel.value];M=cur.rows.map(r=>r[1].slice());render()}
+  function render(){
+    const n=M.length,k=cur.cols.length,cnt=cur.cols.map((_,j)=>M.reduce((s,r)=>s+r[j],0));
+    const gap=cnt.map(c=>c<=1);
+    let h='<tr><th>Studi</th>'+cur.cols.map((c,j)=>`<th class="${gap[j]?'gapcol':''}">${c}</th>`).join('')+'</tr>';
+    h+=M.map((r,i)=>`<tr><td>${cur.rows[i][0]}</td>`+r.map((v,j)=>`<td class="cell ${v?'yes':''} ${gap[j]?'gapcell':''}" data-i="${i}" data-j="${j}" role="button" tabindex="0" aria-label="${cur.rows[i][0]}, ${cur.cols[j]}: ${v?'ya':'tidak'}">${v?'✓':''}</td>`).join('')+'</tr>').join('');
+    h+='<tr><th>Jumlah</th>'+cnt.map((c,j)=>`<th class="${gap[j]?'gapcol':''}">${c} / ${n}</th>`).join('')+'</tr>';
+    $('#d2Tbl').innerHTML=h;
+    $$('#d2Tbl td.cell').forEach(td=>{const f=()=>{M[+td.dataset.i][+td.dataset.j]^=1;render()};td.onclick=f;td.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();f()}}});
+    const combos=[];
+    for(let a=0;a<k;a++)for(let b=a+1;b<k;b++){if(cnt[a]>=2&&cnt[b]>=2&&!M.some(r=>r[a]&&r[b]))combos.push([a,b])}
+    let o='';
+    const gl=cur.cols.map((c,j)=>gap[j]?j:-1).filter(j=>j>=0);
+    if(gl.length){o+='<div class="msg wa"><b>Calon gap (kolom yang hampir tidak disentuh):</b><ul style="margin:4px 0 0;padding-left:20px">'+gl.map(j=>`<li><b>${cur.cols[j]}</b>: ${cnt[j]} dari ${n} studi. <i>So what?</i> ${cur.why[j]}</li>`).join('')+'</ul></div>'}
+    if(combos.length){o+='<div class="msg"><b>Gap kombinasi</b> (masing-masing sudah diteliti, tetapi tidak pernah bersamaan):<ul style="margin:4px 0 0;padding-left:20px">'+combos.map(([a,b])=>`<li><b>${cur.cols[a]}</b> + <b>${cur.cols[b]}</b>. Tanyakan: apakah menggabungkan keduanya memunculkan masalah baru yang menarik, atau sekadar penjumlahan?</li>`).join('')+'</ul></div>'}
+    if(!gl.length&&!combos.length)o+='<div class="msg ok">Semua dimensi sudah cukup banyak diteliti. Gap mungkin ada di dimensi yang belum masuk tabel, atau berupa kontradiksi hasil. Tambahkan dimensi baru dari bagian <i>limitations</i> artikel terbaru.</div>';
+    o+='<div class="msg" style="margin-top:8px">Sebelum memilih, jalankan <b>uji empat lapis</b>: nyata (ada bukti literatur), penting (lolos <i>so what?</i>), belum diisi (cek <i>forward snowballing</i> dan preprint), dan bisa kamu isi. Kolom kosong belum tentu penting; mungkin memang tidak ada yang peduli.</div>';
+    $('#d2Out').innerHTML=o;
+  }
+  sel.onchange=load;$('#d2Reset').onclick=load;load();
+})();
+
+/* ---------- Simulasi 3 · Novelty ---------- */
+(function(){
+  const ids=['a','b','c','d','e'],get=k=>$('#d3'+k).value.trim().replace(/[.\s]+$/,'');
+  const cap=s=>s?s[0].toUpperCase()+s.slice(1):s;
+  const EX={
+    ml:['deep CNNs achieve over 95% accuracy on laboratory images of rice leaf diseases','accuracy drops sharply on field images, and existing remedies require costly field labels','propose a self-supervised domain adaptation method that needs no field labels','evaluate it on field images from three countries against five state-of-the-art baselines','show that domain shift, not model capacity, is the main barrier to field deployment'],
+    mn:['service quality is widely assumed to drive customer loyalty','this assumption has rarely been tested in platform markets where switching costs are close to zero, and recent findings are inconsistent','develop a moderated mediation model in which switching costs and digital literacy condition the quality–loyalty link','combine two-wave survey data with actual repurchase records from 1,200 customers of online micro-enterprises','show that service quality acts as a baseline requirement rather than a differentiator, refining loyalty theory for platform markets'],
+    lemah:['penelitian tentang kepuasan pelanggan sudah banyak dilakukan','belum pernah diteliti di Kota Malang','menggabungkan metode SERVQUAL dan regresi linear yang merupakan pendekatan baru','menyebarkan kuesioner kepada 100 pelanggan PT ABC','penelitian ini adalah yang pertama di Indonesia dan sangat inovatif']
+  };
+  let lang='en';
+  const seg=document.createElement('div');seg.className='seg';seg.style.margin='4px 0';
+  seg.innerHTML='<button class="on" data-l="en">Pola Inggris</button><button data-l="id">Pola Indonesia</button>';
+  $('#d3Out').before(seg);
+  seg.querySelectorAll('button').forEach(b=>b.onclick=()=>{lang=b.dataset.l;seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));run()});
+  function run(){
+    const [a,b,c,d,e]=ids.map(get),m=s=>s?`<mark>${esc(s)}</mark>`:'<span class="muted">…</span>';
+    $('#d3Out').innerHTML=lang==='en'
+      ?`${a?`<mark>${esc(cap(a))}</mark>`:'<span class="muted">…</span>'}. However, ${m(b)}. To address this gap, we ${m(c)}. We ${m(d)}. In doing so, we ${m(e)}.`
+      :`${a?`<mark>${esc(cap(a))}</mark>`:'<span class="muted">…</span>'}. Namun, ${m(b)}. Untuk mengisi celah ini, studi ini ${m(c)}. Studi ini ${m(d)}. Dengan demikian, studi ini ${m(e)}.`;
+    const all=[a,b,c,d,e].join(' | ').toLowerCase(),F=[];
+    if(/pertama (kali )?(di|dalam)|first (study )?in\b|belum pernah (diteliti|dilakukan|dikaji)|never been (studied|investigated|examined)|no (previous )?study has/.test(all))F.push(['no','Klaim "pertama" atau "belum pernah": pastikan sudah dicek dengan pencarian sistematis dan <i>forward snowballing</i>, lalu jelaskan <b>mengapa</b> konteks itu berbeda secara teoretis. Tanpa itu, klaim ini adalah population gap yang lemah.']);
+    if(/\b(kota|kabupaten|kecamatan|desa|provinsi|pt|cv|puskesmas|smk|sma|smp|toko|rsud)\b/.test(all))F.push(['wa','Ada nama lokasi atau instansi. Di jurnal Q1, konteks lokal sebaiknya menjadi <b>bukti</b> untuk pertanyaan umum, bukan tujuan akhir.']);
+    if(/menggabungkan|kombinasi|\bcombin(e|es|ing|ation)\b|\bhybrid\b|integrat/.test(all)&&!/(karena|sehingga|because|so that|to overcome|untuk mengatasi|which allows|yang memungkinkan)/.test(all))F.push(['wa','Gabungan metode tanpa alasan: jelaskan masalah apa yang tidak bisa diselesaikan masing-masing metode sendirian.']);
+    if(/\bnovel\b|revolution|groundbreak|for the first time|sangat inovatif|paling baik|terbaik|pendekatan baru|new approach/.test(all))F.push(['wa','Kata superlatif atau "baru/novel": biarkan bukti yang berbicara. Reviewer cenderung menantang klaim seperti ini.']);
+    if(!b)F.push(['no','Kotak gap masih kosong. Tanpa gap, novelty tidak punya alasan.']);
+    else if(/however|but|assum|asumsi|inconsisten|bertentangan|kontradik|fail|gagal|drop|turun|limit|terbatas|unclear|belum jelas|rarely|jarang|overlook|mahal|costly|bias/.test(b.toLowerCase()))F.push(['ok','Gap menyebut keterbatasan, kontradiksi, atau asumsi yang konkret.']);
+    else if(b)F.push(['wa','Gap belum menyebut keterbatasan yang konkret. Apa yang gagal, bertentangan, atau diasumsikan oleh studi terdahulu?']);
+    if(!d)F.push(['wa','Bukti belum disebut. Editor ingin tahu seberapa meyakinkan pembuktianmu (data, pembanding, desain).']);
+    else if(/\d|dataset|negara|countr|baseline|pembanding|eksperimen|experiment|longitudinal|panel|multi|random|trial|wave|gelombang|record/.test(d.toLowerCase()))F.push(['ok','Bukti menyebut skala, pembanding, atau desain yang kuat.']);
+    if(e&&!/show|demonstrat|reveal|explain|refin|challeng|establish|menunjukkan|mengungkap|menjelaskan|memperbaiki|menantang|merevisi|membuktikan/.test(e.toLowerCase()))F.push(['wa','Kontribusi sebaiknya menyatakan apa yang <b>sekarang diketahui atau bisa dilakukan</b> bidang ini (show, explain, refine, challenge…), bukan sekadar menilai diri sendiri.']);
+    if(!a&&!b&&!c&&!d&&!e)F.length=0;
+    $('#d3Flags').innerHTML=F.map(([c,t])=>`<div class="msg ${c}">${c==='ok'?'✅':c==='no'?'⛔':'⚠️'} ${t}</div>`).join('');
+  }
+  ids.forEach(k=>$('#d3'+k).addEventListener('input',run));
+  $('#d3Ex').onchange=e=>{const v=EX[e.target.value];if(v)ids.forEach((k,i)=>$('#d3'+k).value=v[i]);run()};
+  run();
+})();
+
+/* ---------- Simulasi 4 · Tangga judul ---------- */
+(function(){
+  const CASES=[
+   {name:'💻 Informatika',lv:[
+    {t:'Klasifikasi Penyakit Daun Padi Menggunakan Convolutional Neural Network',sub:'Bahasa Indonesia, jurnal nasional',
+     d:{Pertanyaan:'Seberapa akurat CNN mengenali empat penyakit daun padi?',Cakupan:'Satu dataset publik berisi gambar laboratorium',Metode:'Satu arsitektur CNN, satu pembagian data, metrik akurasi',Kontribusi:'Menerapkan metode yang sudah ada'},
+     lev:[],note:'Sudah ada sangat banyak studi serupa. Editor Q1 akan langsung bertanya: apa bedanya dengan yang sudah ada?'},
+    {t:'Perbandingan Arsitektur CNN dan Transfer Learning untuk Klasifikasi Penyakit Daun Padi',sub:'atau versi Inggrisnya: Comparative evaluation of CNN architectures for rice leaf disease classification',
+     d:{Pertanyaan:'Arsitektur mana yang paling baik?',Cakupan:'Dua dataset publik',Metode:'<span class="up">Lima arsitektur, k-fold cross-validation, presisi/recall/F1</span>',Kontribusi:'Panduan memilih arsitektur'},
+     lev:['Rigor'],note:'Lebih sistematis, tetapi masih menjawab "mana yang terbaik" tanpa menjelaskan mengapa. Studi perbandingan seperti ini juga sudah banyak.'},
+    {t:'Lightweight attention-based CNN for on-device rice leaf disease recognition: evaluation on laboratory and field images',sub:'Bahasa Inggris, jurnal bereputasi menengah',
+     d:{Pertanyaan:'<span class="up">Bisakah model ringan tetap akurat di ponsel dan di kondisi lapangan?</span>',Cakupan:'<span class="up">Gambar lab dan gambar lapangan</span>',Metode:'<span class="up">Modifikasi arsitektur, ablation study, latensi di perangkat nyata</span>',Kontribusi:'<span class="up">Model baru dan analisis trade-off akurasi–efisiensi</span>'},
+     lev:['Pertanyaan','Kontribusi','Data'],note:'Mulai ada kontribusi metode dan masalah nyata (ponsel, lapangan). Namun masih spesifik untuk padi dan belum menjelaskan mengapa model jatuh di lapangan.'},
+    {t:'Closing the lab-to-field gap in plant disease recognition: label-free domain adaptation validated across three countries',sub:'Bahasa Inggris, target Q1',
+     d:{Pertanyaan:'<span class="up">Mengapa model jatuh di lapangan, dan bagaimana memperbaikinya tanpa label lapangan?</span>',Cakupan:'<span class="up">Fenomena pergeseran domain pada diagnosis tanaman, dengan padi sebagai kasus utama</span>',Metode:'<span class="up">Adaptasi domain self-supervised, lima pembanding SOTA, data lapangan dari tiga negara, analisis penyebab (latar, cahaya), dataset dirilis</span>',Kontribusi:'<span class="up">Metode, penjelasan mekanisme, dan dataset terbuka yang bisa dipakai komunitas</span>'},
+     lev:['Positioning','Cakupan','Mekanisme','Rigor','Data'],note:'Kini naskah menjawab masalah yang dikenali komunitas global (lab-to-field gap), dengan bukti lintas negara dan artefak yang bisa dipakai ulang.'}]},
+   {name:'📊 Manajemen',lv:[
+    {t:'Pengaruh Kualitas Pelayanan terhadap Kepuasan Pelanggan pada Toko Kue X',sub:'Bahasa Indonesia, jurnal nasional',
+     d:{Pertanyaan:'Apakah kualitas pelayanan berpengaruh terhadap kepuasan?',Cakupan:'Satu toko',Metode:'Kuesioner satu kali, sekitar 100 responden, regresi sederhana',Kontribusi:'Saran untuk toko X'},
+     lev:[],note:'Hubungan ini sudah diuji ribuan kali. Hasilnya hampir pasti positif, sehingga tidak ada yang baru dipelajari.'},
+    {t:'Pengaruh Kualitas Layanan terhadap Loyalitas Pelanggan UMKM Kuliner di Kota Y dengan Kepuasan sebagai Variabel Intervening',sub:'Jurnal nasional terakreditasi atau internasional tingkat awal',
+     d:{Pertanyaan:'Apakah kepuasan memediasi pengaruh kualitas terhadap loyalitas?',Cakupan:'<span class="up">20 UMKM dalam satu kota</span>',Metode:'<span class="up">300 responden, SEM-PLS</span>',Kontribusi:'Konfirmasi model di konteks UMKM'},
+     lev:['Mekanisme','Data'],note:'Ada mekanisme (mediasi), tetapi model ini juga sudah sangat umum. Kontribusinya konfirmasi, bukan pengetahuan baru.'},
+    {t:'Service quality, digital literacy, and loyalty in online micro-enterprises: a moderated mediation model',sub:'Bahasa Inggris, jurnal bereputasi menengah',
+     d:{Pertanyaan:'<span class="up">Kapan kualitas layanan lebih atau kurang berpengaruh?</span>',Cakupan:'<span class="up">UMKM daring di beberapa provinsi</span>',Metode:'<span class="up">Survei dua gelombang untuk mengurangi common method bias, moderated mediation, uji invariansi</span>',Kontribusi:'<span class="up">Kondisi batas: peran literasi digital</span>'},
+     lev:['Pertanyaan','Mekanisme','Rigor'],note:'Mulai menjawab "kapan", dan desainnya lebih kuat. Namun masih berupa penambahan variabel pada model yang sudah ada.'},
+    {t:'When quality is not enough: switching costs and the boundary conditions of service-driven loyalty in platform markets',sub:'Bahasa Inggris, target Q1',
+     d:{Pertanyaan:'<span class="up">Apakah teori loyalitas berbasis kualitas layanan masih berlaku di pasar platform dengan biaya berpindah hampir nol?</span>',Cakupan:'<span class="up">Pasar platform (fenomena global), dengan Indonesia sebagai kasus ekstrem</span>',Metode:'<span class="up">Data pembelian ulang yang sebenarnya digabung survei, atau eksperimen lapangan; replikasi di pasar lain</span>',Kontribusi:'<span class="up">Merevisi teori: kualitas layanan menjadi syarat minimum, bukan pembeda</span>'},
+     lev:['Positioning','Cakupan','Kontribusi','Data'],note:'Ini contoh problematization: menantang asumsi yang dipegang literatur, sehingga hasilnya menarik bagi peneliti pemasaran di seluruh dunia.'}]},
+   {name:'🩺 Kesehatan',lv:[
+    {t:'Gambaran Pengetahuan Ibu tentang Stunting di Wilayah Kerja Puskesmas X',sub:'Bahasa Indonesia, jurnal nasional',
+     d:{Pertanyaan:'Bagaimana tingkat pengetahuan ibu?',Cakupan:'Satu puskesmas',Metode:'Deskriptif, sekitar 60 ibu, persentase',Kontribusi:'Data untuk puskesmas'},
+     lev:[],note:'Berguna bagi puskesmas, tetapi tidak menjawab pertanyaan ilmiah yang bisa digeneralisasi.'},
+    {t:'Faktor-Faktor yang Berhubungan dengan Kejadian Stunting pada Balita di Kabupaten Y',sub:'Jurnal nasional terakreditasi atau internasional tingkat awal',
+     d:{Pertanyaan:'Faktor apa yang berhubungan dengan stunting?',Cakupan:'<span class="up">Satu kabupaten</span>',Metode:'<span class="up">Potong lintang, sekitar 400 balita, regresi logistik</span>',Kontribusi:'Faktor risiko lokal'},
+     lev:['Pertanyaan','Data'],note:'Analitis, tetapi faktor-faktor ini sudah banyak dilaporkan. Desain potong lintang juga tidak bisa menunjukkan sebab-akibat.'},
+    {t:'Household and community determinants of childhood stunting in Indonesia: a multilevel analysis of a nationally representative survey',sub:'Bahasa Inggris, jurnal bereputasi menengah',
+     d:{Pertanyaan:'<span class="up">Seberapa besar peran faktor rumah tangga dibanding faktor komunitas?</span>',Cakupan:'<span class="up">Nasional</span>',Metode:'<span class="up">Data survei nasional, model multilevel</span>',Kontribusi:'<span class="up">Memisahkan dua level faktor; implikasi kebijakan nasional</span>'},
+     lev:['Cakupan','Data','Rigor'],note:'Data dan analisis kuat, relevan untuk kebijakan. Namun masih korelasional.'},
+    {t:'Does sanitation close the stunting gap? Quasi-experimental evidence from a staggered national programme rollout',sub:'Bahasa Inggris, target Q1',
+     d:{Pertanyaan:'<span class="up">Apakah program sanitasi menurunkan stunting, dan lewat jalur apa?</span>',Cakupan:'<span class="up">Menjawab perdebatan global: hasil uji acak intervensi sanitasi di beberapa negara tidak konsisten</span>',Metode:'<span class="up">Difference-in-differences dengan rollout bertahap, data panel nasional, analisis heterogenitas dan jalur (diare, infeksi)</span>',Kontribusi:'<span class="up">Bukti kausal skala nasional untuk evidence gap global</span>'},
+     lev:['Positioning','Rigor','Mekanisme'],note:'Studi ini masuk ke perdebatan ilmiah internasional, dan desainnya mampu menjawab pertanyaan sebab-akibat.'}]},
+   {name:'🎓 Pendidikan',lv:[
+    {t:'Pengembangan Media Pembelajaran Berbasis Android pada Materi Sistem Pernapasan Kelas XI di SMA Z',sub:'Bahasa Indonesia, jurnal nasional',
+     d:{Pertanyaan:'Apakah media ini layak dan praktis?',Cakupan:'Satu kelas di satu sekolah',Metode:'R&amp;D, validasi ahli, angket kepraktisan',Kontribusi:'Produk media untuk sekolah Z'},
+     lev:[],note:'Produk bermanfaat, tetapi "layak menurut ahli" bukan bukti bahwa siswa belajar lebih baik.'},
+    {t:'Efektivitas Media Pembelajaran Berbasis Android terhadap Hasil Belajar Biologi Siswa SMA: Studi Kuasi-Eksperimen',sub:'Jurnal nasional terakreditasi atau internasional tingkat awal',
+     d:{Pertanyaan:'<span class="up">Apakah media meningkatkan hasil belajar?</span>',Cakupan:'<span class="up">Dua sekolah</span>',Metode:'<span class="up">Kelas kontrol, pretes–postes, ANCOVA</span>',Kontribusi:'Bukti efektivitas lokal'},
+     lev:['Pertanyaan','Rigor'],note:'Ada pembanding. Namun hasil "efektif" untuk media digital sudah sangat sering dilaporkan, dan bisa jadi hanya efek kebaruan.'},
+    {t:'Effects of gamified mobile learning on biology achievement: the mediating role of self-regulated learning',sub:'Bahasa Inggris, jurnal bereputasi menengah',
+     d:{Pertanyaan:'<span class="up">Lewat jalur apa gamifikasi memengaruhi prestasi?</span>',Cakupan:'<span class="up">Beberapa sekolah</span>',Metode:'<span class="up">Kuasi-eksperimen multi-sekolah, analisis mediasi, ukuran efek</span>',Kontribusi:'<span class="up">Mekanisme: regulasi diri</span>'},
+     lev:['Mekanisme','Kontribusi'],note:'Mulai menjelaskan mekanisme. Masih ada pertanyaan besar: apakah efeknya bertahan?'},
+    {t:'Does the gamification effect fade? A longitudinal cluster-randomised trial of novelty effects and self-regulation in mobile learning',sub:'Bahasa Inggris, target Q1',
+     d:{Pertanyaan:'<span class="up">Apakah efek gamifikasi hanya efek kebaruan yang memudar?</span>',Cakupan:'<span class="up">Pertanyaan teori pembelajaran yang diperdebatkan secara global</span>',Metode:'<span class="up">Uji acak kluster di banyak sekolah, satu semester atau lebih, data log aplikasi, pra-registrasi</span>',Kontribusi:'<span class="up">Memisahkan efek kebaruan dari efek pedagogis; memperbaiki teori</span>'},
+     lev:['Positioning','Rigor','Data','Mekanisme'],note:'Menantang asumsi bahwa gamifikasi "efektif", dengan desain yang mampu menjawabnya. Inilah lompatan dari aplikasi ke kontribusi teori.'}]}
+  ];
+  let c=0,l=0;const LV=['Q4','Q3','Q2','Q1'],LC=['l4','l3','l2','l1'],QS=['q4','q3','q2','q1'];
+  $('#d4Case').innerHTML=CASES.map((x,i)=>`<button data-i="${i}">${x.name}</button>`).join('');
+  $('#d4Lv').innerHTML=LV.map((x,i)=>`<button class="${LC[i]}" data-i="${i}">${i===0?'Anak tangga 1':'Anak tangga '+(i+1)} · ${x}</button>`).join('');
+  function render(){
+    $$('#d4Case button').forEach(b=>b.classList.toggle('on',+b.dataset.i===c));
+    $$('#d4Lv button').forEach(b=>b.classList.toggle('on',+b.dataset.i===l));
+    const v=CASES[c].lv[l];
+    $('#d4Body').innerHTML=`<div class="ttl"><span class="qb ${QS[l]}">${LV[l]}</span> ${esc(v.t)}<small>${v.sub}</small></div>
+      <dl class="diff">${Object.entries(v.d).map(([k,x])=>`<dt>${k}</dt><dd>${x}</dd>`).join('')}</dl>
+      ${v.lev.length?`<div class="chips">${v.lev.map(x=>`<span class="chip on" style="cursor:default">tuas: ${x}</span>`).join('')}</div>`:''}
+      <div class="msg ${l===3?'ok':l===0?'no':'wa'}">${v.note}</div>`;
+    $('#d4Prev').disabled=l===0;$('#d4Next').disabled=l===3;
+  }
+  $$('#d4Case button').forEach(b=>b.onclick=()=>{c=+b.dataset.i;l=0;render()});
+  $$('#d4Lv button').forEach(b=>b.onclick=()=>{l=+b.dataset.i;render()});
+  $('#d4Prev').onclick=()=>{if(l>0){l--;render()}};$('#d4Next').onclick=()=>{if(l<3){l++;render()}};
+  render();
+})();
+
+/* ---------- Simulasi 5 · Pengukur level ---------- */
+(function(){
+  const D=[
+   ['Pertanyaan','Pertanyaan riset',['Mendeskripsikan kondisi atau menerapkan metode','Membandingkan atau mencari hubungan','Menjelaskan mengapa/bagaimana, termasuk kondisi batas','Menantang asumsi atau menjawab perdebatan penting di bidang'],'Ubah pertanyaan "apa/apakah" menjadi "mengapa/kapan". Lihat tuas 1 di bagian 8.'],
+   ['Cakupan','Cakupan dan generalisasi',['Satu instansi atau lokasi sebagai tujuan akhir','Beberapa lokasi dalam satu wilayah','Lintas wilayah atau nasional','Fenomena umum; konteks dipilih dengan alasan teoretis'],'Lakukan "zoom out, lalu zoom in": jadikan kasusmu bukti untuk fenomena umum.'],
+   ['SOTA','Posisi terhadap state of the art',['Ringkasan per artikel, banyak referensi lama','Cukup lengkap tetapi deskriptif','Sintesis kritis dengan referensi mutakhir bereputasi','Sintesis yang memetakan perdebatan dan asumsi, termasuk preprint terbaru'],'Susun ulang tinjauan pustaka per tema dengan matriks SOTA (bagian 4).'],
+   ['Kontribusi','Jenis kontribusi',['Praktis untuk instansi tertentu','Konfirmasi teori atau metode di konteks baru','Perluasan teori atau perbaikan metode','Teori, metode, atau kerangka baru; koreksi atas pemahaman yang ada'],'Rumuskan apa yang orang lain bisa pakai di tempat lain (bagian 6).'],
+   ['Data','Data',['Kecil, satu sumber, satu waktu','Cukup besar, satu sumber','Multi-sumber, atau data publik/benchmark','Skala besar, longitudinal, eksperimen, atau multi-negara; data dibagikan'],'Tambah sumber data, gelombang waktu, data publik, atau data perilaku yang melengkapi survei.'],
+   ['Rigor','Rigor dan validasi',['Satu analisis tanpa pembanding','Ada pembanding atau uji asumsi dasar','Pembanding mutakhir dan uji ketahanan','Identifikasi kausal, validasi eksternal, atau ablation lengkap; pra-registrasi bila relevan'],'Tanyakan penjelasan alternatif apa yang bisa membantah hasilmu, lalu singkirkan satu per satu (bagian 15).'],
+   ['Mekanisme','Mekanisme',['Tidak dibahas','Dibahas spekulatif di pembahasan','Diuji (mediasi, moderasi, ablation)','Diuji dan dijelaskan dengan teori, termasuk kapan tidak berlaku'],'Uji jalur dan kondisi batas, bukan hanya hubungan langsung.'],
+   ['Relevansi','Relevansi bagi pembaca',['Hanya bagi instansi atau lokasi itu','Bagi pembaca nasional','Bagi peneliti di konteks serupa','Bagi komunitas bidang secara internasional'],'Sebutkan percakapan ilmiah global mana yang akan berubah karena studimu.']
+  ];
+  const A=new Array(D.length).fill(0);
+  $('#d5Qs').innerHTML=D.map((d,i)=>`<div class="meter-q"><b>${i+1}. ${d[1]}</b><div class="opts">${d[2].map((o,j)=>`<button data-i="${i}" data-j="${j+1}"><span class="qb ${['q4','q3','q2','q1'][j]}">${['Q4','Q3','Q2','Q1'][j]}</span> ${o}</button>`).join('')}</div></div>`).join('');
+  $$('#d5Qs button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;A[i]=+b.dataset.j;
+    b.parentNode.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));render()});
+  function radar(){
+    const cx=190,cy=165,R=118,n=D.length,pt=(i,r)=>{const a=-Math.PI/2+i*2*Math.PI/n;return[cx+r*Math.cos(a),cy+r*Math.sin(a)]};
+    let s='';
+    for(let k=1;k<=4;k++){s+=`<polygon points="${D.map((_,i)=>pt(i,R*k/4).join(',')).join(' ')}" fill="none" stroke="var(--border)" stroke-width="${k===4?1.5:1}"/>`}
+    D.forEach((d,i)=>{const [x,y]=pt(i,R),[lx,ly]=pt(i,R+22);s+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="var(--border)"/><text x="${lx}" y="${ly+4}" text-anchor="${Math.abs(lx-cx)<8?'middle':lx>cx?'start':'end'}" font-size="11.5" fill="var(--muted)">${d[0]}</text>`});
+    s+=`<polygon points="${A.map((v,i)=>pt(i,R*v/4).join(',')).join(' ')}" fill="color-mix(in srgb,var(--accent) 25%,transparent)" stroke="var(--accent)" stroke-width="2"/>`;
+    A.forEach((v,i)=>{if(v){const [x,y]=pt(i,R*v/4);s+=`<circle cx="${x}" cy="${y}" r="4" fill="var(${QC[4-v]})"/>`}});
+    [1,2,3,4].forEach(k=>{s+=`<text x="${cx+3}" y="${cy-R*k/4+11}" font-size="9.5" fill="var(--muted)">${['Q4','Q3','Q2','Q1'][k-1]}</text>`});
+    $('#d5Radar').innerHTML=s;
+  }
+  function render(){
+    radar();const done=A.filter(Boolean).length;
+    if(done<D.length){$('#d5Res').innerHTML=`<div class="msg">Terjawab ${done} dari ${D.length} dimensi. Jawab semuanya untuk melihat hasil.</div>`;return}
+    const avg=A.reduce((s,v)=>s+v,0)/A.length,mn=Math.min(...A),eff=Math.min(avg,mn+1);
+    const lvl=eff>=3.5?1:eff>=2.75?2:eff>=2?3:4;
+    const weak=A.map((v,i)=>[v,i]).filter(([v])=>v===mn).map(([,i])=>i);
+    const col=['--good','--accent','--warn','--bad'][lvl-1];
+    $('#d5Res').innerHTML=`<div class="kpi"><div>Rata-rata<b>${avg.toFixed(2).replace('.',',')} / 4</b></div><div>Terendah<b>${mn} / 4</b></div></div>
+      <p class="res-big" style="color:var(${col})">Kelas ${lvl===1?'Q1':lvl===2?'Q2':lvl===3?'Q3':'Q4 / jurnal nasional'}</p>
+      <p style="text-align:left">${lvl===1?'Riset ini punya profil yang sesuai untuk jurnal Q1. Pastikan penulisannya mampu menyampaikan kekuatan itu dengan jelas.':lvl===2?'Riset ini mendekati Q1. Perbaiki tuas terlemah sebelum mencoba jurnal Q1, atau targetkan Q2 yang baik.':lvl===3?'Fondasinya ada, tetapi beberapa tuas masih rendah. Targetkan Q3 atau rancang perluasan riset.':'Riset ini paling cocok untuk jurnal nasional atau Q4. Gunakan sebagai langkah awal, dan rancang riset berikutnya dengan tuas yang lebih tinggi.'}</p>
+      ${mn+1<avg?`<div class="msg wa">Rata-ratamu ${avg.toFixed(2).replace('.',',')}, tetapi satu dimensi hanya bernilai ${mn}. Reviewer menilai naskah dari <b>kelemahan terbesarnya</b>, jadi hasil dibatasi oleh dimensi terendah + 1.</div>`:''}
+      <div class="msg"><b>Tarik dulu tuas ini:</b><ul style="margin:4px 0 0;padding-left:20px">${weak.map(i=>`<li><b>${D[i][1]}</b>: ${D[i][3]}</li>`).join('')}</ul></div>`;
+  }
+  $('#d5Reset').onclick=()=>{A.fill(0);$$('#d5Qs button').forEach(b=>b.classList.remove('on'));render()};
+  render();
+})();
+
+/* ---------- Simulasi 6 · Penganalisis judul ---------- */
+(function(){
+  const EX=['Analisis Pengaruh Kualitas Pelayanan terhadap Kepuasan Pelanggan pada PT ABC Kota Malang','Rancang Bangun Sistem Informasi Akademik Berbasis Web Menggunakan Metode Waterfall di SMK Y','A novel hybrid CNN-LSTM approach for rice disease classification','When quality is not enough: switching costs and the boundary conditions of service-driven loyalty in platform markets','Does sanitation close the stunting gap? Quasi-experimental evidence from a staggered national programme rollout'];
+  $('#d6Ex').innerHTML=EX.map((e,i)=>`<button class="chip" data-i="${i}">Contoh ${i+1}</button>`).join('');
+  $$('#d6Ex .chip').forEach(b=>b.onclick=()=>{$('#d6In').value=EX[+b.dataset.i];run()});
+  const OKABBR=/^(CNN|LSTM|RNN|GAN|DNA|RNA|AI|IOT|COVID-19|COVID|SARS-COV-2|HIV|ESG|SME|SMES|MSME|MSMES|UMKM|GDP|PISA|LLM|LLMS|MRI|CT|PCR|ICT|STEM|NLP|SDGS|SDG|IT|ML|TB|ECG|EEG|BERT|GPT|RCT|EU|US|USA|UK|ASEAN)$/;
+  function run(){
+    const t=$('#d6In').value.trim(),lo=' '+t.toLowerCase()+' ',n=words(t),tags=[],tips=[];
+    if(!t){$('#d6Tags').innerHTML='';$('#d6Out').innerHTML='';return}
+    if(n<6){tags.push(['wa',`${n} kata · pendek`]);tips.push('Judul sangat pendek bisa terlalu umum. Pastikan fenomena dan unsur kebaruan tersebut.')}
+    else if(n<=20)tags.push(['ok',`${n} kata · wajar`]);
+    else if(n<=25){tags.push(['wa',`${n} kata · panjang`]);tips.push('Judul cukup panjang. Cek batas jurnal dan buang kata yang tidak menambah informasi.')}
+    else{tags.push(['no',`${n} kata · terlalu panjang`]);tips.push('Judul terlalu panjang. Pindahkan rincian ke abstrak.')}
+    const WEAK=[[/\b(analisis|analisa)\b/,'analisis','Kata "analisis" hampir selalu bisa dibuang; semua riset menganalisis.'],[/\ban? (analysis|study|investigation) (of|on|into)\b/,'a study of','Frasa pengisi seperti "A study of" atau "An analysis of" bisa dihapus.'],[/\b(studi kasus|case study)\b/,'studi kasus','"Studi kasus" di judul sering menandakan cakupan sempit. Bila memang desainmu studi kasus, jelaskan kasus itu mewakili apa.'],[/\b(gambaran|tinjauan)\b/,'gambaran','"Gambaran" menandakan riset deskriptif. Pertimbangkan pertanyaan "mengapa".'],[/\b(rancang bangun|perancangan|pengembangan sistem|sistem informasi)\b/,'rancang bangun','Judul "rancang bangun sistem" jarang punya kontribusi ilmiah. Tanyakan: pengetahuan baru apa yang dihasilkan, selain sistemnya?'],[/\bberbasis (web|android)\b|\bweb-based\b/,'berbasis web','"Berbasis web/android" adalah detail teknologi, bukan kontribusi.'],[/\bmetode waterfall\b|\bwaterfall\b/,'waterfall','Metode pengembangan perangkat lunak bukan kebaruan riset.'],[/\b(pengaruh)\b/,'pengaruh','"Pengaruh X terhadap Y" sah, tetapi biasanya hanya bertanya "apakah". Pertimbangkan menyebut mekanisme atau kondisi.'],[/\b(implementasi|penerapan)\b/,'implementasi','"Penerapan" menandakan kontribusi aplikatif. Apa yang dipelajari dari penerapan itu?']];
+    WEAK.forEach(([re,k,m])=>{if(re.test(lo)){tags.push(['wa',k]);tips.push(m)}});
+    if(/\b(pt|cv|tbk|puskesmas|sd|smp|sma|smk|man|mts|rs|rsud|toko|kota|kabupaten|kecamatan|desa|kelurahan)\b/.test(lo)){tags.push(['no','nama instansi/lokasi']);tips.push('Nama instansi atau lokasi di judul membuat riset tampak lokal. Bila konteks penting, gunakan bentuk seperti "evidence from Indonesia" di subjudul, disertai alasan teoretis di pendahuluan.')}
+    if(/\b(novel|new|baru|inovatif|innovative|revolutionary|first)\b/.test(lo)){tags.push(['wa','klaim "baru"']);tips.push('Kata "novel/new/baru" di judul jarang membantu. Biarkan isi yang membuktikan kebaruan.')}
+    if(/\bhybrid\b|\bhibrida?\b|\b\w+-\w+ (approach|model)\b/.test(lo)){tags.push(['wa','gabungan metode']);tips.push('Judul yang menonjolkan gabungan metode perlu didukung alasan: masalah apa yang terpecahkan oleh gabungan itu?')}
+    const ab=(t.match(/\b[A-Z][A-Z0-9-]{1,12}\b/g)||[]).flatMap(x=>/^COVID-19$/i.test(x)?[x]:x.split('-')).filter(x=>x.length>1&&/^[A-Z]/.test(x)&&x===x.toUpperCase()).filter(x=>!OKABBR.test(x.toUpperCase())&&!/^[IVX]+$/.test(x)&&!/^(PT|CV|SD|SMP|SMA|SMK|MAN|RS)$/.test(x));
+    if(ab.length){tags.push(['wa','singkatan: '+[...new Set(ab)].join(', ')]);tips.push('Singkatan yang tidak umum menyulitkan pencarian dan pembaca dari luar bidang. Tulis kepanjangannya.')}
+    let good=0;
+    if(/\b(mengapa|bagaimana|kapan|why|how|when|whether|does|do|can|is)\b.*\?|\b(mediat\w*|moderat\w*|mechanism\w*|mekanisme|peran|role of|boundary|batas|conditions?|pathway\w*|jalur)\b/.test(lo)){tags.push(['ok','mekanisme / pertanyaan mengapa']);good++}
+    if(/\b(randomi[sz]ed|longitudinal|panel|quasi-experimental|kuasi|multi-\w+|cross-country|lintas|nationally|national|nasional|meta-analysis|systematic review|trial|experiment\w*|eksperimen|across|validated)\b/.test(lo)){tags.push(['ok','desain/bukti kuat']);good++}
+    if(/:/.test(t)){tags.push(['ok','judul: subjudul']);good++}
+    if(/\?/.test(t))tags.push(['ok','judul pertanyaan']);
+    $('#d6Tags').innerHTML=tags.map(([c,x])=>`<span class="${c}">${c==='ok'?'✓':c==='no'?'✗':'!'} ${esc(x)}</span>`).join('');
+    const bad=tags.filter(x=>x[0]!=='ok').length;
+    $('#d6Out').innerHTML=(tips.length?`<div class="msg wa"><ul style="margin:0;padding-left:20px">${tips.map(x=>`<li>${x}</li>`).join('')}</ul></div>`:'')+
+      `<div class="msg ${bad===0&&good>=1?'ok':bad>=3?'no':''}">${bad===0&&good>=1?'Judul ini tampak kuat secara bentuk. Pastikan isinya menepati janji judul.':bad>=3?'Judul ini memiliki beberapa ciri judul kelas bawah. Ingat: perbaiki risetnya dulu, lalu judul mengikuti (bagian 8).':'Ada beberapa hal yang bisa diperbaiki. Analisis ini hanya melihat bentuk; kekuatan sebenarnya ada pada isi riset.'}</div>`;
+  }
+  $('#d6In').addEventListener('input',run);run();
+})();
+
+/* ---------- Simulasi 7 · Abstrak ---------- */
+(function(){
+  const P=[['ctx','1 · Konteks & gap',.2],['aim','2 · Tujuan',.1],['met','3 · Metode',.2],['res','4 · Hasil',.3],['con','5 · Kontribusi & implikasi',.2]];
+  const EX=['Service quality is widely assumed to drive customer loyalty, yet this assumption has rarely been tested in platform markets where switching costs are close to zero.','This study examines whether and when service quality builds loyalty among customers of online micro-enterprises.','We combined two-wave survey data from 1,214 customers with their actual repurchase records over six months and estimated a moderated mediation model.','Service quality increased satisfaction (β = 0.41, p < 0.001) but predicted repurchase only when perceived switching costs were high; at low switching costs, the effect was not significant (β = 0.04, 95% CI [−0.05, 0.13]). Digital literacy strengthened the satisfaction–repurchase link.','These findings challenge the service-quality-centred view of loyalty and suggest that, in platform markets, quality acts as a baseline requirement rather than a differentiator. Managers should invest in features that raise switching costs.'];
+  $('#d7Form').innerHTML=P.map(([k,l])=>`<label><b>${l}</b><textarea id="d7${k}" rows="2"></textarea><div class="wc" id="d7w${k}"></div></label>`).join('');
+  function run(){
+    const lim=Math.max(50,+$('#d7Lim').value||250),T=P.map(([k])=>$('#d7'+k).value.trim()),W=T.map(words),tot=W.reduce((a,b)=>a+b,0);
+    P.forEach(([k,,sh],i)=>{const tg=Math.round(lim*sh),e=$('#d7w'+k);e.textContent=`${W[i]} kata · saran ±${tg}`;e.classList.toggle('over',W[i]>tg*1.5)});
+    $('#d7Out').innerHTML=tot?T.filter(Boolean).map(esc).join(' ')+`<div class="wc ${tot>lim?'over':''}" style="margin-top:6px">Total ${tot} / ${lim} kata</div>`:'<span class="muted">Abstrak gabungan akan muncul di sini.</span>';
+    if(!tot){$('#d7Chk').innerHTML='';return}
+    const C=[];
+    C.push(tot>lim?['no',`Melebihi batas ${tot-lim} kata.`]:['ok','Panjang sesuai batas.']);
+    if(T[3])C.push(/\d/.test(T[3])?['ok','Hasil memuat angka.']:['wa','Hasil belum memuat angka atau ukuran efek. "Berpengaruh signifikan" saja terlalu samar.']);
+    else C.push(['no','Bagian hasil kosong.']);
+    if(T[4])C.push(/contribut|implica|suggest|challeng|extend|refin|advanc|inform|kontribusi|implikasi|menantang|memperluas|menyarankan|berarti/i.test(T[4])?['ok','Ada kalimat kontribusi atau implikasi.']:['wa','Bagian terakhir belum menyatakan kontribusi atau implikasi secara eksplisit.']);
+    else C.push(['no','Bagian kontribusi kosong: editor tidak tahu apa yang baru.']);
+    if(tot&&W[0]/tot>.35)C.push(['wa','Konteks memakan lebih dari 35% abstrak. Ringkas, dan beri ruang lebih untuk hasil.']);
+    if(T[0]&&!/however|yet|but|remain|little is known|unclear|rarely|namun|tetapi|belum/i.test(T[0]))C.push(['wa','Bagian konteks belum memuat penanda gap (however, yet, remains unclear…).']);
+    if(/\[\d|\(\w+,? (19|20)\d\d\)|et al\./.test(T.join(' ')))C.push(['wa','Abstrak memuat sitasi. Kebanyakan jurnal tidak mengizinkannya.']);
+    $('#d7Chk').innerHTML=C.map(([c,t])=>`<div class="msg ${c}">${c==='ok'?'✅':c==='no'?'⛔':'⚠️'} ${t}</div>`).join('');
+  }
+  P.forEach(([k])=>$('#d7'+k).addEventListener('input',run));$('#d7Lim').addEventListener('input',run);
+  $('#d7Ex').onclick=()=>{P.forEach(([k],i)=>$('#d7'+k).value=EX[i]);run()};
+  $('#d7Clr').onclick=()=>{P.forEach(([k])=>$('#d7'+k).value='');run()};
+  run();
+})();
+
+/* ---------- Simulasi 8 · CARS ---------- */
+(function(){
+  const S=[
+   ['Rice is the staple food for more than half of the world’s population, and leaf diseases cause substantial yield losses every year.',1,'Menegaskan pentingnya topik: Move 1.'],
+   ['Deep learning models have achieved accuracies above 95% on benchmark datasets of rice leaf images [3–7].',1,'Merangkum apa yang sudah diketahui (SOTA): Move 1.'],
+   ['However, these benchmarks consist almost entirely of images taken under controlled laboratory conditions.',2,'"However" + keterbatasan literatur: Move 2.'],
+   ['Previous work has extensively examined lightweight architectures for deployment on mobile devices [8–11].',1,'Masih merangkum literatur: Move 1.'],
+   ['Consequently, it remains unclear how well such models perform when farmers photograph leaves in the field.',2,'Menyatakan apa yang belum diketahui (gap): Move 2.'],
+   ['Moreover, recent studies report contradictory results on whether transfer learning helps with small agricultural datasets [12, 13].',2,'Menunjukkan kontradiksi (evidence gap): Move 2.'],
+   ['This study proposes a label-free domain adaptation method that maintains accuracy on field images.',3,'Menyatakan apa yang dilakukan studi ini: Move 3.'],
+   ['Our contributions are threefold: (1) we quantify the lab-to-field accuracy drop across three countries; (2) we propose…; (3) we release…',3,'Daftar kontribusi: Move 3.'],
+   ['The remainder of this paper is organised as follows.',3,'Struktur naskah: bagian akhir Move 3.']
+  ];
+  const ans={};
+  $('#d8List').innerHTML=S.map((s,i)=>`<div class="sent" data-i="${i}"><p>${s[0]}</p><div class="seg">${[1,2,3].map(m=>`<button data-m="${m}">Move ${m}</button>`).join('')}</div><div class="r"></div></div>`).join('');
+  $$('#d8List .sent').forEach(el=>{const i=+el.dataset.i;el.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    const m=+b.dataset.m,ok=m===S[i][1];if(!(i in ans))ans[i]=ok;
+    el.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+    el.className='sent '+(ok?'ok':'no');el.querySelector('.r').innerHTML=(ok?'✅ Benar. ':'❌ Belum tepat, jawabannya Move '+S[i][1]+'. ')+S[i][2];
+    const n=Object.keys(ans).length,c=Object.values(ans).filter(Boolean).length;
+    setMsg($('#d8Msg'),n<S.length?'':c>=S.length-1?'ok':'wa',n<S.length?`Terjawab ${n} dari ${S.length} · benar ${c}`:`Skor: ${c} dari ${S.length}. Perhatikan pola: Move 1 merangkum, Move 2 dibuka "however / remains unclear / contradictory", Move 3 dibuka "this study / we".`)})});
+})();
+
+/* ---------- Simulasi 9 · Kalibrator klaim ---------- */
+(function(){
+  const K=[
+   ['Korelasi (potong lintang)','is associated with · is related to · was correlated with','Digital literacy was positively associated with repurchase intention (r = 0.38).','Digital literacy increases repurchase intention.','Data satu waktu tidak bisa menunjukkan arah sebab-akibat. Hindari "increase, cause, lead to, effect of" kecuali ada strategi identifikasi.'],
+   ['Asosiasi + kontrol','predicts · is independently associated with · after controlling for','After controlling for age, income, and platform experience, digital literacy remained a significant predictor of repurchase (β = 0.21).','Digital literacy is the main driver of repurchase.','Kontrol variabel memperkuat bukti, tetapi tetap tidak menyingkirkan semua faktor pengganggu. "Main driver" berlebihan.'],
+   ['Eksperimen / kausal','increased · reduced · caused · had an effect on','Random assignment to the gamified condition increased test scores by 0.32 SD (95% CI [0.18, 0.46]).','Gamification improves learning for all students.','Eksperimen mendukung klaim kausal, tetapi hanya untuk populasi, durasi, dan kondisi yang diuji. Hati-hati dengan "all" dan "always".'],
+   ['Bukti konsisten (meta-analisis)','consistently · robustly · there is strong evidence that','Across 42 trials, there is consistent evidence that X reduces Y, although effect sizes vary by setting.','X definitively solves Y.','Bahkan bukti yang kuat jarang "definitif". Sebutkan heterogenitas.'],
+   ['Kualitatif eksploratif','suggests · indicates · participants described · may','Teachers’ accounts suggest that unstable connectivity may discourage system adoption.','Unstable connectivity causes teachers to reject the system.','Riset kualitatif kuat untuk memahami makna dan proses, bukan untuk mengukur besaran atau generalisasi statistik.']
+  ];
+  $('#d9Seg').innerHTML=K.map((k,i)=>`<button data-i="${i}">${k[0]}</button>`).join('');
+  function show(i){$$('#d9Seg button').forEach(b=>b.classList.toggle('on',+b.dataset.i===i));const k=K[i];
+    $('#d9Out').innerHTML=`<div class="ex good" style="margin-top:10px"><b>Kata kerja yang sesuai</b><p><i class="en">${k[1]}</i></p><p><i class="en">${k[2]}</i></p></div><div class="ex bad"><b>Klaim berlebihan untuk bukti ini</b><p><i class="en">${k[3]}</i></p><p>${k[4]}</p></div>`}
+  $$('#d9Seg button').forEach(b=>b.onclick=()=>show(+b.dataset.i));show(0);
+})();
+
+/* ---------- Simulasi 10 · Kewajaran jurnal ---------- */
+(function(){
+  const L=[['Diundang lewat email massal yang memuji berlebihan',2],['Menjanjikan terbit sangat cepat (misalnya kurang dari dua minggu) atau menjamin diterima',3],['Alamat situs berbeda dari tautan di profil Scopus, SCImago, atau penerbit',5,1],['Tidak ditemukan di Scopus Sources / WoS Master Journal List, atau berstatus discontinued',5,1],['Biaya (APC) tidak jelas atau baru diberitahukan setelah naskah diterima',2],['Mencantumkan metrik yang tidak dikenal, misalnya "Global Impact Factor"',2],['Scope sangat luas tanpa fokus (teknik, kedokteran, dan sastra sekaligus)',2],['Dewan editor tidak bisa diverifikasi atau tidak tercantum afiliasinya',2],['Pembayaran diminta ke rekening pribadi',4,1],['Artikel yang terbit kualitasnya buruk atau topiknya acak',2]];
+  const max=L.reduce((s,x)=>s+x[1],0);
+  $('#d11List').innerHTML=L.map((x,i)=>`<label><input type="checkbox" data-i="${i}"> <span>${x[0]}${x[2]?' <small>(tanda kuat)</small>':''}</span></label>`).join('');
+  function run(){let s=0,strong=0;$$('#d11List input').forEach(c=>{if(c.checked){const x=L[+c.dataset.i];s+=x[1];if(x[2])strong++}});
+    $('#d11Mk').style.left=Math.min(100,s/max*100*2)+'%';
+    setMsg($('#d11Msg'),s===0?'ok':strong||s>=5?'no':'wa',s===0?'Tidak ada tanda bahaya yang dicentang. Tetap verifikasi lewat Scopus Sources dan tautan resmi sebelum submit.':strong||s>=5?'<b>Sangat berisiko.</b> Jangan submit. Jurnal ini menunjukkan tanda jurnal predator atau hijacked. Verifikasi dengan pustakawan dan Retraction Watch Hijacked Journal Checker.':'<b>Waspada.</b> Beberapa tanda bisa terjadi pada jurnal sah, tetapi lakukan verifikasi menyeluruh sebelum mengirim.')}
+  $$('#d11List input').forEach(c=>c.onchange=run);run();
+})();
+
+/* ---------- Simulasi 11 · Desk rejection ---------- */
+(function(){
+  const L=[['Topik sesuai <i>aims and scope</i>, dan ada artikel serupa yang terbit di jurnal ini dalam dua tahun terakhir',20],['Kontribusi dan novelty dinyatakan eksplisit di abstrak dan pendahuluan',18],['Desain dan metode sesuai untuk klaim; tidak ada kelemahan fatal',15],['Relevan bagi pembaca internasional, bukan hanya konteks lokal',12],['Literatur mutakhir dan bereputasi, termasuk rujukan relevan dari jurnal target',8],['Bahasa Inggris jelas dan sudah di-<i>proofread</i>',8],['Format sesuai <i>guide for authors</i> (batas kata, struktur, gaya sitasi)',7],['Pernyataan etik, data, konflik kepentingan, dan penggunaan AI lengkap',5],['Gambar dan tabel berkualitas dan terbaca',4],['Cover letter menjelaskan mengapa naskah cocok untuk jurnal ini',3]];
+  $('#d10List').innerHTML=L.map((x,i)=>`<label><input type="checkbox" data-i="${i}"> <span>${x[0]} <small>(bobot ${x[1]})</small></span></label>`).join('');
+  function run(){let s=0;$$('#d10List input').forEach(c=>{if(c.checked)s+=L[+c.dataset.i][1]});const r=100-s;
+    $('#d10Mk').style.left=r+'%';
+    const miss=[...$$('#d10List input')].filter(c=>!c.checked).map(c=>+c.dataset.i).sort((a,b)=>L[b][1]-L[a][1]).slice(0,2);
+    setMsg($('#d10Msg'),r<=10?'ok':r<=35?'wa':'no',`Skor risiko: <b>${r}</b> / 100. ${r<=10?'Naskah siap dikirim dari sisi kelengkapan.':r<=35?'Risiko sedang.':'Risiko tinggi: perbaiki sebelum submit.'}${miss.length?' Prioritas perbaikan: '+miss.map(i=>'<b>'+L[i][0].replace(/<[^>]+>/g,'')+'</b>').join('; ')+'.':''}<br><small>Bobot adalah heuristik modul ini, disusun dari alasan desk rejection yang umum disebut editor.</small>`)}
+  $$('#d10List input').forEach(c=>c.onchange=run);run();
+})();
+
+/* ---------- Simulasi 12 · Perencana mundur ---------- */
+(function(){
+  const F=[['SOTA & gap',6],['Desain',4],['Data',10],['Analisis',6],['Menulis',8],['Review internal',4],['Format & submit',1]];
+  const inp=$('#d12Date'),today=new Date();today.setHours(0,0,0,0);
+  const fmt=d=>d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
+  const def=new Date(today);def.setDate(def.getDate()+300);inp.value=def.toISOString().slice(0,10);
+  function run(){
+    const tgt=new Date(inp.value+'T00:00:00');if(isNaN(tgt)){return}
+    const ready=$('#d12Data').value==='1',W=F.map(([n,w],i)=>[n,ready&&i===2?0:ready&&i===1?2:ready&&i===0?4:w]);
+    let end=new Date(tgt);const rows=[];
+    for(let i=W.length-1;i>=0;i--){const [n,w]=W[i];if(!w)continue;const st=new Date(end);st.setDate(st.getDate()-w*7);rows.unshift([n,w,st,new Date(end)]);end=st}
+    const total=W.reduce((s,x)=>s+x[1],0),late=Math.ceil((today-end)/864e5/7);
+    $('#d12Tl').innerHTML=rows.map(([n,w,s,e])=>`<li class="${e<today?'past':''}"><b>${fmt(s)}</b> ${n} · ${w} minggu</li>`).join('')+`<li><b>${fmt(tgt)}</b> 📮 Submit</li><li><b>+2–6 bulan</b> Keputusan pertama (bervariasi antarjurnal)</li><li><b>+1–2 bulan</b> Revisi dan review ulang</li>`;
+    setMsg($('#d12Msg'),late>0?'no':'ok',late>0?`Total ${total} minggu. Bila mulai hari ini, kamu sudah <b>terlambat sekitar ${late} minggu</b>. Pilihan: mundurkan target, gunakan data yang sudah ada, persempit pertanyaan tanpa menurunkan kualitas, atau siapkan jurnal "aman".`:`Total ${total} minggu. Mulai paling lambat <b>${fmt(end)}</b>. Fase merah berarti tanggal mulainya sudah lewat.`);
+  }
+  inp.addEventListener('change',run);$('#d12Data').onchange=run;run();
+})();
+
+/* ---------- Kuis ---------- */
+const QZ=[
+ {q:'Apa arti "jurnal Q1" menurut SJR?',o:['Jurnal dalam 25% teratas kategori subjeknya berdasarkan nilai SJR','Jurnal dengan impact factor di atas 1','Jurnal yang menerima kurang dari 10% naskah','Jurnal terbitan penerbit besar'],a:0,w:'Kuartil adalah posisi relatif dalam satu kategori subjek dan satu tahun. Q1 = seperempat teratas.'},
+ {q:'Sebuah jurnal Q1 di kategori A dan Q3 di kategori B. Pernyataan yang benar adalah…',o:['Data SCImago pasti salah','Kuartil melekat pada kategori, sehingga satu jurnal bisa punya beberapa kuartil','Jurnal itu otomatis dianggap Q3','Jurnal itu predator'],a:1,w:'Satu jurnal bisa terdaftar di beberapa kategori, dan peringkatnya dihitung terpisah di setiap kategori.'},
+ {q:'Penyebab paling umum desk rejection di jurnal Q1 adalah…',o:['Tata bahasa yang kurang sempurna','Kontribusi tidak jelas atau tidak sesuai scope jurnal','Jumlah gambar terlalu sedikit','Penulis dari negara berkembang'],a:1,w:'Editor pertama-tama menilai kecocokan scope dan besarnya kontribusi. Bahasa penting, tetapi jarang menjadi satu-satunya alasan.'},
+ {q:'Tinjauan pustaka yang paling sesuai standar Q1 adalah…',o:['Satu paragraf ringkasan untuk setiap artikel, diurutkan berdasarkan tahun','Sintesis per tema yang membandingkan studi, menilai kelemahannya, dan mengarah ke gap','Daftar definisi dari buku teks','Kutipan langsung sebanyak mungkin'],a:1,w:'SOTA yang baik bersifat sintetis dan kritis, bukan daftar ringkasan.'},
+ {q:'Apa fungsi forward snowballing saat membangun SOTA?',o:['Menelusuri daftar pustaka artikel kunci','Mencari artikel yang mengutip artikel kunci belakangan, untuk memastikan gap belum diisi','Menghapus artikel lama','Menghitung jumlah sitasi'],a:1,w:'Backward = daftar pustaka. Forward = "cited by". Forward penting untuk mengecek apakah ada yang sudah mengisi gap-mu.'},
+ {q:'Gap "belum pernah diteliti di Kabupaten X" paling tepat digolongkan sebagai…',o:['Theoretical gap yang kuat','Population gap yang lemah bila tidak disertai alasan teoretis mengapa konteks itu berbeda','Methodological gap','Evidence gap'],a:1,w:'Population gap baru kuat bila konteksnya berpotensi mengubah atau menguji batas teori.'},
+ {q:'Studi-studi terdahulu menemukan hasil yang saling bertentangan. Ini disebut…',o:['Evidence gap (kontradiksi)','Population gap','Practical-knowledge gap','Bukan gap'],a:0,w:'Kontradiksi hasil adalah evidence gap, dan sering menjadi pintu masuk riset yang menjelaskan "kapan" sesuatu berlaku.'},
+ {q:'Menurut Sandberg dan Alvesson, problematization berbeda dari gap-spotting karena…',o:['Hanya memakai data kualitatif','Menantang asumsi yang mendasari literatur, bukan sekadar mengisi bagian yang kosong','Tidak memerlukan literatur','Hanya untuk ilmu sosial'],a:1,w:'Problematization mengidentifikasi lalu menantang asumsi; hasilnya cenderung lebih menarik dan berdampak.'},
+ {q:'Mana pasangan yang benar?',o:['Gap = cara baru; novelty = lubang pengetahuan','Gap = lubang pengetahuan yang penting; novelty = cara baru mengisinya; kontribusi = nilai bagi bidang','Gap dan novelty adalah sinonim','Kontribusi = jumlah sitasi'],a:1,w:'Gap adalah masalahnya, novelty adalah jawabanmu yang berbeda, kontribusi adalah apa yang didapat bidang ini.'},
+ {q:'Menurut Whetten (1989), mengapa sekadar mengganti konteks (siapa, di mana, kapan) jarang cukup sebagai kontribusi?',o:['Karena konteks tidak penting sama sekali','Karena konteks baru baru bernilai bila memaksa perubahan penjelasan "mengapa"','Karena jurnal melarang data lokal','Karena konteks harus selalu di luar negeri'],a:1,w:'Konteks menjadi kontribusi ketika ia mengubah logika teoretis, bukan sekadar mengulang uji di tempat baru.'},
+ {q:'Klaim novelty yang paling kuat adalah…',o:['"Penelitian ini pertama di Indonesia"','"Kami menggabungkan dua metode yang belum pernah digabungkan"','"Literatur mengasumsikan A; kami menunjukkan A tidak berlaku pada kondisi B dan menjelaskan mekanismenya"','"Kami memakai metode terbaru"'],a:2,w:'Klaim yang menantang asumsi dan menjelaskan mekanisme mengubah cara bidang berpikir.'},
+ {q:'Teknik "zoom out, lalu zoom in" berarti…',o:['Memperbesar gambar di naskah','Melepaskan kasus lokal menjadi fenomena umum, lalu kembali ke kasus sebagai bukti untuk pertanyaan umum itu','Mengurangi jumlah halaman','Mengganti data lokal dengan data luar negeri'],a:1,w:'Kasus lokal tidak dibuang, tetapi diberi peran baru: dari tujuan menjadi bukti.'},
+ {q:'Mengganti judul Indonesia menjadi judul Inggris yang terdengar canggih tanpa mengubah risetnya akan…',o:['Menaikkan level ke Q1','Tidak menaikkan level, karena editor menilai isi; judul adalah cermin riset','Selalu diterima','Diwajibkan semua jurnal'],a:1,w:'Naik level berarti menaikkan riset (pertanyaan, data, rigor, kontribusi), lalu judul mengikuti.'},
+ {q:'Memecah satu proyek besar menjadi beberapa artikel diperbolehkan bila…',o:['Setiap artikel memakai data yang sama persis dengan temuan yang sama','Setiap artikel menjawab pertanyaan berbeda dan berdiri sendiri','Jumlah artikel lebih dari lima','Penulisnya berbeda-beda'],a:1,w:'Bila setiap artikel hanya memotong satu temuan, itu salami slicing.'},
+ {q:'Dalam model CARS, kalimat "However, it remains unclear how…" termasuk…',o:['Move 1 · Establishing a territory','Move 2 · Establishing a niche','Move 3 · Occupying the niche','Bagian metode'],a:1,w:'Move 2 menunjukkan celah atau keterbatasan; penanda khasnya "however", "remains unclear".'},
+ {q:'Bagian hasil abstrak sebaiknya…',o:['Cukup "hasil menunjukkan pengaruh signifikan"','Memuat temuan utama dengan angka atau ukuran efek','Dihilangkan agar pembaca membaca naskah','Berisi sitasi'],a:1,w:'Angka membuat temuan konkret dan memudahkan editor menilai besarnya kontribusi.'},
+ {q:'Urutan menulis yang disarankan modul ini dimulai dari…',o:['Abstrak','Judul','Gambar dan tabel utama, lalu metode','Daftar pustaka'],a:2,w:'Gambar dan tabel adalah cerita risetmu. Abstrak dan judul ditulis paling akhir karena meringkas semuanya.'},
+ {q:'Data potong lintang (satu waktu) paling tepat dilaporkan dengan kata kerja…',o:['"X causes Y"','"X increases Y"','"X is associated with Y"','"X definitively determines Y"'],a:2,w:'Tanpa strategi identifikasi kausal, gunakan bahasa asosiasi.'},
+ {q:'Pembahasan (Discussion) yang kuat terutama…',o:['Mengulang semua angka hasil','Menafsirkan temuan, membandingkan dengan studi lain, menjelaskan mekanisme, implikasi, dan limitasi','Menambah data baru yang belum dilaporkan','Berisi definisi teori dari buku teks'],a:1,w:'Pembahasan adalah tempat kontribusi dibuktikan secara argumentatif.'},
+ {q:'Tanda paling kuat bahwa sebuah jurnal kemungkinan hijacked adalah…',o:['Jurnal memungut APC','Alamat situsnya berbeda dari tautan resmi di profil Scopus atau SCImago','Jurnalnya open access','Review memakan waktu tiga bulan'],a:1,w:'Jurnal hijacked meniru nama dan ISSN jurnal sah. Selalu buka situs lewat tautan resmi.'},
+ {q:'Mengirim naskah yang sama ke dua jurnal sekaligus…',o:['Boleh untuk mempercepat','Dilarang (submisi ganda); satu naskah satu jurnal sampai ada keputusan','Boleh bila jurnalnya berbeda negara','Boleh bila judulnya diubah'],a:1,w:'Submisi ganda adalah pelanggaran etika publikasi.'},
+ {q:'Menurut COPE dan banyak penerbit, alat AI generatif…',o:['Boleh dicantumkan sebagai penulis','Tidak dapat menjadi penulis; penulis manusia bertanggung jawab penuh dan penggunaannya diungkapkan sesuai kebijakan jurnal','Wajib dipakai untuk menulis','Boleh dipakai untuk membuat data penelitian'],a:1,w:'AI tidak dapat bertanggung jawab atas karya, sehingga tidak memenuhi kriteria kepengarangan.'},
+ {q:'Reviewer meminta data tambahan yang tidak mungkin dikumpulkan dalam masa revisi. Respons terbaik adalah…',o:['Mengabaikan komentar itu','Menolak dengan nada tegas','Berterima kasih, menjelaskan kendala, menawarkan alternatif serius (misalnya analisis ketahanan), dan menambah pembahasan limitasi','Menarik naskah'],a:2,w:'Setiap komentar harus dijawab. Bila tidak bisa dipenuhi, tawarkan alternatif yang menunjukkan keseriusan.'},
+ {q:'Pengukur level di modul ini membatasi hasil dengan "dimensi terendah + 1" karena…',o:['Agar skor selalu rendah','Reviewer cenderung menilai naskah dari kelemahan terbesarnya','Semua dimensi sama penting bagi semua jurnal','Rata-rata selalu menyesatkan'],a:1,w:'Satu kelemahan fatal (misalnya metode) bisa menjatuhkan naskah yang kuat di dimensi lain.'}
+];
+(function(){let s=7;const r=()=>{s=(s*9301+49297)%233280;return s/233280};
+  QZ.forEach(x=>{const idx=x.o.map((_,j)=>j);for(let j=idx.length-1;j>0;j--){const k=Math.floor(r()*(j+1));[idx[j],idx[k]]=[idx[k],idx[j]]}x.o=idx.map(j=>x.o[j]);x.a=idx.indexOf(x.a)})})();
+const answered={};
+$('#quiz').innerHTML=QZ.map((x,i)=>`<div class="q" data-i="${i}"><p>${i+1}. ${x.q}</p>${x.o.map((o,j)=>`<button data-j="${j}">${o}</button>`).join('')}<div class="why"></div></div>`).join('');
+$$('#quiz .q button').forEach(b=>b.onclick=()=>{
+  const box=b.closest('.q'),i=box.dataset.i,x=QZ[i];
+  box.querySelectorAll('button').forEach(o=>o.classList.remove('right','wrong'));
+  b.classList.add(+b.dataset.j===x.a?'right':'wrong');box.querySelector(`[data-j="${x.a}"]`).classList.add('right');
+  const w=box.querySelector('.why');w.style.display='block';w.innerHTML=(+b.dataset.j===x.a?'Benar. ':'Belum tepat. ')+x.w;
+  if(!(i in answered))answered[i]=+b.dataset.j===x.a;
+  const n=Object.keys(answered).length,ok=Object.values(answered).filter(Boolean).length;
+  $('#qScore').textContent=n<QZ.length?`Terjawab ${n} dari ${QZ.length} · benar ${ok} (jawaban pertama yang dihitung)`:`Skor akhir: ${ok} dari ${QZ.length}. ${ok===QZ.length?'Sempurna! 🎉':ok>=Math.ceil(QZ.length*.7)?'Bagus sekali, ulangi bagian yang masih meleset.':'Baca ulang bagian yang berkaitan dengan soal yang meleset, lalu coba lagi.'}`;
+});
+
+/* ---------- Sidebar, scrollspy, progres, tema, cetak ---------- */
+const sb=$('#sidebar');
+$('#menuBtn').onclick=()=>sb.classList.toggle('open');
+$$('#toc a').forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+const links=[...$$('#toc a')];
+const spy=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){links.forEach(l=>l.classList.toggle('active',l.hash==='#'+e.target.id))}
+}),{rootMargin:'-20% 0px -70% 0px'});
+$$('main section').forEach(s=>spy.observe(s));
+addEventListener('scroll',()=>{const h=document.documentElement;
+  $('#progress div').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%'},{passive:true});
+$('#themeBtn').onclick=()=>{const r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme=dark?'light':'dark';try{localStorage.setItem('rl-theme',r.dataset.theme)}catch(e){}};
+try{const t=localStorage.getItem('rl-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+$('#printBtn').onclick=()=>window.print();
+</script>
+</body>
+</html>
